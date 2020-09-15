@@ -41,8 +41,6 @@ In order to create and destroy Azure objects for you, Terraform needs to know yo
 
 Terraform supports multiple ways of authenticating to Azure.
 
-**TODO:** - Update link below to refernce correctly on GitHub
-
 In order to fully support automation, this project chooses to use an Azure Service Principal for authentication.
 
 You can follow the steps on [Azure Help Topics](./docs/user/AzureHelpTopics.md) to get the values for
