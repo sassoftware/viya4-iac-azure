@@ -1,0 +1,64 @@
+#cloud-config
+
+#
+# Wait for azure disks to be mounted then continue
+#
+bootcmd:
+  - while [ `find /dev/disk/azure/scsi1/ -type l | wc -l` -lt 4 ]; do sleep 5; done
+
+#
+# First we'll update the repo and then update the OS.
+#
+package_update: true
+package_ugrade: true
+
+#
+# Install packages
+#
+packages:
+  - nfs-utils
+
+#
+# Create mount directories
+#
+runcmd:
+  #
+  # Create /export directory with the correct owner/permissions
+  #
+  - mkdir /export
+  - chown nobody:nobody /export -R
+  - chmod -R 0777 /export
+  #
+  # Update systemctl services
+  #
+  - systemctl enable rpcbind
+  - systemctl enable nfs-server
+  - systemctl enable nfs-lock
+  - systemctl enable nfs-idmap
+  - systemctl start rpcbind
+  - systemctl start nfs-server
+  - systemctl start nfs-lock
+  - systemctl start nfs-idmap
+  #
+  # Create Raid5 Array
+  #
+  # NOTE: We need to sleep 5 minutes here to ensure the drives have been attached
+  #
+  # - sleep 300
+  - pvcreate $(find /dev/disk/azure/scsi1/ -type l | xargs)
+  - vgcreate data-vg01 $(find /dev/disk/azure/scsi1/ -type l | xargs)
+  - lvcreate --type raid5 --extents 100%FREE --stripes 3 --name data-lv01 data-vg01
+  - mkfs -t ext4 /dev/data-vg01/data-lv01
+  #
+  # Update /etc/fstab
+  #
+  - echo "/dev/data-vg01/data-lv01       /export        ext4        defaults,nofail,x-systemd.requires=cloud-init.service,barrier=0,discard        0  2" >>/etc/fstab
+  - mount -a
+  #
+  # Update /etc/exports - NOTE: The CIDR provided works for the whole VPC
+  #
+  - echo "/export         ${base_cidr_block}(rw,no_root_squash,async,insecure,fsid=0,crossmnt,no_subtree_check)" >> /etc/exports
+  #
+  # Restart nfs-server service
+  #
+  - systemctl restart nfs-server
