@@ -4,9 +4,15 @@
 
 This project contains Terraform configuration files to provision infrastructure components required to deploy SAS Viya 4+ VA/VS/VDMML products on Microsoft Azure Cloud.
 
-### What's New
-
-* First public release.
+### Things this tool can do
+* Infrastructure in Azure to host a Viya 4 deployment
+  * Create kubernetes cluster
+    * Creates node pools with labels/taints
+  * Setup Networking and Network Security rules
+  * Create Azure DB for PostgreSQL
+  * Create Jumpbox/NFS servers
+    * Creates ssh key combo for each
+  * Build infrastructure for SMP as well as MPP CAS deployments
 
 ### Prerequisites
 
