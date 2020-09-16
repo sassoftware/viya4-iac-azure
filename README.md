@@ -149,6 +149,12 @@ Now that you have your kubernetes cluster up and running, here's how to connect 
     terraform output kube_config > ./[prefix]-aks-kubeconfig.conf
     export KUBECONFIG=./[prefix]-aks-kubeconfig.conf
     kubectl get nodes
+    
+#### Azure Container Registry
+When creating a private Azure Container Registry assign 'acrpull' role to the Service Principal
+
+    ACR_ID=$(terraform output acr_id)
+    az role assignment create --assignee $SP_APPID --role acrpull  --scope "$ACR_ID"
 
 ### Examples
 
