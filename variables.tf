@@ -34,7 +34,7 @@ variable "default_nodepool_vm_type" {
 }
 variable "kubernetes_version" {
   description = "The AKS cluster K8s version"
-  default     = "1.16.13"
+  default     = "1.18.8"
 }
 variable "cluster_endpoint_public_access_cidrs" {
   description = "Kubernetes cluster access IP ranges"
