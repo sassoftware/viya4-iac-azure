@@ -72,7 +72,6 @@ netapp_size_in_tb    = 4
 # Azure Postgres values config
 create_postgres                  = true # set this to "false" when using internal Crunchy Postgres and Azure Postgres is NOT needed
 postgres_ssl_enforcement_enabled = false
-postgres_firewall_rules          = [{ "name" = "AzureServices", "start_ip" = "0.0.0.0", "end_ip" = "0.0.0.0" }, { "name" = "VnetAccess", "start_ip" = "192.168.1.0", "end_ip" = "192.168.2.255" }]
 
 # Azure Container Registry
 create_container_registry           = false
