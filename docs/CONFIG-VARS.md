@@ -102,7 +102,7 @@ Supported configuration variables are listed in the table below.  All variables 
 | :--- | ---: | ---: | ---: | ---: | ---: |
 | create_nfs_public_ip | Add public ip to the NFS server VM | bool | false | false | The NFS server VM is only created when storage_type="standard" |
 | nfs_vm_admin | OS Admin User for the NFS server VM | string | "nfsuser" | false | The NFS server VM is only created when storage_type="standard" |
-| nfs_raid_disk_size | Size in Gb for each disk of the RAID5 cluster on the NFS server VM | number | 128 | false | Note that the NFS server VM is only  created when storage_type="standard" |
+| nfs_raid_disk_size | Size in Gb for each disk of the RAID5 cluster on the NFS server VM | number | 128 | false | The NFS server VM is only created when storage_type="standard" |
 ### storage_type=ha - Azure NetApp
 | Name | Description | Type | Default | Required | Notes |
 | :--- | ---: | ---: | ---: | ---: | ---: |
