@@ -95,13 +95,13 @@ Supported configuration variables are listed in the table below.  All variables 
 ### storage_type=dev - azurefile
 | Name | Description | Type | Default | Required | Notes |
 | :--- | ---: | ---: | ---: | ---: | ---: |
-| create_jump_public_ip | Add public ip to jump VM | bool | true | false | Note that the jump VM is only being created with storage_type="dev" |
-| jump_vm_admin | OS Admin User for the Jump VM | string | "jumpuser" | false |  Note that the jump VM is only being created with storage_type="dev" | 
+| create_jump_public_ip | Add public ip to jump VM | bool | true | false | The Jump/NFS VM are not created with storage_type="dev" |
+| jump_vm_admin | OS Admin User for the Jump VM | string | "jumpuser" | false | The Jump/NFS VM are not created with storage_type="dev | 
 ### storage_type=standard - nfs server VM
 | Name | Description | Type | Default | Required | Notes |
 | :--- | ---: | ---: | ---: | ---: | ---: |
-| create_nfs_public_ip | Add public ip to the NFS server VM | bool | false | false | Note that the NFS server VM is only  created when storage_type="standard" |
-| nfs_vm_admin | OS Admin User for the NFS server VM | string | "nfsuser" | false | Note that the NFS server VM is only  created when storage_type="standard" |
+| create_nfs_public_ip | Add public ip to the NFS server VM | bool | false | false | The NFS server VM is only created when storage_type="standard" |
+| nfs_vm_admin | OS Admin User for the NFS server VM | string | "nfsuser" | false | The NFS server VM is only created when storage_type="standard" |
 | nfs_raid_disk_size | Size in Gb for each disk of the RAID5 cluster on the NFS server VM | number | 128 | false | Note that the NFS server VM is only  created when storage_type="standard" |
 ### storage_type=ha - Azure NetApp
 | Name | Description | Type | Default | Required | Notes |
