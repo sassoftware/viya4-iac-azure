@@ -60,6 +60,7 @@ module "gw-subnet" {
   nsg               = azurerm_network_security_group.nsg
   address_prefixes  = [local.gw_subnet_cidr_block]
   vnet_name         = azurerm_virtual_network.vnet.name
+  service_endpoints = var.create_postgres ? ["Microsoft.Sql"] : []
   tags              = var.tags
 }
 
@@ -70,6 +71,7 @@ module "aks-subnet" {
   azure_rg_location = var.location
   address_prefixes  = [local.aks_subnet_cidr_block]
   vnet_name         = azurerm_virtual_network.vnet.name
+  service_endpoints = var.create_postgres ? ["Microsoft.Sql"] : []
   tags              = var.tags
 }
 
@@ -81,6 +83,7 @@ module "misc-subnet" {
   nsg               = azurerm_network_security_group.nsg
   address_prefixes  = [local.misc_subnet_cidr_block]
   vnet_name         = azurerm_virtual_network.vnet.name
+  service_endpoints = var.create_postgres ? ["Microsoft.Sql"] : []
   tags              = var.tags
 }
 
