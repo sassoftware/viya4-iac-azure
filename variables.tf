@@ -2,6 +2,10 @@ variable client_id {}
 
 variable client_secret {}
 
+variable subscription_id {}
+variable tenant_id {}
+
+
 variable "prefix" {
   description = "A prefix used in the name for all the Azure resources created by this script. The prefix string must start with lowercase letter and contain only alphanumeric characters and hyphen or dash(-), but can not start or end with '-'."
   type        = string
