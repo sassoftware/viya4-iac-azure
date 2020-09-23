@@ -37,10 +37,37 @@ variable "kubernetes_version" {
   description = "The AKS cluster K8s version"
   default     = "1.18.8"
 }
+
+variable "default_public_access_cidrs" {
+  description = "Resource access IP ranges"
+  type        = list(string)
+  default     = null
+}
+
 variable "cluster_endpoint_public_access_cidrs" {
   description = "Kubernetes cluster access IP ranges"
-  type        = list
+  type        = list(string)
+  default     = null
 }
+
+variable "acr_public_access_cidrs" {
+  description = "ACR access IP ranges"
+  type        = list(string)
+  default     = null
+}
+
+variable "vm_public_access_cidrs" {
+  description = "VM ssh access IP ranges"
+  type        = list(string)
+  default     = null
+}
+
+variable "postgres_public_access_cidrs" {
+  description = "PostgreSQL server client access IP ranges"
+  type        = list(string)
+  default     = null
+}
+
 
 # https://docs.microsoft.com/en-us/azure/aks/cluster-autoscaler
 variable "default_nodepool_auto_scaling" {
@@ -155,16 +182,6 @@ variable "postgres_db_charset" {
 variable "postgres_db_collation" {
   description = "Collation for the PostgreSQL Database. Needs to be a valid PostgreSQL Collation. Note that Microsoft uses different notation - en-US instead of en_US. Changing this forces a new resource to be created."
   default     = "English_United States.1252"
-}
-
-variable "postgres_firewall_rules" {
-  description = "List of maps with PostgreSQL firewall rules."
-  type = list(object({
-    name     = string
-    start_ip = string
-    end_ip   = string
-  }))
-  default = []
 }
 
 variable "postgres_configurations" {
