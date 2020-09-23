@@ -38,27 +38,27 @@ output "postgres_server_id" {
 
 # jump server
 output jump_private_ip {
-  value = var.storage_type != "dev" ? module.jump.private_ip_address : null
+  value = local.create_jump_vm ? module.jump.private_ip_address : null
 }
 
 output jump_public_ip {
-  value = var.storage_type != "dev" ? module.jump.public_ip_address : null
+  value = local.create_jump_vm && var.create_jump_public_ip ? module.jump.public_ip_address : null
 }
 
 output jump_admin_username {
-  value = var.storage_type != "dev" ? module.jump.admin_username : null
+  value = local.create_jump_vm ? module.jump.admin_username : null
 }
 
 output jump_private_key_pem {
-  value = var.storage_type != "dev" ? module.jump.private_key_pem : null
+  value = local.create_jump_vm ? module.jump.private_key_pem : null
 }
 
 output jump_public_key_pem {
-  value = var.storage_type != "dev" ? module.jump.public_key_pem : null
+  value = local.create_jump_vm ? module.jump.public_key_pem : null
 }
 
 output jump_public_key_openssh {
-  value = var.storage_type != "dev" ? module.jump.public_key_openssh : null
+  value = local.create_jump_vm ? module.jump.public_key_openssh : null
 }
 
 # nfs server
@@ -67,7 +67,7 @@ output nfs_private_ip {
 }
 
 output nfs_public_ip {
-  value = var.storage_type == "standard" ? module.nfs.public_ip_address : null
+  value = var.storage_type == "standard" && var.create_nfs_public_ip ? module.nfs.public_ip_address : null
 }
 
 output nfs_admin_username {

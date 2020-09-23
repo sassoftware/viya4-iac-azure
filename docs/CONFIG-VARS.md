@@ -14,7 +14,6 @@ Supported configuration variables are listed in the table below.  All variables 
    + [Stateless Nodepool](#stateless-nodepool)
    + [Stateful Nodepool](#stateful-nodepool)
 * [Storage](#storage)
-   + [storage_type=dev - azurefile](#storage-type-dev---azurefile)
    + [storage_type=standard - nfs server VM](#storage-type-standard---nfs-server-vm)
    + [storage_type=ha - Azure NetApp](#storage-type-ha---azure-netapp)
 * [Azure Container Registry (ACR)](#azure-container-registry--acr-)
@@ -74,6 +73,9 @@ This will pull in those values into your current terminal session. Any terraform
 | :--- | ---: | ---: | ---: | ---: | 
 | kubernetes_version | The AKS cluster K8S version | string | "1.18.8" | |
 | ssh_public_key | Public ssh key for VMs | string | | |
+| create_jump_vm | Create bastion host | bool | false for storage_type == "dev", otherwise true| |
+| create_jump_public_ip | Add public ip to jump VM | bool | true | |
+| jump_vm_admin | OS Admin User for the Jump VM | string | "jumpuser" | | 
 
 ## Nodepools
 ### Default Nodepool
@@ -160,11 +162,6 @@ This will pull in those values into your current terminal session. Any terraform
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
 | storage_type | Type of Storage. Valid Values: "dev", "standard", "ha"  | string | "dev" | "dev" creates AzureFile, "standard" creates NFS server VM, "ha" creates Azure Netapp Files|
-### storage_type=dev - azurefile
-| Name | Description | Type | Default | Notes |
-| :--- | ---: | ---: | ---: | ---: |
-| create_jump_public_ip | Add public ip to jump VM | bool | true | The Jump/NFS VM are not created with storage_type="dev" |
-| jump_vm_admin | OS Admin User for the Jump VM | string | "jumpuser" | The Jump/NFS VM are not created with storage_type="dev | 
 ### storage_type=standard - nfs server VM
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |

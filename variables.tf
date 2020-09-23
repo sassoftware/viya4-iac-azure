@@ -370,9 +370,15 @@ variable "stateful_nodepool_availability_zones" {
   default = []
 }
 
+variable "create_jump_vm" {
+  description = "Create bastion host VM"
+  default = null
+}
+
 variable "create_jump_public_ip" {
   default = true
 }
+
 variable "jump_vm_admin" {
   description = "OS Admin User for Jump VM"
   default     = "jumpuser"

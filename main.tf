@@ -32,6 +32,9 @@ locals {
   aks_subnet_cidr_block  = "192.168.1.0/24"
   misc_subnet_cidr_block = "192.168.2.0/24"
   gw_subnet_cidr_block   = "192.168.3.0/24"
+  create_jump_vm_default = var.storage_type != "dev" ? true : false
+  create_jump_vm         = var.create_jump_vm != null ? var.create_jump_vm : local.create_jump_vm_default
+
 }
 
 module "azure_rg" {
@@ -121,7 +124,7 @@ module "jump" {
   vnet_subnet_id    = module.misc-subnet.subnet_id
   azure_nsg_id      = azurerm_network_security_group.nsg.id
   tags              = var.tags
-  create_vm         = var.storage_type != "dev" ? true : false
+  create_vm         = local.create_jump_vm
   vm_admin          = var.jump_vm_admin
   ssh_public_key    = var.ssh_public_key
   # ssh_private_key   = var.ssh_private_key
@@ -132,7 +135,7 @@ module "jump" {
 resource "azurerm_network_security_rule" "ssh" {
   name                        = "${var.prefix}-ssh"
   description                 = "Allow SSH from source"
-  count                       = (var.create_jump_public_ip && (var.storage_type != "dev" ? true : false)) ? 1 : 0
+  count                       = (var.create_jump_public_ip && local.create_jump_vm) ? 1 : 0
   priority                    = 120
   direction                   = "Inbound"
   access                      = "Allow"
