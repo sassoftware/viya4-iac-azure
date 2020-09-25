@@ -321,7 +321,7 @@ variable "stateless_nodepool_labels" {
 }
 variable "stateless_nodepool_availability_zones" {
   type    = list
-  default = ["1", "2", "3"]
+  default = []
 }
 
 # Stateful Nodepool config
@@ -360,7 +360,7 @@ variable "stateful_nodepool_labels" {
 }
 variable "stateful_nodepool_availability_zones" {
   type    = list
-  default = ["1", "2", "3"]
+  default = []
 }
 
 variable "create_jump_public_ip" {
