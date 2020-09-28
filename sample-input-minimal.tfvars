@@ -14,7 +14,7 @@ location                        = "eastus2"
 # AKS config
 kubernetes_version                   = "1.18.8"
 cluster_endpoint_public_access_cidrs = []
-tags                                 = { "project_name" = "viya", "environment" = "sample-minimal" }
+tags                                 = { "project_name" = "viya", "environment" = "sample-min" }
 
 # Storage for Viya Compute Services
 storage_type = "standard"

@@ -16,7 +16,7 @@ kubernetes_version                   = "1.18.8"
 cluster_endpoint_public_access_cidrs = []
 default_nodepool_node_count          = 2
 default_nodepool_vm_type             = "Standard_D4_v2"
-tags                                 = { "project_name" = "viya", "environment" = "sample" }
+tags                                 = { "project_name" = "viya", "environment" = "sample-std" }
 
 # AKS Node Pools config
 create_cas_nodepool       = true
