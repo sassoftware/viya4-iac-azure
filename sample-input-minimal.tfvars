@@ -13,7 +13,7 @@ location                        = "eastus2"
 postgres_administrator_password = "mySup3rS3cretPassw0rd"
 
 # AKS config
-kubernetes_version                   = "1.16.13"
+kubernetes_version                   = "1.18.8"
 cluster_endpoint_public_access_cidrs = []
 tags                                 = { "project_name" = "viya", "environment" = "test" }
 
