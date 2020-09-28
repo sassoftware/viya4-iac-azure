@@ -10,14 +10,13 @@ location                        = "eastus2"
 # for the articated associated with this key.
 #
 ssh_public_key                  = "~/.ssh/id_rsa.pub"
-postgres_administrator_password = "GoSASViya4"
 
 # AKS config
 kubernetes_version                   = "1.18.8"
 cluster_endpoint_public_access_cidrs = []
 default_nodepool_node_count          = 2
 default_nodepool_vm_type             = "Standard_D4_v2"
-tags                                 = { "project_name" = "viya", "environment" = "ha-test" }
+tags                                 = { "project_name" = "viya", "environment" = "sample-ha" }
 
 # AKS Node Pools config
 create_cas_nodepool       = true
@@ -71,6 +70,7 @@ netapp_size_in_tb    = 4
 
 # Azure Postgres values config
 create_postgres                  = true # set this to "false" when using internal Crunchy Postgres and Azure Postgres is NOT needed
+postgres_administrator_password = "mySup3rS3cretPassw0rd"
 postgres_ssl_enforcement_enabled = false
 
 # Azure Container Registry

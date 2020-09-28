@@ -10,12 +10,11 @@ location                        = "eastus2"
 # for the articated associated with this key.
 #
 # ssh_public_key                  = "~/.ssh/id_rsa.pub"
-postgres_administrator_password = "mySup3rS3cretPassw0rd"
 
 # AKS config
 kubernetes_version                   = "1.18.8"
 cluster_endpoint_public_access_cidrs = []
-tags                                 = { "project_name" = "viya", "environment" = "test" }
+tags                                 = { "project_name" = "viya", "environment" = "sample-minimal" }
 
 # Storage for Viya Compute Services
 storage_type = "standard"
@@ -23,5 +22,8 @@ storage_type = "standard"
 #    "dev"      - AzureDisk/AzureFiles in Dev/Test environment
 #    "standard" - Custom managed NFS Server VM and disks
 #    "ha"       - Azure NetApp Files managed service
+
+# Azure Postgres values config
+postgres_administrator_password  = "mySup3rS3cretPassw0rd"
 
 default_nodepool_availability_zones = ["1"]
