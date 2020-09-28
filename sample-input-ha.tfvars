@@ -13,7 +13,7 @@ ssh_public_key                  = "~/.ssh/id_rsa.pub"
 postgres_administrator_password = "GoSASViya4"
 
 # AKS config
-kubernetes_version                   = "1.16.13"
+kubernetes_version                   = "1.18.8"
 cluster_endpoint_public_access_cidrs = []
 default_nodepool_node_count          = 2
 default_nodepool_vm_type             = "Standard_D4_v2"
