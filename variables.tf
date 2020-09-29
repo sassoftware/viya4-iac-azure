@@ -416,11 +416,6 @@ variable "container_registry_geo_replica_locs" {
 }
 
 # Azure NetApp Files
-variable create_netapp {
-  type        = bool
-  description = "Boolean flag to create Azure NetApp Files optionally"
-  default     = false
-}
 variable netapp_service_level {
   description = "When storage_type=ha, The target performance of the file system. Valid values include Premium, Standard, or Ultra"
   default     = "Premium"
