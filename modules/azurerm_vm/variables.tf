@@ -13,7 +13,6 @@ variable "azure_nsg_id" {
 variable "tags" {
   description = "Map of common tags to be placed on the Resources"
   type        = map
-  default     = { project_name = "viya", environment = "dev" }
 }
 
 variable "vnet_subnet_id" {

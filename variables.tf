@@ -25,10 +25,7 @@ variable "node_vm_admin" {
   description = "OS Admin User for VMs of AKS Cluster nodes"
   default     = "azureuser"
 }
-variable "default_nodepool_node_count" {
-  description = "Number of nodes in AKS cluster default nodepool"
-  default     = 2
-}
+
 variable "default_nodepool_vm_type" {
   default = "Standard_D4_v2"
 }
@@ -44,8 +41,29 @@ variable "cluster_endpoint_public_access_cidrs" {
 # https://docs.microsoft.com/en-us/azure/aks/cluster-autoscaler
 variable "default_nodepool_auto_scaling" {
   description = "Autoscal nodes in the AKS cluster default nodepool"
-  default     = false
+  default     = true
 }
+variable "default_nodepool_max_nodes" {
+  description = "(Required, when default_nodepool_auto_scaling=true) The maximum number of nodes which should exist in this Node Pool. If specified this must be between 1 and 100."
+  default     = 5
+}
+variable "default_nodepool_min_nodes" {
+  description = "(Required, when default_nodepool_auto_scaling=true) The minimum number of nodes which should exist in this Node Pool. If specified this must be between 1 and 100."
+  default     = 1
+}
+variable "default_nodepool_node_count" {
+  description = "The initial number of nodes which should exist in this Node Pool. If specified this must be between 1 and 100 and between `default_nodepool_min_nodes` and `default_nodepool_max_nodes`."
+  default     = 2
+}
+variable "default_nodepool_os_disk_size" {
+  description = "(Optional) The size of the OS Disk which should be used for each agent in the Node Pool. Changing this forces a new resource to be created."
+  default     = 128
+}
+variable "default_nodepool_max_pods" {
+  description = "(Optional) The maximum number of pods that can run on each agent. Changing this forces a new resource to be created."
+  default     = 110
+}
+
 variable "default_nodepool_availability_zones" {
   type    = list
   default = []
@@ -54,14 +72,14 @@ variable "default_nodepool_availability_zones" {
 variable "tags" {
   description = "Map of common tags to be placed on the Resources"
   type        = map
-  default     = { project_name = "viya" }
+  default     = {}
 }
 
 ## PostgresSQL inputs
 variable "create_postgres" {
   description = "Create an Azure PostgresSQL database server instance"
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "postgres_sku_name" {
@@ -150,21 +168,6 @@ variable "postgres_configurations" {
   type        = map
   default     = {}
 }
-
-# #[ ENABLE ON-DEMAND] Azure Log Analytics
-# variable log_analytics_workspace_name {
-#     default = "testLogAnalyticsWorkspaceName"
-# }
-
-# # refer https://azure.microsoft.com/global-infrastructure/services/?products=monitor for log analytics available regions
-# variable log_analytics_workspace_location {
-#     default = "eastus"
-# }
-
-# # refer https://azure.microsoft.com/pricing/details/monitor/ for log analytics pricing 
-# variable log_analytics_workspace_sku {
-#     default = "PerGB2018"
-# }
 
 # CAS Nodepool config
 variable "create_cas_nodepool" {
@@ -321,7 +324,7 @@ variable "stateless_nodepool_labels" {
 }
 variable "stateless_nodepool_availability_zones" {
   type    = list
-  default = ["1", "2", "3"]
+  default = []
 }
 
 # Stateful Nodepool config
@@ -360,7 +363,7 @@ variable "stateful_nodepool_labels" {
 }
 variable "stateful_nodepool_availability_zones" {
   type    = list
-  default = ["1", "2", "3"]
+  default = []
 }
 
 variable "create_jump_public_ip" {

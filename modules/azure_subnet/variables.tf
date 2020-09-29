@@ -5,7 +5,6 @@ variable name {
 variable "tags" {
   description = "Map of common tags to be placed on the Resources"
   type        = map
-  default     = { project_name = "viya", environment = "dev" }
 }
 
 variable "azure_rg_name" {
