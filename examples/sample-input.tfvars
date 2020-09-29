@@ -25,7 +25,7 @@ container_registry_admin_enabled    = "false"
 container_registry_geo_replica_locs = null
 
 # AKS config
-kubernetes_version                   = "1.16.13"
+kubernetes_version                   = "1.18.8"
 default_nodepool_node_count          = 2
 default_nodepool_vm_type             = "Standard_D4_v2"
 
@@ -41,6 +41,12 @@ compute_nodepool_node_count   = 1
 compute_nodepool_min_nodes    = 1
 compute_nodepool_auto_scaling = true
 compute_nodepool_vm_type      = "Standard_E16s_v3"
+
+create_connect_nodepool       = true
+connect_nodepool_node_count   = 1
+connect_nodepool_min_nodes    = 1
+connect_nodepool_auto_scaling = true
+connect_nodepool_vm_type      = "Standard_E16s_v3"
 
 create_stateless_nodepool       = true
 stateless_nodepool_node_count   = 2

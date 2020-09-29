@@ -44,6 +44,12 @@ compute_nodepool_auto_scaling = true
 compute_nodepool_vm_type      = "Standard_E16s_v3"
 compute_nodepool_availability_zones = ["1", "2", "3"]
 
+create_connect_nodepool       = true
+connect_nodepool_node_count   = 1
+connect_nodepool_min_nodes    = 1
+connect_nodepool_auto_scaling = true
+connect_nodepool_vm_type      = "Standard_E16s_v3"
+
 create_stateless_nodepool       = true
 stateless_nodepool_node_count   = 3
 stateless_nodepool_min_nodes    = 3
