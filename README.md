@@ -3,14 +3,14 @@
 ## Overview
 
 This project contains Terraform scripts to provision Microsoft Azure Cloud infrastructure resources required to deploy SAS Viya 4 products. Here is a list of resources this project can create -
-  * Azure Resource Group
-  * Virtual Network, Network Security Groups and Network Security Rules
-  * Managed Azure Kubernetes Service(AKS) cluster
-    * with System and User node pools with required Labels and Taints
-  * Infrastructure to deploy SAS Viya CAS in SMP or MPP mode
-  * Storage types for SAS Viya -  AzureDisk/Files(dev) or NFS Server or Azure NetApp Files(HA)
-  * Azure DB for PostgreSQL, optionally
-  * Azure Container Registry, optionally
+  >* Azure Resource Group
+  >* Virtual Network, Network Security Groups and Network Security Rules
+  >* Managed Azure Kubernetes Service(AKS) cluster
+  >* System and User AKS Node pools with required Labels and Taints
+  >* Infrastructure to deploy SAS Viya CAS in SMP or MPP mode
+  >* Storage options for SAS Viya -  AzureDisk/Files(dev) or NFS Server or Azure NetApp Files(HA)
+  >* Azure DB for PostgreSQL, optional
+  >* Azure Container Registry, optional
 
 ## Prerequisites
 
@@ -29,10 +29,10 @@ Run these commands in a Terminal session
 
 ### Clone this project
 ```
-# Clone this repo 
+# clone this repo 
 git clone https://github.com/sassoftware/viya4-iac-azure
 
-# Move to directory
+# move to directory
 cd viya4-iac-azure
 ```
 
@@ -107,12 +107,12 @@ See [troubleshooting](./docs/Troubleshooting.md) page.
 
 ### Azure
 * Azure CLI - https://docs.microsoft.com/en-gb/cli/azure/?view=azure-cli-latest
-* Terraform install & configure for Azure - https://docs.microsoft.com/en-us/azure/terraform/terraform-install-configure
-* AKS - https://docs.microsoft.com/en-us/azure/aks/intro-kubernetes
-* Service Principal for AKS - https://docs.microsoft.com/en-us/azure/aks/kubernetes-service-principal
 * Terraform on Azure - https://docs.microsoft.com/en-us/azure/terraform/
-* Tutorial: AKS using Terraform - https://docs.microsoft.com/en-us/azure/terraform/terraform-create-k8s-cluster-with-tf-and-aks
+* Configure Terraform access to Azure - https://docs.microsoft.com/en-us/azure/terraform/terraform-install-configure
+* AKS intro - https://docs.microsoft.com/en-us/azure/aks/intro-kubernetes
+* Service Principal for AKS - https://docs.microsoft.com/en-us/azure/aks/kubernetes-service-principal
+* Create AKS using Terraform - https://docs.microsoft.com/en-us/azure/terraform/terraform-create-k8s-cluster-with-tf-and-aks
 * Azure Active Directory(AD) & Service Principal(SP) concepts - https://docs.microsoft.com/en-us/azure/active-directory/develop/app-objects-and-service-principals
 ### Terraform 
 * Azure Provider - https://www.terraform.io/docs/providers/azurerm/index.html
-* Azure AKS - https://www.terraform.io/docs/providers/azurerm/d/kubernetes_cluster.html
+* Azure AKS - https://www.terraform.io/docs/providers/azurerm/r/kubernetes_cluster.html

@@ -2,7 +2,7 @@
 
 Terraform supports multiple ways of authenticating to Azure. This project chooses to use Azure Service Principal and Secret for authentication, see [Terraform documentation](https://www.terraform.io/docs/providers/azurerm/guides/service_principal_client_secret.html). In order to create and destroy Azure objects on your behalf, Terraform also needs information about Azure Tenant and Subscription ids, as well as a Service Principal and Secret. 
 
-See [Azure Help Topics](./docs/user/AzureHelpTopics.md) on how to get the values for these environment variables - `SUBSCRIPTION_ID, TENANT_ID, SP_APPID, SP_PASSWD`
+See [Azure Help Topics](./AzureHelpTopics.md) on how to get the values for these environment variables - `SUBSCRIPTION_ID, TENANT_ID, SP_APPID, SP_PASSWD`
 
 **Note** Keep track of `SP_APPID` and `SP_PASSWORD` since Azure Service Principal only need to be created once. 
 
