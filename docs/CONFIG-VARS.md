@@ -25,12 +25,12 @@ Supported configuration variables are listed in the table below.  All variables 
 | prefix | A prefix used in the name of all the Azure resources created by this script. | string | | The prefix string must start with a lowercase letter and contain only alphanumeric characters and dashes (-), but cannot end with a dash. |
 | location | The Azure Region to provision all resources in this script | string | "East US" | |
 | cluster_endpoint_public_access_cidrs | IP Ranges allowed to access the cloud resources | list of strings | | Example: ["55.55.55.55/32", "66.66.0.0/16"]
+| tags | Map of common tags to be placed on all Azure resources created by this script | map | { project_name = "sasviya4", environment = "dev" } | |
 
 ## General 
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: | 
-| kubernetes_version | The AKS cluster K8S version | string | "1.16.13" | |
-| tags | Map of common tags to be placed on all Azure resources created by this script | map | { project_name = "viya", environment = "dev" } | |
+| kubernetes_version | The AKS cluster K8S version | string | "1.18.8" | |
 | ssh_public_key | Public ssh key for VMs | string | | |
 
 ## Nodepools
@@ -38,20 +38,24 @@ Supported configuration variables are listed in the table below.  All variables 
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
 | node_vm_admin | OS Admin User for VMs of AKS Cluster nodes | string | "azureuser" | |
-| default_nodepool_nodecount | Number of node in the default nodepool | number | 2 | |
+| default_nodepool_nodecount | Number of node in the default nodepool | number | 2 | The value must be between 1 and 100 and between `default_nodepool_min_nodes` and `default_nodepool_max_nodes`|
 | default_nodepool_vm_type | Type of the default nodepool VMs | string | "Standard_D4_v2" | |
 | default_nodepool_auto_scaling | Enable autoscaling for the AKS cluster default nodepool | bool | false | see https://docs.microsoft.com/en-us/azure/aks/cluster-autoscaler |
-| default_nodepool_availability_zones | Availability Zones for the cluster default nodepool | list of strings | ["1", "2", "3"]  | Note: This value depends on the "location". For example, not all regions have numbered availability zones|
+| default_nodepool_os_disk_size | Disk size for default nodepool VMs in GB | number | 128 ||
+| default_nodepool_max_pods | Maximum number of pods that can run on each | number | 110 | Changing this forces a new resource to be created |
+| default_nodepool_max_nodes | Maximum number of nodes for the default nodepool when using autoscaling | number | 5 | Required, when `default_nodepool_auto_scaling=true`, value must be between 1 and 100 |
+| default_nodepool_min_nodes | Minimum number of nodes for the default nodepool when using autoscaling | number | 1 | Required, when `default_nodepool_auto_scaling=true`, value must be between 1 and 100 |
+| default_nodepool_availability_zones | Availability Zones for the cluster default nodepool | list of strings | []  | Note: This value depends on the "location". For example, not all regions have numbered availability zones|
 ### CAS Nodepool
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
 | create_cas_nodepool | Create CAS nodepool | bool | true | |
 | cas_nodepool_vm_type | Type of the CAS nodepool VMs | string | "Standard_E16s_v3" | |
 | cas_nodepool_os_disk_size | Disk size for CAS nodepool VMs in GB | number | 200 | |
-| cas_nodepool_node_count| Number of CAS nodepool VMs | number | 1 | |
-| cas_nodepool_auto_scaling | Enable autoscaling for the CAS nodepool | bool | true | |
-| cas_nodepool_max_nodes | Maximum number of nodes for the CAS nodepool when using autoscaling | number | 5 | |
-| cas_nodepool_min_nodes | Minimum number of nodes for the CAS nodepool when using autoscaling | number | 1 |  |
+| cas_nodepool_node_count| Number of CAS nodepool VMs | number | 1 | The value must be between 1 and 100 and between `cas_nodepool_min_nodes` and `cas_nodepool_max_nodes` |
+| cas_nodepool_auto_scaling | Enable autoscaling for the CAS nodepool | bool | true | | |
+| cas_nodepool_max_nodes | Maximum number of nodes for the CAS nodepool when using autoscaling | number | 5 | Required, when `cas_nodepool_auto_scaling=true`, specified value must be between 1 and 100|
+| cas_nodepool_min_nodes | Minimum number of nodes for the CAS nodepool when using autoscaling | number | 1 | Required, when `cas_nodepool_auto_scaling=true`, specified value must be between 1 and 100|
 | cas_nodepool_taints | Taints for the CAS nodepool VMs | list of strings | ["workload.sas.com/class=cas:NoSchedule"] | |
 | cas_nodepool_labels | Labels to add to the CAS nodepool VMs | map | {"workload.sas.com/class" = "cas"} | |
 | cas_nodepool_availability_zones | Availability Zones for CAS nodepool | list of strings | [] | Note: This value depends on the "location". For example, not all regions have numbered availability zones|
@@ -61,10 +65,10 @@ Supported configuration variables are listed in the table below.  All variables 
 | create_compute_nodepool | Create Compute nodepool | bool | true | false | |
 | compute_nodepool_vm_type | Type of the Compute nodepool VMs | string | "Standard_E16s_v3" | |
 | compute_nodepool_os_disk_size | Disk size for Compute nodepool VMs in GB | number | 200 | |
-| compute_nodepool_node_count| Number of Compute nodepool VMs | number | 1 | |
-| compute_nodepool_auto_scaling | Enable autoscaling for the Compute nodepool | bool | true | |
-| compute_nodepool_max_nodes | Maximum number of nodes for the Compute nodepool when using autoscaling | number | 5 | |
-| compute_nodepool_min_nodes | Minimum number of nodes for the Compute nodepool when using autoscaling | number | 1 | |
+| compute_nodepool_node_count| Number of Compute nodepool VMs | number | 1 | The value must be between 1 and 100 and between `compute_nodepool_min_nodes` and `compute_nodepool_max_nodes` |
+| compute_nodepool_auto_scaling | Enable autoscaling for the Compute nodepool | bool | true | | |
+| compute_nodepool_max_nodes | Maximum number of nodes for the Compute nodepool when using autoscaling | number | 5 | Required, when `compute_nodepool_auto_scaling=true`, specified value must be between 1 and 100 |
+| compute_nodepool_min_nodes | Minimum number of nodes for the Compute nodepool when using autoscaling | number | 1 | Required, when `compute_nodepool_auto_scaling=true`, specified value must be between 1 and 100 |
 | compute_nodepool_taints | Taints for the Compute nodepool VMs | list of strings | ["workload.sas.com/class=compute:NoSchedule"] | |
 | compute_nodepool_labels | Labels to add to the Compute nodepool VMs | map | {"workload.sas.com/class" = "compute"  "launcher.sas.com/prepullImage" = "sas-programming-environment" }  | |
 | compute_nodepool_availability_zones | Availability Zones for the Compute nodepool | list of strings | [] | Note: This value depends on the "location". For example, not all regions have numbered availability zones|
@@ -75,10 +79,10 @@ Supported configuration variables are listed in the table below.  All variables 
 | create_connect_nodepool | Create Connect nodepool | bool | true | false | |
 | connect_nodepool_vm_type | Type of the Connect nodepool VMs | string | "Standard_E16s_v3" | |
 | connect_nodepool_os_disk_size | Disk size for Connect nodepool VMs in GB | number | 200 | |
-| connect_nodepool_node_count| Number of Connect nodepool VMs | number | 1 | |
+| connect_nodepool_node_count| Number of Connect nodepool VMs | number | 1 | The value must be between 1 and 100 and between `connect_nodepool_min_nodes` and `compute_nodepool_max_nodes`|
 | connect_nodepool_auto_scaling | Enable autoscaling for the Connect nodepool | bool | true | |
-| connect_nodepool_max_nodes | Maximum number of nodes for the Connect nodepool when using autoscaling | number | 5 | |
-| connect_nodepool_min_nodes | Minimum number of nodes for the Connect nodepool when using autoscaling | number | 1 | |
+| connect_nodepool_max_nodes | Maximum number of nodes for the Connect nodepool when using autoscaling | number | 5 | Required, when `connect_nodepool_auto_scaling=true`, specified value must be between 1 and 100 |
+| connect_nodepool_min_nodes | Minimum number of nodes for the Connect nodepool when using autoscaling | number | 1 | Required, when `connect_nodepool_auto_scaling=true`, specified value must be between 1 and 100 |
 | connect_nodepool_taints | Taints for the Connect nodepool VMs | list of strings | ["workload.sas.com/class=connect:NoSchedule"] | |
 | connect_nodepool_labels | Labels to add to the Connect nodepool VMs | map | {"workload.sas.com/class" = "connect"  "launcher.sas.com/prepullImage" = "sas-programming-environment" } | |
 | connect_nodepool_availability_zones | Availability Zones for the Connect nodepool | list of strings | [] | Note: This value depends on the "location". For example, not all regions have numbered availability zones|
@@ -89,10 +93,10 @@ Supported configuration variables are listed in the table below.  All variables 
 | create_stateless_nodepool | Create Stateless nodepool | bool | true | |
 | stateless_nodepool_vm_type | Type of the Stateless nodepool VMs | string | "Standard_D16s_v3" | |
 | stateless_nodepool_os_disk_size | Disk size for Stateless nodepool VMs in GB | number | 200 | |
-| stateless_nodepool_node_count| Number of Stateless nodepool VMs | number | 1 | |
-| stateless_nodepool_auto_scaling | Enable autoscaling for the Stateless nodepool | bool | true | |
-| stateless_nodepool_max_nodes | Maximum number of nodes for the Stateless nodepool when using autoscaling | number | 5 | |
-| stateless_nodepool_min_nodes | Minimum number of nodes for the Stateless nodepool when using autoscaling | number | 1 | |
+| stateless_nodepool_node_count| Number of Stateless nodepool VMs | number | 1 | The value must be between 1 and 100 and between `stateless_nodepool_min_nodes` and `stateless_nodepool_max_nodes`|
+| stateless_nodepool_auto_scaling | Enable autoscaling for the Stateless nodepool | bool | true | | 
+| stateless_nodepool_max_nodes | Maximum number of nodes for the Stateless nodepool when using autoscaling | number | 5 | Required, when `stateless_nodepool_auto_scaling=true`, specified value must be between 1 and 100|
+| stateless_nodepool_min_nodes | Minimum number of nodes for the Stateless nodepool when using autoscaling | number | 1 | Required, when `stateless_nodepool_auto_scaling=true`, specified value must be between 1 and 100|
 | stateless_nodepool_taints | Taints for the Stateless nodepool VMs | list of strings | ["workload.sas.com/class=stateless:NoSchedule"] | |
 | stateless_nodepool_labels | Labels to add to the Stateless nodepool VMs | map | {"workload.sas.com/class" = "stateless" } | |
 | stateless_nodepool_availability_zones | Availability Zones for the Stateless nodepool | list of strings | [] | Note: This value depends on the "location". For example, not all regions have numbered availability zones|
@@ -102,10 +106,10 @@ Supported configuration variables are listed in the table below.  All variables 
 | create_stateful_nodepool | Create Stateful nodepool | bool | true | |
 | stateful_nodepool_vm_type | Type of the Stateful nodepool VMs | string | "Standard_D8s_v3" | |
 | stateful_nodepool_os_disk_size | Disk size for Stateful nodepool VMs in GB | number | 200 | |
-| stateful_nodepool_node_count| Number of Stateful nodepool VMs | number | 1 | |
+| stateful_nodepool_node_count| Number of Stateful nodepool VMs | number | 1 | The value must be between 1 and 100 and between `stateful_nodepool_min_nodes` and `stateful_nodepool_max_nodes`|
 | stateful_nodepool_auto_scaling | Enable autoscaling for the Stateful nodepool | bool | true | |
-| stateful_nodepool_max_nodes | Maximum number of nodes for the Stateful nodepool when using autoscaling | number | 3 | |
-| stateful_nodepool_min_nodes | Minimum number of nodes for the Stateful nodepool when using autoscaling | number | 1 | |
+| stateful_nodepool_max_nodes | Maximum number of nodes for the Stateful nodepool when using autoscaling | number | 3 | Required, when `stateful_nodepool_auto_scaling=true`, specified value must be between 1 and 100 |
+| stateful_nodepool_min_nodes | Minimum number of nodes for the Stateful nodepool when using autoscaling | number | 1 | Required, when `stateful_nodepool_auto_scaling=true`, specified value must be between 1 and 100|
 | stateful_nodepool_taints | Taints for the Stateful nodepool VMs | list of strings | ["workload.sas.com/class=stateful:NoSchedule"] | |
 | stateful_nodepool_labels | Labels to add to the Stateful nodepool VMs | map | {"workload.sas.com/class" = "stateful" }  | |
 | stateful_nodepool_availability_zones | Availability Zones for the Stateful nodepool | list of strings | [] | Note: This value depends on the "location". For example, not all regions have numbered availability zones|
@@ -113,7 +117,7 @@ Supported configuration variables are listed in the table below.  All variables 
 ## Storage
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
-| storage_type | Type of Storage. Valid Values: "dev", "standard", "ha"  | string | "dev" | "DEV"=azurefile, "STANDARD"=nfs server VM, "HA"=Netapp|
+| storage_type | Type of Storage. Valid Values: "dev", "standard", "ha"  | string | "dev" | "dev" creates AzureFile, "standard" creates NFS server VM, "ha" creates Azure Netapp Files|
 ### storage_type=dev - azurefile
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |

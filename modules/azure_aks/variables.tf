@@ -8,23 +8,23 @@ variable aks_client_id {}
 variable aks_client_secret {}
 
 variable "aks_cluster_location" {
-    description = "The Azure Region in which all resources in this example should be provisioned"
-    default = "East US"
+  description = "The Azure Region in which all resources in this example should be provisioned"
+  default     = "East US"
 }
 
 variable "aks_cluster_node_count" {
-    default = 4
+  default = 4
 }
 
 variable "aks_availability_zones" {}
 
 # https://docs.microsoft.com/en-us/azure/virtual-machines/linux/sizes
 variable "aks_cluster_node_vm_size" {
-    default = "Standard_D4_v2"
+  default = "Standard_D4_v2"
 }
 
 variable "aks_cluster_node_admin" {
-    default = "ubuntu"
+  default = "ubuntu"
 }
 
 variable "aks_cluster_ssh_public_key" {
@@ -33,29 +33,45 @@ variable "aks_cluster_ssh_public_key" {
 
 # https://docs.microsoft.com/en-us/azure/aks/cluster-autoscaler
 variable "aks_cluster_node_auto_scaling" {
-    description = "To enable auto-scaler to add nodes to AKS cluster"
-    default = false
+  description = "To enable auto-scaler to add nodes to AKS cluster"
+  default     = false
+}
+
+variable "aks_cluster_min_nodes" {
+  description = "(Required, when aks_cluster_node_auto_scaling=true) The minimum number of nodes which should exist in this Node Pool. If specified this must be between 1 and 100."
+  default     = 1
+}
+variable "aks_cluster_max_nodes" {
+  description = "(Required, when aks_cluster_node_auto_scaling=true) The maximum number of nodes which should exist in this Node Pool. If specified this must be between 1 and 100."
+  default     = 3
+}
+variable "aks_cluster_os_disk_size" {
+  description = "(Optional) The size of the OS Disk which should be used for each agent in the Node Pool. Changing this forces a new resource to be created."
+  default     = 128
+}
+variable "aks_cluster_max_pods" {
+  description = "(Optional) The maximum number of pods that can run on each agent. Changing this forces a new resource to be created."
+  default     = 110
 }
 
 variable kubernetes_version {
-    description = "The AKS cluster K8s version"
-    default = "1.16.13"
+  description = "The AKS cluster K8s version"
+  default     = "1.18.8"
 }
 variable "aks_cluster_endpoint_public_access_cidrs" {
   description = "Kubernetes cluster access IP ranges"
   type        = list
- }
+}
 
 variable "aks_vnet_subnet_id" {
-    default = null
+  default = null
 }
 
 variable "aks_network_plugin" {
-    default = "kubenet"
+  default = "kubenet"
 }
 
 variable "aks_cluster_tags" {
   description = "Map of tags to be placed on the Resources"
   type        = map
-  default     = {project_name="viya"}
 }

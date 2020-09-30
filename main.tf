@@ -6,7 +6,7 @@ terraform {
 }
 
 provider "azurerm" {
-  version = "~>2.12.0"
+  version = "~>2.28.0"
   features {}
 }
 
@@ -211,8 +211,12 @@ module "aks" {
   #aks_cluster_dns_prefix - must contain between 2 and 45 characters. The name can contain only letters, numbers, and hyphens. The name must start with a letter and must end with an alphanumeric character
   aks_cluster_dns_prefix                   = "${var.prefix}-aks"
   aks_cluster_location                     = var.location
-  aks_cluster_node_count                   = var.default_nodepool_node_count
   aks_cluster_node_auto_scaling            = var.default_nodepool_auto_scaling
+  aks_cluster_max_nodes                    = var.default_nodepool_max_nodes
+  aks_cluster_min_nodes                    = var.default_nodepool_min_nodes
+  aks_cluster_node_count                   = var.default_nodepool_node_count
+  aks_cluster_max_pods                     = var.default_nodepool_max_pods
+  aks_cluster_os_disk_size                 = var.default_nodepool_os_disk_size
   aks_cluster_node_vm_size                 = var.default_nodepool_vm_type
   aks_cluster_node_admin                   = var.node_vm_admin
   aks_cluster_ssh_public_key               = var.ssh_public_key
