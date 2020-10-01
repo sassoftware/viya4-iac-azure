@@ -31,7 +31,7 @@ After any errors are resolved and satisfied with the plan, run the ```terraform 
 
 ## Terraform - State
 
-After the resouces are created use ```terraform state list``` to list all the resources and ```terraform state show``` to get details of a resource.
+After the resources are created use ```terraform state list``` to list all the resources and ```terraform state show``` to get details of a resource.
 
     terraform state list 
     # to get more details on a partictular resource 
