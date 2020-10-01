@@ -1,8 +1,5 @@
 terraform {
   required_version = ">= 0.13"
-  # Experimental features 
-  # https://www.terraform.io/docs/configuration/terraform.html#experimental-language-features
-  # experiments = [variable_validation]
 }
 
 provider "azurerm" {
@@ -32,8 +29,9 @@ locals {
   aks_subnet_cidr_block                = "192.168.1.0/24"
   misc_subnet_cidr_block               = "192.168.2.0/24"
   gw_subnet_cidr_block                 = "192.168.3.0/24"
-  create_jump_vm_default = var.storage_type != "dev" ? true : false
-  create_jump_vm         = var.create_jump_vm != null ? var.create_jump_vm : local.create_jump_vm_default
+  netapp_subnet_cidr_block             = "192.168.0.0/24"
+  create_jump_vm_default               = var.storage_type != "dev" ? true : false
+  create_jump_vm                       = var.create_jump_vm != null ? var.create_jump_vm : local.create_jump_vm_default
   default_public_access_cidrs          = var.default_public_access_cidrs == null ? [] : var.default_public_access_cidrs
   vm_public_access_cidrs               = var.vm_public_access_cidrs == null ? local.default_public_access_cidrs : var.vm_public_access_cidrs
   acr_public_access_cidrs              = var.acr_public_access_cidrs == null ? local.default_public_access_cidrs : var.acr_public_access_cidrs
@@ -246,7 +244,6 @@ module "aks" {
 }
 
 data "azurerm_public_ip" "aks_public_ip" {
-  # "/subscriptions/<subscription-id-00000-0000>/resourceGroups/MC_<rg-name>_<aks-name>_<rg-location>/providers/Microsoft.Network/publicIPAddresses/16172d45-fd0a-413c-b8e5-957667bbfaab"
   name                = split("/", module.aks.cluster_slb_ip_id)[8]
   resource_group_name = "MC_${module.azure_rg.name}_${module.aks.name}_${module.azure_rg.location}"
 
@@ -379,7 +376,7 @@ module "netapp" {
   resource_group_name   = module.azure_rg.name
   location              = module.azure_rg.location
   vnet_name             = azurerm_virtual_network.vnet.name
-  subnet_address_prefix = ["192.168.0.0/24"]
+  subnet_address_prefix = [var.netapp_subnet_cidr_block]
   service_level         = var.netapp_service_level
   size_in_tb            = var.netapp_size_in_tb
   protocols             = var.netapp_protocols

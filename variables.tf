@@ -389,7 +389,7 @@ variable "stateful_nodepool_availability_zones" {
 
 variable "create_jump_vm" {
   description = "Create bastion host VM"
-  default = null
+  default     = null
 }
 
 variable "create_jump_public_ip" {
