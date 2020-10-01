@@ -16,13 +16,16 @@ This project contains Terraform scripts to provision Microsoft Azure Cloud infra
 ## Prerequisites
 
 Operational knowledge of [Terraform](https://www.terraform.io/intro/index.html), [Microsoft Azure Cloud](https://azure.microsoft.com/), and [Kubernetes](https://kubernetes.io/docs/concepts/).
+This tool supports running both from terraform installed on your local machine or via a docker container. The Dockerfile for the container can be found [here](Dockerfile)
 
 ### Required
+
+#### Terraform
 
 - [Terraform](https://www.terraform.io/downloads.html) - v0.13.2
 - Access to an **Azure Subscription** and **Service Principal** with '*Contributor*' role
 
-  ~ or ~
+#### Docker
 
 - [Terraform](https://www.terraform.io/downloads.html) - v0.13.2
 - Access to an **Azure Subscription** and **Service Principal** with '*Contributor*' role
