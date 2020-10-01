@@ -90,7 +90,7 @@ Terraform script writes `kube_config` output value to a file `./[prefix]-aks-kub
     
 ### Examples
 
-We include several samples - `sample-input*.tfvars` in this repo to get started. Evaulate the sample files, then review the [CONFIG-VARS.md](docs/CONFIG-VARS.md) to see what other variables can be used.
+We include several samples - `sample-input*.tfvars` in this repo to get started. Evaluate the sample files, then review the [CONFIG-VARS.md](docs/CONFIG-VARS.md) to see what other variables can be used.
 
 ### Troubleshooting
 See [troubleshooting](./docs/Troubleshooting.md) page.

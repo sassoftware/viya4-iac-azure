@@ -42,4 +42,4 @@ Error: Error creating NetApp Account "sse-vdsdp-ha1-netappaccount" (Resource Gro
   29: resource "azurerm_netapp_account" "anf" {
  ```
  **Resolution:**
- Check your Azure Subcription has been granted access to Azure NetApp Files service - https://docs.microsoft.com/en-us/azure/azure-netapp-files/azure-netapp-files-quickstart-set-up-account-create-volumes?tabs=azure-portal#before-you-begin
+ Check your Azure Subscription has been granted access to Azure NetApp Files service - https://docs.microsoft.com/en-us/azure/azure-netapp-files/azure-netapp-files-quickstart-set-up-account-create-volumes?tabs=azure-portal#before-you-begin

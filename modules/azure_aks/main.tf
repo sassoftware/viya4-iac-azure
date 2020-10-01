@@ -1,5 +1,5 @@
 #
-# Need to add in ssh_key genertion here as well.
+# Need to add in ssh_key generation here as well.
 #
 resource "tls_private_key" "private_key" {
   count     = var.aks_cluster_ssh_public_key == "" ? 1 : 0

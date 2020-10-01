@@ -40,7 +40,7 @@ variable "cluster_endpoint_public_access_cidrs" {
 
 # https://docs.microsoft.com/en-us/azure/aks/cluster-autoscaler
 variable "default_nodepool_auto_scaling" {
-  description = "Autoscal nodes in the AKS cluster default nodepool"
+  description = "Autoscale nodes in the AKS cluster default nodepool"
   default     = true
 }
 variable "default_nodepool_max_nodes" {
@@ -108,7 +108,7 @@ variable "postgres_administrator_login" {
   default     = "pgadmin"
 
   validation {
-    condition     = ! contains(["auzre_superuser", "azure_pg_admin", "admin", "administrator", "root", "guest", "public"], var.postgres_administrator_login) && ! can(regex("^pg_", var.postgres_administrator_login))
+    condition     = ! contains(["azure_superuser", "azure_pg_admin", "admin", "administrator", "root", "guest", "public"], var.postgres_administrator_login) && ! can(regex("^pg_", var.postgres_administrator_login))
     error_message = "ERROR: The admin login name can't be azure_superuser, azure_pg_admin, admin, administrator, root, guest, or public. It can't start with pg_."
   }
 }
@@ -139,7 +139,7 @@ variable "postgres_ssl_enforcement_enabled" {
 }
 
 variable "postgres_db_names" {
-  description = "The list of names of PostgreSQL database to craete. Needs to be a valid PostgreSQL identifier. Changing this forces a new resource to be created."
+  description = "The list of names of PostgreSQL database to create. Needs to be a valid PostgreSQL identifier. Changing this forces a new resource to be created."
   default     = []
 }
 
