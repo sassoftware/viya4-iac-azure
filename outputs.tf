@@ -27,13 +27,16 @@ output "postgres_fqdn" {
   value = var.create_postgres ? module.postgresql.postgres_server_fqdn : null
 }
 output "postgres_admin" {
-  value = var.create_postgres ? module.postgresql.postgres_administrator_login : null
+  value = var.create_postgres ? "${module.postgresql.postgres_administrator_login}@${module.postgresql.postgres_server_name}" : null
 }
 output "postgres_password" {
   value = var.create_postgres ? module.postgresql.postgres_administrator_password : null
 }
 output "postgres_server_id" {
   value = var.create_postgres ? module.postgresql.postgres_server_id : null
+}
+output "postgres_server_port" {
+  value = var.create_postgres ? "5432" : null
 }
 
 # jump server
