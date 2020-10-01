@@ -2,6 +2,10 @@ variable client_id {}
 
 variable client_secret {}
 
+variable subscription_id {}
+variable tenant_id {}
+
+
 variable "prefix" {
   description = "A prefix used in the name for all the Azure resources created by this script. The prefix string must start with lowercase letter and contain only alphanumeric characters and hyphen or dash(-), but can not start or end with '-'."
   type        = string
@@ -366,9 +370,15 @@ variable "stateful_nodepool_availability_zones" {
   default = []
 }
 
+variable "create_jump_vm" {
+  description = "Create bastion host VM"
+  default = null
+}
+
 variable "create_jump_public_ip" {
   default = true
 }
+
 variable "jump_vm_admin" {
   description = "OS Admin User for Jump VM"
   default     = "jumpuser"

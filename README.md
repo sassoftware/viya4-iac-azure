@@ -40,12 +40,8 @@ cd viya4-iac-azure
 Export these environment variables values, see [Authenticating using Service Principal and Secret](./docs/user/TerraformAzureAuthentication.md) for details
 ```
 # export needed IDs and Secrets
-export ARM_SUBSCRIPTION_ID="SUBSCRIPTION_ID"
-export ARM_TENANT_ID="TENANT_ID"
-
-export ARM_CLIENT_ID="SP_APPID"
-export ARM_CLIENT_SECRET="SP_PASSWD"
-
+export TF_VAR_subscription_id="SUBSCRIPTION_ID"
+export TV_VAR_tenant_id="TENANT_ID"
 export TF_VAR_client_id="SP_APPID"
 export TF_VAR_client_secret="SP_PASSWD"
 ```
