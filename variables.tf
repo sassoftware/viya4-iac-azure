@@ -39,31 +39,31 @@ variable "kubernetes_version" {
 }
 
 variable "default_public_access_cidrs" {
-  description = "Resource access IP ranges"
+  description = "List of CIDRs to access created resources"
   type        = list(string)
   default     = null
 }
 
 variable "cluster_endpoint_public_access_cidrs" {
-  description = "Kubernetes cluster access IP ranges"
+  description = "List of CIDRs to access Kubernetes cluster"
   type        = list(string)
   default     = null
 }
 
 variable "acr_public_access_cidrs" {
-  description = "ACR access IP ranges"
+  description = "List of CIDRs to access Azure Container Registry"
   type        = list(string)
   default     = null
 }
 
 variable "vm_public_access_cidrs" {
-  description = "VM ssh access IP ranges"
+  description = "List of CIDRs to access jump or nfs VM"
   type        = list(string)
   default     = null
 }
 
 variable "postgres_public_access_cidrs" {
-  description = "PostgreSQL server client access IP ranges"
+  description = "LList of CIDRs to access PostgreSQL server"
   type        = list(string)
   default     = null
 }
