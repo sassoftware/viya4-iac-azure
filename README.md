@@ -27,7 +27,7 @@ This tool supports running both from terraform installed on your local machine o
 
 #### Docker
 
-- [Terraform](https://www.terraform.io/downloads.html) - v0.13.2
+- [Docker](https://docs.docker.com/get-docker/)
 - Access to an **Azure Subscription** and **Service Principal** with '*Contributor*' role
 
 ### Optional

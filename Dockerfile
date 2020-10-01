@@ -1,10 +1,9 @@
 FROM ubuntu:20.04 as baseline
 WORKDIR /build
-RUN apt-get update && apt-get -y upgrade
-RUN apt-get -y install python3 python3-dev python3-pip curl unzip
-# Adjust python to use only Python 3
-RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 1 \
- && update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 1
+RUN apt-get update && apt-get -y upgrade \
+  && apt-get -y install python3 python3-dev python3-pip curl unzip \
+  && update-alternatives --install /usr/bin/python python /usr/bin/python3 1 \
+  && update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 1
 
 FROM baseline as tool_builder
 ENV terraform_version=0.13.2
@@ -16,7 +15,6 @@ FROM baseline
 
 COPY --from=tool_builder /build/terraform /usr/local/bin/terraform
 COPY --from=tool_builder /root/google-cloud-sdk /cloud/clis/google-cloud-sdk
-COPY . /viya4-deployment
 
 # Add extra packages
 RUN apt-get -y install bash-completion git \
@@ -28,4 +26,7 @@ RUN apt-get -y install bash-completion git \
 
 WORKDIR /viya4-deployment
 
+COPY . .
+
+RUN terraform init /viya4-deployment
 ENTRYPOINT ["/usr/local/bin/terraform"]
