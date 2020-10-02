@@ -376,7 +376,7 @@ module "netapp" {
   resource_group_name   = module.azure_rg.name
   location              = module.azure_rg.location
   vnet_name             = azurerm_virtual_network.vnet.name
-  subnet_address_prefix = [var.netapp_subnet_cidr_block]
+  subnet_address_prefix = [local.netapp_subnet_cidr_block]
   service_level         = var.netapp_service_level
   size_in_tb            = var.netapp_size_in_tb
   protocols             = var.netapp_protocols
