@@ -1,8 +1,5 @@
 terraform {
   required_version = ">= 0.13"
-  # Experimental features 
-  # https://www.terraform.io/docs/configuration/terraform.html#experimental-language-features
-  # experiments = [variable_validation]
 }
 
 provider "azurerm" {
@@ -28,14 +25,22 @@ data "azuread_service_principal" "sp_client" {
 
 locals {
   # Network ip ranges
-  vnet_cidr_block        = "192.168.0.0/16"
-  aks_subnet_cidr_block  = "192.168.1.0/24"
-  misc_subnet_cidr_block = "192.168.2.0/24"
-  gw_subnet_cidr_block   = "192.168.3.0/24"
-  create_jump_vm_default = var.storage_type != "dev" ? true : false
-  create_jump_vm         = var.create_jump_vm != null ? var.create_jump_vm : local.create_jump_vm_default
-
+  vnet_cidr_block                      = "192.168.0.0/16"
+  aks_subnet_cidr_block                = "192.168.1.0/24"
+  misc_subnet_cidr_block               = "192.168.2.0/24"
+  gw_subnet_cidr_block                 = "192.168.3.0/24"
+  netapp_subnet_cidr_block             = "192.168.0.0/24"
+  create_jump_vm_default               = var.storage_type != "dev" ? true : false
+  create_jump_vm                       = var.create_jump_vm != null ? var.create_jump_vm : local.create_jump_vm_default
+  default_public_access_cidrs          = var.default_public_access_cidrs == null ? [] : var.default_public_access_cidrs
+  vm_public_access_cidrs               = var.vm_public_access_cidrs == null ? local.default_public_access_cidrs : var.vm_public_access_cidrs
+  acr_public_access_cidrs              = var.acr_public_access_cidrs == null ? local.default_public_access_cidrs : var.acr_public_access_cidrs
+  cluster_endpoint_cidrs               = var.cluster_endpoint_public_access_cidrs == null ? local.default_public_access_cidrs : var.cluster_endpoint_public_access_cidrs
+  cluster_endpoint_public_access_cidrs = length(local.cluster_endpoint_cidrs) == 0 ? ["0.0.0.0/32"] : local.cluster_endpoint_cidrs
+  postgres_public_access_cidrs         = var.postgres_public_access_cidrs == null ? local.default_public_access_cidrs : var.postgres_public_access_cidrs
+  postgres_firewall_rules              = [for addr in local.postgres_public_access_cidrs : { "name" : replace(replace(addr, "/", "_"), ".", "_"), "start_ip" : cidrhost(addr, 0), "end_ip" : cidrhost(addr, abs(pow(2, 32 - split("/", addr)[1]) - 1)) }]
 }
+
 
 module "azure_rg" {
   source = "./modules/azurerm_resource_group"
@@ -135,14 +140,14 @@ module "jump" {
 resource "azurerm_network_security_rule" "ssh" {
   name                        = "${var.prefix}-ssh"
   description                 = "Allow SSH from source"
-  count                       = (var.create_jump_public_ip && local.create_jump_vm) ? 1 : 0
+  count                       = (var.create_jump_public_ip && local.create_jump_vm && length(local.vm_public_access_cidrs) != 0) ? 1 : 0
   priority                    = 120
   direction                   = "Inbound"
   access                      = "Allow"
   protocol                    = "Tcp"
   source_port_range           = "*"
   destination_port_range      = "22"
-  source_address_prefixes     = var.cluster_endpoint_public_access_cidrs
+  source_address_prefixes     = local.vm_public_access_cidrs
   destination_address_prefix  = "*"
   resource_group_name         = module.azure_rg.name
   network_security_group_name = azurerm_network_security_group.nsg.name
@@ -199,14 +204,14 @@ module "acr" {
 resource "azurerm_network_security_rule" "acr" {
   name                        = "SAS-ACR"
   description                 = "Allow ACR from source"
-  count                       = var.create_container_registry ? 1 : 0
+  count                       = (length(local.acr_public_access_cidrs) != 0 && var.create_container_registry) ? 1 : 0
   priority                    = 180
   direction                   = "Inbound"
   access                      = "Allow"
   protocol                    = "Tcp"
   source_port_range           = "*"
   destination_port_range      = "5000"
-  source_address_prefixes     = var.cluster_endpoint_public_access_cidrs
+  source_address_prefixes     = local.acr_public_access_cidrs
   destination_address_prefix  = "*"
   resource_group_name         = module.azure_rg.name
   network_security_group_name = azurerm_network_security_group.nsg.name
@@ -233,13 +238,12 @@ module "aks" {
   aks_client_id                            = var.client_id
   aks_client_secret                        = var.client_secret
   kubernetes_version                       = var.kubernetes_version
-  aks_cluster_endpoint_public_access_cidrs = var.cluster_endpoint_public_access_cidrs
+  aks_cluster_endpoint_public_access_cidrs = local.cluster_endpoint_public_access_cidrs
   aks_availability_zones                   = var.default_nodepool_availability_zones
   aks_cluster_tags                         = var.tags
 }
 
 data "azurerm_public_ip" "aks_public_ip" {
-  # "/subscriptions/<subscription-id-00000-0000>/resourceGroups/MC_<rg-name>_<aks-name>_<rg-location>/providers/Microsoft.Network/publicIPAddresses/16172d45-fd0a-413c-b8e5-957667bbfaab"
   name                = split("/", module.aks.cluster_slb_ip_id)[8]
   resource_group_name = "MC_${module.azure_rg.name}_${module.aks.name}_${module.azure_rg.location}"
 
@@ -359,7 +363,7 @@ module "postgresql" {
   postgres_db_charset                   = var.postgres_db_charset
   postgres_db_collation                 = var.postgres_db_collation
   postgres_firewall_rule_prefix         = "${var.prefix}-postgres-firewall-"
-  postgres_firewall_rules               = var.postgres_firewall_rules
+  postgres_firewall_rules               = local.postgres_firewall_rules
   postgres_vnet_rule_prefix             = "${var.prefix}-postgresql-vnet-rule-"
   postgres_vnet_rules                   = [{ name = module.misc-subnet.subnet_name, subnet_id = module.misc-subnet.subnet_id }, { name = module.aks-subnet.subnet_name, subnet_id = module.aks-subnet.subnet_id }]
 }
@@ -372,7 +376,7 @@ module "netapp" {
   resource_group_name   = module.azure_rg.name
   location              = module.azure_rg.location
   vnet_name             = azurerm_virtual_network.vnet.name
-  subnet_address_prefix = ["192.168.0.0/24"]
+  subnet_address_prefix = [var.netapp_subnet_cidr_block]
   service_level         = var.netapp_service_level
   size_in_tb            = var.netapp_size_in_tb
   protocols             = var.netapp_protocols
