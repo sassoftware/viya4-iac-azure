@@ -5,6 +5,7 @@ Supported configuration variables are listed in the table below.  All variables 
 
 * [Required Variables](#required-variables)
 * [Required Variables for Azure Authentication](#required-variables-for-azure-authentication)
+* [Admin Access](#admin-access)
 * [General](#general)
 * [Nodepools](#nodepools)
    + [Default Nodepool](#default-nodepool)
@@ -29,7 +30,6 @@ Terraform input variables can be set in the following ways:
 | :--- | ---: | ---: | ---: | ---: | 
 | prefix | A prefix used in the name of all the Azure resources created by this script. | string | | The prefix string must start with a lowercase letter and contain only alphanumeric characters and dashes (-), but cannot end with a dash. |
 | location | The Azure Region to provision all resources in this script | string | "East US" | |
-| cluster_endpoint_public_access_cidrs | IP Ranges allowed to access the cloud resources | list of strings | | Example: ["55.55.55.55/32", "66.66.0.0/16"]
 | tags | Map of common tags to be placed on all Azure resources created by this script | map | { project_name = "sasviya4", environment = "dev" } | |
 
 ## Required Variables for Azure Authentication 
@@ -43,7 +43,6 @@ Find details on how to retrieve that information under [Azure Help Topics](./doc
 | subscription_id | your Azure subscription id | string  | 
 | client_id | your Azure Service Principal id | string | 
 | client_secret | your Azure Service Principal secret | string |  
-
 
 You can set these variables in your `*.tfvars` file. But since they contain sensitive information, we recommend to use Terraform environment variables instead.
 
@@ -66,6 +65,22 @@ source $HOME/.azure_creds.sh
 
 This will pull in those values into your current terminal session. Any terraform commands submitted in that session will use those values.
 
+## Admin Access
+
+By default, the API of the Azure resources that are being created are only accessible through authenticated Azure clients (e.g. the Azure Portal, the `az` CLI, the Azure Shell, etc.) 
+To allow access for other administrative client applications (for example `kubectl`, `psql`, etc.), you want to open up the Azure firewall to allow access from your source IPs.
+To do this, specify ranges of IP in [CIDR notation](https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing).
+Contact your Network System Administrator to find the public CIDR range of your network.
+
+You can use `default_public_access_cidrs` to set a default range for all created resources. To set different ranges for other resources, define the appropriate variable. Use and empty list `[]` to disallow access explicitly.
+
+| Name | Description | Type | Default | Notes |
+| :--- | ---: | ---: | ---: | ---: | 
+| default_public_access_cidrs | IP Ranges allowed to access all created cloud resources | list of strings | | Use to to set a default for all Resources |
+| cluster_endpoint_public_access_cidrs | IP Ranges allowed to access the AKS cluster api | list of strings | | for client admin access to the cluster, e.g. with `kubectl` |
+| vm_public_access_cidrs | IP Ranges allowed to access the VMs | list of strings | | opens port 22 for SSH access to the jump and/or nfs VM |
+| postgres_access_cidrs | IP Ranges allowed to access the Azure PostgreSQL Server | list of strings |||
+| acr_access_cidrs | IP Ranges allowed to access the ACR instance | list of strings |||
 
 
 ## General 
