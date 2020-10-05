@@ -4,7 +4,8 @@ Supported configuration variables are listed in the table below.  All variables 
 ## Table of Contents
 
 * [Required Variables](#required-variables)
-* [Required Variables for Azure Authentication](#required-variables-for-azure-authentication)
+   + [Application](#application)
+   + [Azure Authentication](#azure-authentication)
 * [Admin Access](#admin-access)
 * [General](#general)
 * [Nodepools](#nodepools)
@@ -26,13 +27,15 @@ Terraform input variables can be set in the following ways:
 - As [environment variables](https://www.terraform.io/docs/configuration/variables.html#environment-variables). We recommend this way for the variables that set the [Azure authentication](#required-variables-for-azure-authentication).
 
 ## Required Variables
+### [Application](#applicationq)
+
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: | 
 | prefix | A prefix used in the name of all the Azure resources created by this script. | string | | The prefix string must start with a lowercase letter and contain only alphanumeric characters and dashes (-), but cannot end with a dash. |
 | location | The Azure Region to provision all resources in this script | string | "East US" | |
 | tags | Map of common tags to be placed on all Azure resources created by this script | map | { project_name = "sasviya4", environment = "dev" } | |
 
-## Required Variables for Azure Authentication 
+### Azure Authentication 
 The Terraform process manages Azure resources on your behalf. In order to do so, it needs to know your Azure account information, and a user identity with the required permissons. 
 
 Find details on how to retrieve that information under [Azure Help Topics](./docs/user/AzureHelpTopics.md).
@@ -44,26 +47,7 @@ Find details on how to retrieve that information under [Azure Help Topics](./doc
 | client_id | your Azure Service Principal id | string | 
 | client_secret | your Azure Service Principal secret | string |  
 
-You can set these variables in your `*.tfvars` file. But since they contain sensitive information, we recommend to use Terraform environment variables instead.
-
-Run these commands to initialize the environment for the project. These commands will need to be run and pulled  into your environment each time you start a new session to use this repo and terraform.
-
-```
-# export needed ids and secrets
-export TF_VAR_subscription_id=[SUBSCRIPTION_ID]
-export TF_VAR_tenant_id=[TENANT_ID]
-export TF_VAR_client_id=[SP_APPID]
-export TF_VAR_client_secret=[SP_PASSWD]
-```
-**TIP:** These commands can be stored in a file outside of this repo in a secure file. \
-Use your favorite editor, take the content above and save it to a file called: `$HOME/.azure_creds.sh` \
-Now each time you need these values you can do the following:
-
-```
-source $HOME/.azure_creds.sh
-```
-
-This will pull in those values into your current terminal session. Any terraform commands submitted in that session will use those values.
+For recommendation on how to set these variables in your environment, see [Authenticating Terraform to access Azure](user/TerraformAzureAuthentication.md).
 
 ## Admin Access
 
