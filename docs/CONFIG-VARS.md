@@ -81,7 +81,7 @@ You can use `default_public_access_cidrs` to set a default range for all created
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
 | node_vm_admin | OS Admin User for VMs of AKS Cluster nodes | string | "azureuser" | |
-| default_nodepool_nodecount | Number of node in the default nodepool | number | 2 | The value must be between 1 and 100 and between `default_nodepool_min_nodes` and `default_nodepool_max_nodes`|
+| default_nodepool_node_count | Number of node in the default nodepool | number | 2 | The value must be between 1 and 100 and between `default_nodepool_min_nodes` and `default_nodepool_max_nodes`|
 | default_nodepool_vm_type | Type of the default nodepool VMs | string | "Standard_D4_v2" | |
 | default_nodepool_auto_scaling | Enable autoscaling for the AKS cluster default nodepool | bool | false | see https://docs.microsoft.com/en-us/azure/aks/cluster-autoscaler |
 | default_nodepool_os_disk_size | Disk size for default nodepool VMs in GB | number | 128 ||
