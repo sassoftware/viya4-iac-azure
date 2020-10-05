@@ -7,7 +7,7 @@ See [Azure Help Topics](./AzureHelpTopics.md) on how to get the values for these
 **Note:** Keep track of `SP_APPID` and `SP_PASSWORD` since Azure Service Principal only need to be created once. 
 
 
-You can [set these variables in your `*.tfvars` file](../CONFIG-VARS.md##azure-authentication). But since they contain sensitive information, we recommend to use Terraform environment variables instead.
+You can [set these variables in your `*.tfvars` file](../CONFIG-VARS.md#azure-authentication). But since they contain sensitive information, we recommend to use Terraform environment variables instead.
 
 Run these commands to initialize the environment for the project. These commands will need to be run and pulled  into your environment each time you start a new session to use this repo and terraform.
 
