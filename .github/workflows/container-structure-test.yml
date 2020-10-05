@@ -1,9 +1,9 @@
 name: Container Structure Test
 on:
   push:
-    branches: [ cst-github-actions ]
+    branches: [ main ]
   pull_request:
-    branches: [ cst-github-actions ]
+    branches: [ main ]
 
 jobs:
   acceptance:
