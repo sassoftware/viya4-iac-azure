@@ -1,0 +1,21 @@
+name: Container Structure Test
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  acceptance:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag sas-iac-aks:local
+
+    - name: Container Structure Test Action
+      uses: plexsystems/container-structure-test-action@v0.2.0
+      with:
+        image: sas-iac-aks:local
+        config: container-structure-test.yaml
