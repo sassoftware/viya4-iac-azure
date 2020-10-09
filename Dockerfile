@@ -1,13 +1,15 @@
-FROM hashicorp/terraform:0.13.3
+FROM hashicorp/terraform:0.13.3 as terraform
 
-RUN apk --update --no-cache add libc6-compat git openssh-client py-pip bash \
-  && apk add --virtual=build gcc libffi-dev musl-dev openssl-dev python3-dev make \
-  && pip --no-cache-dir install -U pip \
-  && pip install azure-cli \
-  && apk del --purge build
+FROM  mcr.microsoft.com/azure-cli
 
-WORKDIR /viya4-deployment
+RUN apk --update --no-cache add git openssh
+
+WORKDIR /viya4-iac-azure
+
+COPY --from=terraform /bin/terraform /bin/terraform
 
 COPY . .
 
-RUN terraform init /viya4-deployment
+RUN terraform init /viya4-iac-azure
+
+ENTRYPOINT ["/bin/terraform"]
