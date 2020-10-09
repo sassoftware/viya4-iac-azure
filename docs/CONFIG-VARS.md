@@ -199,7 +199,6 @@ You can use `default_public_access_cidrs` to set a default range for all created
 | postgres_db_names | List of names for databases to create for the Azure Database for PostgreSQL server instance. Each name needs to be a valid PostgreSQL identified. Changes this forces a new resource to be created. | list of strings | [] | |
 | postgres_db_charset | The Charset for the PostgreSQL Database. Needs to be a valid PostgreSQL Charset. Changing this forces a new resource to be created. | string | "UTF8" | |
 | postgres_db_collation | The Collation for the PostgreSQL Database. Needs to be a valid PostgreSQL Collation. Changing this forces a new resource to be created. |string| "English_United States.1252" | |
-| postgres_firewall_rules | Firewall rules for the PostgreSQL Database server instance | list of maps | [] | Example:  [{ "name" = "LocalAccess", "start_ip" = "55.55.0.0", "end_ip" = "55.55.255.255" }] |
 | postgres_configurations | Configurations to enable on the PostgreSQL Database server instance | map | {} | |
 
 
