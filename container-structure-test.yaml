@@ -6,7 +6,7 @@ fileExistenceTests:
     shouldExist: true
     permissions: '-rwxr-xr-x'
   - name: 'azure-cli'
-    path: '/usr/bin/az'
+    path: '/usr/local/bin/az'
     shouldExist: true
     permissions: '-rwxr-xr-x'
 
