@@ -29,5 +29,5 @@ commandTests:
     expectedOutput: ["2.12.1\t2.12.1\t1.0.6"]
 
 metadataTest:
-  workdir: "/viya4-deployment"
+  workdir: "/viya4-iac-azure"
   entrypoint: ["/bin/terraform"]
