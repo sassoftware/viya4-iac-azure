@@ -11,11 +11,7 @@ Supported configuration variables are listed in the table below.  All variables 
 * [General](#general)
 * [Nodepools](#nodepools)
   * [Default Nodepool](#default-nodepool)
-  * [CAS Nodepool](#cas-nodepool)
-  * [Compute Nodepool](#compute-nodepool)
-  * [Connect Nodepool](#connect-nodepool)
-  * [Stateless Nodepool](#stateless-nodepool)
-  * [Stateful Nodepool](#stateful-nodepool)
+  * [Additional Nodepool](#additional-nodepools)
 * [Storage](#storage)
   * [storage_type=standard - nfs server VM](#storage-type-standard---nfs-server-vm)
   * [storage_type=ha - Azure NetApp](#storage-type-ha---azure-netapp)
@@ -96,7 +92,7 @@ You can use `default_public_access_cidrs` to set a default range for all created
 | default_nodepool_min_nodes | Minimum number of nodes for the default nodepool when using autoscaling | number | 1 | Required, when `default_nodepool_auto_scaling=true`, value must be between 1 and 100 |
 | default_nodepool_availability_zones | Availability Zones for the cluster default nodepool | list of strings | []  | Note: This value depends on the "location". For example, not all regions have numbered availability zones|
 
-### Other Nodepools
+### Additional Nodepools
 
 Additional node pools can be created separate from the default nodepool. This is done with the nodepool variable which is a map of objects. Each nodepool requires the following variables
 | Name | Description | Type | Notes |
