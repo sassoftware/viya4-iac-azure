@@ -36,35 +36,65 @@ default_nodepool_node_count          = 2
 default_nodepool_vm_type             = "Standard_D4_v2"
 
 # AKS Node Pools config
-create_cas_nodepool       = true
-cas_nodepool_node_count   = 1
-cas_nodepool_min_nodes    = 1
-cas_nodepool_auto_scaling = true
-cas_nodepool_vm_type      = "Standard_E16s_v3"
-
-create_compute_nodepool       = true
-compute_nodepool_node_count   = 1
-compute_nodepool_min_nodes    = 1
-compute_nodepool_auto_scaling = true
-compute_nodepool_vm_type      = "Standard_E16s_v3"
-
-create_connect_nodepool       = true
-connect_nodepool_node_count   = 1
-connect_nodepool_min_nodes    = 1
-connect_nodepool_auto_scaling = true
-connect_nodepool_vm_type      = "Standard_E16s_v3"
-
-create_stateless_nodepool       = true
-stateless_nodepool_node_count   = 2
-stateless_nodepool_min_nodes    = 2
-stateless_nodepool_auto_scaling = true
-stateless_nodepool_vm_type      = "Standard_D16s_v3"
-
-create_stateful_nodepool       = true
-stateful_nodepool_node_count   = 3
-stateful_nodepool_min_nodes    = 3
-stateful_nodepool_auto_scaling = true
-stateful_nodepool_vm_type      = "Standard_D16s_v3"
+node_pools = {
+  cas = { 
+    "machine_type" = "Standard_E16s_v3"
+    "os_disk_size" = 200
+    "min_node_count" = 1
+    "max_node_count" = 1
+    "node_taints" = ["workload.sas.com/class=cas:NoSchedule"]
+    "node_labels" = { 
+      "workload.sas.com/class" = "cas" 
+    }
+    "availability_zones" = ["1", "2", "3"]
+  },
+  compute = { 
+    "machine_type" = "Standard_E16s_v3"
+    "os_disk_size" = 200
+    "min_node_count" = 1
+    "max_node_count" = 1
+    "node_taints" = ["workload.sas.com/class=compute:NoSchedule"]
+    "node_labels" = {
+      "workload.sas.com/class"        = "compute"
+      "launcher.sas.com/prepullImage" = "sas-programming-environment"
+    }
+    "availability_zones" = ["1", "2", "3"]
+  },
+  connect = { 
+    "machine_type" = "Standard_E16s_v3"
+    "os_disk_size" = 200
+    "min_node_count" = 1
+    "max_node_count" = 1
+    "node_taints" = ["workload.sas.com/class=connect:NoSchedule"]
+    "node_labels" = {
+      "workload.sas.com/class"        = "connect"
+      "launcher.sas.com/prepullImage" = "sas-programming-environment"
+    }
+    "availability_zones" = ["1", "2", "3"]
+  },
+  stateless = { 
+    "machine_type" = "Standard_D16s_v3"
+    "os_disk_size" = 200
+    "min_node_count" = 1
+    "max_node_count" = 2
+    "node_taints" = ["workload.sas.com/class=stateless:NoSchedule"]
+    "node_labels" = { 
+      "workload.sas.com/class" = "stateless" 
+    }
+    "availability_zones" = ["1", "2", "3"]
+  },   
+  stateful = { 
+    "machine_type" = "Standard_D8s_v3"
+    "os_disk_size" = 200
+    "min_node_count" = 1
+    "max_node_count" = 3
+    "node_taints" = ["workload.sas.com/class=stateful:NoSchedule"]
+    "node_labels" = { 
+      "workload.sas.com/class" = "stateful" 
+    }
+    "availability_zones" = ["1", "2", "3"]
+  }
+}
 
 # Jump Box
 create_jump_public_ip          = true

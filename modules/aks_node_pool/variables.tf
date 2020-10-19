@@ -1,9 +1,5 @@
 # REQUIRED variables (must be set by caller of the module)
 
-variable "create_node_pool" {
-  default = false
-}
-
 variable "node_pool_name" {
   type = string
 }

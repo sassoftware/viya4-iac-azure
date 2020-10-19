@@ -135,15 +135,15 @@ output "rwx_filestore_config" {
     "version" : 1,
     "storageDriverName" : "azure-netapp-files",
     "subscriptionID" : split("/", data.azurerm_subscription.current.id)[2],
-    "tenantID" : "${data.azurerm_subscription.current.tenant_id}",
-    "clientID" : "${var.client_id}",
-    "clientSecret" : "${var.client_secret}",
-    "location" : "${module.azure_rg.location}",
-    "serviceLevel" : "${var.netapp_service_level}",
-    "virtualNetwork" : "${azurerm_virtual_network.vnet.name}",
-    "subnet" : "${module.netapp.netapp_subnet}",
+    "tenantID" : data.azurerm_subscription.current.tenant_id,
+    "clientID" : var.client_id,
+    "clientSecret" : var.client_secret,
+    "location" : module.azure_rg.location,
+    "serviceLevel" : var.netapp_service_level,
+    "virtualNetwork" : azurerm_virtual_network.vnet.name,
+    "subnet" : module.netapp.netapp_subnet,
     "defaults" : {
-      "exportRule" : "${local.vnet_cidr_block}",
+      "exportRule" : local.vnet_cidr_block,
     }
   }) : null
 }
