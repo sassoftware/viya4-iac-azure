@@ -123,7 +123,7 @@ data "template_cloudinit_config" "jump" {
 
   part {
     content_type = "text/cloud-config"
-    content      = "${data.template_file.jump-cloudconfig.rendered}"
+    content      = data.template_file.jump-cloudconfig.rendered
   }
 }
 
@@ -172,7 +172,7 @@ data "template_cloudinit_config" "nfs" {
 
   part {
     content_type = "text/cloud-config"
-    content      = "${data.template_file.nfs-cloudconfig.rendered}"
+    content      = data.template_file.nfs-cloudconfig.rendered
   }
 }
 
@@ -253,99 +253,30 @@ data "azurerm_public_ip" "aks_public_ip" {
   name                = split("/", module.aks.cluster_slb_ip_id)[8]
   resource_group_name = "MC_${module.azure_rg.name}_${module.aks.name}_${module.azure_rg.location}"
 
-  depends_on = [module.aks, module.cas_node_pool, module.compute_node_pool, module.connect_node_pool, module.stateless_node_pool, module.stateful_node_pool]
+  depends_on = [module.aks,  module.node_pools]
 }
 
 
-module "cas_node_pool" {
+module "node_pools" {
   source              = "./modules/aks_node_pool"
-  create_node_pool    = var.create_cas_nodepool
-  node_pool_name      = "cas" # <- characters a-z0-9 only with max length of 12
+
+  for_each = var.node_pools
+
+  node_pool_name      = each.key
   aks_cluster_id      = module.aks.cluster_id
   vnet_subnet_id      = module.aks-subnet.subnet_id
-  machine_type        = var.cas_nodepool_vm_type
-  os_disk_size        = var.cas_nodepool_os_disk_size
-  enable_auto_scaling = var.cas_nodepool_auto_scaling
-  node_count          = var.cas_nodepool_node_count
-  max_nodes           = var.cas_nodepool_max_nodes
-  min_nodes           = var.cas_nodepool_min_nodes
-  node_taints         = var.cas_nodepool_taints
-  node_labels         = var.cas_nodepool_labels
-  availability_zones  = var.cas_nodepool_availability_zones
+  machine_type        = each.value.machine_type
+  os_disk_size        = each.value.os_disk_size
+  enable_auto_scaling = each.value.min_node_count == each.value.max_node_count ? false : true 
+  node_count          = each.value.min_node_count
+  min_nodes           = each.value.min_node_count == each.value.max_node_count  ? null : each.value.min_node_count
+  max_nodes           = each.value.min_node_count == each.value.max_node_count  ? null : each.value.max_node_count
+  node_taints         = each.value.node_taints
+  node_labels         = each.value.node_labels
+  availability_zones  = each.value.availability_zones
   tags                = var.tags
 }
 
-module "compute_node_pool" {
-  source              = "./modules/aks_node_pool"
-  create_node_pool    = var.create_compute_nodepool
-  node_pool_name      = "compute" # <- characters a-z0-9 only with max length of 12
-  aks_cluster_id      = module.aks.cluster_id
-  vnet_subnet_id      = module.aks-subnet.subnet_id
-  machine_type        = var.compute_nodepool_vm_type
-  os_disk_size        = var.compute_nodepool_os_disk_size
-  enable_auto_scaling = var.compute_nodepool_auto_scaling
-  node_count          = var.compute_nodepool_node_count
-  max_nodes           = var.compute_nodepool_max_nodes
-  min_nodes           = var.compute_nodepool_min_nodes
-  node_taints         = var.compute_nodepool_taints
-  node_labels         = var.compute_nodepool_labels
-  availability_zones  = var.compute_nodepool_availability_zones
-  tags                = var.tags
-}
-
-module "connect_node_pool" {
-  source              = "./modules/aks_node_pool"
-  create_node_pool    = var.create_connect_nodepool
-  node_pool_name      = "connect" # <- characters a-z0-9 only with max length of 12
-  aks_cluster_id      = module.aks.cluster_id
-  vnet_subnet_id      = module.aks-subnet.subnet_id
-  machine_type        = var.connect_nodepool_vm_type
-  os_disk_size        = var.connect_nodepool_os_disk_size
-  enable_auto_scaling = var.connect_nodepool_auto_scaling
-  node_count          = var.connect_nodepool_node_count
-  max_nodes           = var.connect_nodepool_max_nodes
-  min_nodes           = var.connect_nodepool_min_nodes
-  node_taints         = var.connect_nodepool_taints
-  node_labels         = var.connect_nodepool_labels
-  availability_zones  = var.connect_nodepool_availability_zones
-  tags                = var.tags
-}
-
-module "stateless_node_pool" {
-  source              = "./modules/aks_node_pool"
-  create_node_pool    = var.create_stateless_nodepool
-  node_pool_name      = "stateless" # <- characters a-z0-9 only with max length of 12
-  aks_cluster_id      = module.aks.cluster_id
-  vnet_subnet_id      = module.aks-subnet.subnet_id
-  machine_type        = var.stateless_nodepool_vm_type
-  os_disk_size        = var.stateless_nodepool_os_disk_size
-  enable_auto_scaling = var.stateless_nodepool_auto_scaling
-  node_count          = var.stateless_nodepool_node_count
-  max_nodes           = var.stateless_nodepool_max_nodes
-  min_nodes           = var.stateless_nodepool_min_nodes
-  node_taints         = var.stateless_nodepool_taints
-  node_labels         = var.stateless_nodepool_labels
-  availability_zones  = var.stateless_nodepool_availability_zones
-  tags                = var.tags
-}
-
-module "stateful_node_pool" {
-  source              = "./modules/aks_node_pool"
-  create_node_pool    = var.create_stateful_nodepool
-  node_pool_name      = "stateful" # <- characters a-z0-9 only with max length of 12
-  aks_cluster_id      = module.aks.cluster_id
-  vnet_subnet_id      = module.aks-subnet.subnet_id
-  machine_type        = var.stateful_nodepool_vm_type
-  os_disk_size        = var.stateful_nodepool_os_disk_size
-  enable_auto_scaling = var.stateful_nodepool_auto_scaling
-  node_count          = var.stateful_nodepool_node_count
-  max_nodes           = var.stateful_nodepool_max_nodes
-  min_nodes           = var.stateful_nodepool_min_nodes
-  node_taints         = var.stateful_nodepool_taints
-  node_labels         = var.stateful_nodepool_labels
-  availability_zones  = var.stateful_nodepool_availability_zones
-  tags                = var.tags
-}
 
 module "postgresql" {
   source          = "./modules/postgresql"
