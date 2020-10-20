@@ -97,14 +97,13 @@ You can use `default_public_access_cidrs` to set a default range for all created
 Additional node pools can be created separate from the default nodepool. This is done with the nodepool variable which is a map of objects. Each nodepool requires the following variables
 | Name | Description | Type | Notes |
 | :--- | ---: | ---: | ---: |
-| machine_type | Type of the CAS nodepool VMs | string | |
-| os_disk_size | Disk size for CAS nodepool VMs in GB | number | |
+| machine_type | Type of the nodepool VMs | string | |
+| os_disk_size | Disk size for nodepool VMs in GB | number | |
 | min_node_count | Minimum number of nodes for the nodepool | number | Value must be between 1 and 100. Setting min and max node counts the same disables autoscaling |
 | max_node_count | Maximum number of nodes for the nodepool | number | Value must be between 1 and 100. Setting min and max node counts the same disables autoscaling |
-| node_taints | Taints for the CAS nodepool VMs | list of strings | |
+| node_taints | Taints for the nodepool VMs | list of strings | |
 | node_labels | Labels to add to the nodepool VMs | map | |
 | availability_zones | Availability Zones for nodepool | list of strings | | This value depends on the "location". For example, not all regions have numbered availability zones|
-
 
 The default nodepool configuration is:
 
