@@ -94,7 +94,7 @@ You can use `default_public_access_cidrs` to set a default range for all created
 
 ### Additional Nodepools
 
-Additional node pools can be created separate from the default nodepool. This is done with the nodepool variable which is a map of objects. Each nodepool requires the following variables
+Additional node pools can be created separate from the default nodepool. This is done with the `nodepool` variable which is a map of objects. Each nodepool requires the following variables
 | Name | Description | Type | Notes |
 | :--- | ---: | ---: | ---: |
 | machine_type | Type of the nodepool VMs | string | |
@@ -105,7 +105,7 @@ Additional node pools can be created separate from the default nodepool. This is
 | node_labels | Labels to add to the nodepool VMs | map | |
 | availability_zones | Availability Zones for nodepool | list of strings | | This value depends on the "location". For example, not all regions have numbered availability zones|
 
-The default nodepool configuration is:
+The default values for the nodepool configuration are:
 
 ```yaml
 {
@@ -169,22 +169,6 @@ The default nodepool configuration is:
 }
 ```
 
-
-
-### Compute Nodepool
-
-| Name | Description | Type | Default | Notes |
-| :--- | ---: | ---: | ---: | ---: |
-| create_compute_nodepool | Create Compute nodepool | bool | true | false | |
-| compute_nodepool_vm_type | Type of the Compute nodepool VMs | string | "Standard_E16s_v3" | |
-| compute_nodepool_os_disk_size | Disk size for Compute nodepool VMs in GB | number | 200 | |
-| compute_nodepool_node_count| Number of Compute nodepool VMs | number | 1 | The value must be between 1 and 100 and between `compute_nodepool_min_nodes` and `compute_nodepool_max_nodes` |
-| compute_nodepool_auto_scaling | Enable autoscaling for the Compute nodepool | bool | true | | |
-| compute_nodepool_max_nodes | Maximum number of nodes for the Compute nodepool when using autoscaling | number | 5 | Required, when `compute_nodepool_auto_scaling=true`, specified value must be between 1 and 100 |
-| compute_nodepool_min_nodes | Minimum number of nodes for the Compute nodepool when using autoscaling | number | 1 | Required, when `compute_nodepool_auto_scaling=true`, specified value must be between 1 and 100 |
-| compute_nodepool_taints | Taints for the Compute nodepool VMs | list of strings | ["workload.sas.com/class=compute:NoSchedule"] | |
-| compute_nodepool_labels | Labels to add to the Compute nodepool VMs | map | {"workload.sas.com/class" = "compute"  "launcher.sas.com/prepullImage" = "sas-programming-environment" }  | |
-| compute_nodepool_availability_zones | Availability Zones for the Compute nodepool | list of strings | [] | Note: This value depends on the "location". For example, not all regions have numbered availability zones|
 
 ## Storage
 
