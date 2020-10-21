@@ -94,7 +94,7 @@ You can use `default_public_access_cidrs` to set a default range for all created
 
 ### Additional Nodepools
 
-Additional node pools can be created separate from the default nodepool. This is done with the `nodepool` variable which is a map of objects. Each nodepool requires the following variables
+Additional node pools can be created separate from the default nodepool. This is done with the `node_pools` variable which is a map of objects. Each nodepool requires the following variables
 | Name | Description | Type | Notes |
 | :--- | ---: | ---: | ---: |
 | machine_type | Type of the nodepool VMs | string | |
@@ -105,7 +105,7 @@ Additional node pools can be created separate from the default nodepool. This is
 | node_labels | Labels to add to the nodepool VMs | map | |
 | availability_zones | Availability Zones for nodepool | list of strings | | This value depends on the "location". For example, not all regions have numbered availability zones|
 
-The default values for the nodepool configuration are:
+The default values for the `node_pools` variable are:
 
 ```yaml
 {
