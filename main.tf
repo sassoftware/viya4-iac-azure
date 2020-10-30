@@ -14,9 +14,9 @@ provider "azurerm" {
 }
 
 provider "azuread" {
-  client_id       = var.client_id
-  client_secret   = var.client_secret
-  tenant_id       = var.tenant_id
+  client_id     = var.client_id
+  client_secret = var.client_secret
+  tenant_id     = var.tenant_id
 }
 
 provider "cloudinit" {
@@ -197,7 +197,7 @@ module "nfs" {
 
 module "acr" {
   source                              = "./modules/azurerm_container_registry"
-  create_container_registry           = var.create_container_registry
+  count                               = var.create_container_registry ? 1 : 0
   container_registry_name             = join("", regexall("[a-zA-Z0-9]+", "${var.prefix}acr")) # alpha numeric characters only are allowed
   container_registry_rg               = module.azure_rg.name
   container_registry_location         = var.location
@@ -259,7 +259,7 @@ data "azurerm_public_ip" "aks_public_ip" {
 
 module "cas_node_pool" {
   source              = "./modules/aks_node_pool"
-  create_node_pool    = var.create_cas_nodepool
+  count               = var.create_cas_nodepool ? 1 : 0
   node_pool_name      = "cas" # <- characters a-z0-9 only with max length of 12
   aks_cluster_id      = module.aks.cluster_id
   vnet_subnet_id      = module.aks-subnet.subnet_id
@@ -277,7 +277,7 @@ module "cas_node_pool" {
 
 module "compute_node_pool" {
   source              = "./modules/aks_node_pool"
-  create_node_pool    = var.create_compute_nodepool
+  count               = var.create_compute_nodepool ? 1 : 0
   node_pool_name      = "compute" # <- characters a-z0-9 only with max length of 12
   aks_cluster_id      = module.aks.cluster_id
   vnet_subnet_id      = module.aks-subnet.subnet_id
@@ -295,7 +295,7 @@ module "compute_node_pool" {
 
 module "connect_node_pool" {
   source              = "./modules/aks_node_pool"
-  create_node_pool    = var.create_connect_nodepool
+  count               = var.create_connect_nodepool ? 1 : 0
   node_pool_name      = "connect" # <- characters a-z0-9 only with max length of 12
   aks_cluster_id      = module.aks.cluster_id
   vnet_subnet_id      = module.aks-subnet.subnet_id
@@ -313,7 +313,7 @@ module "connect_node_pool" {
 
 module "stateless_node_pool" {
   source              = "./modules/aks_node_pool"
-  create_node_pool    = var.create_stateless_nodepool
+  count               = var.create_stateless_nodepool ? 1 : 0
   node_pool_name      = "stateless" # <- characters a-z0-9 only with max length of 12
   aks_cluster_id      = module.aks.cluster_id
   vnet_subnet_id      = module.aks-subnet.subnet_id
@@ -331,7 +331,7 @@ module "stateless_node_pool" {
 
 module "stateful_node_pool" {
   source              = "./modules/aks_node_pool"
-  create_node_pool    = var.create_stateful_nodepool
+  count               = var.create_stateful_nodepool ? 1 : 0
   node_pool_name      = "stateful" # <- characters a-z0-9 only with max length of 12
   aks_cluster_id      = module.aks.cluster_id
   vnet_subnet_id      = module.aks-subnet.subnet_id
@@ -348,8 +348,8 @@ module "stateful_node_pool" {
 }
 
 module "postgresql" {
-  source          = "./modules/postgresql"
-  create_postgres = var.create_postgres
+  source = "./modules/postgresql"
+  count  = var.create_postgres ? 1 : 0
 
   resource_group_name             = module.azure_rg.name
   postgres_administrator_login    = var.postgres_administrator_login

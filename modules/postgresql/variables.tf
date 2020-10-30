@@ -1,6 +1,6 @@
 variable "create_postgres" {
   description = "Boolean flag to create Azure Postgres DB"
-  default = true
+  default     = true
 }
 
 variable "resource_group_name" {
@@ -75,12 +75,12 @@ variable "postgres_firewall_rule_prefix" {
 
 variable "postgres_firewall_rules" {
   description = "The list of maps, describing firewall rules"
-  type        = list(object({
-    name      = string
-    start_ip  = string
-    end_ip    = string
+  type = list(object({
+    name     = string
+    start_ip = string
+    end_ip   = string
   }))
-  default     = []
+  default = []
 }
 
 variable "postgres_vnet_rule_prefix" {
@@ -90,11 +90,11 @@ variable "postgres_vnet_rule_prefix" {
 
 variable "postgres_vnet_rules" {
   description = "The list of maps, describing vnet rules."
-  type        = list(object({
+  type = list(object({
     name      = string
     subnet_id = string
   }))
-  default     = []
+  default = []
 }
 
 variable "tags" {

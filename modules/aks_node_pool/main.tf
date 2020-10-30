@@ -1,7 +1,6 @@
 # Reference: https://www.terraform.io/docs/providers/azurerm/r/kubernetes_cluster_node_pool.html
 
 resource "azurerm_kubernetes_cluster_node_pool" "node_pool" {
-  count                 = var.create_node_pool ? 1 : 0
 
   name                  = var.node_pool_name
   kubernetes_cluster_id = var.aks_cluster_id
@@ -17,8 +16,8 @@ resource "azurerm_kubernetes_cluster_node_pool" "node_pool" {
   min_count           = var.min_nodes
 
   #### bug(?) with Azure's node pool resource in terraform.  these are all doced but terraform (v 0.12.24) throwing errors.   
-  node_labels           = var.node_labels
-  node_taints           = var.node_taints
+  node_labels = var.node_labels
+  node_taints = var.node_taints
 
-  tags                  = var.tags
+  tags = var.tags
 }

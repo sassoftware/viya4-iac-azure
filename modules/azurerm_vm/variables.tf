@@ -30,7 +30,7 @@ variable "vm_admin" {
 
 variable "ssh_public_key" {
   description = "Path to ssh public key"
-  default = ""
+  default     = ""
 }
 
 variable "os_publisher" {

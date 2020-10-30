@@ -95,11 +95,11 @@ output aks_private_key_pem {
 
 # acr
 output "acr_id" {
-  value = module.acr.acr_id
+  value = var.create_container_registry ? module.acr.acr_id : null
 }
 
 output "acr_url" {
-  value = module.acr.acr_login_server
+  value = var.create_container_registry ? module.acr.acr_login_server : null
 }
 
 output "location" {
