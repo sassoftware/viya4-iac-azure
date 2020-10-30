@@ -4,32 +4,34 @@ Supported configuration variables are listed in the table below.  All variables 
 
 ## Table of Contents
 
-* [Required Variables](#required-variables)
-  * [Application](#application)
-  * [Azure Authentication](#azure-authentication)
-* [Admin Access](#admin-access)
-* [General](#general)
-* [Nodepools](#nodepools)
-  * [Default Nodepool](#default-nodepool)
-  * [Additional Nodepool](#additional-nodepools)
-* [Storage](#storage)
-  * [storage_type=standard - nfs server VM](#storage-type-standard---nfs-server-vm)
-  * [storage_type=ha - Azure NetApp](#storage-type-ha---azure-netapp)
-* [Azure Container Registry (ACR)](#azure-container-registry--acr-)
-* [Postgres](#postgres)
+- [List of valid configuration variables](#list-of-valid-configuration-variables)
+  - [Table of Contents](#table-of-contents)
+  - [Required Variables](#required-variables)
+    - [Application](#application)
+    - [Azure Authentication](#azure-authentication)
+  - [Admin Access](#admin-access)
+  - [General](#general)
+  - [Nodepools](#nodepools)
+    - [Default Nodepool](#default-nodepool)
+    - [Additional Nodepools](#additional-nodepools)
+  - [Storage](#storage)
+    - [storage_type=standard - nfs server VM](#storage_typestandard---nfs-server-vm)
+    - [storage_type=ha - Azure NetApp](#storage_typeha---azure-netapp)
+  - [Azure Container Registry (ACR)](#azure-container-registry-acr)
+  - [Postgres](#postgres)
 
 Terraform input variables can be set in the following ways:
 
-* Individually, with the [-var command line option](https://www.terraform.io/docs/configuration/variables.html#variables-on-the-command-line).
-* In [variable definitions (.tfvars) files](https://www.terraform.io/docs/configuration/variables.html#variable-definitions-tfvars-files). We recommend this way for most variables.
-* As [environment variables](https://www.terraform.io/docs/configuration/variables.html#environment-variables). We recommend this way for the variables that set the [Azure authentication](#required-variables-for-azure-authentication).
+- Individually, with the [-var command line option](https://www.terraform.io/docs/configuration/variables.html#variables-on-the-command-line).
+- In [variable definitions (.tfvars) files](https://www.terraform.io/docs/configuration/variables.html#variable-definitions-tfvars-files). We recommend this way for most variables.
+- As [environment variables](https://www.terraform.io/docs/configuration/variables.html#environment-variables). We recommend this way for the variables that set the [Azure authentication](#required-variables-for-azure-authentication).
 
 ## Required Variables
 
 ### [Application](#application)
 
 | Name | Description | Type | Default | Notes |
-| :--- | ---: | ---: | ---: | ---: | 
+| :--- | ---: | ---: | ---: | ---: |
 | prefix | A prefix used in the name of all the Azure resources created by this script. | string | | The prefix string must start with a lowercase letter and contain only alphanumeric characters and dashes (-), but cannot end with a dash. |
 | location | The Azure Region to provision all resources in this script | string | "East US" | |
 | tags | Map of common tags to be placed on all Azure resources created by this script | map | { project_name = "sasviya4", environment = "dev" } | |
@@ -45,7 +47,7 @@ Find details on how to retrieve that information under [Azure Help Topics](./doc
 | tenant_id | your Azure tenant id | string  |
 | subscription_id | your Azure subscription id | string  |
 | client_id | your Azure Service Principal id | string |
-| client_secret | your Azure Service Principal secret | string |  
+| client_secret | your Azure Service Principal secret | string |
 
 For recommendation on how to set these variables in your environment, see [Authenticating Terraform to access Azure](user/TerraformAzureAuthentication.md).
 
@@ -85,7 +87,7 @@ You can use `default_public_access_cidrs` to set a default range for all created
 | node_vm_admin | OS Admin User for VMs of AKS Cluster nodes | string | "azureuser" | |
 | default_nodepool_node_count | Number of node in the default nodepool | number | 2 | The value must be between 1 and 100 and between `default_nodepool_min_nodes` and `default_nodepool_max_nodes`|
 | default_nodepool_vm_type | Type of the default nodepool VMs | string | "Standard_D4_v2" | |
-| default_nodepool_auto_scaling | Enable autoscaling for the AKS cluster default nodepool | bool | false | see https://docs.microsoft.com/en-us/azure/aks/cluster-autoscaler |
+| default_nodepool_auto_scaling | Enable autoscaling for the AKS cluster default nodepool | bool | false | See: [Microsoft Cluster Autoscaler](https://docs.microsoft.com/en-us/azure/aks/cluster-autoscaler) |
 | default_nodepool_os_disk_size | Disk size for default nodepool VMs in GB | number | 128 ||
 | default_nodepool_max_pods | Maximum number of pods that can run on each | number | 110 | Changing this forces a new resource to be created |
 | default_nodepool_max_nodes | Maximum number of nodes for the default nodepool when using autoscaling | number | 5 | Required, when `default_nodepool_auto_scaling=true`, value must be between 1 and 100 |
@@ -169,7 +171,6 @@ The default values for the `node_pools` variable are:
 }
 ```
 
-
 ## Storage
 
 | Name | Description | Type | Default | Notes |
@@ -212,7 +213,7 @@ The default values for the `node_pools` variable are:
 | postgres_storage_mb | Max storage allowed for the PostgreSQL server | number | 51200 | Possible values are between 5120 MB(5GB) and 1048576 MB(1TB) for the Basic SKU and between 5120 MB(5GB) and 4194304 MB(4TB) for General Purpose/Memory Optimized SKUs |
 | postgres_backup_retention_days | Backup retention days for the PostgreSQL server | number | 7 | Supported values are between 7 and 35 days. |
 | postgres_geo_redundant_backup_enabled | Enable Geo-redundant or not for server backup | bool | false | Not supported for the basic tier. |
-| postgres_administrator_login | The Administrator Login for the PostgreSQL Server. Changing this forces a new resource to be created. | string | "pgadmin" | The admin login name cannot be azure_superuser, azure_pg_admin, admin, administrator, root, guest, or public. It cannot start with pg_. See https://docs.microsoft.com/en-us/azure/postgresql/quickstart-create-server-database-portal |
+| postgres_administrator_login | The Administrator Login for the PostgreSQL Server. Changing this forces a new resource to be created. | string | "pgadmin" | The admin login name cannot be azure_superuser, azure_pg_admin, admin, administrator, root, guest, or public. It cannot start with pg_. See: [Microsoft Quickstart Server Database](https://docs.microsoft.com/en-us/azure/postgresql/quickstart-create-server-database-portal) |
 | postgres_administrator_password | The Password associated with the postgres_administrator_login for the PostgreSQL Server | string | | The password must contain between 8 and 128 characters and must contain characters from three of the following categories: English uppercase letters, English lowercase letters, numbers (0 through 9), and non-alphanumeric characters (!, $, #, %, etc.). |
 | postgres_server_version | The version of the Azure Database for PostgreSQL server instance. Valid values are "9.5", "9.6", "10.0", and "11". Changing this forces a new resource to be created.| string | "11" | |
 | postgres_ssl_enforcement_enabled | Enforce SSL on connection to the Azure Database for PostgreSQL server instance | bool | true | |
