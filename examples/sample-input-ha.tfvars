@@ -5,7 +5,7 @@
 # ****************  REQUIRED VARIABLES  ****************
 # These required variables' values MUST be provided by the user
 prefix                                  = "<prefix-value>"
-location                                = "<azure-location-value>" # e.g., "useast2"
+location                                = "<azure-location-value>" # e.g., "eastus2"
 # ****************  REQUIRED VARIABLES  ****************
 
 # !NOTE! - Without specifying your CIDR block access rules, ingress traffic
