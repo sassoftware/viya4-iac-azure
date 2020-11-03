@@ -4,21 +4,20 @@ Supported configuration variables are listed in the table below.  All variables 
 
 ## Table of Contents
 
-- [List of valid configuration variables](#list-of-valid-configuration-variables)
-  - [Table of Contents](#table-of-contents)
-  - [Required Variables](#required-variables)
-    - [Application](#application)
-    - [Azure Authentication](#azure-authentication)
-  - [Admin Access](#admin-access)
-  - [General](#general)
-  - [Nodepools](#nodepools)
-    - [Default Nodepool](#default-nodepool)
-    - [Additional Nodepools](#additional-nodepools)
-  - [Storage](#storage)
-    - [storage_type=standard - nfs server VM](#storage_typestandard---nfs-server-vm)
-    - [storage_type=ha - Azure NetApp](#storage_typeha---azure-netapp)
-  - [Azure Container Registry (ACR)](#azure-container-registry-acr)
-  - [Postgres](#postgres)
+- [Table of Contents](#table-of-contents)
+- [Required Variables](#required-variables)
+  - [Application](#application)
+  - [Azure Authentication](#azure-authentication)
+- [Admin Access](#admin-access)
+- [General](#general)
+- [Nodepools](#nodepools)
+  - [Default Nodepool](#default-nodepool)
+  - [Additional Nodepools](#additional-nodepools)
+- [Storage](#storage)
+  - [storage_type=standard - nfs server VM](#storage_typestandard---nfs-server-vm)
+  - [storage_type=ha - Azure NetApp](#storage_typeha---azure-netapp)
+- [Azure Container Registry (ACR)](#azure-container-registry-acr)
+- [Postgres](#postgres)
 
 Terraform input variables can be set in the following ways:
 
