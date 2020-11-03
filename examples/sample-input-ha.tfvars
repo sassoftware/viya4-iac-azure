@@ -5,19 +5,21 @@
 # ****************  REQUIRED VARIABLES  ****************
 # These required variables' values MUST be provided by the user
 prefix                                  = "<prefix-value>"
-location                                = "<azure-location-value>" # e.g., "useast2"
-tags                                    = { } # e.g., { "key1" = "value1", "key2" = "value2" }
+location                                = "<azure-location-value>" # e.g., "eastus2"
 # ****************  REQUIRED VARIABLES  ****************
+
+# !NOTE! - Without specifying your CIDR block access rules, ingress traffic
+#          to your cluster will be blocked by default.
+
+# **************  RECOMMENDED  VARIABLES  ***************
+default_public_access_cidrs             = []  # e.g., ["123.45.6.89/32"]
+# **************  RECOMMENDED  VARIABLES  ***************
+
+# Tags for all taggable items in your cluster.
+tags                                    = { } # e.g., { "key1" = "value1", "key2" = "value2" }
 
 # When a ssh key value is provided it will be used for all VMs or else a ssh key will be auto generated and available in outputs
 ssh_public_key                  = "~/.ssh/id_rsa.pub"
-
-# Admins access
-default_public_access_cidrs             = []  # e.g., ["123.45.6.89/32"]
-cluster_endpoint_public_access_cidrs    = []  # e.g., ["123.45.6.89/32"]
-acr_public_access_cidrs                 = []  # e.g., ["123.45.6.89/32"]
-vm_public_access_cidrs                  = []  # e.g., ["123.45.6.89/32"]
-postgres_public_access_cidrs            = []  # e.g., ["123.45.6.89/32"]
 
 # Azure Postgres config
 create_postgres                  = true # set this to "false" when using internal Crunchy Postgres
