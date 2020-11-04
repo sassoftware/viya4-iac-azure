@@ -14,9 +14,9 @@ provider "azurerm" {
 }
 
 provider "azuread" {
-  client_id       = var.client_id
-  client_secret   = var.client_secret
-  tenant_id       = var.tenant_id
+  client_id     = var.client_id
+  client_secret = var.client_secret
+  tenant_id     = var.tenant_id
 }
 
 provider "cloudinit" {
@@ -27,6 +27,16 @@ data "azurerm_subscription" "current" {}
 
 data "azuread_service_principal" "sp_client" {
   application_id = var.client_id
+}
+
+resource "tls_private_key" "private_key" {
+  count     = var.ssh_public_key == "" ? 1 : 0
+  algorithm = "RSA"
+}
+
+data "tls_public_key" "public_key" {
+  count           = var.ssh_public_key == "" ? 1 : 0
+  private_key_pem = element(coalescelist(tls_private_key.private_key.*.private_key_pem), 0)
 }
 
 locals {
@@ -45,6 +55,7 @@ locals {
   cluster_endpoint_public_access_cidrs = length(local.cluster_endpoint_cidrs) == 0 ? ["0.0.0.0/32"] : local.cluster_endpoint_cidrs
   postgres_public_access_cidrs         = var.postgres_public_access_cidrs == null ? local.default_public_access_cidrs : var.postgres_public_access_cidrs
   postgres_firewall_rules              = [for addr in local.postgres_public_access_cidrs : { "name" : replace(replace(addr, "/", "_"), ".", "_"), "start_ip" : cidrhost(addr, 0), "end_ip" : cidrhost(addr, abs(pow(2, 32 - split("/", addr)[1]) - 1)) }]
+  ssh_public_key                       = var.ssh_public_key != "" ? file(var.ssh_public_key) : element(coalescelist(data.tls_public_key.public_key.*.public_key_openssh, [""]), 0)
 }
 
 
@@ -137,10 +148,9 @@ module "jump" {
   tags              = var.tags
   create_vm         = local.create_jump_vm
   vm_admin          = var.jump_vm_admin
-  ssh_public_key    = var.ssh_public_key
-  # ssh_private_key   = var.ssh_private_key
-  cloud_init       = var.storage_type == "dev" ? null : data.template_cloudinit_config.jump.rendered
-  create_public_ip = var.create_jump_public_ip
+  ssh_public_key    = local.ssh_public_key
+  cloud_init        = var.storage_type == "dev" ? null : data.template_cloudinit_config.jump.rendered
+  create_public_ip  = var.create_jump_public_ip
 }
 
 resource "azurerm_network_security_rule" "ssh" {
@@ -189,10 +199,9 @@ module "nfs" {
   data_disk_count   = 4
   data_disk_size    = var.nfs_raid_disk_size
   vm_admin          = var.nfs_vm_admin
-  ssh_public_key    = var.ssh_public_key
-  # ssh_private_key   = var.ssh_private_key
-  cloud_init       = data.template_cloudinit_config.nfs.rendered
-  create_public_ip = var.create_nfs_public_ip
+  ssh_public_key    = local.ssh_public_key
+  cloud_init        = data.template_cloudinit_config.nfs.rendered
+  create_public_ip  = var.create_nfs_public_ip
 }
 
 module "acr" {
@@ -239,7 +248,7 @@ module "aks" {
   aks_cluster_os_disk_size                 = var.default_nodepool_os_disk_size
   aks_cluster_node_vm_size                 = var.default_nodepool_vm_type
   aks_cluster_node_admin                   = var.node_vm_admin
-  aks_cluster_ssh_public_key               = var.ssh_public_key
+  aks_cluster_ssh_public_key               = local.ssh_public_key
   aks_vnet_subnet_id                       = module.aks-subnet.subnet_id
   aks_client_id                            = var.client_id
   aks_client_secret                        = var.client_secret
@@ -253,12 +262,12 @@ data "azurerm_public_ip" "aks_public_ip" {
   name                = split("/", module.aks.cluster_slb_ip_id)[8]
   resource_group_name = "MC_${module.azure_rg.name}_${module.aks.name}_${module.azure_rg.location}"
 
-  depends_on = [module.aks,  module.node_pools]
+  depends_on = [module.aks, module.node_pools]
 }
 
 
 module "node_pools" {
-  source              = "./modules/aks_node_pool"
+  source = "./modules/aks_node_pool"
 
   for_each = var.node_pools
 
@@ -267,10 +276,10 @@ module "node_pools" {
   vnet_subnet_id      = module.aks-subnet.subnet_id
   machine_type        = each.value.machine_type
   os_disk_size        = each.value.os_disk_size
-  enable_auto_scaling = each.value.min_node_count == each.value.max_node_count ? false : true 
+  enable_auto_scaling = each.value.min_node_count == each.value.max_node_count ? false : true
   node_count          = each.value.min_node_count
-  min_nodes           = each.value.min_node_count == each.value.max_node_count  ? null : each.value.min_node_count
-  max_nodes           = each.value.min_node_count == each.value.max_node_count  ? null : each.value.max_node_count
+  min_nodes           = each.value.min_node_count == each.value.max_node_count ? null : each.value.min_node_count
+  max_nodes           = each.value.min_node_count == each.value.max_node_count ? null : each.value.max_node_count
   node_taints         = each.value.node_taints
   node_labels         = each.value.node_labels
   availability_zones  = each.value.availability_zones

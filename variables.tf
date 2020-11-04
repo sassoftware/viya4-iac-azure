@@ -276,71 +276,71 @@ variable netapp_volume_path {
 
 variable node_pools {
   description = "Node pool definitions"
-    type = map(object({
-    machine_type            = string
-    os_disk_size            = number
-    min_node_count          = string
-    max_node_count          = string
-    node_taints             = list(string)
-    node_labels             = map(string)
-    availability_zones      = list(string)
+  type = map(object({
+    machine_type       = string
+    os_disk_size       = number
+    min_node_count     = string
+    max_node_count     = string
+    node_taints        = list(string)
+    node_labels        = map(string)
+    availability_zones = list(string)
   }))
 
   default = {
-    cas = { 
-      "machine_type" = "Standard_E16s_v3"
-      "os_disk_size" = 200
+    cas = {
+      "machine_type"   = "Standard_E16s_v3"
+      "os_disk_size"   = 200
       "min_node_count" = 1
       "max_node_count" = 5
-      "node_taints" = ["workload.sas.com/class=cas:NoSchedule"]
-      "node_labels" = { 
-        "workload.sas.com/class" = "cas" 
+      "node_taints"    = ["workload.sas.com/class=cas:NoSchedule"]
+      "node_labels" = {
+        "workload.sas.com/class" = "cas"
       }
       "availability_zones" = []
     },
-    compute = { 
-      "machine_type" = "Standard_E16s_v3"
-      "os_disk_size" = 200
+    compute = {
+      "machine_type"   = "Standard_E16s_v3"
+      "os_disk_size"   = 200
       "min_node_count" = 1
       "max_node_count" = 5
-      "node_taints" = ["workload.sas.com/class=compute:NoSchedule"]
+      "node_taints"    = ["workload.sas.com/class=compute:NoSchedule"]
       "node_labels" = {
         "workload.sas.com/class"        = "compute"
         "launcher.sas.com/prepullImage" = "sas-programming-environment"
       }
       "availability_zones" = []
     },
-    connect = { 
-      "machine_type" = "Standard_E16s_v3"
-      "os_disk_size" = 200
+    connect = {
+      "machine_type"   = "Standard_E16s_v3"
+      "os_disk_size"   = 200
       "min_node_count" = 1
       "max_node_count" = 5
-      "node_taints" = ["workload.sas.com/class=connect:NoSchedule"]
+      "node_taints"    = ["workload.sas.com/class=connect:NoSchedule"]
       "node_labels" = {
         "workload.sas.com/class"        = "connect"
         "launcher.sas.com/prepullImage" = "sas-programming-environment"
       }
       "availability_zones" = []
     },
-    stateless = { 
-      "machine_type" = "Standard_D16s_v3"
-      "os_disk_size" = 200
+    stateless = {
+      "machine_type"   = "Standard_D16s_v3"
+      "os_disk_size"   = 200
       "min_node_count" = 1
       "max_node_count" = 5
-      "node_taints" = ["workload.sas.com/class=stateless:NoSchedule"]
-      "node_labels" = { 
-        "workload.sas.com/class" = "stateless" 
+      "node_taints"    = ["workload.sas.com/class=stateless:NoSchedule"]
+      "node_labels" = {
+        "workload.sas.com/class" = "stateless"
       }
       "availability_zones" = []
-    },   
-    stateful = { 
-      "machine_type" = "Standard_D8s_v3"
-      "os_disk_size" = 200
+    },
+    stateful = {
+      "machine_type"   = "Standard_D8s_v3"
+      "os_disk_size"   = 200
       "min_node_count" = 1
       "max_node_count" = 3
-      "node_taints" = ["workload.sas.com/class=stateful:NoSchedule"]
-      "node_labels" = { 
-        "workload.sas.com/class" = "stateful" 
+      "node_taints"    = ["workload.sas.com/class=stateful:NoSchedule"]
+      "node_labels" = {
+        "workload.sas.com/class" = "stateful"
       }
       "availability_zones" = []
     }

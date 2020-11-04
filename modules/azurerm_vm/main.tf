@@ -6,14 +6,14 @@ resource "azurerm_public_ip" "vm_ip" {
   resource_group_name = var.azure_rg_name
   allocation_method   = "Static"
   sku                 = "Basic"
-  tags = var.tags
+  tags                = var.tags
 }
 
 resource "azurerm_network_interface" "vm_nic" {
-  count               = var.create_vm ? 1 : 0
-  name                = "${var.name}-nic"
-  location            = var.azure_rg_location
-  resource_group_name = var.azure_rg_name
+  count                         = var.create_vm ? 1 : 0
+  name                          = "${var.name}-nic"
+  location                      = var.azure_rg_location
+  resource_group_name           = var.azure_rg_name
   enable_accelerated_networking = var.enable_accelerated_networking
 
   ip_configuration {
@@ -32,7 +32,7 @@ resource "azurerm_network_interface_security_group_association" "vm_nic_sg" {
 }
 
 resource "azurerm_managed_disk" "vm_data_disk" {
-  name                 = format("%s-disk%02d", var.name, count.index+1)
+  name                 = format("%s-disk%02d", var.name, count.index + 1)
   location             = var.azure_rg_location
   resource_group_name  = var.azure_rg_name
   storage_account_type = "Standard_LRS"
@@ -50,20 +50,6 @@ resource "azurerm_virtual_machine_data_disk_attachment" "vm_data_disk_attach" {
   count              = var.create_vm ? var.data_disk_count : 0
 }
 
-resource "tls_private_key" "private_key" {
-  count = var.ssh_public_key == "" ? 1 : 0
-  algorithm = "RSA"
-}
-
-data "tls_public_key" "public_key" {
-  count = var.ssh_public_key == "" ? 1 : 0
-  private_key_pem = element(coalescelist(tls_private_key.private_key.*.private_key_pem), 0)
-}
-
-locals {
-  ssh_public_key = var.ssh_public_key != "" ? file(var.ssh_public_key) : element(coalescelist(data.tls_public_key.public_key.*.public_key_openssh, [""]), 0)
-}
-
 resource "azurerm_linux_virtual_machine" "vm" {
   count               = var.create_vm ? 1 : 0
   name                = "${var.name}-vm"
@@ -73,7 +59,7 @@ resource "azurerm_linux_virtual_machine" "vm" {
   admin_username      = var.vm_admin
 
   #Cloud Init
-  custom_data         = (var.cloud_init != "" ? var.cloud_init : null)
+  custom_data = (var.cloud_init != "" ? var.cloud_init : null)
 
   network_interface_ids = [
     azurerm_network_interface.vm_nic.0.id,
@@ -81,7 +67,7 @@ resource "azurerm_linux_virtual_machine" "vm" {
 
   admin_ssh_key {
     username   = var.vm_admin
-    public_key = local.ssh_public_key
+    public_key = var.ssh_public_key
   }
 
   os_disk {

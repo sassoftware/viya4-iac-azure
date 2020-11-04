@@ -39,6 +39,14 @@ output "postgres_server_port" {
   value = var.create_postgres ? "5432" : null
 }
 
+# ssh keys
+output "ssh_private_key" {
+  value = var.ssh_public_key == "" ? element(coalescelist(data.tls_public_key.public_key.*.private_key_pem, [""]), 0) : null
+}
+output "ssh_public_key" {
+  value = var.ssh_public_key == "" ? element(coalescelist(data.tls_public_key.public_key.*.public_key_pem, [""]), 0) : null
+}
+
 # jump server
 output jump_private_ip {
   value = local.create_jump_vm ? module.jump.private_ip_address : null
@@ -52,17 +60,6 @@ output jump_admin_username {
   value = local.create_jump_vm ? module.jump.admin_username : null
 }
 
-output jump_private_key_pem {
-  value = local.create_jump_vm ? module.jump.private_key_pem : null
-}
-
-output jump_public_key_pem {
-  value = local.create_jump_vm ? module.jump.public_key_pem : null
-}
-
-output jump_public_key_openssh {
-  value = local.create_jump_vm ? module.jump.public_key_openssh : null
-}
 
 # nfs server
 output nfs_private_ip {
@@ -75,22 +72,6 @@ output nfs_public_ip {
 
 output nfs_admin_username {
   value = var.storage_type == "standard" ? module.nfs.admin_username : null
-}
-
-output nfs_private_key_pem {
-  value = var.storage_type != "dev" ? module.nfs.private_key_pem : null
-}
-
-output nfs_public_key_pem {
-  value = var.storage_type != "dev" ? module.nfs.public_key_pem : null
-}
-
-output nfs_public_key_openssh {
-  value = var.storage_type != "dev" ? module.nfs.public_key_openssh : null
-}
-
-output aks_private_key_pem {
-  value = var.storage_type != "dev" ? module.aks.private_key_pem : null
 }
 
 # acr
