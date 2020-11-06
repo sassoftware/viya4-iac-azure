@@ -290,7 +290,7 @@ variable node_pools {
     cas = {
       "machine_type"   = "Standard_E16s_v3"
       "os_disk_size"   = 200
-      "min_node_count" = 1
+      "min_node_count" = 0
       "max_node_count" = 5
       "node_taints"    = ["workload.sas.com/class=cas:NoSchedule"]
       "node_labels" = {
@@ -301,7 +301,7 @@ variable node_pools {
     compute = {
       "machine_type"   = "Standard_E16s_v3"
       "os_disk_size"   = 200
-      "min_node_count" = 1
+      "min_node_count" = 0
       "max_node_count" = 5
       "node_taints"    = ["workload.sas.com/class=compute:NoSchedule"]
       "node_labels" = {
@@ -313,7 +313,7 @@ variable node_pools {
     connect = {
       "machine_type"   = "Standard_E16s_v3"
       "os_disk_size"   = 200
-      "min_node_count" = 1
+      "min_node_count" = 0
       "max_node_count" = 5
       "node_taints"    = ["workload.sas.com/class=connect:NoSchedule"]
       "node_labels" = {
@@ -325,7 +325,7 @@ variable node_pools {
     stateless = {
       "machine_type"   = "Standard_D16s_v3"
       "os_disk_size"   = 200
-      "min_node_count" = 1
+      "min_node_count" = 0
       "max_node_count" = 5
       "node_taints"    = ["workload.sas.com/class=stateless:NoSchedule"]
       "node_labels" = {
@@ -336,7 +336,7 @@ variable node_pools {
     stateful = {
       "machine_type"   = "Standard_D8s_v3"
       "os_disk_size"   = 200
-      "min_node_count" = 1
+      "min_node_count" = 0
       "max_node_count" = 3
       "node_taints"    = ["workload.sas.com/class=stateful:NoSchedule"]
       "node_labels" = {
