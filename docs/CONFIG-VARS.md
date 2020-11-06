@@ -99,8 +99,8 @@ Additional node pools can be created separate from the default nodepool. This is
 | :--- | ---: | ---: | ---: |
 | machine_type | Type of the nodepool VMs | string | |
 | os_disk_size | Disk size for nodepool VMs in GB | number | |
-| min_node_count | Minimum number of nodes for the nodepool | number | Value must be between 1 and 100. Setting min and max node counts the same disables autoscaling |
-| max_node_count | Maximum number of nodes for the nodepool | number | Value must be between 1 and 100. Setting min and max node counts the same disables autoscaling |
+| min_node_count | Minimum number of nodes for the nodepool | number | Value must be between 0 and 100. Setting min and max node counts the same disables autoscaling |
+| max_node_count | Maximum number of nodes for the nodepool | number | Value must be between 0 and 100. Setting min and max node counts the same disables autoscaling |
 | node_taints | Taints for the nodepool VMs | list of strings | |
 | node_labels | Labels to add to the nodepool VMs | map | |
 | availability_zones | Availability Zones for nodepool | list of strings | | This value depends on the "location". For example, not all regions have numbered availability zones|
