@@ -71,5 +71,10 @@ resource "azurerm_kubernetes_cluster" "aks" {
     delete = "90m"
   }
 
+  lifecycle {
+    ignore_changes = [default_node_pool.0.node_count]
+  }
+
+
   tags = var.aks_cluster_tags
 }
