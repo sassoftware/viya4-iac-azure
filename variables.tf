@@ -5,6 +5,11 @@ variable client_secret {}
 variable subscription_id {}
 variable tenant_id {}
 
+variable "partner_id" {
+  description = "A GUID/UUID that is registered with Microsoft to facilitate partner resource usage attribution"
+  type        = string
+  default     = "5d27f3ae-e49c-4dea-9aa3-b44e4750cd8c"
+}
 
 variable "prefix" {
   description = "A prefix used in the name for all the Azure resources created by this script. The prefix string must start with lowercase letter and contain only alphanumeric characters and hyphen or dash(-), but can not start or end with '-'."
