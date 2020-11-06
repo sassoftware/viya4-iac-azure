@@ -1,6 +1,6 @@
 # !NOTE! - These are only a subset of variables.tf provided for sample.
-# Customize this file to add any variables from 'variables.tf' that you want 
-# to change their default values. 
+# Customize this file to add any variables from 'variables.tf' that you want
+# to change their default values.
 
 # ****************  REQUIRED VARIABLES  ****************
 # These required variables' values MUST be provided by the user
@@ -39,18 +39,18 @@ default_nodepool_vm_type             = "Standard_D4_v2"
 
 # AKS Node Pools config
 node_pools = {
-  cas = { 
+  cas = {
     "machine_type" = "Standard_E16s_v3"
     "os_disk_size" = 200
     "min_node_count" = 2
     "max_node_count" = 3
     "node_taints" = ["workload.sas.com/class=cas:NoSchedule"]
-    "node_labels" = { 
-      "workload.sas.com/class" = "cas" 
+    "node_labels" = {
+      "workload.sas.com/class" = "cas"
     }
     "availability_zones" = ["1", "2", "3"]
   },
-  compute = { 
+  compute = {
     "machine_type" = "Standard_E16s_v3"
     "os_disk_size" = 200
     "min_node_count" = 2
@@ -62,7 +62,7 @@ node_pools = {
     }
     "availability_zones" = ["1", "2", "3"]
   },
-  connect = { 
+  connect = {
     "machine_type" = "Standard_E16s_v3"
     "os_disk_size" = 200
     "min_node_count" = 2
@@ -74,25 +74,25 @@ node_pools = {
     }
     "availability_zones" = ["1", "2", "3"]
   },
-  stateless = { 
+  stateless = {
     "machine_type" = "Standard_D16s_v3"
     "os_disk_size" = 200
     "min_node_count" = 2
     "max_node_count" = 3
     "node_taints" = ["workload.sas.com/class=stateless:NoSchedule"]
-    "node_labels" = { 
-      "workload.sas.com/class" = "stateless" 
+    "node_labels" = {
+      "workload.sas.com/class" = "stateless"
     }
     "availability_zones" = ["1", "2", "3"]
-  },   
-  stateful = { 
+  },
+  stateful = {
     "machine_type" = "Standard_D8s_v3"
     "os_disk_size" = 200
     "min_node_count" = 2
     "max_node_count" = 3
     "node_taints" = ["workload.sas.com/class=stateful:NoSchedule"]
-    "node_labels" = { 
-      "workload.sas.com/class" = "stateful" 
+    "node_labels" = {
+      "workload.sas.com/class" = "stateful"
     }
     "availability_zones" = ["1", "2", "3"]
   }

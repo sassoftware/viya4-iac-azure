@@ -28,7 +28,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "autoscale_node_pool" {
 
 resource "azurerm_kubernetes_cluster_node_pool" "static_node_pool" {
   count                 = var.enable_auto_scaling ? 0 : 1
-  
+
   name                  = var.node_pool_name
   kubernetes_cluster_id = var.aks_cluster_id
   vnet_subnet_id        = var.vnet_subnet_id

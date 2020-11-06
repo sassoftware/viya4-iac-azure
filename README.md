@@ -68,7 +68,7 @@ When using a variable definition file other than `terraform.tfvars`, see [Advanc
 
 ### Running Terraform Commands
 
-Initialize the Terraform environment for this project by running 
+Initialize the Terraform environment for this project by running
 
 ```bash
 terraform init
@@ -119,7 +119,7 @@ See [troubleshooting](./docs/Troubleshooting.md) page.
 
 ## Contributing
 
-> We welcome your contributions! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on how to submit contributions to this project. 
+> We welcome your contributions! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on how to submit contributions to this project.
 
 ## License
 
@@ -127,17 +127,17 @@ See [troubleshooting](./docs/Troubleshooting.md) page.
 
 ## Additional Resources
 
-### Azure
+### Azure resources
 
-- Azure CLI - https://docs.microsoft.com/en-gb/cli/azure/?view=azure-cli-latest
-- Terraform on Azure - https://docs.microsoft.com/en-us/azure/terraform/
-- Configure Terraform access to Azure - https://docs.microsoft.com/en-us/azure/terraform/terraform-install-configure
-- AKS intro - https://docs.microsoft.com/en-us/azure/aks/intro-kubernetes
-- Service Principal for AKS - https://docs.microsoft.com/en-us/azure/aks/kubernetes-service-principal
-- Create AKS using Terraform - https://docs.microsoft.com/en-us/azure/terraform/terraform-create-k8s-cluster-with-tf-and-aks
-- Azure Active Directory(AD) & Service Principal(SP) concepts - https://docs.microsoft.com/en-us/azure/active-directory/develop/app-objects-and-service-principals
+- [Azure CLI](https://docs.microsoft.com/en-gb/cli/azure/?view=azure-cli-latest)
+- [Terraform on Azure](https://docs.microsoft.com/en-us/azure/terraform)
+- [Configure Terraform access to Azure](https://docs.microsoft.com/en-us/azure/terraform/terraform-install-configure)
+- [AKS intro](https://docs.microsoft.com/en-us/azure/aks/intro-kubernetes)
+- [Service Principal for AKS](https://docs.microsoft.com/en-us/azure/aks/kubernetes-service-principal)
+- [Create AKS using Terraform](https://docs.microsoft.com/en-us/azure/terraform/terraform-create-k8s-cluster-with-tf-and-aks)
+- [Azure Active Directory(AD) & Service Principal(SP) concepts](https://docs.microsoft.com/en-us/azure/active-directory/develop/app-objects-and-service-principals)
 
-### Terraform 
+### Terraform resources
 
-- Azure Provider - https://www.terraform.io/docs/providers/azurerm/index.html
-- Azure AKS - https://www.terraform.io/docs/providers/azurerm/r/kubernetes_cluster.html
+- [Azure Provider](https://www.terraform.io/docs/providers/azurerm/index.html)
+- [Azure AKS](https://www.terraform.io/docs/providers/azurerm/r/kubernetes_cluster.html)
