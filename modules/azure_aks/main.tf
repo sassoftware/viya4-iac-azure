@@ -1,20 +1,3 @@
-#
-# Need to add in ssh_key generation here as well.
-#
-resource "tls_private_key" "private_key" {
-  count     = var.aks_cluster_ssh_public_key == "" ? 1 : 0
-  algorithm = "RSA"
-}
-
-data "tls_public_key" "public_key" {
-  count           = var.aks_cluster_ssh_public_key == "" ? 1 : 0
-  private_key_pem = element(coalescelist(tls_private_key.private_key.*.private_key_pem), 0)
-}
-
-locals {
-  ssh_public_key = var.aks_cluster_ssh_public_key != "" ? file(var.aks_cluster_ssh_public_key) : element(coalescelist(data.tls_public_key.public_key.*.public_key_openssh, [""]), 0)
-}
-
 # Reference: https://www.terraform.io/docs/providers/azurerm/r/kubernetes_cluster.html
 resource "azurerm_kubernetes_cluster" "aks" {
   name                = var.aks_cluster_name
@@ -52,7 +35,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   linux_profile {
     admin_username = var.aks_cluster_node_admin
     ssh_key {
-      key_data = local.ssh_public_key
+      key_data = var.aks_cluster_ssh_public_key
     }
   }
 
@@ -87,6 +70,11 @@ resource "azurerm_kubernetes_cluster" "aks" {
     read   = "5m"
     delete = "90m"
   }
+
+  lifecycle {
+    ignore_changes = [default_node_pool.0.node_count]
+  }
+
 
   tags = var.aks_cluster_tags
 }

@@ -1,5 +1,6 @@
 # Generate random password to be used if user did not provide
 resource "random_password" "password" {
+  count               = var.create_postgres ? 1 : 0
   length  = 32
   special = true
 }
@@ -14,7 +15,7 @@ resource "azurerm_postgresql_server" "server" {
   backup_retention_days        = var.postgres_backup_retention_days
   geo_redundant_backup_enabled = var.postgres_geo_redundant_backup_enabled
   administrator_login          = var.postgres_administrator_login
-  administrator_login_password = var.postgres_administrator_password == null ? random_password.password.result : var.postgres_administrator_password
+  administrator_login_password = var.postgres_administrator_password == null ? random_password.password.0.result : var.postgres_administrator_password
   version                      = var.postgres_server_version
   ssl_enforcement_enabled      = var.postgres_ssl_enforcement_enabled
   tags                         = var.tags

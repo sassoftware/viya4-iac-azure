@@ -50,20 +50,6 @@ resource "azurerm_virtual_machine_data_disk_attachment" "vm_data_disk_attach" {
   count              = var.create_vm ? var.data_disk_count : 0
 }
 
-resource "tls_private_key" "private_key" {
-  count     = var.ssh_public_key == "" ? 1 : 0
-  algorithm = "RSA"
-}
-
-data "tls_public_key" "public_key" {
-  count           = var.ssh_public_key == "" ? 1 : 0
-  private_key_pem = element(coalescelist(tls_private_key.private_key.*.private_key_pem), 0)
-}
-
-locals {
-  ssh_public_key = var.ssh_public_key != "" ? file(var.ssh_public_key) : element(coalescelist(data.tls_public_key.public_key.*.public_key_openssh, [""]), 0)
-}
-
 resource "azurerm_linux_virtual_machine" "vm" {
   count               = var.create_vm ? 1 : 0
   name                = "${var.name}-vm"
@@ -81,7 +67,7 @@ resource "azurerm_linux_virtual_machine" "vm" {
 
   admin_ssh_key {
     username   = var.vm_admin
-    public_key = local.ssh_public_key
+    public_key = var.ssh_public_key
   }
 
   os_disk {

@@ -38,15 +38,3 @@ output "cluster_slb_ip_id" {
 output "name" {
   value = azurerm_kubernetes_cluster.aks.name
 }
-
-output "private_key_pem" {
-  value = var.aks_cluster_ssh_public_key == "" ? element(coalescelist(data.tls_public_key.public_key.*.private_key_pem, [""]), 0) : null
-}
-
-output "public_key_pem" {
-  value = var.aks_cluster_ssh_public_key == "" ? element(coalescelist(data.tls_public_key.public_key.*.public_key_pem, [""]), 0) : null
-}
-
-output "public_key_openssh" {
-  value = var.aks_cluster_ssh_public_key == "" ? element(coalescelist(data.tls_public_key.public_key.*.public_key_openssh, [""]), 0) : null
-}

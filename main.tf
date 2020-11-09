@@ -3,12 +3,13 @@ terraform {
 }
 
 provider "azurerm" {
-  version = "~>2.28.0"
+  version = "~>2.31.0"
 
   subscription_id = var.subscription_id
   client_id       = var.client_id
   client_secret   = var.client_secret
   tenant_id       = var.tenant_id
+  partner_id      = var.partner_id
 
   features {}
 }
@@ -29,6 +30,16 @@ data "azuread_service_principal" "sp_client" {
   application_id = var.client_id
 }
 
+resource "tls_private_key" "private_key" {
+  count     = var.ssh_public_key == "" ? 1 : 0
+  algorithm = "RSA"
+}
+
+data "tls_public_key" "public_key" {
+  count           = var.ssh_public_key == "" ? 1 : 0
+  private_key_pem = element(coalescelist(tls_private_key.private_key.*.private_key_pem), 0)
+}
+
 locals {
   # Network ip ranges
   vnet_cidr_block                      = "192.168.0.0/16"
@@ -45,6 +56,7 @@ locals {
   cluster_endpoint_public_access_cidrs = length(local.cluster_endpoint_cidrs) == 0 ? ["0.0.0.0/32"] : local.cluster_endpoint_cidrs
   postgres_public_access_cidrs         = var.postgres_public_access_cidrs == null ? local.default_public_access_cidrs : var.postgres_public_access_cidrs
   postgres_firewall_rules              = [for addr in local.postgres_public_access_cidrs : { "name" : replace(replace(addr, "/", "_"), ".", "_"), "start_ip" : cidrhost(addr, 0), "end_ip" : cidrhost(addr, abs(pow(2, 32 - split("/", addr)[1]) - 1)) }]
+  ssh_public_key                       = var.ssh_public_key != "" ? file(var.ssh_public_key) : element(coalescelist(data.tls_public_key.public_key.*.public_key_openssh, [""]), 0)
 }
 
 
@@ -123,7 +135,7 @@ data "template_cloudinit_config" "jump" {
 
   part {
     content_type = "text/cloud-config"
-    content      = "${data.template_file.jump-cloudconfig.rendered}"
+    content      = data.template_file.jump-cloudconfig.rendered
   }
 }
 
@@ -137,10 +149,9 @@ module "jump" {
   tags              = var.tags
   create_vm         = local.create_jump_vm
   vm_admin          = var.jump_vm_admin
-  ssh_public_key    = var.ssh_public_key
-  # ssh_private_key   = var.ssh_private_key
-  cloud_init       = var.storage_type == "dev" ? null : data.template_cloudinit_config.jump.rendered
-  create_public_ip = var.create_jump_public_ip
+  ssh_public_key    = local.ssh_public_key
+  cloud_init        = var.storage_type == "dev" ? null : data.template_cloudinit_config.jump.rendered
+  create_public_ip  = var.create_jump_public_ip
 }
 
 resource "azurerm_network_security_rule" "ssh" {
@@ -172,7 +183,7 @@ data "template_cloudinit_config" "nfs" {
 
   part {
     content_type = "text/cloud-config"
-    content      = "${data.template_file.nfs-cloudconfig.rendered}"
+    content      = data.template_file.nfs-cloudconfig.rendered
   }
 }
 
@@ -189,10 +200,9 @@ module "nfs" {
   data_disk_count   = 4
   data_disk_size    = var.nfs_raid_disk_size
   vm_admin          = var.nfs_vm_admin
-  ssh_public_key    = var.ssh_public_key
-  # ssh_private_key   = var.ssh_private_key
-  cloud_init       = data.template_cloudinit_config.nfs.rendered
-  create_public_ip = var.create_nfs_public_ip
+  ssh_public_key    = local.ssh_public_key
+  cloud_init        = data.template_cloudinit_config.nfs.rendered
+  create_public_ip  = var.create_nfs_public_ip
 }
 
 module "acr" {
@@ -239,7 +249,7 @@ module "aks" {
   aks_cluster_os_disk_size                 = var.default_nodepool_os_disk_size
   aks_cluster_node_vm_size                 = var.default_nodepool_vm_type
   aks_cluster_node_admin                   = var.node_vm_admin
-  aks_cluster_ssh_public_key               = var.ssh_public_key
+  aks_cluster_ssh_public_key               = local.ssh_public_key
   aks_vnet_subnet_id                       = module.aks-subnet.subnet_id
   aks_client_id                            = var.client_id
   aks_client_secret                        = var.client_secret
@@ -253,99 +263,30 @@ data "azurerm_public_ip" "aks_public_ip" {
   name                = split("/", module.aks.cluster_slb_ip_id)[8]
   resource_group_name = "MC_${module.azure_rg.name}_${module.aks.name}_${module.azure_rg.location}"
 
-  depends_on = [module.aks, module.cas_node_pool, module.compute_node_pool, module.connect_node_pool, module.stateless_node_pool, module.stateful_node_pool]
+  depends_on = [module.aks, module.node_pools]
 }
 
 
-module "cas_node_pool" {
-  source              = "./modules/aks_node_pool"
-  count               = var.create_cas_nodepool ? 1 : 0
-  node_pool_name      = "cas" # <- characters a-z0-9 only with max length of 12
+module "node_pools" {
+  source = "./modules/aks_node_pool"
+
+  for_each = var.node_pools
+
+  node_pool_name      = each.key
   aks_cluster_id      = module.aks.cluster_id
   vnet_subnet_id      = module.aks-subnet.subnet_id
-  machine_type        = var.cas_nodepool_vm_type
-  os_disk_size        = var.cas_nodepool_os_disk_size
-  enable_auto_scaling = var.cas_nodepool_auto_scaling
-  node_count          = var.cas_nodepool_node_count
-  max_nodes           = var.cas_nodepool_max_nodes
-  min_nodes           = var.cas_nodepool_min_nodes
-  node_taints         = var.cas_nodepool_taints
-  node_labels         = var.cas_nodepool_labels
-  availability_zones  = var.cas_nodepool_availability_zones
+  machine_type        = each.value.machine_type
+  os_disk_size        = each.value.os_disk_size
+  enable_auto_scaling = each.value.min_node_count == each.value.max_node_count ? false : true
+  node_count          = each.value.min_node_count
+  min_nodes           = each.value.min_node_count == each.value.max_node_count ? null : each.value.min_node_count
+  max_nodes           = each.value.min_node_count == each.value.max_node_count ? null : each.value.max_node_count
+  node_taints         = each.value.node_taints
+  node_labels         = each.value.node_labels
+  availability_zones  = each.value.availability_zones
   tags                = var.tags
 }
 
-module "compute_node_pool" {
-  source              = "./modules/aks_node_pool"
-  count               = var.create_compute_nodepool ? 1 : 0
-  node_pool_name      = "compute" # <- characters a-z0-9 only with max length of 12
-  aks_cluster_id      = module.aks.cluster_id
-  vnet_subnet_id      = module.aks-subnet.subnet_id
-  machine_type        = var.compute_nodepool_vm_type
-  os_disk_size        = var.compute_nodepool_os_disk_size
-  enable_auto_scaling = var.compute_nodepool_auto_scaling
-  node_count          = var.compute_nodepool_node_count
-  max_nodes           = var.compute_nodepool_max_nodes
-  min_nodes           = var.compute_nodepool_min_nodes
-  node_taints         = var.compute_nodepool_taints
-  node_labels         = var.compute_nodepool_labels
-  availability_zones  = var.compute_nodepool_availability_zones
-  tags                = var.tags
-}
-
-module "connect_node_pool" {
-  source              = "./modules/aks_node_pool"
-  count               = var.create_connect_nodepool ? 1 : 0
-  node_pool_name      = "connect" # <- characters a-z0-9 only with max length of 12
-  aks_cluster_id      = module.aks.cluster_id
-  vnet_subnet_id      = module.aks-subnet.subnet_id
-  machine_type        = var.connect_nodepool_vm_type
-  os_disk_size        = var.connect_nodepool_os_disk_size
-  enable_auto_scaling = var.connect_nodepool_auto_scaling
-  node_count          = var.connect_nodepool_node_count
-  max_nodes           = var.connect_nodepool_max_nodes
-  min_nodes           = var.connect_nodepool_min_nodes
-  node_taints         = var.connect_nodepool_taints
-  node_labels         = var.connect_nodepool_labels
-  availability_zones  = var.connect_nodepool_availability_zones
-  tags                = var.tags
-}
-
-module "stateless_node_pool" {
-  source              = "./modules/aks_node_pool"
-  count               = var.create_stateless_nodepool ? 1 : 0
-  node_pool_name      = "stateless" # <- characters a-z0-9 only with max length of 12
-  aks_cluster_id      = module.aks.cluster_id
-  vnet_subnet_id      = module.aks-subnet.subnet_id
-  machine_type        = var.stateless_nodepool_vm_type
-  os_disk_size        = var.stateless_nodepool_os_disk_size
-  enable_auto_scaling = var.stateless_nodepool_auto_scaling
-  node_count          = var.stateless_nodepool_node_count
-  max_nodes           = var.stateless_nodepool_max_nodes
-  min_nodes           = var.stateless_nodepool_min_nodes
-  node_taints         = var.stateless_nodepool_taints
-  node_labels         = var.stateless_nodepool_labels
-  availability_zones  = var.stateless_nodepool_availability_zones
-  tags                = var.tags
-}
-
-module "stateful_node_pool" {
-  source              = "./modules/aks_node_pool"
-  count               = var.create_stateful_nodepool ? 1 : 0
-  node_pool_name      = "stateful" # <- characters a-z0-9 only with max length of 12
-  aks_cluster_id      = module.aks.cluster_id
-  vnet_subnet_id      = module.aks-subnet.subnet_id
-  machine_type        = var.stateful_nodepool_vm_type
-  os_disk_size        = var.stateful_nodepool_os_disk_size
-  enable_auto_scaling = var.stateful_nodepool_auto_scaling
-  node_count          = var.stateful_nodepool_node_count
-  max_nodes           = var.stateful_nodepool_max_nodes
-  min_nodes           = var.stateful_nodepool_min_nodes
-  node_taints         = var.stateful_nodepool_taints
-  node_labels         = var.stateful_nodepool_labels
-  availability_zones  = var.stateful_nodepool_availability_zones
-  tags                = var.tags
-}
 
 module "postgresql" {
   source = "./modules/postgresql"

@@ -28,7 +28,7 @@ variable "aks_cluster_node_admin" {
 }
 
 variable "aks_cluster_ssh_public_key" {
-  default = "~/.ssh/id_rsa.pub"
+  default = ""
 }
 
 # https://docs.microsoft.com/en-us/azure/aks/cluster-autoscaler

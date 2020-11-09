@@ -1,6 +1,6 @@
 FROM hashicorp/terraform:0.13.3 as terraform
 
-FROM  mcr.microsoft.com/azure-cli
+FROM  mcr.microsoft.com/azure-cli:2.13.0
 
 RUN apk --update --no-cache add git openssh
 
