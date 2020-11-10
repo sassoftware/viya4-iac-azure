@@ -334,3 +334,40 @@ resource "local_file" "kubeconfig" {
   content  = module.aks.kube_config
   filename = "${var.prefix}-aks-kubeconfig.conf"
 }
+
+resource "null_resource" "sas-iac-buildinfo" {
+  provisioner "local-exec" {
+    command = <<-EOF
+      rm -rf /tmp/git_hash
+      cd "${path.module}"
+      git log -1 --format=format:"%H" > /tmp/git_hash
+    EOF
+  }
+}
+
+provider "kubernetes" {
+
+  host = module.aks.host
+
+  client_certificate     = base64decode(module.aks.client_certificate)
+  client_key             = base64decode(module.aks.client_key)
+  cluster_ca_certificate = base64decode(module.aks.cluster_ca_certificate)
+
+  load_config_file = false # when you wish not to load the local config file
+
+}
+
+resource "kubernetes_config_map" "sas-iac-buildinfo" {
+
+  metadata {
+    name = "sas-iac-buildinfo"
+    namespace = "kube-system"
+  }
+
+  data = {
+    githash   = file("/tmp/git_hash")
+    timestamp = timestamp()
+  }
+
+  depends_on = [null_resource.sas-iac-buildinfo]
+}
