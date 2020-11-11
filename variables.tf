@@ -102,7 +102,7 @@ variable "default_nodepool_max_pods" {
 
 variable "default_nodepool_availability_zones" {
   type    = list
-  default = []
+  default = ["1"]
 }
 
 variable "tags" {
@@ -281,7 +281,7 @@ variable netapp_volume_path {
 
 variable node_pools_availability_zone {
   type    = string
-  default = ""
+  default = "1"
 }
 
 variable node_pools {
