@@ -365,30 +365,3 @@ resource "null_resource" "sas-iac-buildinfo" {
 
   depends_on = [local_file.kubeconfig]
 }
-
-# provider "kubernetes" {
-
-#   host = module.aks.host
-
-#   client_certificate     = base64decode(module.aks.client_certificate)
-#   client_key             = base64decode(module.aks.client_key)
-#   cluster_ca_certificate = base64decode(module.aks.cluster_ca_certificate)
-
-#   load_config_file = false # when you wish not to load the local config file
-
-# }
-
-# resource "kubernetes_config_map" "sas-iac-buildinfo" {
-
-#   metadata {
-#     name = "sas-iac-buildinfo"
-#     namespace = "kube-system"
-#   }
-
-#   data = {
-#     githash   = file(local.foo)
-#     timestamp = timestamp()
-#   }
-
-#   depends_on = [null_resource.sas-iac-buildinfo]
-# }

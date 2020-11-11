@@ -1,15 +1,16 @@
-FROM hashicorp/terraform:0.13.3 as terraform
+ARG TERRAFORM_VERSION=0.13.5
+ARG AZURECLI_VERSION=2.14.2
 
-FROM  mcr.microsoft.com/azure-cli:2.13.0
-
-RUN apk --update --no-cache add git openssh
-
-WORKDIR /viya4-iac-azure
+FROM hashicorp/terraform:$TERRAFORM_VERSION as terraform
+FROM  mcr.microsoft.com/azure-cli:$AZURECLI_VERSION
 
 COPY --from=terraform /bin/terraform /bin/terraform
 
+WORKDIR /viya4-iac-azure
+
 COPY . .
 
-RUN terraform init /viya4-iac-azure
+RUN apk --update --no-cache add git openssh \
+  && terraform init /viya4-iac-azure
 
 ENTRYPOINT ["/bin/terraform"]
