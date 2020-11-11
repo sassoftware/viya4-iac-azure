@@ -33,9 +33,9 @@ container_registry_admin_enabled    = "false"
 container_registry_geo_replica_locs = null
 
 # AKS config
-kubernetes_version       = "1.18.8"
-default_nodepool_nodes   = 2
-default_nodepool_vm_type = "Standard_D4_v2"
+kubernetes_version         = "1.18.8"
+default_nodepool_min_nodes = 2
+default_nodepool_vm_type   = "Standard_D4_v2"
 
 # AKS Node Pools config
 node_pools = {
