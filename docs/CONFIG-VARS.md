@@ -89,7 +89,7 @@ You can use `default_public_access_cidrs` to set a default range for all created
 | default_nodepool_max_pods | Maximum number of pods that can run on each | number | 110 | Changing this forces a new resource to be created |
 | default_nodepool_min_nodes | Minimum and initial number of nodes for the default nodepool | number | 1 |  Value must be between 0 and 100. Setting min and max node counts the same disables autoscaling  |
 | default_nodepool_max_nodes | Maximum number of nodes for the default nodepoo| number | 5 | Value must be between 0 and 100. Setting min and max node counts the same disables autoscaling |
-| default_nodepool_availability_zones | Availability Zones for the cluster default nodepool | list of strings | []  | Note: This value depends on the "location". For example, not all regions have numbered availability zones|
+| default_nodepool_availability_zones | Availability Zones for the cluster default nodepool | list of strings | ["1"]  | Note: This value depends on the "location". For example, not all regions have numbered availability zones|
 
 ### Additional Nodepools
 
