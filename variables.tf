@@ -74,11 +74,6 @@ variable "postgres_public_access_cidrs" {
 }
 
 
-# https://docs.microsoft.com/en-us/azure/aks/cluster-autoscaler
-variable "default_nodepool_auto_scaling" {
-  description = "Autoscale nodes in the AKS cluster default nodepool"
-  default     = true
-}
 variable "default_nodepool_max_nodes" {
   description = "(Required, when default_nodepool_auto_scaling=true) The maximum number of nodes which should exist in this Node Pool. If specified this must be between 1 and 100."
   default     = 5
@@ -86,10 +81,6 @@ variable "default_nodepool_max_nodes" {
 variable "default_nodepool_min_nodes" {
   description = "(Required, when default_nodepool_auto_scaling=true) The minimum number of nodes which should exist in this Node Pool. If specified this must be between 1 and 100."
   default     = 1
-}
-variable "default_nodepool_node_count" {
-  description = "The initial number of nodes which should exist in this Node Pool. If specified this must be between 1 and 100 and between `default_nodepool_min_nodes` and `default_nodepool_max_nodes`."
-  default     = 2
 }
 variable "default_nodepool_os_disk_size" {
   description = "(Optional) The size of the OS Disk which should be used for each agent in the Node Pool. Changing this forces a new resource to be created."
@@ -281,69 +272,69 @@ variable netapp_volume_path {
 
 variable node_pools_availability_zone {
   type    = string
-  default = ""
+  default = "1"
 }
 
 variable node_pools {
   description = "Node pool definitions"
   type = map(object({
-    machine_type       = string
-    os_disk_size       = number
-    min_node_count     = string
-    max_node_count     = string
-    node_taints        = list(string)
-    node_labels        = map(string)
+    machine_type = string
+    os_disk_size = number
+    min_nodes    = string
+    max_nodes    = string
+    node_taints  = list(string)
+    node_labels  = map(string)
   }))
 
   default = {
     cas = {
-      "machine_type"   = "Standard_E16s_v3"
-      "os_disk_size"   = 200
-      "min_node_count" = 0
-      "max_node_count" = 5
-      "node_taints"    = ["workload.sas.com/class=cas:NoSchedule"]
+      "machine_type" = "Standard_E16s_v3"
+      "os_disk_size" = 200
+      "min_nodes"    = 0
+      "max_nodes"    = 5
+      "node_taints"  = ["workload.sas.com/class=cas:NoSchedule"]
       "node_labels" = {
         "workload.sas.com/class" = "cas"
       }
     },
     compute = {
-      "machine_type"   = "Standard_E16s_v3"
-      "os_disk_size"   = 200
-      "min_node_count" = 0
-      "max_node_count" = 5
-      "node_taints"    = ["workload.sas.com/class=compute:NoSchedule"]
+      "machine_type" = "Standard_E16s_v3"
+      "os_disk_size" = 200
+      "min_nodes"    = 0
+      "max_nodes"    = 5
+      "node_taints"  = ["workload.sas.com/class=compute:NoSchedule"]
       "node_labels" = {
         "workload.sas.com/class"        = "compute"
         "launcher.sas.com/prepullImage" = "sas-programming-environment"
       }
     },
     connect = {
-      "machine_type"   = "Standard_E16s_v3"
-      "os_disk_size"   = 200
-      "min_node_count" = 0
-      "max_node_count" = 5
-      "node_taints"    = ["workload.sas.com/class=connect:NoSchedule"]
+      "machine_type" = "Standard_E16s_v3"
+      "os_disk_size" = 200
+      "min_nodes"    = 0
+      "max_nodes"    = 5
+      "node_taints"  = ["workload.sas.com/class=connect:NoSchedule"]
       "node_labels" = {
         "workload.sas.com/class"        = "connect"
         "launcher.sas.com/prepullImage" = "sas-programming-environment"
       }
     },
     stateless = {
-      "machine_type"   = "Standard_D16s_v3"
-      "os_disk_size"   = 200
-      "min_node_count" = 0
-      "max_node_count" = 5
-      "node_taints"    = ["workload.sas.com/class=stateless:NoSchedule"]
+      "machine_type" = "Standard_D16s_v3"
+      "os_disk_size" = 200
+      "min_nodes"    = 0
+      "max_nodes"    = 5
+      "node_taints"  = ["workload.sas.com/class=stateless:NoSchedule"]
       "node_labels" = {
         "workload.sas.com/class" = "stateless"
       }
     },
     stateful = {
-      "machine_type"   = "Standard_D8s_v3"
-      "os_disk_size"   = 200
-      "min_node_count" = 0
-      "max_node_count" = 3
-      "node_taints"    = ["workload.sas.com/class=stateful:NoSchedule"]
+      "machine_type" = "Standard_D8s_v3"
+      "os_disk_size" = 200
+      "min_nodes"    = 0
+      "max_nodes"    = 3
+      "node_taints"  = ["workload.sas.com/class=stateful:NoSchedule"]
       "node_labels" = {
         "workload.sas.com/class" = "stateful"
       }

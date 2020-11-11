@@ -84,13 +84,11 @@ You can use `default_public_access_cidrs` to set a default range for all created
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
 | node_vm_admin | OS Admin User for VMs of AKS Cluster nodes | string | "azureuser" | |
-| default_nodepool_node_count | Number of node in the default nodepool | number | 2 | The value must be between 1 and 100 and between `default_nodepool_min_nodes` and `default_nodepool_max_nodes`|
 | default_nodepool_vm_type | Type of the default nodepool VMs | string | "Standard_D4_v2" | |
-| default_nodepool_auto_scaling | Enable autoscaling for the AKS cluster default nodepool | bool | false | See: [Microsoft Cluster Autoscaler](https://docs.microsoft.com/en-us/azure/aks/cluster-autoscaler) |
 | default_nodepool_os_disk_size | Disk size for default nodepool VMs in GB | number | 128 ||
 | default_nodepool_max_pods | Maximum number of pods that can run on each | number | 110 | Changing this forces a new resource to be created |
-| default_nodepool_max_nodes | Maximum number of nodes for the default nodepool when using autoscaling | number | 5 | Required, when `default_nodepool_auto_scaling=true`, value must be between 1 and 100 |
-| default_nodepool_min_nodes | Minimum number of nodes for the default nodepool when using autoscaling | number | 1 | Required, when `default_nodepool_auto_scaling=true`, value must be between 1 and 100 |
+| default_nodepool_min_nodes | Minimum and initial number of nodes for the default nodepool | number | 1 |  Value must be between 0 and 100. Setting min and max node counts the same disables autoscaling  |
+| default_nodepool_max_nodes | Maximum number of nodes for the default nodepoo| number | 5 | Value must be between 0 and 100. Setting min and max node counts the same disables autoscaling |
 | default_nodepool_availability_zones | Availability Zones for the cluster default nodepool | list of strings | []  | Note: This value depends on the "location". For example, not all regions have numbered availability zones|
 
 ### Additional Nodepools
@@ -100,8 +98,8 @@ Additional node pools can be created separate from the default nodepool. This is
 | :--- | ---: | ---: | ---: |
 | machine_type | Type of the nodepool VMs | string | |
 | os_disk_size | Disk size for nodepool VMs in GB | number | |
-| min_node_count | Minimum number of nodes for the nodepool | number | Value must be between 0 and 100. Setting min and max node counts the same disables autoscaling |
-| max_node_count | Maximum number of nodes for the nodepool | number | Value must be between 0 and 100. Setting min and max node counts the same disables autoscaling |
+| min_nodes | Minimum number of nodes for the nodepool | number | Value must be between 0 and 100. Setting min and max node counts the same disables autoscaling |
+| max_nodes | Maximum number of nodes for the nodepool | number | Value must be between 0 and 100. Setting min and max node counts the same disables autoscaling |
 | node_taints | Taints for the nodepool VMs | list of strings | |
 | node_labels | Labels to add to the nodepool VMs | map | |
 
@@ -113,8 +111,8 @@ The default values for the `node_pools` variable are:
   cas = {
     "machine_type" = "Standard_E16s_v3"
     "os_disk_size" = 200
-    "min_node_count" = 1
-    "max_node_count" = 5
+    "min_nodes" = 1
+    "max_nodes" = 5
     "node_taints" = ["workload.sas.com/class=cas:NoSchedule"]
     "node_labels" = {
       "workload.sas.com/class" = "cas"
@@ -123,8 +121,8 @@ The default values for the `node_pools` variable are:
   compute = {
     "machine_type" = "Standard_E16s_v3"
     "os_disk_size" = 200
-    "min_node_count" = 1
-    "max_node_count" = 5
+    "min_nodes" = 1
+    "max_nodes" = 5
     "node_taints" = ["workload.sas.com/class=compute:NoSchedule"]
     "node_labels" = {
       "workload.sas.com/class" = "compute"
@@ -134,8 +132,8 @@ The default values for the `node_pools` variable are:
   connect = {
     "machine_type" = "Standard_E16s_v3"
     "os_disk_size" = 200
-    "min_node_count" = 1
-    "max_node_count" = 5
+    "min_nodes" = 1
+    "max_nodes" = 5
     "node_taints" = ["workload.sas.com/class=connect:NoSchedule"]
     "node_labels" = {
       "workload.sas.com/class" = "connect"
@@ -145,8 +143,8 @@ The default values for the `node_pools` variable are:
   stateless = {
     "machine_type" = "Standard_D16s_v3"
     "os_disk_size" = 200
-    "min_node_count" = 1
-    "max_node_count" = 5
+    "min_nodes" = 1
+    "max_nodes" = 5
     "node_taints" = ["workload.sas.com/class=stateless:NoSchedule"]
     "node_labels" = {
       "workload.sas.com/class" = "stateless"
@@ -155,8 +153,8 @@ The default values for the `node_pools` variable are:
   stateful = {
     "machine_type" = "Standard_D8s_v3"
     "os_disk_size" = 200
-    "min_node_count" = 1
-    "max_node_count" = 3
+    "min_nodes" = 1
+    "max_nodes" = 3
     "node_taints" = ["workload.sas.com/class=stateful:NoSchedule"]
     "node_labels" = {
       "workload.sas.com/class" = "stateful"
@@ -169,7 +167,7 @@ In addition, you can set the availability zone for the additional nodepools usin
 
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
-| node_pools_availability_zone | Availability Zone for the additional nodepools | strings | "" | The possible values depend on the region set in the "location" variable. |
+| node_pools_availability_zone | Availability Zone for the additional nodepools | strings | "1" | The possible values depend on the region set in the "location" variable. |
 
 
 ## Storage
