@@ -279,6 +279,11 @@ variable netapp_volume_path {
   default     = "export"
 }
 
+variable node_pools_availability_zone {
+  type    = string
+  default = ""
+}
+
 variable node_pools {
   description = "Node pool definitions"
   type = map(object({
@@ -288,7 +293,6 @@ variable node_pools {
     max_node_count     = string
     node_taints        = list(string)
     node_labels        = map(string)
-    availability_zones = list(string)
   }))
 
   default = {
@@ -301,7 +305,6 @@ variable node_pools {
       "node_labels" = {
         "workload.sas.com/class" = "cas"
       }
-      "availability_zones" = []
     },
     compute = {
       "machine_type"   = "Standard_E16s_v3"
@@ -313,7 +316,6 @@ variable node_pools {
         "workload.sas.com/class"        = "compute"
         "launcher.sas.com/prepullImage" = "sas-programming-environment"
       }
-      "availability_zones" = []
     },
     connect = {
       "machine_type"   = "Standard_E16s_v3"
@@ -325,7 +327,6 @@ variable node_pools {
         "workload.sas.com/class"        = "connect"
         "launcher.sas.com/prepullImage" = "sas-programming-environment"
       }
-      "availability_zones" = []
     },
     stateless = {
       "machine_type"   = "Standard_D16s_v3"
@@ -336,7 +337,6 @@ variable node_pools {
       "node_labels" = {
         "workload.sas.com/class" = "stateless"
       }
-      "availability_zones" = []
     },
     stateful = {
       "machine_type"   = "Standard_D8s_v3"
@@ -347,7 +347,6 @@ variable node_pools {
       "node_labels" = {
         "workload.sas.com/class" = "stateful"
       }
-      "availability_zones" = []
     }
   }
 }

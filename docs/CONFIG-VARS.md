@@ -104,7 +104,7 @@ Additional node pools can be created separate from the default nodepool. This is
 | max_node_count | Maximum number of nodes for the nodepool | number | Value must be between 0 and 100. Setting min and max node counts the same disables autoscaling |
 | node_taints | Taints for the nodepool VMs | list of strings | |
 | node_labels | Labels to add to the nodepool VMs | map | |
-| availability_zones | Availability Zones for nodepool | list of strings | | This value depends on the "location". For example, not all regions have numbered availability zones|
+
 
 The default values for the `node_pools` variable are:
 
@@ -119,7 +119,6 @@ The default values for the `node_pools` variable are:
     "node_labels" = {
       "workload.sas.com/class" = "cas"
     }
-    "availability_zones" = []
   },
   compute = {
     "machine_type" = "Standard_E16s_v3"
@@ -131,7 +130,6 @@ The default values for the `node_pools` variable are:
       "workload.sas.com/class" = "compute"
       "launcher.sas.com/prepullImage" = "sas-programming-environment"
     }
-    "availability_zones" = []
   },
   connect = {
     "machine_type" = "Standard_E16s_v3"
@@ -143,7 +141,6 @@ The default values for the `node_pools` variable are:
       "workload.sas.com/class" = "connect"
       "launcher.sas.com/prepullImage" = "sas-programming-environment"
     }
-    "availability_zones" = []
   },
   stateless = {
     "machine_type" = "Standard_D16s_v3"
@@ -154,7 +151,6 @@ The default values for the `node_pools` variable are:
     "node_labels" = {
       "workload.sas.com/class" = "stateless"
     }
-    "availability_zones" = []
   },
   stateful = {
     "machine_type" = "Standard_D8s_v3"
@@ -165,10 +161,16 @@ The default values for the `node_pools` variable are:
     "node_labels" = {
       "workload.sas.com/class" = "stateful"
     }
-    "availability_zones" = []
   }
 }
 ```
+
+In addition, you can set the availability zone for the additional nodepools using
+
+| Name | Description | Type | Default | Notes |
+| :--- | ---: | ---: | ---: | ---: |
+| node_pools_availability_zone | Availability Zone for the additional nodepools | strings | "" | The possible values depend on the region set in the "location" variable. |
+
 
 ## Storage
 
