@@ -241,10 +241,10 @@ module "aks" {
   #aks_cluster_dns_prefix - must contain between 2 and 45 characters. The name can contain only letters, numbers, and hyphens. The name must start with a letter and must end with an alphanumeric character
   aks_cluster_dns_prefix                   = "${var.prefix}-aks"
   aks_cluster_location                     = var.location
-  aks_cluster_node_auto_scaling            = var.default_nodepool_auto_scaling
-  aks_cluster_max_nodes                    = var.default_nodepool_max_nodes
-  aks_cluster_min_nodes                    = var.default_nodepool_min_nodes
-  aks_cluster_node_count                   = var.default_nodepool_node_count
+  aks_cluster_node_auto_scaling            = var.default_nodepool_min_nodes == var.default_nodepool_max_nodes ? false : true
+  aks_cluster_node_count                   = var.default_nodepool_min_nodes
+  aks_cluster_min_nodes                    = var.default_nodepool_min_nodes == var.default_nodepool_max_nodes ? null : var.default_nodepool_min_nodes
+  aks_cluster_max_nodes                    = var.default_nodepool_min_nodes == var.default_nodepool_max_nodes ? null : var.default_nodepool_max_nodes
   aks_cluster_max_pods                     = var.default_nodepool_max_pods
   aks_cluster_os_disk_size                 = var.default_nodepool_os_disk_size
   aks_cluster_node_vm_size                 = var.default_nodepool_vm_type
@@ -277,13 +277,13 @@ module "node_pools" {
   vnet_subnet_id      = module.aks-subnet.subnet_id
   machine_type        = each.value.machine_type
   os_disk_size        = each.value.os_disk_size
-  enable_auto_scaling = each.value.min_node_count == each.value.max_node_count ? false : true
-  node_count          = each.value.min_node_count
-  min_nodes           = each.value.min_node_count == each.value.max_node_count ? null : each.value.min_node_count
-  max_nodes           = each.value.min_node_count == each.value.max_node_count ? null : each.value.max_node_count
+  enable_auto_scaling = each.value.min_nodes == each.value.max_nodes ? false : true
+  node_count          = each.value.min_nodes
+  min_nodes           = each.value.min_nodes == each.value.max_nodes ? null : each.value.min_nodes
+  max_nodes           = each.value.min_nodes == each.value.max_nodes ? null : each.value.max_nodes
   node_taints         = each.value.node_taints
   node_labels         = each.value.node_labels
-  availability_zones  = var.node_pools_availability_zone == "" ? [] : [ var.node_pools_availability_zone ]
+  availability_zones  = var.node_pools_availability_zone == "" ? [] : [var.node_pools_availability_zone]
   tags                = var.tags
 }
 
