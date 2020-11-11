@@ -330,44 +330,65 @@ module "netapp" {
   volume_path           = "${var.prefix}-${var.netapp_volume_path}"
 }
 
+locals {
+  git_dir = fileexists("${path.module}/.git") ? "../.git" : ".git"
+}
+
 resource "local_file" "kubeconfig" {
   content  = module.aks.kube_config
   filename = "${var.prefix}-aks-kubeconfig.conf"
 }
 
+data "template_file" "sas-iac-buildinfo" {
+  template = file("${path.module}/files/sas-iac-buildinfo.yaml.tmpl")
+  vars = {
+    githash = chomp(file("${path.module}/${local.git_dir}/refs/heads/main"))
+    timestamp = chomp(timestamp())
+  }
+}
+
 resource "null_resource" "sas-iac-buildinfo" {
+  triggers = {
+    always_run = timestamp()
+  }
   provisioner "local-exec" {
     command = <<-EOF
-      rm -rf /tmp/git_hash
-      cd "${path.module}"
-      git log -1 --format=format:"%H" > /tmp/git_hash
+      echo "$CONFIGMAP" > /tmp/sas-iac-buildinfo.cfgmap.yaml
+      kubectl --kubeconfig "${var.prefix}-aks-kubeconfig.conf" apply -f /tmp/sas-iac-buildinfo.cfgmap.yaml
+      rm -rf /tmp/sas-iac-buildinfo.cfgmap.yaml
     EOF
-  }
-}
 
-provider "kubernetes" {
-
-  host = module.aks.host
-
-  client_certificate     = base64decode(module.aks.client_certificate)
-  client_key             = base64decode(module.aks.client_key)
-  cluster_ca_certificate = base64decode(module.aks.cluster_ca_certificate)
-
-  load_config_file = false # when you wish not to load the local config file
-
-}
-
-resource "kubernetes_config_map" "sas-iac-buildinfo" {
-
-  metadata {
-    name = "sas-iac-buildinfo"
-    namespace = "kube-system"
+    environment = {
+      CONFIGMAP = data.template_file.sas-iac-buildinfo.rendered
+    }
   }
 
-  data = {
-    githash   = file("/tmp/git_hash")
-    timestamp = timestamp()
-  }
-
-  depends_on = [null_resource.sas-iac-buildinfo]
+  depends_on = [local_file.kubeconfig]
 }
+
+# provider "kubernetes" {
+
+#   host = module.aks.host
+
+#   client_certificate     = base64decode(module.aks.client_certificate)
+#   client_key             = base64decode(module.aks.client_key)
+#   cluster_ca_certificate = base64decode(module.aks.cluster_ca_certificate)
+
+#   load_config_file = false # when you wish not to load the local config file
+
+# }
+
+# resource "kubernetes_config_map" "sas-iac-buildinfo" {
+
+#   metadata {
+#     name = "sas-iac-buildinfo"
+#     namespace = "kube-system"
+#   }
+
+#   data = {
+#     githash   = file(local.foo)
+#     timestamp = timestamp()
+#   }
+
+#   depends_on = [null_resource.sas-iac-buildinfo]
+# }
