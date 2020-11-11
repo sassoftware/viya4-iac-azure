@@ -9,8 +9,8 @@ variable "aks_cluster_id" {
 }
 
 variable "availability_zones" {
-  type    = list
-  default = ["1", "2", "3"]
+  type = list(string)
+  default = []
 }
 
 variable "vnet_subnet_id" {

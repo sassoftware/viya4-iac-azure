@@ -48,7 +48,6 @@ node_pools = {
     "node_labels" = {
       "workload.sas.com/class" = "cas"
     }
-    "availability_zones" = ["1", "2", "3"]
   },
   compute = {
     "machine_type" = "Standard_E16s_v3"
@@ -60,7 +59,6 @@ node_pools = {
       "workload.sas.com/class"        = "compute"
       "launcher.sas.com/prepullImage" = "sas-programming-environment"
     }
-    "availability_zones" = ["1", "2", "3"]
   },
   connect = {
     "machine_type" = "Standard_E16s_v3"
@@ -72,7 +70,6 @@ node_pools = {
       "workload.sas.com/class"        = "connect"
       "launcher.sas.com/prepullImage" = "sas-programming-environment"
     }
-    "availability_zones" = ["1", "2", "3"]
   },
   stateless = {
     "machine_type" = "Standard_D16s_v3"
@@ -83,7 +80,6 @@ node_pools = {
     "node_labels" = {
       "workload.sas.com/class" = "stateless"
     }
-    "availability_zones" = ["1", "2", "3"]
   },
   stateful = {
     "machine_type" = "Standard_D8s_v3"
@@ -94,7 +90,6 @@ node_pools = {
     "node_labels" = {
       "workload.sas.com/class" = "stateful"
     }
-    "availability_zones" = ["1", "2", "3"]
   }
 }
 
