@@ -283,7 +283,7 @@ module "node_pools" {
   max_nodes           = each.value.min_node_count == each.value.max_node_count ? null : each.value.max_node_count
   node_taints         = each.value.node_taints
   node_labels         = each.value.node_labels
-  availability_zones  = each.value.availability_zones
+  availability_zones  = var.node_pools_availability_zone == "" ? [] : [ var.node_pools_availability_zone ]
   tags                = var.tags
 }
 
