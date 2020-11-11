@@ -91,7 +91,7 @@ You can use `default_public_access_cidrs` to set a default range for all created
 | default_nodepool_max_pods | Maximum number of pods that can run on each | number | 110 | Changing this forces a new resource to be created |
 | default_nodepool_max_nodes | Maximum number of nodes for the default nodepool when using autoscaling | number | 5 | Required, when `default_nodepool_auto_scaling=true`, value must be between 1 and 100 |
 | default_nodepool_min_nodes | Minimum number of nodes for the default nodepool when using autoscaling | number | 1 | Required, when `default_nodepool_auto_scaling=true`, value must be between 1 and 100 |
-| default_nodepool_availability_zones | Availability Zones for the cluster default nodepool | list of strings | []  | Note: This value depends on the "location". For example, not all regions have numbered availability zones|
+| default_nodepool_availability_zones | Availability Zones for the cluster default nodepool | list of strings | ["1"]  | Note: This value depends on the "location". For example, not all regions have numbered availability zones|
 
 ### Additional Nodepools
 
@@ -169,7 +169,7 @@ In addition, you can set the availability zone for the additional nodepools usin
 
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
-| node_pools_availability_zone | Availability Zone for the additional nodepools | strings | "" | The possible values depend on the region set in the "location" variable. |
+| node_pools_availability_zone | Availability Zone for the additional nodepools | strings | "1" | The possible values depend on the region set in the "location" variable. |
 
 
 ## Storage
