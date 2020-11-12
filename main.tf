@@ -335,8 +335,8 @@ resource "local_file" "kubeconfig" {
   filename = "${var.prefix}-aks-kubeconfig.conf"
 }
 
-data "external" "githash" {
-  program = ["git", "log", "-1", "--format=format:{ \"githash\": \"%H\" }"]
+data "external" "git_hash" {
+  program = ["git", "log", "-1", "--format=format:{ \"git-hash\": \"%H\" }"]
 }
 
 data "external" "iac_tooling_version" {
@@ -344,17 +344,17 @@ data "external" "iac_tooling_version" {
   program = ["files/iac_tooling_version.sh"]
 }
 
-data "template_file" "sas-iac-buildinfo" {
+data "template_file" "sas_iac_buildinfo" {
   template = file("${path.module}/files/sas-iac-buildinfo.yaml.tmpl")
   vars = {
-    githash         = lookup(data.external.githash.result, "githash")
+    git-hash        = lookup(data.external.git_hash.result, "git-hash")
     timestamp       = chomp(timestamp())
     iac-tooling     = var.iac_tooling
     iac-tooling-ver = (var.iac_tooling == "terraform") ? lookup(data.external.iac_tooling_version.0.result, "iac_tooling_version") : "N/A"
   }
 }
 
-resource "null_resource" "sas-iac-buildinfo" {
+resource "null_resource" "sas_iac_buildinfo" {
   triggers = {
     always_run = timestamp()
   }
@@ -366,7 +366,7 @@ resource "null_resource" "sas-iac-buildinfo" {
     EOF
 
     environment = {
-      CONFIGMAP = data.template_file.sas-iac-buildinfo.rendered
+      CONFIGMAP = data.template_file.sas_iac_buildinfo.rendered
     }
   }
 
