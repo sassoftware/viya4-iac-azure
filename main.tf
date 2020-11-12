@@ -350,7 +350,7 @@ data "template_file" "sas-iac-buildinfo" {
     githash         = lookup(data.external.githash.result, "githash")
     timestamp       = chomp(timestamp())
     iac-tooling     = var.iac_tooling
-    iac-tooling-ver = (var.iac_tooling == "terraform") ? lookup(data.external.iac_tooliing_version.0.result, "iac_tooling_version") : ""
+    iac-tooling-ver = (var.iac_tooling == "terraform") ? lookup(data.external.iac_tooling_version.0.result, "iac_tooling_version") : ""
   }
 }
 
