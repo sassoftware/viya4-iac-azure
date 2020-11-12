@@ -287,6 +287,7 @@ module "node_pools" {
   tags                = var.tags
 }
 
+# Module Registry - https://registry.terraform.io/modules/Azure/postgresql/azurerm/2.1.0
 module "postgresql" {
   source  = "Azure/postgresql/azurerm"
   version = "2.1.0"
