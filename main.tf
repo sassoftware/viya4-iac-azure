@@ -341,39 +341,40 @@ resource "local_file" "kubeconfig" {
   filename = "${var.prefix}-aks-kubeconfig.conf"
 }
 
-resource "null_resource" "sas-iac-buildinfo" {
+data "external" "git_hash" {
+  program = ["git", "log", "-1", "--format=format:{ \"git-hash\": \"%H\" }"]
+}
+
+data "external" "iac_tooling_version" {
+  count = (var.iac_tooling == "terraform") ? 1 : 0
+  program = ["files/iac_tooling_version.sh"]
+}
+
+data "template_file" "sas_iac_buildinfo" {
+  template = file("${path.module}/files/sas-iac-buildinfo.yaml.tmpl")
+  vars = {
+    git-hash        = lookup(data.external.git_hash.result, "git-hash")
+    timestamp       = chomp(timestamp())
+    iac-tooling     = var.iac_tooling
+    iac-tooling-ver = (var.iac_tooling == "terraform") ? lookup(data.external.iac_tooling_version.0.result, "iac_tooling_version") : "N/A"
+  }
+}
+
+resource "null_resource" "sas_iac_buildinfo" {
+  triggers = {
+    always_run = timestamp()
+  }
   provisioner "local-exec" {
     command = <<-EOF
-      rm -rf /tmp/git_hash
-      cd "${path.module}"
-      git log -1 --format=format:"%H" > /tmp/git_hash
+      echo "$CONFIGMAP" > /tmp/sas-iac-buildinfo.cfgmap.yaml
+      kubectl --kubeconfig "${var.prefix}-aks-kubeconfig.conf" apply -f /tmp/sas-iac-buildinfo.cfgmap.yaml
+      rm -rf /tmp/sas-iac-buildinfo.cfgmap.yaml
     EOF
-  }
-}
 
-provider "kubernetes" {
-
-  host = module.aks.host
-
-  client_certificate     = base64decode(module.aks.client_certificate)
-  client_key             = base64decode(module.aks.client_key)
-  cluster_ca_certificate = base64decode(module.aks.cluster_ca_certificate)
-
-  load_config_file = false # when you wish not to load the local config file
-
-}
-
-resource "kubernetes_config_map" "sas-iac-buildinfo" {
-
-  metadata {
-    name      = "sas-iac-buildinfo"
-    namespace = "kube-system"
+    environment = {
+      CONFIGMAP = data.template_file.sas_iac_buildinfo.rendered
+    }
   }
 
-  data = {
-    githash   = file("/tmp/git_hash")
-    timestamp = timestamp()
-  }
-
-  depends_on = [null_resource.sas-iac-buildinfo]
+  depends_on = [local_file.kubeconfig]
 }
