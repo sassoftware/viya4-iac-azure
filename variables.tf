@@ -5,6 +5,12 @@ variable client_secret {}
 variable subscription_id {}
 variable tenant_id {}
 
+variable "iac_tooling" {
+  description = "Value used to identify the tooling used to generate this providers infrastructure."
+  type        = string
+  default     = "terraform"
+}
+
 variable "partner_id" {
   description = "A GUID/UUID that is registered with Microsoft to facilitate partner resource usage attribution"
   type        = string
