@@ -21,19 +21,19 @@ output "aks_cluster_password" {
 
 #postgres
 output "postgres_server_name" {
-  value = var.create_postgres ? module.postgresql[0].server_name : null
+  value = var.create_postgres ? element(coalescelist(module.postgresql.*.server_name, [" "]),0)  : null
 }
 output "postgres_fqdn" {
-  value = var.create_postgres ? module.postgresql[0].server_fqdn : null
+  value = var.create_postgres ? element(coalescelist(module.postgresql.*.server_fqdn, [" "]),0) : null
 }
 output "postgres_admin" {
-  value = var.create_postgres ? "${module.postgresql[0].administrator_login}@${module.postgresql[0].server_name}" : null
+  value = var.create_postgres ? "${element(coalescelist(module.postgresql.*.administrator_login, [" "]),0)}@${element(coalescelist(module.postgresql.*.server_name, [" "]),0)}" : null
 }
 output "postgres_password" {
-  value = var.create_postgres ? module.postgresql[0].administrator_password : null
+  value = var.create_postgres ? element(coalescelist(module.postgresql.*.administrator_password, [" "]),0) : null
 }
 output "postgres_server_id" {
-  value = var.create_postgres ? module.postgresql[0].server_id : null
+  value = var.create_postgres ? element(coalescelist(module.postgresql.*.server_id, [" "]),0) : null
 }
 output "postgres_server_port" {
   value = var.create_postgres ? "5432" : null
@@ -76,11 +76,11 @@ output nfs_admin_username {
 
 # acr
 output "acr_id" {
-  value = var.create_container_registry ? module.acr[0].acr_id : null
+  value = var.create_container_registry ? element(coalescelist(module.acr.*.acr_id, [" "]),0) : null
 }
 
 output "acr_url" {
-  value = var.create_container_registry ? module.acr[0].acr_login_server : null
+  value = var.create_container_registry ? element(coalescelist(module.acr.*.acr_login_server, [" "]),0) : null
 }
 
 output "location" {

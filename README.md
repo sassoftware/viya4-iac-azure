@@ -20,18 +20,12 @@ This tool supports running both from terraform installed on your local machine o
 
 ### Required
 
-#### Terraform
-
 - [Terraform](https://www.terraform.io/downloads.html) - v0.13.3
-- Access to an **Azure Subscription** and **Service Principal** with '*Contributor*' role
-
-#### Docker
-
-- [Docker](https://docs.docker.com/get-docker/)
 - Access to an **Azure Subscription** and **Service Principal** with '*Contributor*' role
 
 ### Optional
 
+- [Docker](https://docs.docker.com/get-docker/)
 - [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest) - v2.1.0, comes in handy as an alternative to the Azure Portal
 
 ## Getting Started
