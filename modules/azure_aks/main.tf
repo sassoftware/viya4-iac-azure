@@ -61,6 +61,9 @@ resource "azurerm_kubernetes_cluster" "aks" {
     http_application_routing {
       enabled = false
     }
+    kube_dashboard {
+      enabled = false
+    }
   }
 
   # change these default timeouts if needed

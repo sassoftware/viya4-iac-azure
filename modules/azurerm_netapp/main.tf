@@ -57,10 +57,10 @@ resource "azurerm_netapp_volume" "anf" {
   storage_quota_in_gb = var.size_in_tb * 1024
 
   export_policy_rule {
-    rule_index = 1
-    allowed_clients = var.allowed_clients
+    rule_index        = 1
+    allowed_clients   = var.allowed_clients
     protocols_enabled = var.protocols
-    unix_read_write = true
+    unix_read_write   = true
   }
 
   lifecycle {

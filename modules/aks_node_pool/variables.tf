@@ -14,7 +14,7 @@ variable "availability_zones" {
 }
 
 variable "vnet_subnet_id" {
-    default = null
+  default = null
 }
 
 variable "machine_type" {
@@ -42,12 +42,12 @@ variable "min_nodes" {
 }
 
 variable "node_taints" {
-  type = list
+  type    = list
   default = []
 }
 
 variable "node_labels" {
-  type = map
+  type    = map
   default = {}
 }
 

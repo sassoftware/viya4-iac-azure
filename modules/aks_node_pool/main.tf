@@ -45,5 +45,5 @@ resource "azurerm_kubernetes_cluster_node_pool" "static_node_pool" {
   node_labels           = var.node_labels
   node_taints           = var.node_taints
 
-  tags                  = var.tags
+  tags = var.tags
 }
