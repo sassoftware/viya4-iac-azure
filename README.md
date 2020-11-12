@@ -18,15 +18,15 @@ This project contains Terraform scripts to provision Microsoft Azure Cloud infra
 Operational knowledge of [Terraform](https://www.terraform.io/intro/index.html), [Microsoft Azure Cloud](https://azure.microsoft.com/), and [Kubernetes](https://kubernetes.io/docs/concepts/).
 This tool supports running both from terraform installed on your local machine or via a docker container. The Dockerfile for the container can be found [here](Dockerfile)
 
-### Required
+#### Terraform
 
 - [Terraform](https://www.terraform.io/downloads.html) - v0.13.3
 - Access to an **Azure Subscription** and **Service Principal** with '*Contributor*' role
 
-### Optional
+#### Docker
 
 - [Docker](https://docs.docker.com/get-docker/)
-- [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest) - v2.1.0, comes in handy as an alternative to the Azure Portal
+- Access to an **Azure Subscription** and **Service Principal** with '*Contributor*' role
 
 ## Getting Started
 
