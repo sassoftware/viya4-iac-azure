@@ -207,7 +207,7 @@ module "nfs" {
 
 module "acr" {
   source                              = "./modules/azurerm_container_registry"
-  create_container_registry           = var.create_container_registry
+  count                               = var.create_container_registry ? 1 : 0
   container_registry_name             = join("", regexall("[a-zA-Z0-9]+", "${var.prefix}acr")) # alpha numeric characters only are allowed
   container_registry_rg               = module.azure_rg.name
   container_registry_location         = var.location
@@ -287,32 +287,38 @@ module "node_pools" {
   tags                = var.tags
 }
 
-
+# Module Registry - https://registry.terraform.io/modules/Azure/postgresql/azurerm/2.1.0
 module "postgresql" {
-  source          = "./modules/postgresql"
-  create_postgres = var.create_postgres
+  source  = "Azure/postgresql/azurerm"
+  version = "2.1.0"
 
-  resource_group_name             = module.azure_rg.name
-  postgres_administrator_login    = var.postgres_administrator_login
-  postgres_administrator_password = var.postgres_administrator_password
-  location                        = var.location
-  # "server_name" match regex "^[0-9a-z][-0-9a-z]{1,61}[0-9a-z]$"
-  # "server_name" can contain only lowercase letters, numbers, and '-', but can't start or end with '-'. And must be at least 3 characters and at most 63 characters
-  server_name                           = lower("${var.prefix}-pgsql")
-  postgres_sku_name                     = var.postgres_sku_name
-  postgres_storage_mb                   = var.postgres_storage_mb
-  postgres_backup_retention_days        = var.postgres_backup_retention_days
-  postgres_geo_redundant_backup_enabled = var.postgres_geo_redundant_backup_enabled
-  tags                                  = var.tags
-  postgres_server_version               = var.postgres_server_version
-  postgres_ssl_enforcement_enabled      = var.postgres_ssl_enforcement_enabled
-  postgres_db_names                     = var.postgres_db_names
-  postgres_db_charset                   = var.postgres_db_charset
-  postgres_db_collation                 = var.postgres_db_collation
-  postgres_firewall_rule_prefix         = "${var.prefix}-postgres-firewall-"
-  postgres_firewall_rules               = local.postgres_firewall_rules
-  postgres_vnet_rule_prefix             = "${var.prefix}-postgresql-vnet-rule-"
-  postgres_vnet_rules                   = [{ name = module.misc-subnet.subnet_name, subnet_id = module.misc-subnet.subnet_id }, { name = module.aks-subnet.subnet_name, subnet_id = module.aks-subnet.subnet_id }]
+  count = var.create_postgres ? 1 : 0
+
+  resource_group_name          = module.azure_rg.name
+  location                     = var.location
+  server_name                  = lower("${var.prefix}-pgsql")
+  sku_name                     = var.postgres_sku_name
+  storage_mb                   = var.postgres_storage_mb
+  backup_retention_days        = var.postgres_backup_retention_days
+  geo_redundant_backup_enabled = var.postgres_geo_redundant_backup_enabled
+  administrator_login          = var.postgres_administrator_login
+  administrator_password       = var.postgres_administrator_password
+  server_version               = var.postgres_server_version
+  ssl_enforcement_enabled      = var.postgres_ssl_enforcement_enabled
+  db_names                     = var.postgres_db_names
+  db_charset                   = var.postgres_db_charset
+  db_collation                 = var.postgres_db_collation
+  firewall_rule_prefix         = "${var.prefix}-postgres-firewall-"
+  firewall_rules               = local.postgres_firewall_rules
+  vnet_rule_name_prefix        = "${var.prefix}-postgresql-vnet-rule-"
+  postgresql_configurations    = var.postgres_configurations
+  tags                         = var.tags
+  vnet_rules = [
+    { name = module.misc-subnet.subnet_name, subnet_id = module.misc-subnet.subnet_id },
+    { name = module.aks-subnet.subnet_name, subnet_id = module.aks-subnet.subnet_id }
+  ]
+
+  depends_on = [module.azure_rg]
 }
 
 module "netapp" {

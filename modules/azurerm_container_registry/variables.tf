@@ -6,8 +6,8 @@ variable create_container_registry {
   default = false
 }
 variable container_registry_sku {
-    description = "The SKU name of the container registry. Possible values are Basic, Standard and Premium"
-    default     = "Standard"
+  description = "The SKU name of the container registry. Possible values are Basic, Standard and Premium"
+  default     = "Standard"
 }
 variable container_registry_admin_enabled {
   default = false

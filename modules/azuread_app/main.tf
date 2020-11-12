@@ -15,7 +15,7 @@ resource "azuread_application" "tfapp" {
 
 # Create a service principal
 resource "azuread_service_principal" "tfapp_sp" {
-  application_id = azuread_application.tfapp.application_id
+  application_id               = azuread_application.tfapp.application_id
   app_role_assignment_required = false
 }
 
