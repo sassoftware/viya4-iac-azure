@@ -339,18 +339,18 @@ data "external" "githash" {
   program = ["git", "log", "-1", "--format=format:{ \"githash\": \"%H\" }"]
 }
 
-# data "external" "tfversion" {
-#   count = (var.iac_tooling == "terraform") ? 1 : 0
-#   program = ["terraform", "version", "-json"]
-# }
+data "external" "iac_tooling_version" {
+  count = (var.iac_tooling == "terraform") ? 1 : 0
+  program = ["files/iac_tooling_version.sh"]
+}
 
 data "template_file" "sas-iac-buildinfo" {
   template = file("${path.module}/files/sas-iac-buildinfo.yaml.tmpl")
   vars = {
-    githash = lookup(data.external.githash.result, "githash")
-    timestamp = chomp(timestamp())
-    iactooling = var.iac_tooling
-    # toolingver = (var.iac_tooling == "terraform") ? data.external.tfversion.0.result : null
+    githash         = lookup(data.external.githash.result, "githash")
+    timestamp       = chomp(timestamp())
+    iac-tooling     = var.iac_tooling
+    iac-tooling-ver = (var.iac_tooling == "terraform") ? lookup(data.external.iac_tooliing_version.0.result, "iac_tooling_version") : ""
   }
 }
 
