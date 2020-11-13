@@ -75,3 +75,4 @@ variable "aks_cluster_tags" {
   description = "Map of tags to be placed on the Resources"
   type        = map
 }
+

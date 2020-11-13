@@ -21,19 +21,19 @@ output "aks_cluster_password" {
 
 #postgres
 output "postgres_server_name" {
-  value = var.create_postgres ? element(coalescelist(module.postgresql.*.server_name, [" "]),0)  : null
+  value = var.create_postgres ? element(coalescelist(module.postgresql.*.server_name, [" "]), 0) : null
 }
 output "postgres_fqdn" {
-  value = var.create_postgres ? element(coalescelist(module.postgresql.*.server_fqdn, [" "]),0) : null
+  value = var.create_postgres ? element(coalescelist(module.postgresql.*.server_fqdn, [" "]), 0) : null
 }
 output "postgres_admin" {
-  value = var.create_postgres ? "${element(coalescelist(module.postgresql.*.administrator_login, [" "]),0)}@${element(coalescelist(module.postgresql.*.server_name, [" "]),0)}" : null
+  value = var.create_postgres ? "${element(coalescelist(module.postgresql.*.administrator_login, [" "]), 0)}@${element(coalescelist(module.postgresql.*.server_name, [" "]), 0)}" : null
 }
 output "postgres_password" {
-  value = var.create_postgres ? element(coalescelist(module.postgresql.*.administrator_password, [" "]),0) : null
+  value = var.create_postgres ? element(coalescelist(module.postgresql.*.administrator_password, [" "]), 0) : null
 }
 output "postgres_server_id" {
-  value = var.create_postgres ? element(coalescelist(module.postgresql.*.server_id, [" "]),0) : null
+  value = var.create_postgres ? element(coalescelist(module.postgresql.*.server_id, [" "]), 0) : null
 }
 output "postgres_server_port" {
   value = var.create_postgres ? "5432" : null
@@ -76,11 +76,11 @@ output nfs_admin_username {
 
 # acr
 output "acr_id" {
-  value = var.create_container_registry ? element(coalescelist(module.acr.*.acr_id, [" "]),0) : null
+  value = var.create_container_registry ? element(coalescelist(module.acr.*.acr_id, [" "]), 0) : null
 }
 
 output "acr_url" {
-  value = var.create_container_registry ? element(coalescelist(module.acr.*.acr_login_server, [" "]),0) : null
+  value = var.create_container_registry ? element(coalescelist(module.acr.*.acr_login_server, [" "]), 0) : null
 }
 
 output "location" {
@@ -119,7 +119,7 @@ output "rwx_filestore_config" {
     "tenantID" : data.azurerm_subscription.current.tenant_id,
     "clientID" : var.client_id,
     "clientSecret" : var.client_secret,
-    "location" : module.azure_rg.location,
+    "location" : azurerm_resource_group.azure_rg.location,
     "serviceLevel" : var.netapp_service_level,
     "virtualNetwork" : azurerm_virtual_network.vnet.name,
     "subnet" : module.netapp.netapp_subnet,

@@ -88,3 +88,8 @@ variable cloud_init {
 variable create_public_ip {
   default = false
 }
+
+variable "proximity_placement_group_id" {
+  type    = string
+  default = ""
+}

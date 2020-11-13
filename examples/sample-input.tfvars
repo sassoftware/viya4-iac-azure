@@ -38,6 +38,8 @@ default_nodepool_min_nodes = 2
 default_nodepool_vm_type   = "Standard_D4_v2"
 
 # AKS Node Pools config
+node_pools_proximity_placement = true
+node_pools_availability_zone   = ""
 node_pools = {
   cas = {
     "machine_type" = "Standard_E16s_v3"
@@ -74,7 +76,7 @@ node_pools = {
   stateless = {
     "machine_type" = "Standard_D16s_v3"
     "os_disk_size" = 200
-    "min_nodes"    = 1
+    "min_nodes"    = 2
     "max_nodes"    = 2
     "node_taints"  = ["workload.sas.com/class=stateless:NoSchedule"]
     "node_labels" = {
@@ -84,7 +86,7 @@ node_pools = {
   stateful = {
     "machine_type" = "Standard_D8s_v3"
     "os_disk_size" = 200
-    "min_nodes"    = 1
+    "min_nodes"    = 3
     "max_nodes"    = 3
     "node_taints"  = ["workload.sas.com/class=stateful:NoSchedule"]
     "node_labels" = {
