@@ -9,7 +9,7 @@ variable "aks_cluster_id" {
 }
 
 variable "availability_zones" {
-  type = list(string)
+  type    = list(string)
   default = []
 }
 
@@ -54,4 +54,9 @@ variable "node_labels" {
 variable "tags" {
   description = "Map of tags to be placed on the Resources"
   type        = map
+}
+
+variable "proximity_placement_group_id" {
+  type    = string
+  default = ""
 }

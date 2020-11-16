@@ -163,11 +163,12 @@ The default values for the `node_pools` variable are:
 }
 ```
 
-In addition, you can set the availability zone for the additional nodepools using
+In addition, you can control the placement for the additional nodepools using
 
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
-| node_pools_availability_zone | Availability Zone for the additional nodepools | strings | "1" | The possible values depend on the region set in the "location" variable. |
+| node_pools_availability_zone | Availability Zone for the additional nodepools and the NFS VM, for `storage_type="standard"'| string | "1" | The possible values depend on the region set in the "location" variable. |
+| node_pools_proximity_placement | Co-locates all node pool VMs for improved application performance. | bool | false | Selecting proximity placement imposes an additional constraint on VM creation and can lead to more frequent denials of VM allocation requests. We recommend to set `node_pools_availability_zone=""` and allocate all required resources at one time by setting `min_nodes` and `max_nodes` to the same value for all node pools.  Reference: https://azure.microsoft.com/en-us/blog/introducing-proximity-placement-groups/ |
 
 
 ## Storage
@@ -183,6 +184,8 @@ In addition, you can set the availability zone for the additional nodepools usin
 | create_nfs_public_ip | Add public ip to the NFS server VM | bool | false | The NFS server VM is only created when storage_type="standard" |
 | nfs_vm_admin | OS Admin User for the NFS server VM | string | "nfsuser" | The NFS server VM is only created when storage_type="standard" |
 | nfs_raid_disk_size | Size in Gb for each disk of the RAID5 cluster on the NFS server VM | number | 128 | The NFS server VM is only created when storage_type="standard" |
+
+Note: When `node_pools_proximity_placement=true` is set, the NFS VM will be co-located in the proximity group with the additional node pool VMs.
 
 ### storage_type=ha - Azure NetApp
 

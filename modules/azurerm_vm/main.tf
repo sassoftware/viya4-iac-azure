@@ -51,12 +51,13 @@ resource "azurerm_virtual_machine_data_disk_attachment" "vm_data_disk_attach" {
 }
 
 resource "azurerm_linux_virtual_machine" "vm" {
-  count               = var.create_vm ? 1 : 0
-  name                = "${var.name}-vm"
-  location            = var.azure_rg_location
-  resource_group_name = var.azure_rg_name
-  size                = var.machine_type
-  admin_username      = var.vm_admin
+  count                        = var.create_vm ? 1 : 0
+  name                         = "${var.name}-vm"
+  location                     = var.azure_rg_location
+  proximity_placement_group_id = var.proximity_placement_group_id == "" ? null : var.proximity_placement_group_id
+  resource_group_name          = var.azure_rg_name
+  size                         = var.machine_type
+  admin_username               = var.vm_admin
 
   #Cloud Init
   custom_data = (var.cloud_init != "" ? var.cloud_init : null)

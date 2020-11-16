@@ -281,6 +281,11 @@ variable node_pools_availability_zone {
   default = "1"
 }
 
+variable node_pools_proximity_placement {
+  type    = bool
+  default = false
+}
+
 variable node_pools {
   description = "Node pool definitions"
   type = map(object({
