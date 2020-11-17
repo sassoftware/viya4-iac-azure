@@ -69,10 +69,10 @@ Create a file with these environment variables values, see [Authenticating using
 
 ```
 # export needed IDs and Secrets
-TF_VAR_subscription_id=<SUBSCRIPTION_ID>
-TF_VAR_tenant_id=<TENANT_ID>
-TF_VAR_client_id=<SP_APPID>
-TF_VAR_client_secret=<SP_PASSWD>
+TF_VAR_subscription_id=[SUBSCRIPTION_ID]
+TF_VAR_tenant_id=[TENANT_ID]
+TF_VAR_client_id=[SP_APPID]
+TF_VAR_client_secret=[SP_PASSWD]
 ```
 Save this to a file you can use later, like `$HOME/.azure_docker_creds.env`
 
