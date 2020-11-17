@@ -76,11 +76,11 @@ output nfs_admin_username {
 
 # acr
 output "acr_id" {
-  value = var.create_container_registry ? element(coalescelist(module.acr.*.acr_id, [" "]), 0) : null
+  value = var.create_container_registry ? element(coalescelist(azurerm_container_registry.acr.*.id, [" "]), 0) : null
 }
 
 output "acr_url" {
-  value = var.create_container_registry ? element(coalescelist(module.acr.*.acr_login_server, [" "]), 0) : null
+  value = var.create_container_registry ? element(coalescelist(azurerm_container_registry.acr.*.login_server, [" "]), 0) : null
 }
 
 output "location" {
@@ -121,7 +121,7 @@ output "rwx_filestore_config" {
     "clientSecret" : var.client_secret,
     "location" : azurerm_resource_group.azure_rg.location,
     "serviceLevel" : var.netapp_service_level,
-    "virtualNetwork" : azurerm_virtual_network.vnet.name,
+    "virtualNetwork" : module.vnet.vnet_name,
     "subnet" : module.netapp.netapp_subnet,
     "defaults" : {
       "exportRule" : local.vnet_cidr_block,
