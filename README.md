@@ -6,7 +6,7 @@ This project contains Terraform scripts to provision Microsoft Azure Cloud infra
 
   >- Azure Resource Group
   >- Virtual Network, Network Security Groups and Network Security Rules
-  >- Managed Azure Kubernetes Service(AKS) cluster
+  >- Managed Azure Kubernetes Service (AKS) cluster
   >- System and User AKS Node pools with required Labels and Taints
   >- Infrastructure to deploy SAS Viya CAS in SMP or MPP mode
   >- Storage options for SAS Viya -  AzureDisk/Files(dev) or NFS Server or Azure NetApp Files(HA)
