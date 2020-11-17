@@ -81,7 +81,7 @@ Save this to a file you can use later, like `$HOME/.azure_docker_creds.env`
 Run the following command to create your `viya4-iac-azure` local docker image
 
 ```bash
-docker build -t viya4-iac-azure
+docker build -t viya4-iac-azure .
 ```
 
 ### Customize Input Values
