@@ -19,7 +19,7 @@ default_public_access_cidrs = [] # e.g., ["123.45.6.89/32"]
 tags = {} # e.g., { "key1" = "value1", "key2" = "value2" }
 
 # When a ssh key value is provided it will be used for all VMs or else a ssh key will be auto generated and available in outputs
-ssh_public_key = "~/.ssh/id_rsa.pub"
+# ssh_public_key = "~/.ssh/id_rsa.pub"
 
 # Azure Postgres config
 create_postgres                  = true # set this to "false" when using internal Crunchy Postgres
@@ -38,8 +38,6 @@ default_nodepool_min_nodes = 2
 default_nodepool_vm_type   = "Standard_D4_v2"
 
 # AKS Node Pools config
-node_pools_proximity_placement = true
-node_pools_availability_zone   = ""
 node_pools = {
   cas = {
     "machine_type" = "Standard_E16s_v3"
@@ -76,7 +74,7 @@ node_pools = {
   stateless = {
     "machine_type" = "Standard_D16s_v3"
     "os_disk_size" = 200
-    "min_nodes"    = 2
+    "min_nodes"    = 1
     "max_nodes"    = 2
     "node_taints"  = ["workload.sas.com/class=stateless:NoSchedule"]
     "node_labels" = {
@@ -86,7 +84,7 @@ node_pools = {
   stateful = {
     "machine_type" = "Standard_D8s_v3"
     "os_disk_size" = 200
-    "min_nodes"    = 3
+    "min_nodes"    = 1
     "max_nodes"    = 3
     "node_taints"  = ["workload.sas.com/class=stateful:NoSchedule"]
     "node_labels" = {
