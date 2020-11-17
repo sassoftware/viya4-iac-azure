@@ -18,6 +18,7 @@ This project contains Terraform scripts to provision Microsoft Azure Cloud infra
 Operational knowledge of:
 
 - [Terraform](https://www.terraform.io/intro/index.html)
+- [Docker](https://www.docker.com/)
 - [Microsoft Azure Cloud](https://azure.microsoft.com/)
 - [Kubernetes](https://kubernetes.io/docs/concepts/)
  
