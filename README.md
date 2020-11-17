@@ -15,12 +15,17 @@ This project contains Terraform scripts to provision Microsoft Azure Cloud infra
 
 ## Prerequisites
 
-Operational knowledge of [Terraform](https://www.terraform.io/intro/index.html), [Microsoft Azure Cloud](https://azure.microsoft.com/), and [Kubernetes](https://kubernetes.io/docs/concepts/).
+Operational knowledge of:
+
+- [Terraform](https://www.terraform.io/intro/index.html)
+- [Microsoft Azure Cloud](https://azure.microsoft.com/)
+- [Kubernetes](https://kubernetes.io/docs/concepts/)
+ 
 This tool supports running both from terraform installed on your local machine or via a docker container. The Dockerfile for the container can be found [here](Dockerfile)
 
 #### Terraform
 
-- [Terraform](https://www.terraform.io/downloads.html) - v0.13.3
+- [Terraform](https://www.terraform.io/downloads.html) - v0.13.5
 - Access to an **Azure Subscription** and **Service Principal** with '*Contributor*' role
 
 #### Docker
@@ -44,6 +49,8 @@ cd viya4-iac-azure
 
 ### Authenticating Terraform to access Azure
 
+#### Terraform
+
 Export these environment variables values, see [Authenticating using Service Principal and Secret](./docs/user/TerraformAzureAuthentication.md) for details
 
 ```bash
@@ -53,6 +60,28 @@ export TF_VAR_tenant_id="TENANT_ID"
 export TF_VAR_client_id="SP_APPID"
 export TF_VAR_client_secret="SP_PASSWD"
 ```
+Save this to a file you can source and use later, like `$HOME/.azure_creds.sh`
+
+#### Docker
+
+Create a file with these environment variables values, see [Authenticating using Service Principal and Secret](./docs/user/TerraformAzureAuthentication.md) for details
+
+```
+# export needed IDs and Secrets
+TF_VAR_subscription_id=<SUBSCRIPTION_ID>
+TF_VAR_tenant_id=<TENANT_ID>
+TF_VAR_client_id=<SP_APPID>
+TF_VAR_client_secret=<SP_PASSWD>
+```
+Save this to a file you can use later, like `$HOME/.azure_docker_creds.env`
+
+#### Building the docker image
+
+Run the following command to create your `viya4-iac-azure` local docker image
+
+```bash
+docker build -t viya4-iac-azure
+```
 
 ### Customize Input Values
 
@@ -60,7 +89,15 @@ Create a file named `terraform.tfvars` to customize any input variable value. Fo
 
 When using a variable definition file other than `terraform.tfvars`, see [Advanced Terraform Usage](docs/user/AdvancedTerraformUsage.md) for additional command options.
 
-### Running Terraform Commands
+### Running
+
+#### Terrafrom
+
+Source your credentials into your shells enviornment
+
+```bash
+. $HOME/.azure_creds.sh
+```
 
 Initialize the Terraform environment for this project by running
 
@@ -89,20 +126,59 @@ terraform apply
 ```bash
 terraform output
 ```
+#### Docker
+
+To preview the resources that the Terraform script will create, optionally run
+
+```
+docker run --rm \        
+  --env-file $HOME/~/.azure_docker_creds.env \
+  -v $(pwd):/workspace viya4-iac-azure \
+  plan -var-file /workspace/sas-sample-input.tfvars -state /workspace/terraform.tfstate
+```
+
+When satisfied with the plan and ready to create cloud resources, run
+
+```bash
+docker run --rm \        
+  --env-file $(pwd)/docker.env \
+  -v $(pwd):/workspace viya4-iac-azure \
+  apply -var-file /workspace/sas-sample-input.tfvars -auto-approve -state /workspace/terraform.tfstate
+```
+`terraform apply` can take a few minutes to complete. Once complete, output values are written to the console.
+
+The output values can be displayed anytime by again running
+
+```bash
+docker run --rm \        
+  --env-file $(pwd)/docker.env \
+  -v $(pwd):/workspace viya4-iac-azure \
+  output -state /workspace/terraform.tfstate
+```
 
 ### Modifying Cloud Resources
 
-After provisioning the infrastructure if changes were to be made to inputs e.g., change number of nodes in a node pool or set create_postgres to true/false, then add the variable to terraform.tfvars and changes the value and run `terrafom apply`.
+After provisioning the infrastructure if changes were to be made to inputs e.g., change number of nodes in a node pool or set create_postgres to true/false, then add the variable to terraform.tfvars and changes the value and run either `terraform apply` or the equivalent `docker run ... apply` command.
 
 ### Interacting with Kubernetes cluster
 
+#### Terraform 
 Terraform script writes `kube_config` output value to a file `./[prefix]-aks-kubeconfig.conf`. Now that you have your Kubernetes cluster up and running, here's how to connect to the cluster
 
 ```bash
 export KUBECONFIG=./[prefix]-aks-kubeconfig.conf
 kubectl get nodes
 ```
+#### Docker
 
+```bash
+docker run --rm \        
+  --env-file $(pwd)/docker.env \
+  -v $(pwd):/workspace viya4-iac-azure \
+  output kube-config -state /workspace/terraform.tfstate > ./[prefix]-aks-kubeconfig.conf
+  export KUBECONFIG=./[prefix]-aks-kubeconfig.conf
+  kubectl get nodes
+```
 ### Examples
 
 We include several samples - `sample-input*.tfvars` in this repo to get started. Evaluate the sample files, then review the [CONFIG-VARS.md](docs/CONFIG-VARS.md) to see what other variables can be used.
