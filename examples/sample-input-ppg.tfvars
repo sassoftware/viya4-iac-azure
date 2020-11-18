@@ -37,7 +37,13 @@ kubernetes_version         = "1.18.8"
 default_nodepool_min_nodes = 2
 default_nodepool_vm_type   = "Standard_D4_v2"
 
-# Azure Proximity Placement / Availability Zone config
+## Azure Proximity Placement / Availability Zone config
+#  !NOTE! - If proximity placement groups are required for your deployment
+#           please refer to the user doc for more information and limitations
+#           this feature imposes on deployment
+#
+#  Link - https://github.com/sassoftware/viya4-iac-azure/blob/main/docs/user/ProximityPlacementGroup.md
+#
 node_pools_proximity_placement = true
 node_pools_availability_zone   = ""
 
