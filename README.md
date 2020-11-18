@@ -178,7 +178,7 @@ kubectl get nodes
 docker run --rm \
   --env-file $HOME/.azure_docker_creds.env \
   -v $(pwd):/workspace viya4-iac-azure \
-  output kube-config -state /workspace/terraform.tfstate > ./[prefix]-aks-kubeconfig.conf
+  output -state /workspace/terraform.tfstate kube_config > ./[prefix]-aks-kubeconfig.conf
   export KUBECONFIG=./[prefix]-aks-kubeconfig.conf
   kubectl get nodes
 ```
