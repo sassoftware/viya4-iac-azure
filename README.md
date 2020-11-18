@@ -13,7 +13,7 @@ This project contains Terraform scripts to provision Microsoft Azure Cloud infra
   >- Azure DB for PostgreSQL, optional
   >- Azure Container Registry, optional
 
-<img src="./docs/images/viya4-iac-azure-diag.png" alt="Architecture Diagram" width="750"/>
+[<img src="./docs/images/viya4-iac-azure-diag.png" alt="Architecture Diagram" width="750"/>](./docs/images/viya4-iac-azure-diag.png?raw=true)
 
 ## Prerequisites
 
@@ -28,7 +28,8 @@ This tool supports running both from terraform installed on your local machine o
 
 #### Terraform
 
-- [Terraform](https://www.terraform.io/downloads.html) - v0.13.5
+- [Terraform](https://www.terraform.io/downloads.html) - v0.13.4
+- [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl) - v1.18.8
 - Access to an **Azure Subscription** and **Service Principal** with '*Contributor*' role
 
 #### Docker
@@ -69,7 +70,7 @@ Save this to a file you can source and use later, like `$HOME/.azure_creds.sh`
 
 Create a file with these environment variables values, see [Authenticating using Service Principal and Secret](./docs/user/TerraformAzureAuthentication.md) for details
 
-```
+```bash
 # export needed IDs and Secrets
 TF_VAR_subscription_id=[SUBSCRIPTION_ID]
 TF_VAR_tenant_id=[TENANT_ID]
@@ -133,9 +134,9 @@ terraform output
 
 To preview the resources that the Terraform script will create, optionally run
 
-```
-docker run --rm \        
-  --env-file $HOME/~/.azure_docker_creds.env \
+```bash
+docker run --rm \
+  --env-file $HOME/.azure_docker_creds.env \
   -v $(pwd):/workspace viya4-iac-azure \
   plan -var-file /workspace/sas-sample-input.tfvars -state /workspace/terraform.tfstate
 ```
@@ -143,8 +144,8 @@ docker run --rm \
 When satisfied with the plan and ready to create cloud resources, run
 
 ```bash
-docker run --rm \        
-  --env-file $(pwd)/docker.env \
+docker run --rm \
+  --env-file $HOME/.azure_docker_creds.env \
   -v $(pwd):/workspace viya4-iac-azure \
   apply -var-file /workspace/sas-sample-input.tfvars -auto-approve -state /workspace/terraform.tfstate
 ```
@@ -153,8 +154,8 @@ docker run --rm \
 The output values can be displayed anytime by again running
 
 ```bash
-docker run --rm \        
-  --env-file $(pwd)/docker.env \
+docker run --rm \
+  --env-file $HOME/.azure_docker_creds.env \
   -v $(pwd):/workspace viya4-iac-azure \
   output -state /workspace/terraform.tfstate
 ```
@@ -175,12 +176,12 @@ kubectl get nodes
 #### Docker
 
 ```bash
-docker run --rm \        
-  --env-file $(pwd)/docker.env \
+docker run --rm \
+  --env-file $HOME/.azure_docker_creds.env \
   -v $(pwd):/workspace viya4-iac-azure \
-  output kube-config -state /workspace/terraform.tfstate > ./[prefix]-aks-kubeconfig.conf
-  export KUBECONFIG=./[prefix]-aks-kubeconfig.conf
-  kubectl get nodes
+  output -state /workspace/terraform.tfstate kube_config > ./[prefix]-aks-kubeconfig.conf
+export KUBECONFIG=$(pwd)/[prefix]-aks-kubeconfig.conf
+kubectl get nodes
 ```
 ### Examples
 
