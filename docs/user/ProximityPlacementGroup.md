@@ -15,4 +15,4 @@ More information can be found [here.](https://docs.microsoft.com/en-us/azure/vir
 
 ## Examples file
 
-The [examples file](examples/sas-input-ppg.tfvars) has both the `min_nodes` and `max_nodes` set to the same value which will, as noted in the docs above, request that all resourcs for a given node pool be created at once in the same data center and also disable autoscalling for this node pool as all resources are created from the begining.
+The [examples file](../../examples/sample-input-ppg.tfvars) has both the `min_nodes` and `max_nodes` set to the same value which will, as noted in the docs above, request that all resourcs for a given node pool be created at once in the same data center and also disable autoscalling for this node pool as all resources are created from the begining.
