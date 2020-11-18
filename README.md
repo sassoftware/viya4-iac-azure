@@ -68,11 +68,17 @@ Save this to a file you can source and use later, like `$HOME/.azure_creds.sh`
 Create a file with these environment variables values, see [Authenticating using Service Principal and Secret](./docs/user/TerraformAzureAuthentication.md) for details
 
 ```
-# export needed IDs and Secrets
-TF_VAR_subscription_id=[SUBSCRIPTION_ID]
-TF_VAR_tenant_id=[TENANT_ID]
+# Needed IDs and Secrets
 TF_VAR_client_id=[SP_APPID]
 TF_VAR_client_secret=[SP_PASSWD]
+TF_VAR_subscription_id=[SUBSCRIPTION_ID]
+TF_VAR_tenant_id=[TENANT_ID]
+
+# Required by current issue: https://github.com/terraform-providers/terraform-provider-azuread/issues/343
+ARM_CLIENT_ID=[SP_APPID]
+ARM_CLIENT_SECRET=[SP_PASSWD]
+ARM_SUBSCRIPTION_ID=[SUBSCRIPTION_ID]
+ARM_TENANT_ID=[TENANT_ID]
 ```
 Save this to a file you can use later, like `$HOME/.azure_docker_creds.env`
 
@@ -133,7 +139,7 @@ To preview the resources that the Terraform script will create, optionally run
 
 ```
 docker run --rm \        
-  --env-file $HOME/~/.azure_docker_creds.env \
+  --env-file $HOME/.azure_docker_creds.env \
   -v $(pwd):/workspace viya4-iac-azure \
   plan -var-file /workspace/sas-sample-input.tfvars -state /workspace/terraform.tfstate
 ```
