@@ -23,11 +23,11 @@ Terraform input variables can be set in the following ways:
 
 - Individually, with the [-var command line option](https://www.terraform.io/docs/configuration/variables.html#variables-on-the-command-line).
 - In [variable definitions (.tfvars) files](https://www.terraform.io/docs/configuration/variables.html#variable-definitions-tfvars-files). We recommend this way for most variables.
-- As [environment variables](https://www.terraform.io/docs/configuration/variables.html#environment-variables). We recommend this way for the variables that set the [Azure authentication](#required-variables-for-azure-authentication).
+- As [environment variables](https://www.terraform.io/docs/configuration/variables.html#environment-variables). We recommend this way for the variables that set the [Azure authentication](#azure-authentication).
 
 ## Required Variables
 
-### [Application](#application)
+### Application
 
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
@@ -39,7 +39,7 @@ Terraform input variables can be set in the following ways:
 
 The Terraform process manages Azure resources on your behalf. In order to do so, it needs to know your Azure account information, and a user identity with the required permissions.
 
-Find details on how to retrieve that information under [Azure Help Topics](./docs/user/AzureHelpTopics.md).
+Find details on how to retrieve that information under [Azure Help Topics](./user/AzureHelpTopics.md).
 
 | Name | Description | Type | Default |
 | :--- | ---: | ---: | ---: |
@@ -48,7 +48,7 @@ Find details on how to retrieve that information under [Azure Help Topics](./doc
 | client_id | your Azure Service Principal id | string |
 | client_secret | your Azure Service Principal secret | string |
 
-For recommendation on how to set these variables in your environment, see [Authenticating Terraform to access Azure](user/TerraformAzureAuthentication.md).
+For recommendation on how to set these variables in your environment, see [Authenticating Terraform to access Azure](./user/TerraformAzureAuthentication.md).
 
 ## Admin Access
 
@@ -168,7 +168,7 @@ In addition, you can control the placement for the additional nodepools using
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
 | node_pools_availability_zone | Availability Zone for the additional nodepools and the NFS VM, for `storage_type="standard"'| string | "1" | The possible values depend on the region set in the "location" variable. |
-| node_pools_proximity_placement | Co-locates all node pool VMs for improved application performance. | bool | false | Selecting proximity placement imposes an additional constraint on VM creation and can lead to more frequent denials of VM allocation requests. We recommend to set `node_pools_availability_zone=""` and allocate all required resources at one time by setting `min_nodes` and `max_nodes` to the same value for all node pools.  Additional Information: [Proximity Group Placement](docs/user/ProximityPlacementGroup.md) |
+| node_pools_proximity_placement | Co-locates all node pool VMs for improved application performance. | bool | false | Selecting proximity placement imposes an additional constraint on VM creation and can lead to more frequent denials of VM allocation requests. We recommend to set `node_pools_availability_zone=""` and allocate all required resources at one time by setting `min_nodes` and `max_nodes` to the same value for all node pools.  Additional Information: [Proximity Group Placement](./user/ProximityPlacementGroup.md) |
 
 
 ## Storage
