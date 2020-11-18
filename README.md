@@ -144,7 +144,7 @@ When satisfied with the plan and ready to create cloud resources, run
 
 ```bash
 docker run --rm \        
-  --env-file $(pwd)/docker.env \
+  --env-file $HOME/~/.azure_docker_creds.env \
   -v $(pwd):/workspace viya4-iac-azure \
   apply -var-file /workspace/sas-sample-input.tfvars -auto-approve -state /workspace/terraform.tfstate
 ```
@@ -154,7 +154,7 @@ The output values can be displayed anytime by again running
 
 ```bash
 docker run --rm \        
-  --env-file $(pwd)/docker.env \
+  --env-file $HOME/~/.azure_docker_creds.env \
   -v $(pwd):/workspace viya4-iac-azure \
   output -state /workspace/terraform.tfstate
 ```
@@ -176,7 +176,7 @@ kubectl get nodes
 
 ```bash
 docker run --rm \        
-  --env-file $(pwd)/docker.env \
+  --env-file $HOME/~/.azure_docker_creds.env \
   -v $(pwd):/workspace viya4-iac-azure \
   output kube-config -state /workspace/terraform.tfstate > ./[prefix]-aks-kubeconfig.conf
   export KUBECONFIG=./[prefix]-aks-kubeconfig.conf
