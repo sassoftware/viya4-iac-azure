@@ -69,7 +69,7 @@ Save this to a file you can source and use later, like `$HOME/.azure_creds.sh`
 
 Create a file with these environment variables values, see [Authenticating using Service Principal and Secret](./docs/user/TerraformAzureAuthentication.md) for details
 
-```
+```bash
 # export needed IDs and Secrets
 TF_VAR_subscription_id=[SUBSCRIPTION_ID]
 TF_VAR_tenant_id=[TENANT_ID]
@@ -133,9 +133,9 @@ terraform output
 
 To preview the resources that the Terraform script will create, optionally run
 
-```
-docker run --rm \        
-  --env-file $HOME/~/.azure_docker_creds.env \
+```bash
+docker run --rm \
+  --env-file $HOME/.azure_docker_creds.env \
   -v $(pwd):/workspace viya4-iac-azure \
   plan -var-file /workspace/sas-sample-input.tfvars -state /workspace/terraform.tfstate
 ```
@@ -143,8 +143,8 @@ docker run --rm \
 When satisfied with the plan and ready to create cloud resources, run
 
 ```bash
-docker run --rm \        
-  --env-file $HOME/~/.azure_docker_creds.env \
+docker run --rm \
+  --env-file $HOME/.azure_docker_creds.env \
   -v $(pwd):/workspace viya4-iac-azure \
   apply -var-file /workspace/sas-sample-input.tfvars -auto-approve -state /workspace/terraform.tfstate
 ```
@@ -153,8 +153,8 @@ docker run --rm \
 The output values can be displayed anytime by again running
 
 ```bash
-docker run --rm \        
-  --env-file $HOME/~/.azure_docker_creds.env \
+docker run --rm \
+  --env-file $HOME/.azure_docker_creds.env \
   -v $(pwd):/workspace viya4-iac-azure \
   output -state /workspace/terraform.tfstate
 ```
@@ -175,8 +175,8 @@ kubectl get nodes
 #### Docker
 
 ```bash
-docker run --rm \        
-  --env-file $HOME/~/.azure_docker_creds.env \
+docker run --rm \
+  --env-file $HOME/.azure_docker_creds.env \
   -v $(pwd):/workspace viya4-iac-azure \
   output kube-config -state /workspace/terraform.tfstate > ./[prefix]-aks-kubeconfig.conf
   export KUBECONFIG=./[prefix]-aks-kubeconfig.conf
