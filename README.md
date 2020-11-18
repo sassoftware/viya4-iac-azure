@@ -13,6 +13,8 @@ This project contains Terraform scripts to provision Microsoft Azure Cloud infra
   >- Azure DB for PostgreSQL, optional
   >- Azure Container Registry, optional
 
+<img src="./docs/images/viya4-iac-azure-diag.png" alt="Architecture Diagram" width="750"/>
+
 ## Prerequisites
 
 Operational knowledge of:
