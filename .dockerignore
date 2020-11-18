@@ -1,3 +1,6 @@
 docs/
 *.md
 *.txt
+terraform.tfstate*
+examples/
+

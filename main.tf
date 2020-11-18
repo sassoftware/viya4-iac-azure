@@ -397,20 +397,19 @@ data "template_file" "sas_iac_buildinfo" {
   }
 }
 
+resource "local_file" "sas_iac_buildinfo" {
+  content = data.template_file.sas_iac_buildinfo.rendered
+  filename = "${path.module}/sas_iac_buildinfo.yaml"
+}
+
 resource "null_resource" "sas_iac_buildinfo" {
   triggers = {
     always_run = timestamp()
   }
   provisioner "local-exec" {
     command = <<-EOF
-      echo "$CONFIGMAP" > /tmp/sas-iac-buildinfo.cfgmap.yaml
-      kubectl --kubeconfig "${var.prefix}-aks-kubeconfig.conf" apply -f /tmp/sas-iac-buildinfo.cfgmap.yaml
-      rm -rf /tmp/sas-iac-buildinfo.cfgmap.yaml
+      kubectl --kubeconfig "${var.prefix}-aks-kubeconfig.conf" apply -f ${path.module}/sas_iac_buildinfo.yaml
     EOF
-
-    environment = {
-      CONFIGMAP = data.template_file.sas_iac_buildinfo.rendered
-    }
   }
 
   depends_on = [local_file.kubeconfig]
