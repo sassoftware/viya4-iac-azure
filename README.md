@@ -95,7 +95,7 @@ When using a variable definition file other than `terraform.tfvars`, see [Advanc
 
 ### Running
 
-#### Terrafrom
+#### Terraform
 
 Source your credentials into your shells enviornment
 
