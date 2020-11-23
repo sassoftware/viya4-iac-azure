@@ -4,11 +4,12 @@ metadata:
   name: sas-iac-buildinfo
   namespace: kube-system
 data:
-  git-hash: |-
-    ${git-hash}
-  timestamp: |-
-    ${timestamp}
-  iac-tooling: |-
-    ${iac-tooling}
-  iac-tooling-ver: |-
-    ${iac-tooling-ver}
+  git-hash: ${git-hash}
+  timestamp: ${timestamp}
+  iac-tooling: ${iac-tooling}
+  terraform: |-
+    version: ${terraform-version}
+    revision: ${terraform-revision}
+    provider-selections: ${provider-selections}
+    outdated: ${terraform-outdated}
+

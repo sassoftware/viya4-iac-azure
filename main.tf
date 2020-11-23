@@ -390,10 +390,13 @@ data "external" "iac_tooling_version" {
 data "template_file" "sas_iac_buildinfo" {
   template = file("${path.module}/files/sas-iac-buildinfo.yaml.tmpl")
   vars = {
-    git-hash        = lookup(data.external.git_hash.result, "git-hash")
-    timestamp       = chomp(timestamp())
-    iac-tooling     = var.iac_tooling
-    iac-tooling-ver = (var.iac_tooling == "terraform") ? lookup(data.external.iac_tooling_version.0.result, "iac_tooling_version") : "N/A"
+    git-hash              = lookup(data.external.git_hash.result, "git-hash")
+    timestamp             = chomp(timestamp())
+    iac-tooling           = var.iac_tooling
+    terraform-version     = lookup(data.external.iac_tooling_version.0.result, "terraform_version")
+    provider-selections   = lookup(data.external.iac_tooling_version.0.result, "provider_selections")
+    terraform-revision    = lookup(data.external.iac_tooling_version.0.result, "terraform_revision")
+    terraform-outdated    = lookup(data.external.iac_tooling_version.0.result, "terraform_outdated")
   }
 }
 
