@@ -30,6 +30,7 @@ This tool supports running both from terraform installed on your local machine o
 
 - [Terraform](https://www.terraform.io/downloads.html) - v0.13.4
 - [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl) - v1.18.8
+- [jq](https://stedolan.github.io/jq/) - v1.6
 - Access to an **Azure Subscription** and **Service Principal** with '*Contributor*' role
 
 #### Docker
