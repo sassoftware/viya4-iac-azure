@@ -324,6 +324,19 @@ module "node_pools" {
   tags                         = var.tags
 }
 
+resource "random_password" "pg_admin_password" {
+  count        = var.postgres_administrator_password != null ? 0 : 1
+  length       = 127
+  min_upper    = 1
+  min_lower    = 1
+  min_numeric  = 1
+  special      = false
+}
+
+locals {
+  pg_admin_password = var.postgres_administrator_password != null ? var.postgres_administrator_password : random_password.pg_admin_password[0].result
+}
+
 # Module Registry - https://registry.terraform.io/modules/Azure/postgresql/azurerm/2.1.0
 module "postgresql" {
   source  = "Azure/postgresql/azurerm"
@@ -339,7 +352,7 @@ module "postgresql" {
   backup_retention_days        = var.postgres_backup_retention_days
   geo_redundant_backup_enabled = var.postgres_geo_redundant_backup_enabled
   administrator_login          = var.postgres_administrator_login
-  administrator_password       = var.postgres_administrator_password
+  administrator_password       = local.pg_admin_password
   server_version               = var.postgres_server_version
   ssl_enforcement_enabled      = var.postgres_ssl_enforcement_enabled
   db_names                     = var.postgres_db_names
