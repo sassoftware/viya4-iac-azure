@@ -383,7 +383,6 @@ data "external" "git_hash" {
 }
 
 data "external" "iac_tooling_version" {
-  count   = (var.iac_tooling == "terraform") ? 1 : 0
   program = ["files/iac_tooling_version.sh"]
 }
 
@@ -393,10 +392,10 @@ data "template_file" "sas_iac_buildinfo" {
     git-hash              = lookup(data.external.git_hash.result, "git-hash")
     timestamp             = chomp(timestamp())
     iac-tooling           = var.iac_tooling
-    terraform-version     = lookup(data.external.iac_tooling_version.0.result, "terraform_version")
-    provider-selections   = lookup(data.external.iac_tooling_version.0.result, "provider_selections")
-    terraform-revision    = lookup(data.external.iac_tooling_version.0.result, "terraform_revision")
-    terraform-outdated    = lookup(data.external.iac_tooling_version.0.result, "terraform_outdated")
+    terraform-version     = lookup(data.external.iac_tooling_version.result, "terraform_version")
+    provider-selections   = lookup(data.external.iac_tooling_version.result, "provider_selections")
+    terraform-revision    = lookup(data.external.iac_tooling_version.result, "terraform_revision")
+    terraform-outdated    = lookup(data.external.iac_tooling_version.result, "terraform_outdated")
   }
 }
 
