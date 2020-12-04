@@ -131,8 +131,8 @@ module "vnet" {
   subnet_names        = [local.aks_subnet_name, local.misc_subnet_name]
 
   subnet_service_endpoints = {
-    "${local.aks_subnet_name}"  = ["Microsoft.Sql"],
-    "${local.misc_subnet_name}" = ["Microsoft.Sql"]
+    coalesce(local.aks_subnet_name)  = ["Microsoft.Sql"],
+    coalesce(local.misc_subnet_name) = ["Microsoft.Sql"]
   }
   tags = var.tags
 
