@@ -1,23 +1,58 @@
 # Authenticating Terraform to access Azure
 
-Terraform supports multiple ways of authenticating to Azure. This project chooses to use Azure Service Principal and Secret for authentication, see [Terraform documentation](https://www.terraform.io/docs/providers/azurerm/guides/service_principal_client_secret.html). In order to create and destroy Azure objects on your behalf, Terraform also needs information about Azure Tenant and Subscription ids, as well as a Service Principal and Secret.
+In order to create and destroy Azure objects on your behalf, Terraform needs to log in to Azure with an identity that has sufficient permissions to perform all the actions defined in the terraform manifest.
 
-See [Azure Help Topics](./AzureHelpTopics.md) on how to get the values for these environment variables - `SUBSCRIPTION_ID, TENANT_ID, SP_APPID, SP_PASSWD`
+You can use a Service Principal or, when running on an Azure VM, a Managed Identity.
 
-**Note:** Keep track of `SP_APPID` and `SP_PASSWORD` since Azure Service Principal only need to be created once.
+Your Service Principal or Managed Identity will need a Role Assignment with the "Contributor" Role for your Azure Subscription.
 
-You can [set these variables in your `*.tfvars` file](../CONFIG-VARS.md#azure-authentication). But since they contain sensitive information, we recommend to use Terraform environment variables instead.
+## Creating Authentication Resources
+- [How to create a Service Principal](./AzureHelpTopics.md#service-principal-using-azurecli)
 
-## Terraform 
+- [How to create a Managed Identity](./AzureHelpTopics.md#Create-a-Managed-Identity-with-Contributor-Role-Assignment) and [how to assign the Managed Identity to a VM](./AzureHelpTopcis.md#Assign-the-Managed-Identity-to-a-VM)
+
+
+## Using A Service Principal to authenticate with Terraform
+
+When using a Service Principal to authenticate with Terraform, you will need to set the following four terraform variables:
+
+| Name | Description | Type | Default |
+| :--- | ---: | ---: | ---: |
+| tenant_id | your Azure tenant id | string  |
+| subscription_id | your Azure subscription id | string  |
+| client_id | your app_id when using a Service Principal | string | "" |
+| client_secret | your client secret when using a Service Principal| string | "" |
+
+See <./AzureHelpTopics.md> for more Information on how to retrieve those values.
+
+## Using a Managed Identity to authenticate with Terraform
+
+To authenticate to Terraform when running on an Azure VM with a Managed Identity, you will need to set the following three terraform variables:
+
+| Name | Description | Type | Notes |
+| :--- | ---: | ---: | ---: |
+| tenant_id | your Azure tenant id | string  |
+| subscription_id | your Azure subscription id | string  |
+| use_msi | use the Managed Identity of your Azure VM | bool | true |
+
+### How to set the Terraform variables.
+
+We recommend to use environment variables to pass the authentication information into your terraform job.
+
+You can use the `TF_VAR_` prefix to set your terraform variables as environment variables.
+
+#### When running Terraform directly
 
 Run these commands to initialize the environment for the project. These commands will need to be run and pulled  into your environment each time you start a new session to use this repo and terraform.
 
+Example for using a Service Principal:
+
 ```bash
 # export needed ids and secrets
-export TF_VAR_subscription_id=[SUBSCRIPTION_ID]
-export TF_VAR_tenant_id=[TENANT_ID]
-export TF_VAR_client_id=[SP_APPID]
-export TF_VAR_client_secret=[SP_PASSWD]
+export TF_VAR_subscription_id="00000000-0000-0000-0000-000000000000"
+export TF_VAR_tenant_id="00000000-0000-0000-0000-000000000000"
+export TF_VAR_client_id="00000000-0000-0000-0000-000000000000"
+export TF_VAR_client_secret="00000000-0000-0000-0000-000000000000"
 ```
 
 **TIP:** These commands can be stored in a file outside of this repo in a secure file.
@@ -30,16 +65,17 @@ source $HOME/.azure_creds.sh
 
 This will pull in those values into your current terminal session. Any terraform commands submitted in that session will use those values.
 
-## Docker 
+## When using the Docker container
 
-Run these commands to initialize the environment for the project. These commands will need to be run and pulled  into your environment each time you start a new session to use this repo and terraform.
+When using the docker container to run terraform, ru these commands to initialize the environment for the project. These commands will need to be run and pulled into your environment each time you start a new terminal session.
+
+Example for using a Managed Identity:
 
 ```
 # Needed ids and secrets for docker
-TF_VAR_subscription_id=[SUBSCRIPTION_ID]
-TF_VAR_tenant_id=[TENANT_ID]
-TF_VAR_client_id=[SP_APPID]
-TF_VAR_client_secret=[SP_PASSWD]
+TF_VAR_subscription_id="00000000-0000-0000-0000-000000000000"
+TF_VAR_tenant_id= "00000000-0000-0000-0000-000000000000"
+TF_VAR_use_msi="true"
 ```
 
 **TIP:** These commands can be stored in a file outside of this repo in a secure file.

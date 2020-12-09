@@ -3,10 +3,6 @@ variable aks_cluster_name {}
 variable aks_cluster_rg {}
 variable aks_cluster_dns_prefix {}
 
-variable aks_client_id {}
-
-variable aks_client_secret {}
-
 variable "aks_cluster_location" {
   description = "The Azure Region in which all resources in this example should be provisioned"
   default     = "East US"

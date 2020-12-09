@@ -70,3 +70,33 @@ When creating a private Azure Container Registry assign 'acrpull' role to the Se
   ACR_ID=$(terraform output acr_id)
   az role assignment create --assignee $SP_APPID --role acrpull  --scope "$ACR_ID"
 ```
+
+## Create a Managed Identity with `Contributor` Role Assignment
+
+* [Use the Azure Portal](https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/how-to-manage-ua-identity-portal)
+
+Following the Instructions in the link above, when you get the Role Assignment blade, use the following values:
+
+* **Role**: "Contributor" 
+* **Assign access to**: "User Assigned Managed Identity"
+* **Select** - select the Managed Identity you just created from the list below that entry field
+
+Press `Save` to create the Role Assignment.
+
+* [Use the Azure CLI](https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/how-to-manage-ua-identity-cli)
+
+Example Code:
+```
+az identity create --resource-group <my resource group> --name <my identity name>
+PID=$(az identity show --resource-group <my resource group> --name <my identity name> --output tsv --query principalId)
+az role assignment create --assignee $PID --role Contributor
+```
+
+## <a name=tt>test</a>
+
+## Assign the Managed Identity to a VM
+
+* [Use the Azure Portal](https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/qs-configure-portal-windows-vm#user-assigned-managed-identity)
+
+* [Use the Azure CLI](https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/qs-configure-cli-windows-vm#user-assigned-managed-identity)
+
