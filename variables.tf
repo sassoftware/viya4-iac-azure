@@ -26,6 +26,17 @@ variable "prefix" {
     error_message = "ERROR: Value of 'prefix'\n * must contain at least one alphanumeric character and at most 20 characters\n * can only contain letters, numbers, and hyphen or dash(-), but can't start or end with '-'."
   }
 }
+
+variable "resource_group" {
+  description = "The name of the Azure resource group to use.  Will be created if it does not exist."
+  default     = ""
+
+  validation {
+    condition     = can(regex("^[a-z][-0-9a-zA-Z]*[0-9a-zA-Z]$", var.resource_group)) && length(var.resource_group) > 2 && length(var.resource_group) < 21
+    error_message = "ERROR: Value of 'resource_group'\n * must contain at least one alphanumeric character and at most 20 characters\n * can only contain letters, numbers, and hyphen or dash(-), but can't start or end with '-'."
+  }
+}
+
 variable "location" {
   description = "The Azure Region to provision all resources in this script"
   default     = "East US"

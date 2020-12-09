@@ -97,7 +97,7 @@ locals {
 }
 
 resource "azurerm_resource_group" "azure_rg" {
-  name     = "${var.prefix}-rg"
+  name     = var.resource_group
   location = var.location
   tags     = var.tags
 }
