@@ -113,3 +113,6 @@ storage_type = "standard"
 create_nfs_public_ip = false
 nfs_vm_admin         = "nfsuser"
 nfs_raid_disk_size   = 128
+
+# Azure Monitor
+create_aks_azure_monitor = false
