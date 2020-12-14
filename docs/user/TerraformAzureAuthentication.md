@@ -35,13 +35,13 @@ To authenticate to Terraform when running on an Azure VM with a Managed Identity
 | subscription_id | your Azure subscription id | string  |
 | use_msi | use the Managed Identity of your Azure VM | bool | true |
 
-### How to set the Terraform variables.
+## How to set the Terraform Authentication variables
 
 We recommend to use environment variables to pass the authentication information into your terraform job.
 
 You can use the `TF_VAR_` prefix to set your terraform variables as environment variables.
 
-#### When running Terraform directly
+### Set Authentication Variables hen running Terraform directly
 
 Run these commands to initialize the environment for the project. These commands will need to be run and pulled  into your environment each time you start a new session to use this repo and terraform.
 
@@ -65,7 +65,7 @@ source $HOME/.azure_creds.sh
 
 This will pull in those values into your current terminal session. Any terraform commands submitted in that session will use those values.
 
-## When using the Docker container
+### Set Authentication Variables when using the Docker container
 
 When using the docker container to run terraform, ru these commands to initialize the environment for the project. These commands will need to be run and pulled into your environment each time you start a new terminal session.
 
@@ -80,10 +80,14 @@ TF_VAR_use_msi="true"
 
 **TIP:** These commands can be stored in a file outside of this repo in a secure file.
 Use your favorite editor, take the content above and save it to a file called:
-`$HOME/.azure_docker_creds.sh` . (Protect that file so only you have read access to it.) Now each time you need these values you can do the following:
+`$HOME/.azure_docker_creds.env` . (Protect that file so only you have read access to it.) Now each time you need these values you can do the following:
+
+Then use the file in `--env-file` docker option
 
 ```bash
-source $HOME/.azure_docker_creds.sh
+docker <...> \
+  --env-file $HOME/.azure_docker_creds.env \
+  <...>
 ```
 
-This will pull in those values into your current terminal session. Any terraform commands submitted in that session will use those values.
+
