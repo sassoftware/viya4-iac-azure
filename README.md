@@ -54,9 +54,11 @@ cd viya4-iac-azure
 
 ### Authenticating Terraform to access Azure
 
-Export these environment variable values, see [Terraform Azure Authentication](./docs/user/TerraformAzureAuthentication.md) for details.
+We recommmend to put your authentication information into a file that you can source and use later.
 
-Example when using a Service Principal:
+For details on the required variables and values,  see [Terraform Azure Authentication](./docs/user/TerraformAzureAuthentication.md)
+
+Example when using a Service Principal and running Terraform directly in your shell:
 
 ```bash
 # export needed IDs and Secrets
@@ -65,13 +67,9 @@ export TF_VAR_tenant_id="00000000-0000-0000-0000-000000000000"
 export TF_VAR_client_id="00000000-0000-0000-0000-000000000000"
 export TF_VAR_client_secret="00000000-0000-0000-0000-000000000000"
 ```
-Save this to a file you can source and use later, like `$HOME/.azure_creds.sh`
+Save this to a file that you can source and use later, for example `$HOME/.azure_creds.sh`
 
-#### Docker
-
-Create a file with these environment variables values, see [Terraform Azure Authentication](./docs/user/TerraformAzureAuthentication.md) for details.
-
-Example when using a Managed Identity:
+Example when using a Managed Identity and running the Docker container:
 
 ```bash
 # export the needed IDs and flags
@@ -79,7 +77,7 @@ TF_VAR_subscription_id="00000000-0000-0000-0000-000000000000"
 TF_VAR_tenant_id="00000000-0000-0000-0000-000000000000"
 TF_VAR_use_msi="true"
 ```
-Save this to a file you can use later, like `$HOME/.azure_docker_creds.env`
+Save this to a file that you can use later, for example `$HOME/.azure_docker_creds.env`
 
 #### Building the docker image
 
