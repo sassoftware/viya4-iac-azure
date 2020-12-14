@@ -75,7 +75,7 @@ Example for using a Managed Identity:
 # Needed ids and secrets for docker
 TF_VAR_subscription_id="00000000-0000-0000-0000-000000000000"
 TF_VAR_tenant_id= "00000000-0000-0000-0000-000000000000"
-TF_VAR_use_msi="true"
+TF_VAR_use_msi=true
 ```
 
 **TIP:** These commands can be stored in a file outside of this repo in a secure file.

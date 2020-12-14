@@ -75,7 +75,7 @@ Example when using a Managed Identity and running the Docker container:
 # export the needed IDs and flags
 TF_VAR_subscription_id="00000000-0000-0000-0000-000000000000"
 TF_VAR_tenant_id="00000000-0000-0000-0000-000000000000"
-TF_VAR_use_msi="true"
+TF_VAR_use_msi=true
 ```
 Save this to a file that you can use later, for example `$HOME/.azure_docker_creds.env`
 
