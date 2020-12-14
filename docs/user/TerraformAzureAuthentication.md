@@ -9,7 +9,7 @@ Your Service Principal or Managed Identity will need a Role Assignment with the 
 ## Creating Authentication Resources
 - [How to create a Service Principal](./AzureHelpTopics.md#service-principal-using-azurecli)
 
-- [How to create a Managed Identity](./AzureHelpTopics.md#create-a-managed-identity-with-contributor-role-assignment) and [how to assign the Managed Identity to a VM](./AzureHelpTopcis.md#assign-the-managed-identity-to-a-vm)
+- [How to create a Managed Identity](./AzureHelpTopics.md#create-a-managed-identity-with-contributor-role-assignment) and [how to assign the Managed Identity to a VM](./AzureHelpTopics.md#assign-the-managed-identity-to-a-vm)
 
 
 ## Using A Service Principal to authenticate with Terraform
