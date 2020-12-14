@@ -1,10 +1,17 @@
-variable client_id { default = "" }
-variable client_secret { default = "" }
+variable client_id {
+  default = ""
+}
+variable client_secret {
+  default = ""
+}
 variable subscription_id {}
-variable tenant_id {}
+variable tenant_id {
+
+}
 variable use_msi {
-  type    = bool
-  default = false
+  description = "Use Managed Identity for Authentication (Azure VMs only)"
+  type        = bool
+  default     = false
 }
 
 variable "iac_tooling" {
