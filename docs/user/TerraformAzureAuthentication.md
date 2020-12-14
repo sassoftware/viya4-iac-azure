@@ -23,7 +23,7 @@ When using a Service Principal to authenticate with Terraform, you will need to 
 | client_id | your app_id when using a Service Principal | string | "" |
 | client_secret | your client secret when using a Service Principal| string | "" |
 
-See <./AzureHelpTopics.md> for more Information on how to retrieve those values.
+See [Azure Help Topics](./AzureHelpTopics.md) for more Information on how to retrieve those values.
 
 ## Using a Managed Identity to authenticate with Terraform
 
@@ -82,7 +82,7 @@ TF_VAR_use_msi="true"
 Use your favorite editor, take the content above and save it to a file called:
 `$HOME/.azure_docker_creds.env` . (Protect that file so only you have read access to it.) Now each time you need these values you can do the following:
 
-Then use the file in `--env-file` docker option
+Then use the file in the `--env-file` docker option
 
 ```bash
 docker <...> \
