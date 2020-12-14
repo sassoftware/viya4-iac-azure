@@ -9,7 +9,7 @@ Your Service Principal or Managed Identity will need a Role Assignment with the 
 ## Creating Authentication Resources
 - [How to create a Service Principal](./AzureHelpTopics.md#service-principal-using-azurecli)
 
-- [How to create a Managed Identity](./AzureHelpTopics.md#Create-a-Managed-Identity-with-Contributor-Role-Assignment) and [how to assign the Managed Identity to a VM](./AzureHelpTopcis.md#Assign-the-Managed-Identity-to-a-VM)
+- [How to create a Managed Identity](./AzureHelpTopics.md#create-a-managed-identity-with-contributor-role-assignment) and [how to assign the Managed Identity to a VM](./AzureHelpTopcis.md#assign-the-managed-identity-to-a-vm)
 
 
 ## Using A Service Principal to authenticate with Terraform
@@ -41,7 +41,7 @@ We recommend to use environment variables to pass the authentication information
 
 You can use the `TF_VAR_` prefix to set your terraform variables as environment variables.
 
-### Set Authentication Variables hen running Terraform directly
+### Set Authentication Variables when running Terraform directly
 
 Run these commands to initialize the environment for the project. These commands will need to be run and pulled  into your environment each time you start a new session to use this repo and terraform.
 

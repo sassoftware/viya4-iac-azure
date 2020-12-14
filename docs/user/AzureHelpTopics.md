@@ -91,9 +91,6 @@ az identity create --resource-group <my resource group> --name <my identity name
 PID=$(az identity show --resource-group <my resource group> --name <my identity name> --output tsv --query principalId)
 az role assignment create --assignee $PID --role Contributor
 ```
-
-## <a name=tt>test</a>
-
 ## Assign the Managed Identity to a VM
 
 * [Use the Azure Portal](https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/qs-configure-portal-windows-vm#user-assigned-managed-identity)
