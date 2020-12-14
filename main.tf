@@ -292,6 +292,8 @@ module "aks" {
   kubernetes_version                       = var.kubernetes_version
   aks_cluster_endpoint_public_access_cidrs = local.cluster_endpoint_public_access_cidrs
   aks_availability_zones                   = var.default_nodepool_availability_zones
+  aks_oms_enabled                          = var.create_aks_azure_monitor
+  aks_log_analytics_workspace_id           = var.create_aks_azure_monitor ? azurerm_log_analytics_workspace.viya4[0].id : null
   aks_cluster_tags                         = var.tags
 }
 

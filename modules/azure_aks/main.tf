@@ -65,6 +65,10 @@ resource "azurerm_kubernetes_cluster" "aks" {
     kube_dashboard {
       enabled = false
     }
+    oms_agent {
+      enabled = var.aks_oms_enabled
+      log_analytics_workspace_id = var.aks_log_analytics_workspace_id
+    }
   }
 
   # change these default timeouts if needed

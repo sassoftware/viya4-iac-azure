@@ -352,3 +352,52 @@ variable node_pools {
     }
   }
 }
+
+# Azure Monitor
+variable "create_aks_azure_monitor" {
+  type = bool
+  description = "Enable Azure Log Analytics agent on AKS cluster"
+  default = "false"
+}
+
+variable "enable_log_analytics_workspace" {
+  type = bool
+  description = "Enable Azure Log Analytics Solution"
+  default = true
+}
+
+variable "log_analytics_workspace_sku" {
+  description = "Specifies the Sku of the Log Analytics Workspace. Possible values are Free, PerNode, Premium, Standard, Standalone, Unlimited, and PerGB2018 (new Sku as of 2018-04-03)"
+  type = string
+  default = "PerGB2018"
+}
+
+variable "log_retention_in_days" {
+  description = "(Optional) The workspace data retention in days. Possible values are either 7 (Free Tier only) or range between 30 and 730."
+  type = number
+  default = 30
+}
+
+variable "log_analytics_solution_name" {
+  type = string
+  description = "The publisher of the solution. For example Microsoft. Changing this forces a new resource to be created"
+  default = "ContainerInsights"
+}
+
+variable "log_analytics_solution_publisher" {
+  type = string
+  description = " The publisher of the solution. For example Microsoft. Changing this forces a new resource to be created"
+  default = "Microsoft"
+}
+
+variable "log_analytics_solution_product" {
+  type = string
+  description = "The product name of the solution. For example OMSGallery/Containers. Changing this forces a new resource to be created."
+  default = "OMSGallery/ContainerInsights"
+}
+
+variable "log_analytics_solution_promotion_code" {
+  type = string
+  description = "A promotion code to be used with the solution"
+  default = ""
+}

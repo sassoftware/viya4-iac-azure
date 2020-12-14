@@ -76,3 +76,11 @@ variable "aks_cluster_tags" {
   type        = map
 }
 
+variable "aks_oms_enabled" {
+  description = "Enable Azure Log Analytics agent"
+  type = bool
+}
+
+variable "aks_log_analytics_workspace_id" {
+  description = "The ID of the Log Analytics Workspace which the OMS Agent should send data to. Must be present if aks_oms_enabled is true"
+}
