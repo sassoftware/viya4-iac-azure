@@ -67,7 +67,7 @@ This will pull in those values into your current terminal session. Any terraform
 
 ### Set Authentication Variables when using the Docker container
 
-When using the docker container to run terraform, ru these commands to initialize the environment for the project. These commands will need to be run and pulled into your environment each time you start a new terminal session.
+When using the docker container to run terraform, create a file with the authentication variable assignments. You then specify that file at container invocation.
 
 Example for using a Managed Identity:
 
@@ -78,11 +78,8 @@ TF_VAR_tenant_id= "00000000-0000-0000-0000-000000000000"
 TF_VAR_use_msi=true
 ```
 
-**TIP:** These commands can be stored in a file outside of this repo in a secure file.
-Use your favorite editor, take the content above and save it to a file called:
-`$HOME/.azure_docker_creds.env` . (Protect that file so only you have read access to it.) Now each time you need these values you can do the following:
-
-Then use the file in the `--env-file` docker option
+Store these commands outside of this repo in a secure file, for example
+`$HOME/.azure_docker_creds.env` . (Protect that file so only you have read access to it.) Now each time you invoke the container, specify the file in the `--env-file` docker option, e.g.
 
 ```bash
 docker <...> \

@@ -49,7 +49,7 @@ Find details on how to retrieve that information under [Azure Help Topics](./use
 | client_secret | your client secret when using a Service Principal| string | "" |
 | use_msi | use the Managed Identity of your Azure VM | bool | false |
 
-NOTE: `subscription_id` and `tenant_id` are always required. `client_id` and `client_secret` are requried when using a Service Principal. `use_msi=true` is requered when using an Azure VM Managed Identitty.
+NOTE: `subscription_id` and `tenant_id` are always required. `client_id` and `client_secret` are required when using a Service Principal. `use_msi=true` is required when using an Azure VM Managed Identitty.
 
 For recommendation on how to set these variables in your environment, see [Authenticating Terraform to access Azure](./user/TerraformAzureAuthentication.md).
 
