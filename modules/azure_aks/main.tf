@@ -56,9 +56,8 @@ resource "azurerm_kubernetes_cluster" "aks" {
     tags                  = var.aks_cluster_tags
   }
 
-  service_principal {
-    client_id     = var.aks_client_id
-    client_secret = var.aks_client_secret
+  identity {
+    type = "SystemAssigned"
   }
 
   addon_profile {
