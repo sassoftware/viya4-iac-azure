@@ -44,6 +44,7 @@ provider "azurerm" {
   client_secret   = var.client_secret
   tenant_id       = var.tenant_id
   partner_id      = var.partner_id
+  use_msi         = var.use_msi
 
   features {}
 }
@@ -57,9 +58,6 @@ provider "azuread" {
 
 data "azurerm_subscription" "current" {}
 
-data "azuread_service_principal" "sp_client" {
-  application_id = var.client_id
-}
 
 resource "tls_private_key" "private_key" {
   count     = var.ssh_public_key == "" ? 1 : 0
@@ -287,8 +285,6 @@ module "aks" {
   aks_cluster_node_admin                   = var.node_vm_admin
   aks_cluster_ssh_public_key               = local.ssh_public_key
   aks_vnet_subnet_id                       = data.azurerm_subnet.aks-subnet.id
-  aks_client_id                            = var.client_id
-  aks_client_secret                        = var.client_secret
   kubernetes_version                       = var.kubernetes_version
   aks_cluster_endpoint_public_access_cidrs = local.cluster_endpoint_public_access_cidrs
   aks_availability_zones                   = var.default_nodepool_availability_zones
@@ -391,18 +387,18 @@ data "external" "iac_tooling_version" {
 data "template_file" "sas_iac_buildinfo" {
   template = file("${path.module}/files/sas-iac-buildinfo.yaml.tmpl")
   vars = {
-    git-hash              = lookup(data.external.git_hash.result, "git-hash")
-    timestamp             = chomp(timestamp())
-    iac-tooling           = var.iac_tooling
-    terraform-version     = lookup(data.external.iac_tooling_version.result, "terraform_version")
-    provider-selections   = lookup(data.external.iac_tooling_version.result, "provider_selections")
-    terraform-revision    = lookup(data.external.iac_tooling_version.result, "terraform_revision")
-    terraform-outdated    = lookup(data.external.iac_tooling_version.result, "terraform_outdated")
+    git-hash            = lookup(data.external.git_hash.result, "git-hash")
+    timestamp           = chomp(timestamp())
+    iac-tooling         = var.iac_tooling
+    terraform-version   = lookup(data.external.iac_tooling_version.result, "terraform_version")
+    provider-selections = lookup(data.external.iac_tooling_version.result, "provider_selections")
+    terraform-revision  = lookup(data.external.iac_tooling_version.result, "terraform_revision")
+    terraform-outdated  = lookup(data.external.iac_tooling_version.result, "terraform_outdated")
   }
 }
 
 resource "local_file" "sas_iac_buildinfo" {
-  content = data.template_file.sas_iac_buildinfo.rendered
+  content  = data.template_file.sas_iac_buildinfo.rendered
   filename = "${path.module}/sas_iac_buildinfo.yaml"
 }
 

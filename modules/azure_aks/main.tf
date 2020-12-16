@@ -53,9 +53,8 @@ resource "azurerm_kubernetes_cluster" "aks" {
     vnet_subnet_id      = var.aks_vnet_subnet_id
   }
 
-  service_principal {
-    client_id     = var.aks_client_id
-    client_secret = var.aks_client_secret
+  identity {
+    type = "SystemAssigned"
   }
 
   addon_profile {

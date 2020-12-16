@@ -31,12 +31,12 @@ This tool supports running both from terraform installed on your local machine o
 - [Terraform](https://www.terraform.io/downloads.html) - v0.13.4
 - [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl) - v1.18.8
 - [jq](https://stedolan.github.io/jq/) - v1.6
-- Access to an **Azure Subscription** and **Service Principal** with '*Contributor*' role
+- Access to an **Azure Subscription** and [**Identity**](./docs/user/TerraformAzureAuthentication.md) with '*Contributor*' role
 
 #### Docker
 
 - [Docker](https://docs.docker.com/get-docker/)
-- Access to an **Azure Subscription** and **Service Principal** with '*Contributor*' role
+- Access to an **Azure Subscription** and [**Identity**](./docs/user/TerraformAzureAuthentication.md) with '*Contributor*' role
 
 ## Getting Started
 
@@ -54,31 +54,30 @@ cd viya4-iac-azure
 
 ### Authenticating Terraform to access Azure
 
-#### Terraform
+We recommmend to put your authentication information into a file that you can source and use later.
 
-Export these environment variables values, see [Authenticating using Service Principal and Secret](./docs/user/TerraformAzureAuthentication.md) for details
+For details on the required variables and values,  see [Terraform Azure Authentication](./docs/user/TerraformAzureAuthentication.md)
 
-```bash
-# export needed IDs and Secrets
-export TF_VAR_subscription_id="SUBSCRIPTION_ID"
-export TF_VAR_tenant_id="TENANT_ID"
-export TF_VAR_client_id="SP_APPID"
-export TF_VAR_client_secret="SP_PASSWD"
-```
-Save this to a file you can source and use later, like `$HOME/.azure_creds.sh`
-
-#### Docker
-
-Create a file with these environment variables values, see [Authenticating using Service Principal and Secret](./docs/user/TerraformAzureAuthentication.md) for details
+Example when using a Service Principal and running Terraform directly in your shell:
 
 ```bash
 # export needed IDs and Secrets
-TF_VAR_subscription_id=[SUBSCRIPTION_ID]
-TF_VAR_tenant_id=[TENANT_ID]
-TF_VAR_client_id=[SP_APPID]
-TF_VAR_client_secret=[SP_PASSWD]
+export TF_VAR_subscription_id="00000000-0000-0000-0000-000000000000"
+export TF_VAR_tenant_id="00000000-0000-0000-0000-000000000000"
+export TF_VAR_client_id="00000000-0000-0000-0000-000000000000"
+export TF_VAR_client_secret="00000000-0000-0000-0000-000000000000"
 ```
-Save this to a file you can use later, like `$HOME/.azure_docker_creds.env`
+Save this to a file that you can source and use later, for example `$HOME/.azure_creds.sh`
+
+Example when using a Managed Identity and running the Docker container:
+
+```bash
+# export the needed IDs and flags
+TF_VAR_subscription_id="00000000-0000-0000-0000-000000000000"
+TF_VAR_tenant_id="00000000-0000-0000-0000-000000000000"
+TF_VAR_use_msi=true
+```
+Save this to a file that you can use later, for example `$HOME/.azure_docker_creds.env`
 
 #### Building the docker image
 
@@ -98,7 +97,7 @@ When using a variable definition file other than `terraform.tfvars`, see [Advanc
 
 #### Terraform
 
-Source your credentials into your shells enviornment
+Source your credentials into your shell enviornment
 
 ```bash
 . $HOME/.azure_creds.sh
