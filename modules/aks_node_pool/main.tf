@@ -9,12 +9,21 @@ resource "azurerm_kubernetes_cluster_node_pool" "autoscale_node_pool" {
   proximity_placement_group_id = var.proximity_placement_group_id == "" ? null : var.proximity_placement_group_id
   vm_size                      = var.machine_type
   os_disk_size_gb              = var.os_disk_size
+  # TODO: enable after azurerm v2.37.0
+  # os_disk_type                 = var.os_disk_type
+  os_type                      = var.os_type
   enable_auto_scaling          = var.enable_auto_scaling
+  enable_node_public_ip        = var.enable_node_public_ip
+  eviction_policy              = var.eviction_policy
   node_count                   = var.node_count
   max_count                    = var.max_nodes
   min_count                    = var.min_nodes
+  max_pods                     = var.max_pods
+  mode                         = var.mode
   node_labels                  = var.node_labels
   node_taints                  = var.node_taints
+  orchestrator_version         = var.orchestrator_version
+  priority                     = var.priority
   tags                         = var.tags
 
   lifecycle {
@@ -31,11 +40,20 @@ resource "azurerm_kubernetes_cluster_node_pool" "static_node_pool" {
   proximity_placement_group_id = var.proximity_placement_group_id == "" ? null : var.proximity_placement_group_id
   vm_size                      = var.machine_type
   os_disk_size_gb              = var.os_disk_size
+  # TODO: enable after azurerm v2.37.0
+  # os_disk_type                 = var.os_disk_type
+  os_type                      = var.os_type
   enable_auto_scaling          = var.enable_auto_scaling
+  enable_node_public_ip        = var.enable_node_public_ip
+  eviction_policy              = var.eviction_policy
   node_count                   = var.node_count
   max_count                    = var.max_nodes
   min_count                    = var.min_nodes
+  max_pods                     = var.max_pods
+  mode                         = var.mode
   node_labels                  = var.node_labels
   node_taints                  = var.node_taints
+  orchestrator_version         = var.orchestrator_version
+  priority                     = var.priority
   tags                         = var.tags
 }

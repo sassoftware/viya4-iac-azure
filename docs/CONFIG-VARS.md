@@ -100,6 +100,11 @@ Additional node pools can be created separate from the default nodepool. This is
 | os_disk_size | Disk size for nodepool VMs in GB | number | |
 | min_nodes | Minimum number of nodes for the nodepool | number | Value must be between 0 and 100. Setting min and max node counts the same disables autoscaling |
 | max_nodes | Maximum number of nodes for the nodepool | number | Value must be between 0 and 100. Setting min and max node counts the same disables autoscaling |
+| max_pods | Maximum number of pods per node | number | Default is 110
+| mode |  Nodepool mode | string | System or User
+| enable_node_public_ip | Enable public IP for each node | bool | |
+| priority | VMs priority | string | allowed values - Regular or Spot |
+| eviction_policy | Eviction policy of VMs in Node pool | string | can only be configured when priority is set to Spot, allowed values - Deallocate and Delete
 | node_taints | Taints for the nodepool VMs | list of strings | |
 | node_labels | Labels to add to the nodepool VMs | map | |
 
@@ -109,53 +114,78 @@ The default values for the `node_pools` variable are:
 ```yaml
 {
   cas = {
-    "machine_type" = "Standard_E16s_v3"
-    "os_disk_size" = 200
-    "min_nodes" = 1
-    "max_nodes" = 5
-    "node_taints" = ["workload.sas.com/class=cas:NoSchedule"]
+    "machine_type"          = "Standard_E16s_v3"
+    "os_disk_size"          = 200
+    "min_nodes"             = 0
+    "max_nodes"             = 5
+    "max_pods"              = 110
+    "mode"                  = "User"
+    "enable_node_public_ip" = false
+    "priority"              = "Regular"
+    "eviction_policy"       = null
+    "node_taints"           = ["workload.sas.com/class=cas:NoSchedule"]
     "node_labels" = {
       "workload.sas.com/class" = "cas"
     }
   },
   compute = {
-    "machine_type" = "Standard_E16s_v3"
-    "os_disk_size" = 200
-    "min_nodes" = 1
-    "max_nodes" = 5
-    "node_taints" = ["workload.sas.com/class=compute:NoSchedule"]
+    "machine_type"          = "Standard_E16s_v3"
+    "os_disk_size"          = 200
+    "min_nodes"             = 0
+    "max_nodes"             = 5
+    "max_pods"              = 110
+    "mode"                  = "User"
+    "enable_node_public_ip" = false
+    "priority"              = "Regular"
+    "eviction_policy"       = null
+    "node_taints"           = ["workload.sas.com/class=compute:NoSchedule"]
     "node_labels" = {
-      "workload.sas.com/class" = "compute"
+      "workload.sas.com/class"        = "compute"
       "launcher.sas.com/prepullImage" = "sas-programming-environment"
     }
   },
   connect = {
-    "machine_type" = "Standard_E16s_v3"
-    "os_disk_size" = 200
-    "min_nodes" = 1
-    "max_nodes" = 5
-    "node_taints" = ["workload.sas.com/class=connect:NoSchedule"]
+    "machine_type"          = "Standard_E16s_v3"
+    "os_disk_size"          = 200
+    "min_nodes"             = 0
+    "max_nodes"             = 5
+    "max_pods"              = 110
+    "mode"                  = "User"
+    "enable_node_public_ip" = false
+    "priority"              = "Regular"
+    "eviction_policy"       = null
+    "node_taints"           = ["workload.sas.com/class=connect:NoSchedule"]
     "node_labels" = {
-      "workload.sas.com/class" = "connect"
+      "workload.sas.com/class"        = "connect"
       "launcher.sas.com/prepullImage" = "sas-programming-environment"
     }
   },
   stateless = {
-    "machine_type" = "Standard_D16s_v3"
-    "os_disk_size" = 200
-    "min_nodes" = 1
-    "max_nodes" = 5
-    "node_taints" = ["workload.sas.com/class=stateless:NoSchedule"]
+    "machine_type"          = "Standard_D16s_v3"
+    "os_disk_size"          = 200
+    "min_nodes"             = 0
+    "max_nodes"             = 5
+    "max_pods"              = 110
+    "mode"                  = "User"
+    "enable_node_public_ip" = false
+    "priority"              = "Regular"
+    "eviction_policy"       = null
+    "node_taints"           = ["workload.sas.com/class=stateless:NoSchedule"]
     "node_labels" = {
       "workload.sas.com/class" = "stateless"
     }
   },
   stateful = {
-    "machine_type" = "Standard_D8s_v3"
-    "os_disk_size" = 200
-    "min_nodes" = 1
-    "max_nodes" = 3
-    "node_taints" = ["workload.sas.com/class=stateful:NoSchedule"]
+    "machine_type"          = "Standard_D8s_v3"
+    "os_disk_size"          = 200
+    "min_nodes"             = 0
+    "max_nodes"             = 3
+    "max_pods"              = 110
+    "mode"                  = "User"
+    "enable_node_public_ip" = false
+    "priority"              = "Regular"
+    "eviction_policy"       = null
+    "node_taints"           = ["workload.sas.com/class=stateful:NoSchedule"]
     "node_labels" = {
       "workload.sas.com/class" = "stateful"
     }
