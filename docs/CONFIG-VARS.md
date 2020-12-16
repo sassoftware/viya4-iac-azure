@@ -120,9 +120,6 @@ The default values for the `node_pools` variable are:
     "max_nodes"             = 5
     "max_pods"              = 110
     "mode"                  = "User"
-    "enable_node_public_ip" = false
-    "priority"              = "Regular"
-    "eviction_policy"       = null
     "node_taints"           = ["workload.sas.com/class=cas:NoSchedule"]
     "node_labels" = {
       "workload.sas.com/class" = "cas"
@@ -135,9 +132,6 @@ The default values for the `node_pools` variable are:
     "max_nodes"             = 5
     "max_pods"              = 110
     "mode"                  = "User"
-    "enable_node_public_ip" = false
-    "priority"              = "Regular"
-    "eviction_policy"       = null
     "node_taints"           = ["workload.sas.com/class=compute:NoSchedule"]
     "node_labels" = {
       "workload.sas.com/class"        = "compute"
@@ -151,9 +145,6 @@ The default values for the `node_pools` variable are:
     "max_nodes"             = 5
     "max_pods"              = 110
     "mode"                  = "User"
-    "enable_node_public_ip" = false
-    "priority"              = "Regular"
-    "eviction_policy"       = null
     "node_taints"           = ["workload.sas.com/class=connect:NoSchedule"]
     "node_labels" = {
       "workload.sas.com/class"        = "connect"
@@ -167,9 +158,6 @@ The default values for the `node_pools` variable are:
     "max_nodes"             = 5
     "max_pods"              = 110
     "mode"                  = "User"
-    "enable_node_public_ip" = false
-    "priority"              = "Regular"
-    "eviction_policy"       = null
     "node_taints"           = ["workload.sas.com/class=stateless:NoSchedule"]
     "node_labels" = {
       "workload.sas.com/class" = "stateless"
@@ -182,9 +170,6 @@ The default values for the `node_pools` variable are:
     "max_nodes"             = 3
     "max_pods"              = 110
     "mode"                  = "User"
-    "enable_node_public_ip" = false
-    "priority"              = "Regular"
-    "eviction_policy"       = null
     "node_taints"           = ["workload.sas.com/class=stateful:NoSchedule"]
     "node_labels" = {
       "workload.sas.com/class" = "stateful"
