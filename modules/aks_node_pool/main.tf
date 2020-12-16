@@ -13,8 +13,8 @@ resource "azurerm_kubernetes_cluster_node_pool" "autoscale_node_pool" {
   # os_disk_type                 = var.os_disk_type
   os_type                      = var.os_type
   enable_auto_scaling          = var.enable_auto_scaling
-  enable_node_public_ip        = var.enable_node_public_ip
-  eviction_policy              = var.eviction_policy
+  # Still in preview, revisit if needed later - https://docs.microsoft.com/en-us/azure/aks/use-multiple-node-pools#assign-a-public-ip-per-node-for-your-node-pools-preview
+  # enable_node_public_ip        = var.enable_node_public_ip
   node_count                   = var.node_count
   max_count                    = var.max_nodes
   min_count                    = var.min_nodes
@@ -23,7 +23,6 @@ resource "azurerm_kubernetes_cluster_node_pool" "autoscale_node_pool" {
   node_labels                  = var.node_labels
   node_taints                  = var.node_taints
   orchestrator_version         = var.orchestrator_version
-  priority                     = var.priority
   tags                         = var.tags
 
   lifecycle {
@@ -44,8 +43,6 @@ resource "azurerm_kubernetes_cluster_node_pool" "static_node_pool" {
   # os_disk_type                 = var.os_disk_type
   os_type                      = var.os_type
   enable_auto_scaling          = var.enable_auto_scaling
-  enable_node_public_ip        = var.enable_node_public_ip
-  eviction_policy              = var.eviction_policy
   node_count                   = var.node_count
   max_count                    = var.max_nodes
   min_count                    = var.min_nodes
@@ -54,6 +51,5 @@ resource "azurerm_kubernetes_cluster_node_pool" "static_node_pool" {
   node_labels                  = var.node_labels
   node_taints                  = var.node_taints
   orchestrator_version         = var.orchestrator_version
-  priority                     = var.priority
   tags                         = var.tags
 }

@@ -336,9 +336,6 @@ variable node_pools {
     max_nodes             = string
     max_pods              = string
     mode                  = string
-    enable_node_public_ip = bool
-    priority              = string
-    eviction_policy       = string
     node_taints           = list(string)
     node_labels           = map(string)
   }))
@@ -351,9 +348,6 @@ variable node_pools {
       "max_nodes"             = 5
       "max_pods"              = 110
       "mode"                  = "User"
-      "enable_node_public_ip" = false
-      "priority"              = "Regular"
-      "eviction_policy"       = null
       "node_taints"           = ["workload.sas.com/class=cas:NoSchedule"]
       "node_labels" = {
         "workload.sas.com/class" = "cas"
@@ -366,9 +360,6 @@ variable node_pools {
       "max_nodes"             = 5
       "max_pods"              = 110
       "mode"                  = "User"
-      "enable_node_public_ip" = false
-      "priority"              = "Regular"
-      "eviction_policy"       = null
       "node_taints"           = ["workload.sas.com/class=compute:NoSchedule"]
       "node_labels" = {
         "workload.sas.com/class"        = "compute"
@@ -382,9 +373,6 @@ variable node_pools {
       "max_nodes"             = 5
       "max_pods"              = 110
       "mode"                  = "User"
-      "enable_node_public_ip" = false
-      "priority"              = "Regular"
-      "eviction_policy"       = null
       "node_taints"           = ["workload.sas.com/class=connect:NoSchedule"]
       "node_labels" = {
         "workload.sas.com/class"        = "connect"
@@ -398,9 +386,6 @@ variable node_pools {
       "max_nodes"             = 5
       "max_pods"              = 110
       "mode"                  = "User"
-      "enable_node_public_ip" = false
-      "priority"              = "Regular"
-      "eviction_policy"       = null
       "node_taints"           = ["workload.sas.com/class=stateless:NoSchedule"]
       "node_labels" = {
         "workload.sas.com/class" = "stateless"
@@ -413,9 +398,6 @@ variable node_pools {
       "max_nodes"             = 3
       "max_pods"              = 110
       "mode"                  = "User"
-      "enable_node_public_ip" = false
-      "priority"              = "Regular"
-      "eviction_policy"       = null
       "node_taints"           = ["workload.sas.com/class=stateful:NoSchedule"]
       "node_labels" = {
         "workload.sas.com/class" = "stateful"

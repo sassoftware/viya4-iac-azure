@@ -325,9 +325,6 @@ module "node_pools" {
   # TODO: enable with azurerm v2.37.0
   #  os_disk_type                 = each.value.os_disk_type
   enable_auto_scaling          = each.value.min_nodes == each.value.max_nodes ? false : true
-  enable_node_public_ip        = each.value.enable_node_public_ip
-  priority                     = each.value.priority
-  eviction_policy              = each.value.eviction_policy
   node_count                   = each.value.min_nodes
   min_nodes                    = each.value.min_nodes == each.value.max_nodes ? null : each.value.min_nodes
   max_nodes                    = each.value.min_nodes == each.value.max_nodes ? null : each.value.max_nodes

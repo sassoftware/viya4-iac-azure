@@ -102,9 +102,6 @@ Additional node pools can be created separate from the default nodepool. This is
 | max_nodes | Maximum number of nodes for the nodepool | number | Value must be between 0 and 100. Setting min and max node counts the same disables autoscaling |
 | max_pods | Maximum number of pods per node | number | Default is 110
 | mode |  Nodepool mode | string | System or User
-| enable_node_public_ip | Enable public IP for each node | bool | |
-| priority | VMs priority | string | allowed values - Regular or Spot |
-| eviction_policy | Eviction policy of VMs in Node pool | string | can only be configured when priority is set to Spot, allowed values - Deallocate and Delete
 | node_taints | Taints for the nodepool VMs | list of strings | |
 | node_labels | Labels to add to the nodepool VMs | map | |
 

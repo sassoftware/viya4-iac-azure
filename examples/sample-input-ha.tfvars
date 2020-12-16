@@ -46,9 +46,6 @@ node_pools = {
     "max_nodes"             = 3
     "max_pods"              = 110
     "mode"                  = "User"
-    "enable_node_public_ip" = false
-    "priority"              = "Regular"
-    "eviction_policy"       = null
     "node_taints"           = ["workload.sas.com/class=cas:NoSchedule"]
     "node_labels" = {
       "workload.sas.com/class" = "cas"
@@ -61,9 +58,6 @@ node_pools = {
     "max_nodes"             = 3
     "max_pods"              = 110
     "mode"                  = "User"
-    "enable_node_public_ip" = false
-    "priority"              = "Regular"
-    "eviction_policy"       = null
     "node_taints"           = ["workload.sas.com/class=compute:NoSchedule"]
     "node_labels" = {
       "workload.sas.com/class"        = "compute"
@@ -77,9 +71,6 @@ node_pools = {
     "max_nodes"             = 3
     "max_pods"              = 110
     "mode"                  = "User"
-    "enable_node_public_ip" = false
-    "priority"              = "Regular"
-    "eviction_policy"       = null
     "node_taints"           = ["workload.sas.com/class=connect:NoSchedule"]
     "node_labels" = {
       "workload.sas.com/class"        = "connect"
@@ -93,9 +84,6 @@ node_pools = {
     "max_nodes"             = 3
     "max_pods"              = 110
     "mode"                  = "User"
-    "enable_node_public_ip" = false
-    "priority"              = "Regular"
-    "eviction_policy"       = null
     "node_taints"           = ["workload.sas.com/class=stateless:NoSchedule"]
     "node_labels" = {
       "workload.sas.com/class" = "stateless"
@@ -108,9 +96,6 @@ node_pools = {
     "max_nodes"             = 3
     "max_pods"              = 110
     "mode"                  = "User"
-    "enable_node_public_ip" = false
-    "priority"              = "Regular"
-    "eviction_policy"       = null
     "node_taints"           = ["workload.sas.com/class=stateful:NoSchedule"]
     "node_labels" = {
       "workload.sas.com/class" = "stateful"
