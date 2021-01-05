@@ -72,12 +72,6 @@ variable "max_pods" {
   default     = 110
 }
 
-variable "mode" {
-  description = "Should this Node Pool be used for System or User resources? Possible values are System and User. Defaults to User"
-  type        = string
-  default     = "User"
-}
-
 variable "max_nodes" {
   default = 1
 }

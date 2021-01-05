@@ -19,7 +19,6 @@ resource "azurerm_kubernetes_cluster_node_pool" "autoscale_node_pool" {
   max_count                    = var.max_nodes
   min_count                    = var.min_nodes
   max_pods                     = var.max_pods
-  mode                         = var.mode
   node_labels                  = var.node_labels
   node_taints                  = var.node_taints
   orchestrator_version         = var.orchestrator_version
@@ -47,7 +46,6 @@ resource "azurerm_kubernetes_cluster_node_pool" "static_node_pool" {
   max_count                    = var.max_nodes
   min_count                    = var.min_nodes
   max_pods                     = var.max_pods
-  mode                         = var.mode
   node_labels                  = var.node_labels
   node_taints                  = var.node_taints
   orchestrator_version         = var.orchestrator_version

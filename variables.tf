@@ -344,7 +344,6 @@ variable node_pools {
     min_nodes             = string
     max_nodes             = string
     max_pods              = string
-    mode                  = string
     node_taints           = list(string)
     node_labels           = map(string)
   }))
@@ -356,7 +355,6 @@ variable node_pools {
       "min_nodes"             = 0
       "max_nodes"             = 5
       "max_pods"              = 110
-      "mode"                  = "User"
       "node_taints"           = ["workload.sas.com/class=cas:NoSchedule"]
       "node_labels" = {
         "workload.sas.com/class" = "cas"
@@ -368,7 +366,6 @@ variable node_pools {
       "min_nodes"             = 0
       "max_nodes"             = 5
       "max_pods"              = 110
-      "mode"                  = "User"
       "node_taints"           = ["workload.sas.com/class=compute:NoSchedule"]
       "node_labels" = {
         "workload.sas.com/class"        = "compute"
@@ -381,7 +378,6 @@ variable node_pools {
       "min_nodes"             = 0
       "max_nodes"             = 5
       "max_pods"              = 110
-      "mode"                  = "User"
       "node_taints"           = ["workload.sas.com/class=connect:NoSchedule"]
       "node_labels" = {
         "workload.sas.com/class"        = "connect"
@@ -394,7 +390,6 @@ variable node_pools {
       "min_nodes"             = 0
       "max_nodes"             = 5
       "max_pods"              = 110
-      "mode"                  = "User"
       "node_taints"           = ["workload.sas.com/class=stateless:NoSchedule"]
       "node_labels" = {
         "workload.sas.com/class" = "stateless"
@@ -406,7 +401,6 @@ variable node_pools {
       "min_nodes"             = 0
       "max_nodes"             = 3
       "max_pods"              = 110
-      "mode"                  = "User"
       "node_taints"           = ["workload.sas.com/class=stateful:NoSchedule"]
       "node_labels" = {
         "workload.sas.com/class" = "stateful"

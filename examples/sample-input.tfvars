@@ -45,7 +45,6 @@ node_pools = {
     "min_nodes"             = 1
     "max_nodes"             = 1
     "max_pods"              = 110
-    "mode"                  = "User"
     "node_taints"           = ["workload.sas.com/class=cas:NoSchedule"]
     "node_labels" = {
       "workload.sas.com/class" = "cas"
@@ -57,7 +56,6 @@ node_pools = {
     "min_nodes"             = 1
     "max_nodes"             = 1
     "max_pods"              = 110
-    "mode"                  = "User"
     "node_taints"           = ["workload.sas.com/class=compute:NoSchedule"]
     "node_labels" = {
       "workload.sas.com/class"        = "compute"
@@ -70,7 +68,6 @@ node_pools = {
     "min_nodes"             = 1
     "max_nodes"             = 1
     "max_pods"              = 110
-    "mode"                  = "User"
     "node_taints"           = ["workload.sas.com/class=connect:NoSchedule"]
     "node_labels" = {
       "workload.sas.com/class"        = "connect"
@@ -83,7 +80,6 @@ node_pools = {
     "min_nodes"             = 1
     "max_nodes"             = 2
     "max_pods"              = 110
-    "mode"                  = "User"
     "node_taints"           = ["workload.sas.com/class=stateless:NoSchedule"]
     "node_labels" = {
       "workload.sas.com/class" = "stateless"
@@ -95,7 +91,6 @@ node_pools = {
     "min_nodes"             = 1
     "max_nodes"             = 3
     "max_pods"              = 110
-    "mode"                  = "User"
     "node_taints"           = ["workload.sas.com/class=stateful:NoSchedule"]
     "node_labels" = {
       "workload.sas.com/class" = "stateful"
