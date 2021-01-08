@@ -64,7 +64,41 @@ variable "aks_vnet_subnet_id" {
 }
 
 variable "aks_network_plugin" {
-  default = "kubenet"
+  description = "Network plugin to use for networking. Currently supported values are azure and kubenet. Changing this forces a new resource to be created."
+  type        = string
+  default     = "kubenet"
+}
+
+variable "aks_network_policy" {
+  description = "Sets up network policy to be used with Azure CNI. Network policy allows us to control the traffic flow between pods. Currently supported values are calico and azure. Changing this forces a new resource to be created."
+  type        = string
+  default     = "azure"
+}
+
+variable "aks_dns_service_ip" {
+  description = "IP address within the Kubernetes service address range that will be used by cluster service discovery (kube-dns). Changing this forces a new resource to be created."
+  type        = string
+  default     = "10.0.0.10"
+}
+
+variable "aks_docker_bridge_cidr" {
+  description = "IP address (in CIDR notation) used as the Docker bridge IP address on nodes. Changing this forces a new resource to be created."
+  default     = "172.17.0.1/16"
+}
+
+variable "aks_outbound_type" {
+  description = "The outbound (egress) routing method which should be used for this Kubernetes Cluster. Possible values are loadBalancer and userDefinedRouting. Defaults to loadBalancer."
+  default     = "loadBalancer"
+}
+
+variable "aks_pod_cidr" {
+  description = "The CIDR to use for pod IP addresses. This field can only be set when network_plugin is set to kubenet. Changing this forces a new resource to be created."
+  default     = "10.244.0.0/16"
+}
+
+variable "aks_service_cidr" {
+  description = "The Network Range used by the Kubernetes service. Changing this forces a new resource to be created."
+  default     = "10.0.0.0/16"
 }
 
 variable "aks_cluster_tags" {
@@ -74,7 +108,7 @@ variable "aks_cluster_tags" {
 
 variable "aks_oms_enabled" {
   description = "Enable Azure Log Analytics agent"
-  type = bool
+  type        = bool
 }
 
 variable "aks_log_analytics_workspace_id" {

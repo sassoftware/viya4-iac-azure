@@ -72,7 +72,7 @@ data "tls_public_key" "public_key" {
 locals {
   # Network ip ranges
   vnet_cidr_block          = "192.168.0.0/16"
-  aks_subnet_cidr_block    = "192.168.1.0/24"
+  aks_subnet_cidr_block    = "192.168.16.0/20"
   misc_subnet_cidr_block   = "192.168.2.0/24"
   gw_subnet_cidr_block     = "192.168.3.0/24"
   netapp_subnet_cidr_block = "192.168.0.0/24"
@@ -290,6 +290,13 @@ module "aks" {
   aks_availability_zones                   = var.default_nodepool_availability_zones
   aks_oms_enabled                          = var.create_aks_azure_monitor
   aks_log_analytics_workspace_id           = var.create_aks_azure_monitor ? azurerm_log_analytics_workspace.viya4[0].id : null
+  aks_network_plugin                       = var.aks_network_plugin
+  aks_network_policy                       = var.aks_network_policy
+  aks_dns_service_ip                       = var.aks_dns_service_ip
+  aks_docker_bridge_cidr                   = var.aks_docker_bridge_cidr
+  aks_outbound_type                        = var.aks_outbound_type
+  aks_pod_cidr                             = var.aks_pod_cidr
+  aks_service_cidr                         = var.aks_service_cidr
   aks_cluster_tags                         = var.tags
 }
 
@@ -306,19 +313,23 @@ module "node_pools" {
 
   for_each = var.node_pools
 
-  node_pool_name               = each.key
-  aks_cluster_id               = module.aks.cluster_id
-  vnet_subnet_id               = data.azurerm_subnet.aks-subnet.id
-  machine_type                 = each.value.machine_type
-  os_disk_size                 = each.value.os_disk_size
+  node_pool_name = each.key
+  aks_cluster_id = module.aks.cluster_id
+  vnet_subnet_id = data.azurerm_subnet.aks-subnet.id
+  machine_type   = each.value.machine_type
+  os_disk_size   = each.value.os_disk_size
+  # TODO: enable with azurerm v2.37.0
+  #  os_disk_type                 = each.value.os_disk_type
   enable_auto_scaling          = each.value.min_nodes == each.value.max_nodes ? false : true
   node_count                   = each.value.min_nodes
   min_nodes                    = each.value.min_nodes == each.value.max_nodes ? null : each.value.min_nodes
   max_nodes                    = each.value.min_nodes == each.value.max_nodes ? null : each.value.max_nodes
+  max_pods                     = each.value.max_pods == null ? 110 : each.value.max_pods
   node_taints                  = each.value.node_taints
   node_labels                  = each.value.node_labels
   availability_zones           = (var.node_pools_availability_zone == "" || var.node_pools_proximity_placement == true) ? [] : [var.node_pools_availability_zone]
   proximity_placement_group_id = element(coalescelist(azurerm_proximity_placement_group.proximity.*.id, [""]), 0)
+  orchestrator_version         = var.kubernetes_version
   tags                         = var.tags
 }
 

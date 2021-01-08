@@ -5,7 +5,7 @@
 
 # https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/log_analytics_workspace
 resource "azurerm_log_analytics_workspace" "viya4" {
-  count               = var.create_aks_azure_monitor ? 1 : 0
+  count = var.create_aks_azure_monitor ? 1 : 0
 
   name                = "${var.prefix}-log-analytics-workspace"
   location            = var.location
@@ -18,19 +18,19 @@ resource "azurerm_log_analytics_workspace" "viya4" {
 
 # https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/log_analytics_solution
 resource "azurerm_log_analytics_solution" "viya4" {
-  count               = var.create_aks_azure_monitor ? 1 : 0
+  count = var.create_aks_azure_monitor ? 1 : 0
 
-  solution_name         = var.log_analytics_solution_name
-  location              = var.location
-  resource_group_name   = azurerm_resource_group.azure_rg.name
+  solution_name       = var.log_analytics_solution_name
+  location            = var.location
+  resource_group_name = azurerm_resource_group.azure_rg.name
   # workspace_resource_id = element(coalescelist(azurerm_log_analytics_workspace.viya4.*.id, [""]), 0)
   # workspace_name        = element(coalescelist(azurerm_log_analytics_workspace.viya4.*.name, [""]), 0)
   workspace_resource_id = azurerm_log_analytics_workspace.viya4[0].id
   workspace_name        = azurerm_log_analytics_workspace.viya4[0].name
-  
+
   plan {
-    publisher = var.log_analytics_solution_publisher
-    product   = var.log_analytics_solution_product
+    publisher      = var.log_analytics_solution_publisher
+    product        = var.log_analytics_solution_product
     promotion_code = var.log_analytics_solution_promotion_code
   }
 

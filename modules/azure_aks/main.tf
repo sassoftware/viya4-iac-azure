@@ -1,4 +1,4 @@
-# Reference: https://www.terraform.io/docs/providers/azurerm/r/kubernetes_cluster.html
+# Reference: https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster
 resource "azurerm_kubernetes_cluster" "aks" {
   name                = var.aks_cluster_name
   location            = var.aks_cluster_location
@@ -11,21 +11,21 @@ resource "azurerm_kubernetes_cluster" "aks" {
 
   network_profile {
     network_plugin = var.aks_network_plugin
-
+    network_policy = var.aks_network_plugin == "azure" ? var.aks_network_policy : null
+    # Docs on AKS Advanced Networking config
     # https://docs.microsoft.com/en-gb/azure/architecture/aws-professional/networking
     # https://docs.microsoft.com/en-gb/azure/virtual-network/virtual-network-vnet-plan-design-arm
-
-    # TF docs says these are required only when network_plugin is 'azure' 
-    service_cidr       = "10.0.0.0/16"
-    dns_service_ip     = "10.0.0.10"
-    pod_cidr           = "10.244.0.0/16"
-    docker_bridge_cidr = "172.17.0.1/16"
-
-    load_balancer_sku = "Standard"
     # https://github.com/terraform-providers/terraform-provider-azurerm/issues/4322
     # https://docs.microsoft.com/en-us/azure/aks/internal-lb
     # https://docs.microsoft.com/en-us/azure/aks/load-balancer-standard
     # https://docs.microsoft.com/en-us/azure/aks/egress-outboundtype
+
+    service_cidr       = var.aks_network_plugin == "kubenet" ? "10.0.0.0/16" : var.aks_service_cidr
+    dns_service_ip     = var.aks_network_plugin == "kubenet" ? "10.0.0.10" : var.aks_dns_service_ip
+    pod_cidr           = var.aks_network_plugin == "kubenet" ? "10.244.0.0/16" : null
+    docker_bridge_cidr = var.aks_network_plugin == "kubenet" ? "172.17.0.1/16" : var.aks_docker_bridge_cidr
+
+    # load_balancer_sku = "Standard"
   }
 
   role_based_access_control {
@@ -40,17 +40,20 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   default_node_pool {
-    name                         = "system"
-    vm_size                      = var.aks_cluster_node_vm_size
-    availability_zones           = var.aks_availability_zones
-
-    enable_auto_scaling = var.aks_cluster_node_auto_scaling
-    max_pods            = var.aks_cluster_max_pods
-    os_disk_size_gb     = var.aks_cluster_os_disk_size
-    max_count           = var.aks_cluster_max_nodes
-    min_count           = var.aks_cluster_min_nodes
-    node_count          = var.aks_cluster_node_count
-    vnet_subnet_id      = var.aks_vnet_subnet_id
+    name                  = "system"
+    vm_size               = var.aks_cluster_node_vm_size
+    availability_zones    = var.aks_availability_zones
+    enable_auto_scaling   = var.aks_cluster_node_auto_scaling
+    enable_node_public_ip = false
+    node_labels           = {}
+    node_taints           = []
+    max_pods              = var.aks_cluster_max_pods
+    os_disk_size_gb       = var.aks_cluster_os_disk_size
+    max_count             = var.aks_cluster_max_nodes
+    min_count             = var.aks_cluster_min_nodes
+    node_count            = var.aks_cluster_node_count
+    vnet_subnet_id        = var.aks_vnet_subnet_id
+    tags                  = var.aks_cluster_tags
   }
 
   identity {
@@ -65,7 +68,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
       enabled = false
     }
     oms_agent {
-      enabled = var.aks_oms_enabled
+      enabled                    = var.aks_oms_enabled
       log_analytics_workspace_id = var.aks_log_analytics_workspace_id
     }
   }

@@ -45,19 +45,6 @@ variable "ssh_public_key" {
   default = ""
 }
 
-variable "node_vm_admin" {
-  description = "OS Admin User for VMs of AKS Cluster nodes"
-  default     = "azureuser"
-}
-
-variable "default_nodepool_vm_type" {
-  default = "Standard_D4_v2"
-}
-variable "kubernetes_version" {
-  description = "The AKS cluster K8s version"
-  default     = "1.18.8"
-}
-
 variable "default_public_access_cidrs" {
   description = "List of CIDRs to access created resources"
   type        = list(string)
@@ -88,6 +75,14 @@ variable "postgres_public_access_cidrs" {
   default     = null
 }
 
+# AKS config
+variable "default_nodepool_vm_type" {
+  default = "Standard_D4_v2"
+}
+variable "kubernetes_version" {
+  description = "The AKS cluster K8s version"
+  default     = "1.18.8"
+}
 
 variable "default_nodepool_max_nodes" {
   description = "(Required, when default_nodepool_auto_scaling=true) The maximum number of nodes which should exist in this Node Pool. If specified this must be between 1 and 100."
@@ -109,6 +104,52 @@ variable "default_nodepool_max_pods" {
 variable "default_nodepool_availability_zones" {
   type    = list
   default = ["1"]
+}
+
+# AKS advanced network config
+variable "aks_network_plugin" {
+  description = "Network plugin to use for networking. Currently supported values are azure and kubenet. Changing this forces a new resource to be created."
+  type        = string
+  default     = "kubenet"
+  #TODO: add validation when value is 'azure'
+}
+
+variable "aks_network_policy" {
+  description = "Sets up network policy to be used with Azure CNI. Network policy allows us to control the traffic flow between pods. Currently supported values are calico and azure. Changing this forces a new resource to be created."
+  type        = string
+  default     = "azure"
+  #TODO: add validation
+}
+
+variable "aks_dns_service_ip" {
+  description = "IP address within the Kubernetes service address range that will be used by cluster service discovery (kube-dns). Changing this forces a new resource to be created."
+  type        = string
+  default     = "10.0.0.10"
+}
+
+variable "aks_docker_bridge_cidr" {
+  description = "IP address (in CIDR notation) used as the Docker bridge IP address on nodes. Changing this forces a new resource to be created."
+  default     = "172.17.0.1/16"
+}
+
+variable "aks_outbound_type" {
+  description = "The outbound (egress) routing method which should be used for this Kubernetes Cluster. Possible values are loadBalancer and userDefinedRouting. Defaults to loadBalancer."
+  default     = "loadBalancer"
+}
+
+variable "aks_pod_cidr" {
+  description = "The CIDR to use for pod IP addresses. This field can only be set when network_plugin is set to kubenet. Changing this forces a new resource to be created."
+  default     = "10.244.0.0/16"
+}
+
+variable "aks_service_cidr" {
+  description = "The Network Range used by the Kubernetes service. Changing this forces a new resource to be created."
+  default     = "10.0.0.0/16"
+}
+
+variable "node_vm_admin" {
+  description = "OS Admin User for VMs of AKS Cluster nodes"
+  default     = "azureuser"
 }
 
 variable "tags" {
@@ -298,63 +339,69 @@ variable node_pools_proximity_placement {
 variable node_pools {
   description = "Node pool definitions"
   type = map(object({
-    machine_type = string
-    os_disk_size = number
-    min_nodes    = string
-    max_nodes    = string
-    node_taints  = list(string)
-    node_labels  = map(string)
+    machine_type          = string
+    os_disk_size          = number
+    min_nodes             = string
+    max_nodes             = string
+    max_pods              = string
+    node_taints           = list(string)
+    node_labels           = map(string)
   }))
 
   default = {
     cas = {
-      "machine_type" = "Standard_E16s_v3"
-      "os_disk_size" = 200
-      "min_nodes"    = 0
-      "max_nodes"    = 5
-      "node_taints"  = ["workload.sas.com/class=cas:NoSchedule"]
+      "machine_type"          = "Standard_E16s_v3"
+      "os_disk_size"          = 200
+      "min_nodes"             = 0
+      "max_nodes"             = 5
+      "max_pods"              = 110
+      "node_taints"           = ["workload.sas.com/class=cas:NoSchedule"]
       "node_labels" = {
         "workload.sas.com/class" = "cas"
       }
     },
     compute = {
-      "machine_type" = "Standard_E16s_v3"
-      "os_disk_size" = 200
-      "min_nodes"    = 0
-      "max_nodes"    = 5
-      "node_taints"  = ["workload.sas.com/class=compute:NoSchedule"]
+      "machine_type"          = "Standard_E16s_v3"
+      "os_disk_size"          = 200
+      "min_nodes"             = 0
+      "max_nodes"             = 5
+      "max_pods"              = 110
+      "node_taints"           = ["workload.sas.com/class=compute:NoSchedule"]
       "node_labels" = {
         "workload.sas.com/class"        = "compute"
         "launcher.sas.com/prepullImage" = "sas-programming-environment"
       }
     },
     connect = {
-      "machine_type" = "Standard_E16s_v3"
-      "os_disk_size" = 200
-      "min_nodes"    = 0
-      "max_nodes"    = 5
-      "node_taints"  = ["workload.sas.com/class=connect:NoSchedule"]
+      "machine_type"          = "Standard_E16s_v3"
+      "os_disk_size"          = 200
+      "min_nodes"             = 0
+      "max_nodes"             = 5
+      "max_pods"              = 110
+      "node_taints"           = ["workload.sas.com/class=connect:NoSchedule"]
       "node_labels" = {
         "workload.sas.com/class"        = "connect"
         "launcher.sas.com/prepullImage" = "sas-programming-environment"
       }
     },
     stateless = {
-      "machine_type" = "Standard_D16s_v3"
-      "os_disk_size" = 200
-      "min_nodes"    = 0
-      "max_nodes"    = 5
-      "node_taints"  = ["workload.sas.com/class=stateless:NoSchedule"]
+      "machine_type"          = "Standard_D16s_v3"
+      "os_disk_size"          = 200
+      "min_nodes"             = 0
+      "max_nodes"             = 5
+      "max_pods"              = 110
+      "node_taints"           = ["workload.sas.com/class=stateless:NoSchedule"]
       "node_labels" = {
         "workload.sas.com/class" = "stateless"
       }
     },
     stateful = {
-      "machine_type" = "Standard_D8s_v3"
-      "os_disk_size" = 200
-      "min_nodes"    = 0
-      "max_nodes"    = 3
-      "node_taints"  = ["workload.sas.com/class=stateful:NoSchedule"]
+      "machine_type"          = "Standard_D8s_v3"
+      "os_disk_size"          = 200
+      "min_nodes"             = 0
+      "max_nodes"             = 3
+      "max_pods"              = 110
+      "node_taints"           = ["workload.sas.com/class=stateful:NoSchedule"]
       "node_labels" = {
         "workload.sas.com/class" = "stateful"
       }
@@ -364,49 +411,49 @@ variable node_pools {
 
 # Azure Monitor
 variable "create_aks_azure_monitor" {
-  type = bool
+  type        = bool
   description = "Enable Azure Log Analytics agent on AKS cluster"
-  default = "false"
+  default     = "false"
 }
 
 variable "enable_log_analytics_workspace" {
-  type = bool
+  type        = bool
   description = "Enable Azure Log Analytics Solution"
-  default = true
+  default     = true
 }
 
 variable "log_analytics_workspace_sku" {
   description = "Specifies the Sku of the Log Analytics Workspace. Possible values are Free, PerNode, Premium, Standard, Standalone, Unlimited, and PerGB2018 (new Sku as of 2018-04-03)"
-  type = string
-  default = "PerGB2018"
+  type        = string
+  default     = "PerGB2018"
 }
 
 variable "log_retention_in_days" {
   description = "(Optional) The workspace data retention in days. Possible values are either 7 (Free Tier only) or range between 30 and 730."
-  type = number
-  default = 30
+  type        = number
+  default     = 30
 }
 
 variable "log_analytics_solution_name" {
-  type = string
+  type        = string
   description = "The publisher of the solution. For example Microsoft. Changing this forces a new resource to be created"
-  default = "ContainerInsights"
+  default     = "ContainerInsights"
 }
 
 variable "log_analytics_solution_publisher" {
-  type = string
+  type        = string
   description = " The publisher of the solution. For example Microsoft. Changing this forces a new resource to be created"
-  default = "Microsoft"
+  default     = "Microsoft"
 }
 
 variable "log_analytics_solution_product" {
-  type = string
+  type        = string
   description = "The product name of the solution. For example OMSGallery/Containers. Changing this forces a new resource to be created."
-  default = "OMSGallery/ContainerInsights"
+  default     = "OMSGallery/ContainerInsights"
 }
 
 variable "log_analytics_solution_promotion_code" {
-  type = string
+  type        = string
   description = "A promotion code to be used with the solution"
-  default = ""
+  default     = ""
 }
