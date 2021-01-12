@@ -73,12 +73,14 @@ Example for using a Managed Identity:
 
 ```
 # Needed ids and secrets for docker
-TF_VAR_subscription_id="00000000-0000-0000-0000-000000000000"
-TF_VAR_tenant_id= "00000000-0000-0000-0000-000000000000"
+TF_VAR_subscription_id=00000000-0000-0000-0000-000000000000
+TF_VAR_tenant_id= 00000000-0000-0000-0000-000000000000
 TF_VAR_use_msi=true
 ```
 
-Store these commands outside of this repo in a secure file, for example
+NOTE: Do not use quotes around the values in this file, and make sure avoid trailing blanks!
+
+Store these values outside of this repo in a secure file, for example
 `$HOME/.azure_docker_creds.env` . (Protect that file so only you have read access to it.) Now each time you invoke the container, specify the file in the `--env-file` docker option, e.g.
 
 ```bash
