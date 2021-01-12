@@ -24,25 +24,23 @@ Operational knowledge of:
 - [Microsoft Azure Cloud](https://azure.microsoft.com/)
 - [Kubernetes](https://kubernetes.io/docs/concepts/)
  
-This tool supports running both from terraform installed on your local machine or via a docker container. The Dockerfile for the container can be found [here](Dockerfile)
+### Required
 
-#### Terraform
-
-- [Terraform](https://www.terraform.io/downloads.html) - v0.13.4
-- [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl) - v1.18.8
-- [jq](https://stedolan.github.io/jq/) - v1.6
 - Access to an **Azure Subscription** and [**Identity**](./docs/user/TerraformAzureAuthentication.md) with '*Contributor*' role
+- Terraform or DOcker
+  - #### Terraform
+    - [Terraform](https://www.terraform.io/downloads.html) - v0.13.4
+    - [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl) - v1.18.8
+    - [jq](https://stedolan.github.io/jq/) - v1.6
+  - #### Docker
+    - [Docker](https://docs.docker.com/get-docker/)
 
-#### Docker
-
-- [Docker](https://docs.docker.com/get-docker/)
-- Access to an **Azure Subscription** and [**Identity**](./docs/user/TerraformAzureAuthentication.md) with '*Contributor*' role
 
 ## Getting Started
 
-Run these commands in a Terminal session
-
 ### Clone this project
+
+Run these commands in a Terminal session:
 
 ```bash
 # clone this repo
@@ -54,38 +52,7 @@ cd viya4-iac-azure
 
 ### Authenticating Terraform to access Azure
 
-We recommmend to put your authentication information into a file that you can source and use later.
-
-For details on the required variables and values,  see [Terraform Azure Authentication](./docs/user/TerraformAzureAuthentication.md)
-
-Example when using a Service Principal and running Terraform directly in your shell:
-
-```bash
-# export needed IDs and Secrets
-export TF_VAR_subscription_id="00000000-0000-0000-0000-000000000000"
-export TF_VAR_tenant_id="00000000-0000-0000-0000-000000000000"
-export TF_VAR_client_id="00000000-0000-0000-0000-000000000000"
-export TF_VAR_client_secret="00000000-0000-0000-0000-000000000000"
-```
-Save this to a file that you can source and use later, for example `$HOME/.azure_creds.sh`
-
-Example when using a Managed Identity and running the Docker container:
-
-```bash
-# export the needed IDs and flags
-TF_VAR_subscription_id="00000000-0000-0000-0000-000000000000"
-TF_VAR_tenant_id="00000000-0000-0000-0000-000000000000"
-TF_VAR_use_msi=true
-```
-Save this to a file that you can use later, for example `$HOME/.azure_docker_creds.env`
-
-#### Building the docker image
-
-Run the following command to create your `viya4-iac-azure` local docker image
-
-```bash
-docker build -t viya4-iac-azure .
-```
+See [Terraform Azure Authentication](./docs/user/TerraformAzureAuthentication.md) for details.
 
 ### Customize Input Values
 
@@ -93,7 +60,7 @@ Create a file named `terraform.tfvars` to customize any input variable value. Fo
 
 When using a variable definition file other than `terraform.tfvars`, see [Advanced Terraform Usage](docs/user/AdvancedTerraformUsage.md) for additional command options.
 
-### Running
+## Creating and Managing the Cloud Resources
 
 #### Terraform
 
@@ -161,33 +128,6 @@ docker run --rm \
   -v $(pwd):/workspace viya4-iac-azure \
   output -state /workspace/terraform.tfstate
 ```
-
-### Modifying Cloud Resources
-
-After provisioning the infrastructure if changes were to be made to inputs e.g., change number of nodes in a node pool or set create_postgres to true/false, then add the variable to terraform.tfvars and changes the value and run either `terraform apply` or the equivalent `docker run ... apply` command.
-
-### Interacting with Kubernetes cluster
-
-#### Terraform 
-Terraform script writes `kube_config` output value to a file `./[prefix]-aks-kubeconfig.conf`. Now that you have your Kubernetes cluster up and running, here's how to connect to the cluster
-
-```bash
-export KUBECONFIG=./[prefix]-aks-kubeconfig.conf
-kubectl get nodes
-```
-#### Docker
-
-```bash
-docker run --rm \
-  --env-file $HOME/.azure_docker_creds.env \
-  -v $(pwd):/workspace viya4-iac-azure \
-  output -state /workspace/terraform.tfstate kube_config > ./[prefix]-aks-kubeconfig.conf
-export KUBECONFIG=$(pwd)/[prefix]-aks-kubeconfig.conf
-kubectl get nodes
-```
-### Examples
-
-We include several samples - `sample-input*.tfvars` in this repo to get started. Evaluate the sample files, then review the [CONFIG-VARS.md](docs/CONFIG-VARS.md) to see what other variables can be used.
 
 ### Troubleshooting
 
