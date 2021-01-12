@@ -138,7 +138,8 @@ To preview the resources that the Terraform script will create, optionally run
 docker run --rm \
   --env-file $HOME/.azure_docker_creds.env \
   -v $(pwd):/workspace viya4-iac-azure \
-  plan -var-file /workspace/sas-sample-input.tfvars -state /workspace/terraform.tfstate
+  plan -var-file /workspace/terraform.tfvars \
+       -state /workspace/terraform.tfstate
 ```
 
 When satisfied with the plan and ready to create cloud resources, run
@@ -147,7 +148,8 @@ When satisfied with the plan and ready to create cloud resources, run
 docker run --rm \
   --env-file $HOME/.azure_docker_creds.env \
   -v $(pwd):/workspace viya4-iac-azure \
-  apply -var-file /workspace/sas-sample-input.tfvars -auto-approve -state /workspace/terraform.tfstate
+  apply -var-file /workspace/terraform.tfvars -auto-approve \
+        -state /workspace/terraform.tfstate
 ```
 `terraform apply` can take a few minutes to complete. Once complete, output values are written to the console.
 
