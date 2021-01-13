@@ -195,6 +195,7 @@ In addition, you can control the placement for the additional nodepools using
 | nfs_raid_disk_size | Size in Gb for each disk of the RAID5 cluster on the NFS server VM | number | 128 | The NFS server VM is only created when storage_type="standard" |
 
 Note: When `node_pools_proximity_placement=true` is set, the NFS VM will be co-located in the proximity group with the additional node pool VMs.
+Note: The 128 default is in GB, so with a RAID5, the default is 4 disks, [so the defaults would yield (N-1) x S(min)](https://superuser.com/questions/272990/how-to-calculate-the-final-raid-size-of-a-raid-5-array), or (4-1) x 128GB = ~384GB.
 
 ### storage_type=ha - Azure NetApp
 
