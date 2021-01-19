@@ -430,4 +430,3 @@ resource "kubernetes_config_map" "sas_iac_buildinfo" {
 EOT
   }
 }
-
