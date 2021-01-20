@@ -11,7 +11,7 @@
 Run the following command to create the `viya4-iac-azure` docker image that will be used in subsequent steps:
 
 ```bash
-docker build -t viya4-iac-azurwe .
+docker build -t viya4-iac-azure .
 ```
 
 NOTE: The Dockerfile for the container can be found [here](../../Dockerfile).

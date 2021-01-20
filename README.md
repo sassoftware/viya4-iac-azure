@@ -27,7 +27,7 @@ Operational knowledge of:
 ### Required
 
 - Access to an **Azure Subscription** and [**Identity**](./docs/user/TerraformAzureAuthentication.md) with '*Contributor*' role
-- Terraform or DOcker
+- Terraform or Docker
   - #### Terraform
     - [Terraform](https://www.terraform.io/downloads.html) - v0.13.4
     - [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl) - v1.18.8
