@@ -60,74 +60,12 @@ Create a file named `terraform.tfvars` to customize any input variable value. Fo
 
 When using a variable definition file other than `terraform.tfvars`, see [Advanced Terraform Usage](docs/user/AdvancedTerraformUsage.md) for additional command options.
 
-## Creating and Managing the Cloud Resources
+## Creating and Managaging the Cloud Resources
 
-#### Terraform
+Create and manage the AWS cloud resources by either 
 
-Source your credentials into your shell enviornment
-
-```bash
-. $HOME/.azure_creds.sh
-```
-
-Initialize the Terraform environment for this project by running
-
-```bash
-terraform init
-```
-
-This creates a `.terraform` directory locally that contains Terraform plugins/modules used in this project.
-
-**Note:** `terraform init` only needs to be run once unless new Terraform plugins/modules were added.
-
-To preview the resources that the Terraform script will create, optionally run
-
-```bash
-terraform plan
-```
-
-When satisfied with the plan and ready to create cloud resources, run
-
-```bash
-terraform apply
-```
-
-`terraform apply` can take a few minutes to complete. Once complete, output values are written to the console. These output values can be displayed anytime by again running
-
-```bash
-terraform output
-```
-#### Docker
-
-To preview the resources that the Terraform script will create, optionally run
-
-```bash
-docker run --rm \
-  --env-file $HOME/.azure_docker_creds.env \
-  -v $(pwd):/workspace viya4-iac-azure \
-  plan -var-file /workspace/terraform.tfvars \
-       -state /workspace/terraform.tfstate
-```
-
-When satisfied with the plan and ready to create cloud resources, run
-
-```bash
-docker run --rm \
-  --env-file $HOME/.azure_docker_creds.env \
-  -v $(pwd):/workspace viya4-iac-azure \
-  apply -var-file /workspace/terraform.tfvars -auto-approve \
-        -state /workspace/terraform.tfstate
-```
-`terraform apply` can take a few minutes to complete. Once complete, output values are written to the console.
-
-The output values can be displayed anytime by again running
-
-```bash
-docker run --rm \
-  --env-file $HOME/.azure_docker_creds.env \
-  -v $(pwd):/workspace viya4-iac-azure \
-  output -state /workspace/terraform.tfstate
-```
+- using [Terraform](docs/user/TerraformUsage.md) directly on your workstation, or
+- using a [Docker container](docs/user/DockerUsage.md). 
 
 ### Troubleshooting
 
