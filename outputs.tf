@@ -75,12 +75,24 @@ output nfs_admin_username {
 }
 
 # acr
-output "acr_id" {
+output "cr_name" {
+  value = var.create_container_registry ? element(coalescelist(azurerm_container_registry.acr.*.name, [" "]), 0) : null
+}
+
+output "cr_id" {
   value = var.create_container_registry ? element(coalescelist(azurerm_container_registry.acr.*.id, [" "]), 0) : null
 }
 
-output "acr_url" {
+output "cr_endpoint" {
   value = var.create_container_registry ? element(coalescelist(azurerm_container_registry.acr.*.login_server, [" "]), 0) : null
+}
+
+output "cr_admin_user" {
+  value = (var.create_container_registry && var.container_registry_admin_enabled) ? element(coalescelist(azurerm_container_registry.acr.*.admin_username, [" "]), 0) : null
+}
+
+output "cr_admin_password" {
+  value = (var.create_container_registry && var.container_registry_admin_enabled) ? element(coalescelist(azurerm_container_registry.acr.*.admin_password, [" "]), 0) : null
 }
 
 output "location" {
