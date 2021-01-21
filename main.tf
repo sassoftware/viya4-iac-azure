@@ -397,6 +397,7 @@ module "netapp" {
   size_in_tb            = var.netapp_size_in_tb
   protocols             = var.netapp_protocols
   volume_path           = "${var.prefix}-${var.netapp_volume_path}"
+  tags                  = var.tags
 }
 
 resource "local_file" "kubeconfig" {
