@@ -31,6 +31,7 @@ resource "azurerm_netapp_account" "anf" {
   name                = "${var.prefix}-netappaccount"
   location            = var.location
   resource_group_name = var.resource_group_name
+  tags                = var.tags
 }
 
 resource "azurerm_netapp_pool" "anf" {
@@ -41,6 +42,7 @@ resource "azurerm_netapp_pool" "anf" {
   account_name        = azurerm_netapp_account.anf[0].name
   service_level       = var.service_level
   size_in_tb          = var.size_in_tb
+  tags                = var.tags
 }
 
 resource "azurerm_netapp_volume" "anf" {
@@ -55,6 +57,7 @@ resource "azurerm_netapp_volume" "anf" {
   subnet_id           = azurerm_subnet.anf[0].id
   protocols           = var.protocols
   storage_quota_in_gb = var.size_in_tb * 1024
+  tags                = var.tags
 
   export_policy_rule {
     rule_index        = 1
