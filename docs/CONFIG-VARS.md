@@ -4,20 +4,21 @@ Supported configuration variables are listed in the table below.  All variables 
 
 ## Table of Contents
 
-- [Table of Contents](#table-of-contents)
-- [Required Variables](#required-variables)
-  - [Application](#application)
-  - [Azure Authentication](#azure-authentication)
-- [Admin Access](#admin-access)
-- [General](#general)
-- [Nodepools](#nodepools)
-  - [Default Nodepool](#default-nodepool)
-  - [Additional Nodepools](#additional-nodepools)
-- [Storage](#storage)
-  - [storage_type=standard - nfs server VM](#storage_typestandard---nfs-server-vm)
-  - [storage_type=ha - Azure NetApp](#storage_typeha---azure-netapp)
-- [Azure Container Registry (ACR)](#azure-container-registry-acr)
-- [Postgres](#postgres)
+- [List of valid configuration variables](#list-of-valid-configuration-variables)
+  - [Table of Contents](#table-of-contents)
+  - [Required Variables](#required-variables)
+    - [Application](#application)
+    - [Azure Authentication](#azure-authentication)
+  - [Admin Access](#admin-access)
+  - [General](#general)
+  - [Nodepools](#nodepools)
+    - [Default Nodepool](#default-nodepool)
+    - [Additional Nodepools](#additional-nodepools)
+  - [Storage](#storage)
+    - [storage_type=standard - nfs server VM](#storage_typestandard---nfs-server-vm)
+    - [storage_type=ha - Azure NetApp](#storage_typeha---azure-netapp)
+  - [Azure Container Registry (ACR)](#azure-container-registry-acr)
+  - [Postgres](#postgres)
 
 Terraform input variables can be set in the following ways:
 
@@ -74,7 +75,7 @@ You can use `default_public_access_cidrs` to set a default range for all created
 
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
-| kubernetes_version | The AKS cluster K8S version | string | "1.18.8" | |
+| kubernetes_version | The AKS cluster K8S version | string | "1.18.14" | |
 | ssh_public_key | Name of file with public ssh key for VMs | string |"" | If no key is given, a keypair will be generated and output into the `ssh_public_key` and `ssh_private_key` output variables |
 | create_jump_vm | Create bastion host | bool | false for storage_type == "dev", otherwise true| |
 | create_jump_public_ip | Add public ip to jump VM | bool | true | |

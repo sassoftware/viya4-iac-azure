@@ -29,11 +29,11 @@ postgres_administrator_password  = "mySup3rS3cretPassw0rd"
 # Azure Container Registry config
 create_container_registry           = false
 container_registry_sku              = "Standard"
-container_registry_admin_enabled    = "false"
+container_registry_admin_enabled    = false
 container_registry_geo_replica_locs = null
 
 # AKS config
-kubernetes_version         = "1.18.8"
+kubernetes_version         = "1.18.14"
 default_nodepool_min_nodes = 2
 default_nodepool_vm_type   = "Standard_D4_v2"
 
