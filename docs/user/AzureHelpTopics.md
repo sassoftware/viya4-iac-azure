@@ -67,7 +67,7 @@ You can find more details on Azure documentation on how to `create/retrieve/mana
 When creating a private Azure Container Registry assign 'acrpull' role to the Service Principal
 
 ```bash
-  ACR_ID=$(terraform output acr_id)
+  ACR_ID=$(terraform output cr_id)
   az role assignment create --assignee $SP_APPID --role acrpull  --scope "$ACR_ID"
 ```
 
