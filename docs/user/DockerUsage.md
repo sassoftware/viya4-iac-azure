@@ -20,7 +20,7 @@ NOTE: The Dockerfile for the container can be found [here](../../Dockerfile).
 
 Add volume mounts to the `docker run` command for all files and directories that must be accessible from inside the container.
 
-The most common file referenc is the value of the [`ssh_public_key`](./CONFIG-VARS.md#required-variables) variable in the `terraform.tfvars` file.
+The most common file reference is the value of the [`ssh_public_key`](./CONFIG-VARS.md#required-variables) variable in the `terraform.tfvars` file.
 
 Note that local references to `$HOME` (or "`~`") need to map to the root directory `/` in the container.
 

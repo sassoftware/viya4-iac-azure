@@ -39,14 +39,6 @@ output "postgres_server_port" {
   value = var.create_postgres ? "5432" : null
 }
 
-# ssh keys
-output "ssh_private_key" {
-  value = var.ssh_public_key == "" ? element(coalescelist(data.tls_public_key.public_key.*.private_key_pem, [""]), 0) : null
-}
-output "ssh_public_key" {
-  value = var.ssh_public_key == "" ? element(coalescelist(data.tls_public_key.public_key.*.public_key_pem, [""]), 0) : null
-}
-
 # jump server
 output jump_private_ip {
   value = local.create_jump_vm ? module.jump.private_ip_address : null

@@ -7,7 +7,6 @@ Supported configuration variables are listed in the table below.  All variables 
 - [List of valid configuration variables](#list-of-valid-configuration-variables)
   - [Table of Contents](#table-of-contents)
   - [Required Variables](#required-variables)
-    - [Application](#application)
     - [Azure Authentication](#azure-authentication)
   - [Admin Access](#admin-access)
   - [General](#general)
@@ -28,13 +27,11 @@ Terraform input variables can be set in the following ways:
 
 ## Required Variables
 
-### Application
-
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
 | prefix | A prefix used in the name of all the Azure resources created by this script. | string | | The prefix string must start with a lowercase letter and contain only alphanumeric characters and dashes (-), but cannot end with a dash. |
 | location | The Azure Region to provision all resources in this script | string | "East US" | |
-| tags | Map of common tags to be placed on all Azure resources created by this script | map | { project_name = "sasviya4", environment = "dev" } | |
+| ssh_public_key | Name of file with public ssh key for VMs | string | "~/.ssh/id_rsa.pub" | Value is required in order to access your VMs |
 
 ### Azure Authentication
 
@@ -76,10 +73,10 @@ You can use `default_public_access_cidrs` to set a default range for all created
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
 | kubernetes_version | The AKS cluster K8S version | string | "1.18.14" | |
-| ssh_public_key | Name of file with public ssh key for VMs | string |"" | If no key is given, a keypair will be generated and output into the `ssh_public_key` and `ssh_private_key` output variables |
 | create_jump_vm | Create bastion host | bool | false for storage_type == "dev", otherwise true| |
 | create_jump_public_ip | Add public ip to jump VM | bool | true | |
 | jump_vm_admin | OS Admin User for the Jump VM | string | "jumpuser" | |
+| tags | Map of common tags to be placed on all Azure resources created by this script | map | { project_name = "sasviya4", environment = "dev" } | |
 
 ## Nodepools
 

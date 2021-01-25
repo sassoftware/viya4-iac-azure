@@ -19,7 +19,7 @@ default_public_access_cidrs = [] # e.g., ["123.45.6.89/32"]
 tags = {} # e.g., { "key1" = "value1", "key2" = "value2" }
 
 # When a ssh key value is provided it will be used for all VMs or else a ssh key will be auto generated and available in outputs
-# ssh_public_key = "~/.ssh/id_rsa.pub"
+ssh_public_key = "~/.ssh/id_rsa.pub"
 
 # Azure Postgres config
 create_postgres                  = true # set this to "false" when using internal Crunchy Postgres
