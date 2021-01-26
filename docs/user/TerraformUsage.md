@@ -17,7 +17,7 @@ Then source your credentials into your shell environment:
 Prepare your `terraform.tfvars` file, as described in [Customize Input Values](../../README.md#customize-input-values).
 
 
-## Initialize Terraform 
+## Initialize Terraform
 
 Initialize the Terraform environment for this project by running
 
@@ -36,7 +36,7 @@ To preview the resources that the Terraform script will create, run
 ```bash
 terraform plan
 ```
-## Create CLoud Resources
+## Create Cloud Resources
 
 To create cloud resources, run
 
