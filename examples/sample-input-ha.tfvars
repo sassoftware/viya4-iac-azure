@@ -6,6 +6,7 @@
 # These required variables' values MUST be provided by the user
 prefix   = "<prefix-value>"
 location = "<azure-location-value>" # e.g., "eastus2"
+ssh_public_key = "~/.ssh/id_rsa.pub"
 # ****************  REQUIRED VARIABLES  ****************
 
 # !NOTE! - Without specifying your CIDR block access rules, ingress traffic
@@ -17,9 +18,6 @@ default_public_access_cidrs = [] # e.g., ["123.45.6.89/32"]
 
 # Tags for all taggable items in your cluster.
 tags = {} # e.g., { "key1" = "value1", "key2" = "value2" }
-
-# When a ssh key value is provided it will be used for all VMs or else a ssh key will be auto generated and available in outputs
-ssh_public_key = "~/.ssh/id_rsa.pub"
 
 # Azure Postgres config
 create_postgres                  = true # set this to "false" when using internal Crunchy Postgres
