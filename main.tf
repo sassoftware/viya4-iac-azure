@@ -71,17 +71,6 @@ provider "kubernetes" {
 
 data "azurerm_subscription" "current" {}
 
-
-resource "tls_private_key" "private_key" {
-  count     = var.ssh_public_key == "" ? 1 : 0
-  algorithm = "RSA"
-}
-
-data "tls_public_key" "public_key" {
-  count           = var.ssh_public_key == "" ? 1 : 0
-  private_key_pem = element(coalescelist(tls_private_key.private_key.*.private_key_pem), 0)
-}
-
 locals {
   # Network ip ranges
   vnet_cidr_block          = "192.168.0.0/16"
@@ -103,8 +92,6 @@ locals {
   cluster_endpoint_public_access_cidrs = length(local.cluster_endpoint_cidrs) == 0 ? ["0.0.0.0/32"] : local.cluster_endpoint_cidrs
   postgres_public_access_cidrs         = var.postgres_public_access_cidrs == null ? local.default_public_access_cidrs : var.postgres_public_access_cidrs
   postgres_firewall_rules              = [for addr in local.postgres_public_access_cidrs : { "name" : replace(replace(addr, "/", "_"), ".", "_"), "start_ip" : cidrhost(addr, 0), "end_ip" : cidrhost(addr, abs(pow(2, 32 - split("/", addr)[1]) - 1)) }]
-
-  ssh_public_key = var.ssh_public_key != "" ? file(var.ssh_public_key) : element(coalescelist(data.tls_public_key.public_key.*.public_key_openssh, [""]), 0)
 
   kubeconfig_filename = "${var.prefix}-aks-kubeconfig.conf"
   kubeconfig_path     = var.iac_tooling == "docker" ? "/workspace/${local.kubeconfig_filename}" : local.kubeconfig_filename
@@ -200,7 +187,7 @@ module "jump" {
   tags              = var.tags
   create_vm         = local.create_jump_vm
   vm_admin          = var.jump_vm_admin
-  ssh_public_key    = local.ssh_public_key
+  ssh_public_key    = file(var.ssh_public_key)
   cloud_init        = var.storage_type == "dev" ? null : data.template_cloudinit_config.jump.rendered
   create_public_ip  = var.create_jump_public_ip
 }
@@ -252,7 +239,7 @@ module "nfs" {
   data_disk_count              = 4
   data_disk_size               = var.nfs_raid_disk_size
   vm_admin                     = var.nfs_vm_admin
-  ssh_public_key               = local.ssh_public_key
+  ssh_public_key               = file(var.ssh_public_key)
   cloud_init                   = data.template_cloudinit_config.nfs.rendered
   create_public_ip             = var.create_nfs_public_ip
 }
@@ -300,7 +287,7 @@ module "aks" {
   aks_cluster_os_disk_size                 = var.default_nodepool_os_disk_size
   aks_cluster_node_vm_size                 = var.default_nodepool_vm_type
   aks_cluster_node_admin                   = var.node_vm_admin
-  aks_cluster_ssh_public_key               = local.ssh_public_key
+  aks_cluster_ssh_public_key               = file(var.ssh_public_key)
   aks_vnet_subnet_id                       = data.azurerm_subnet.aks-subnet.id
   kubernetes_version                       = var.kubernetes_version
   aks_cluster_endpoint_public_access_cidrs = local.cluster_endpoint_public_access_cidrs

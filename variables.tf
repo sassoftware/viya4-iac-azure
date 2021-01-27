@@ -42,7 +42,7 @@ variable "location" {
 
 variable "ssh_public_key" {
   type    = string
-  default = ""
+  default = "~/.ssh/id_rsa.pub"
 }
 
 variable "default_public_access_cidrs" {
