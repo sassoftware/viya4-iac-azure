@@ -12,7 +12,7 @@ az login
     "homeTenantId": "00000000-0000-0000-0000-000000000000",
     "id": "00000000-0000-0000-0000-000000000000",
     "isDefault": true,
-    "managedByTenants": [],
+    "managedByTenants": [], 
     "name": "Subscription Name",
     "state": "Enabled",
     "tenantId": "00000000-0000-0000-0000-000000000000",
@@ -29,11 +29,10 @@ You can also use the ```az account list``` command to list all the subscriptions
 ## How to create Service Principal using AzureCLI
 
 A Service Principal is effectively a "user" that you create to use with automated tools, like Terraform, to access Azure services on your behalf. You give it a role with only the permissions needed to execute the tasks that the ServicePrincipal performs on your behalf.
-
  
-You can create a Service Principal to use with Terraform with the following steps. 
+You can create a Service Principal to use with Terraform with the following steps:
 
-**Note:** You will need an Azure account with **'Owner'** role to perform these operations
+**Note:** You will need an Azure account with **'Owner'** role to perform these operations. Service Principal name must be unique and you may need to change the value `--name http://$USER` if it exists already.
 
 
 ```bash
@@ -54,7 +53,7 @@ You can use this command to list only your Service Principals in the Azure Subsc
 az ad sp list --show-mine -o table
 ```
 
-If in case `$SP_PASSWD` value is lost or has expired, you can reset it with this command:
+If in case `$TF_VAR_client_secret` value is lost or has expired, you can reset it with this command:
 
 ```bash
 az ad sp credential reset --name http://$USER
@@ -62,7 +61,7 @@ az ad sp credential reset --name http://$USER
 
 If you don't have an Azure account with **Owner** role please check with your Azure account administrator. You can find more details on Azure documentation on how to `create/retrieve/manage/reset` [Azure Service Principal with AzureCLI](https://docs.microsoft.com/en-us/cli/azure/create-an-azure-service-principal-azure-cli?view=azure-cli-latest). 
 
-To learn more about how Azure Role based access control works refer to the docs:
+To learn more about how Azure Role Based Access Control works refer to the docs:
 
 * [Role definitions](https://docs.microsoft.com/en-us/azure/role-based-access-control/role-definitions-list)
 * [List roles](https://docs.microsoft.com/en-us/azure/role-based-access-control/role-assignments-list-cli#list-role-assignments-for-a-user)
@@ -98,7 +97,7 @@ az identity create --resource-group <my resource group> --name <my identity name
 PID=$(az identity show --resource-group <my resource group> --name <my identity name> --output tsv --query principalId)
 az role assignment create --assignee $PID --role Contributor
 ```
-## How to assign User-assigned Managed Identity to a VM
+## How to assign a User-assigned Managed Identity to a VM
 
 * [Use the Azure Portal](https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/qs-configure-portal-windows-vm#user-assigned-managed-identity)
 

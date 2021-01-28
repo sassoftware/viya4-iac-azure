@@ -6,22 +6,19 @@
 
 ## Build the Docker image
 
-Run the following command to create the `viya4-iac-azure` Docker image that will be used in subsequent steps:
+Run the following command to create the `viya4-iac-azure` Docker image using the provided [Dockerfile](../../Dockerfile)
 
 ```bash
 docker build -t viya4-iac-azure .
 ```
-
-NOTE: The Dockerfile for the container can be found [here](../../Dockerfile).
+The Docker image `viya4-iac-azure` will contain Terraform and 'kubectl' executables. The Docker entrypoint for the image is `terraform` that will be run with sub-commands in the subsequent steps.
 
 ## Prepare Docker Environment File for Azure Authentication
 
-Follow either one of the authentication methods described in [Authenticating Terraform to access Azure](./TerraformAzureAuthentication.md) and create a file with the authentication variable values to use with container invocation.
-
-Store these values outside of this repo in a secure file, for example
+Follow either one of the authentication methods described in [Authenticating Terraform to access Azure](./TerraformAzureAuthentication.md) and create a file with the authentication variable values to use with container invocation. Store these values outside of this repo in a secure file, for example
 `$HOME/.azure_docker_creds.env`. Protect that file with Azure credentials so only you have read access to it. **NOTE:** Do not use quotes around the values in the file, and make sure to avoid any trailing blanks!
 
-Now each time you invoke the container, specify the file with the [Docker `--env-file` option](https://docs.docker.com/engine/reference/commandline/run/#set-environment-variables--e---env---env-file) to pass on Azure credentials to the container e.g.
+Now each time you invoke the container, specify the file with the [`--env-file` option](https://docs.docker.com/engine/reference/commandline/run/#set-environment-variables--e---env---env-file) to pass on Azure credentials to the container e.g.
 
 ```bash
 docker run <...> \
@@ -31,23 +28,25 @@ docker run <...> \
 
 ## Configure Docker Volume Mounts
 
-Add volume mounts to the `docker run` command for all files and directories that must be accessible from inside the container.
+Add volume mounts to the `docker run` command for all files and directories that must be accessible from inside the container. 
+- `--volume=$HOME/.ssh:/.ssh` for [`ssh_public_key`](../CONFIG-VARS.md#required-variables) variable in the `terraform.tfvars` file
+- `--volume=$(pwd):/workspace` for local directory where `terraform.tfvars` file resides and where `terraform.tfstate` file will be written
 
-The most common file reference is the value of the [`ssh_public_key`](../CONFIG-VARS.md#required-variables) variable in the `terraform.tfvars` file.
+**Note** that local references to `$HOME` (or "`~`") need to map to the root directory `/` in the container.
 
-Note that local references to `$HOME` (or "`~`") need to map to the root directory `/` in the container.
-
-You also need to mount the local directory containing your `terraform.tfvars`, that can be your current directory e.g., $(pwd). This is the same local directory where Terraform state file `terraform.tfstate` will be written. To grant Docker permission to write to the directory use [Docker `--group-add root` option](https://docs.docker.com/engine/reference/run/#additional-groups) e.g.
+To grant Docker, permission to write to the local directory use [`--user` option](https://docs.docker.com/engine/reference/run/#user)
 
 ```bash
 docker run <...> \
-  --group-add root \
+  --user "$(id -u):$(id -g)" \
+  --volume=$HOME/.ssh:/.ssh \
+  --volume=$(pwd):/workspace \
   <...>
 ```
 
 ## Preview Cloud Resources (optional)
 
-To preview which resources will be created, run the Docker image `viya4-iac-azure` with Terraform `plan` command
+To preview the cloud resources before creating, run the Docker image `viya4-iac-azure` with the `plan` command
 
 ```bash
 docker run --rm --group-add root \
@@ -62,7 +61,7 @@ docker run --rm --group-add root \
 
 ## Create Cloud Resources
 
-To create the cloud resources, run the Docker image `viya4-iac-azure` with Terraform `apply` command with `-auto-approve` option
+To create the cloud resources, run the Docker image `viya4-iac-azure` with the `apply` command and `-auto-approve` option
 
 ```bash
 docker run --rm --group-add root \
@@ -75,13 +74,11 @@ docker run --rm --group-add root \
         -var-file=/workspace/terraform.tfvars \
         -state=/workspace/terraform.tfstate 
 ```
-This command can take a few minutes to complete. Once complete, output values are written to the console.
-
-The kubeconfig file for the cluster is being written to `[prefix]-aks-kubeconfig.conf` in the current directory `$(pwd)`.
+This command can take a few minutes to complete. Once complete, Terraform output values are written to the console. The 'KUBECONFIG' file for the cluster is written to `[prefix]-aks-kubeconfig.conf` in the current directory `$(pwd)`.
 
 ## Display Outputs
 
-Once cloud resources have been created with above command and to display Terraform output values, run the Docker image `viya4-iac-azure` with Terraform `output` command
+Once the cloud resources have been created with above command and to display Terraform output values, run the Docker image `viya4-iac-azure` with `output` command
 
 ```bash
 docker run --rm --group-add root \
@@ -93,7 +90,7 @@ docker run --rm --group-add root \
 
 ## Modify Cloud Resources
 
-After provisioning the infrastructure if further changes were to be made then update the variable and desired value in `terraform.tfvars` and run the Docker image `viya4-iac-azure` with Terraform `apply` command with `-auto-approve` option again
+After provisioning the infrastructure if further changes were to be made then update corresponding variables with desired values in `terraform.tfvars` and run the Docker image `viya4-iac-azure` with the `apply` command and `-auto-approve` option again
 
 ```bash
 docker run --rm --group-add root \
@@ -107,9 +104,9 @@ docker run --rm --group-add root \
         -state=/workspace/terraform.tfstate 
 ```
 
-## Tear Down Resources 
+## Tear Down Cloud Resources 
 
-To destroy the cloud resources created with the previous commands, run
+To destroy the cloud resources created with the previous commands, run the Docker image `viya4-iac-azure` with the `destroy` command and `-auto-approve` option
 
 ```bash
 docker run --rm --group-add root \
@@ -126,17 +123,18 @@ docker run --rm --group-add root \
 
 ## Interacting with Kubernetes cluster
 
-[Creating the cloud resources](#create-cloud-resources) writes the `kube_config` output value to a file `./[prefix]-eks-kubeconfig.conf`. When the Kubernetes cluster is ready, use `--entrypoint kubectl` to interact with the cluster.
+[Creating the cloud resources](#create-cloud-resources) writes the `kube_config` output value to a file `./[prefix]-aks-kubeconfig.conf`. When the Kubernetes cluster is ready, use `--entrypoint kubectl` to interact with the cluster.
 
 **Note** this requires [`cluster_endpoint_public_access_cidrs`](../CONFIG-VARS.md#admin-access) value to be set to your local ip or CIDR range.
 
 ### Using `kubectl` Example
 
+To run `kubectl` with the Docker image `viya4-iac-azure`, change entrypoint to kubectl (`--entrypoint kubectl`), provide 'KUBECONFIG' value (`--env=KUBECONFIG=/workspace/<your prefix>-aks-kubeconfig.conf`) and pass in kubectl subcommands. For e.g., to run `kubectl get nodes` to list cluster nodes
+
 ```bash
 docker run --rm \
-  --env=KUBECONFIG=/workspace/<your prefix>-eks-kubeconfig.conf \
+  --env=KUBECONFIG=/workspace/<your prefix>-aks-kubeconfig.conf \
   --volume=$(pwd):/workspace \
   --entrypoint kubectl \
   viya4-iac-gcp get nodes 
-
 ```
