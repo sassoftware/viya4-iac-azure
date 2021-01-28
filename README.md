@@ -1,4 +1,4 @@
-# SAS Viya 4 IaC for Azure
+# SAS Viya 4 Infrastructure as Code (IaC) for Microsoft Azure
 
 ## Overview
 
