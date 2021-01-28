@@ -103,8 +103,7 @@ Additional node pools can be created separate from the default nodepool. This is
 | max_nodes | Maximum number of nodes for the nodepool | number | Value must be between 0 and 100. Setting min and max node counts the same disables autoscaling |
 | max_pods | Maximum number of pods per node | number | Default is 110
 | node_taints | Taints for the nodepool VMs | list of strings | |
-| node_labels | Labels to add to the nodepool VMs | map | |
-
+| node_labels | Labels to add to the nodepool VMs | map | On nodes you wish to run SAS pods you will need to include this lable: "workload.sas.com/node" = "" |
 
 The default values for the `node_pools` variable are:
 
@@ -176,7 +175,6 @@ In addition, you can control the placement for the additional nodepools using
 | :--- | ---: | ---: | ---: | ---: |
 | node_pools_availability_zone | Availability Zone for the additional nodepools and the NFS VM, for `storage_type="standard"'| string | "1" | The possible values depend on the region set in the "location" variable. |
 | node_pools_proximity_placement | Co-locates all node pool VMs for improved application performance. | bool | false | Selecting proximity placement imposes an additional constraint on VM creation and can lead to more frequent denials of VM allocation requests. We recommend to set `node_pools_availability_zone=""` and allocate all required resources at one time by setting `min_nodes` and `max_nodes` to the same value for all node pools.  Additional Information: [Proximity Group Placement](./user/ProximityPlacementGroup.md) |
-
 
 ## Storage
 
