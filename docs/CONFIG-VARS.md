@@ -41,8 +41,8 @@ Find details on how to retrieve that information under [Azure Help Topics](./use
 
 | Name | Description | Type | Default |
 | :--- | ---: | ---: | ---: |
-| tenant_id | your Azure tenant id | string  |
-| subscription_id | your Azure subscription id | string  |
+| tenant_id | your Azure tenant id | string  | |
+| subscription_id | your Azure subscription id | string  | |
 | client_id | your app_id when using a Service Principal | string | "" |
 | client_secret | your client secret when using a Service Principal| string | "" |
 | use_msi | use the Managed Identity of your Azure VM | bool | false |
