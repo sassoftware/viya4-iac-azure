@@ -41,8 +41,8 @@ Find details on how to retrieve that information under [Azure Help Topics](./use
 
 | Name | Description | Type | Default |
 | :--- | ---: | ---: | ---: |
-| tenant_id | your Azure tenant id | string  |
-| subscription_id | your Azure subscription id | string  |
+| tenant_id | your Azure tenant id | string  | |
+| subscription_id | your Azure subscription id | string  | |
 | client_id | your app_id when using a Service Principal | string | "" |
 | client_secret | your client secret when using a Service Principal| string | "" |
 | use_msi | use the Managed Identity of your Azure VM | bool | false |
@@ -182,19 +182,24 @@ In addition, you can control the placement for the additional nodepools using
 | :--- | ---: | ---: | ---: | ---: |
 | storage_type | Type of Storage. Valid Values: "dev", "standard", "ha"  | string | "dev" | "dev" creates AzureFile, "standard" creates NFS server VM, "ha" creates Azure Netapp Files|
 
-### storage_type=standard - nfs server VM
+### NFS Server VM (only when `storage_type=standard`)
 
-| Name | Description | Type | Default | Notes |
-| :--- | ---: | ---: | ---: | ---: |
-| create_nfs_public_ip | Add public ip to the NFS server VM | bool | false | The NFS server VM is only created when storage_type="standard" |
-| nfs_vm_admin | OS Admin User for the NFS server VM | string | "nfsuser" | The NFS server VM is only created when storage_type="standard" |
-| nfs_raid_disk_size | Size in Gb for each disk of the RAID5 cluster on the NFS server VM | number | 128 | The NFS server VM is only created when storage_type="standard" |
+When `storage_type=standard`, a NFS Server VM is created, only when these variables are applicable.
 
 Note: When `node_pools_proximity_placement=true` is set, the NFS VM will be co-located in the proximity group with the additional node pool VMs.
 
 Note: The 128 default is in GB, so with a RAID5, the default is 4 disks, [so the defaults would yield (N-1) x S(min)](https://superuser.com/questions/272990/how-to-calculate-the-final-raid-size-of-a-raid-5-array), or (4-1) x 128GB = ~384GB.
 
-### storage_type=ha - Azure NetApp
+| Name | Description | Type | Default | Notes |
+| :--- | ---: | ---: | ---: | ---: |
+| create_nfs_public_ip | Add public ip to the NFS server VM | bool | false | |
+| nfs_vm_admin | OS Admin User for the NFS server VM | string | "nfsuser" | |
+| nfs_raid_disk_size | Size in Gb for each disk of the RAID5 cluster on the NFS server VM | number | 128 | |
+
+
+### Azure NetApp Files (only when `storage_type=ha`)
+
+When `storage_type=ha` (high availability), [Microsoft Azure NetApp Files](https://azure.microsoft.com/en-us/services/netapp/) service is created, only when these variables are applicable. Before using this storage option, see how to [Register for Azure NetApp Files](https://docs.microsoft.com/en-us/azure/azure-netapp-files/azure-netapp-files-register) to ensure your Azure Subscription has been granted access to the service.
 
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
