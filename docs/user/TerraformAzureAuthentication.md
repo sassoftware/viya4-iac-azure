@@ -6,7 +6,7 @@ Your Service Principal or Managed Identity in the Azure subscription requires a 
 
 - [How to create a Service Principal](./AzureHelpTopics.md#service-principal-using-azurecli)
 
-- [How to create a Managed Identity](./AzureHelpTopics.md#create-a-managed-identity-with-contributor-role-assignment) and [how to assign the Managed Identity to a VM](./AzureHelpTopics.md#assign-the-managed-identity-to-a-vm)
+- [How to create a Managed Identity](./AzureHelpTopics.md#how-to-create-a-user-assigned-managed-identity-with-contributor-role) and [how to assign the Managed Identity to a VM](./AzureHelpTopics.md#how-to-assign-a-user-assigned-managed-identity-to-a-vm)
 
 We recommend using [TF_VAR_name](https://www.terraform.io/docs/cli/config/environment-variables.html#tf_var_name) environment variables to pass the authentication information to Terraform. 
 
@@ -18,8 +18,8 @@ To authenticate Terraform to access Azure, you will need to set the following fo
 | :--- | ---: | ---: | ---: |
 | tenant_id | your Azure tenant id | string  |
 | subscription_id | your Azure subscription id | string  |
-| client_id | your app_id when using a Service Principal | string | "" |
-| client_secret | your client secret when using a Service Principal| string | "" |
+| client_id | your app_id when using a Service Principal | string | |
+| client_secret | your client secret when using a Service Principal| string | |
 
 TF_VAR_name environment variables for these would be
 
@@ -34,10 +34,10 @@ TF_VAR_client_secret=00000000-0000-0000-0000-000000000000
 
 To authenticate Terraform to access Azure when running on an Azure VM, you will need to set the following three input variables:
 
-| Name | Description | Type | Notes |
+| Name | Description | Type | Default |
 | :--- | ---: | ---: | ---: |
-| tenant_id | your Azure tenant id | string  |
-| subscription_id | your Azure subscription id | string  |
+| tenant_id | your Azure tenant id | string  | |
+| subscription_id | your Azure subscription id | string  | |
 | use_msi | use the Managed Identity of your Azure VM | bool | true |
 
 TF_VAR_name environment variables for these would be
