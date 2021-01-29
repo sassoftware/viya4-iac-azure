@@ -36,7 +36,7 @@ Prepare your `terraform.tfvars` file, as described in [Customize Input Values](.
 
 ## Running Terraform Commands
 
-## Preview Cloud Resources (optional)
+### Preview Cloud Resources (optional)
 
 To preview the cloud resources before creating, run the Docker image `viya4-iac-azure` with the `plan` command
 
@@ -51,7 +51,7 @@ docker run --rm --group-add root \
        -state=/workspace/terraform.tfstate  
 ```
 
-## Create Cloud Resources
+### Create Cloud Resources
 
 To create the cloud resources, run the Docker image `viya4-iac-azure` with the `apply` command and `-auto-approve` option
 
@@ -68,7 +68,7 @@ docker run --rm --group-add root \
 ```
 This command can take a few minutes to complete. Once complete, Terraform output values are written to the console. The 'KUBECONFIG' file for the cluster is written to `[prefix]-aks-kubeconfig.conf` in the current directory `$(pwd)`.
 
-## Display Outputs
+### Display Outputs
 
 Once the cloud resources have been created with `apply` command, to display Terraform output values, run the Docker image `viya4-iac-azure` with `output` command
 
@@ -80,7 +80,7 @@ docker run --rm --group-add root \
   output -state=/workspace/terraform.tfstate  
 ```
 
-## Modify Cloud Resources
+### Modify Cloud Resources
 
 After provisioning the infrastructure if further changes were to be made then update corresponding variables with desired values in `terraform.tfvars` and run the Docker image `viya4-iac-azure` with the `apply` command and `-auto-approve` option again
 
@@ -96,7 +96,7 @@ docker run --rm --group-add root \
         -state=/workspace/terraform.tfstate 
 ```
 
-## Tear Down Cloud Resources 
+### Tear Down Cloud Resources 
 
 To destroy all the cloud resources created with the previous commands, run the Docker image `viya4-iac-azure` with the `destroy` command and `-auto-approve` option
 
