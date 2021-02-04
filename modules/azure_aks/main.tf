@@ -45,7 +45,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
     availability_zones    = var.aks_availability_zones
     enable_auto_scaling   = var.aks_cluster_node_auto_scaling
     enable_node_public_ip = false
-    node_labels           = {"kubernetes.azure.com/mode" = "system"}
+    node_labels           = {}
     node_taints           = []
     max_pods              = var.aks_cluster_max_pods
     os_disk_size_gb       = var.aks_cluster_os_disk_size
