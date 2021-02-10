@@ -160,8 +160,9 @@ data "azurerm_subnet" "misc-subnet" {
 data "template_file" "jump-cloudconfig" {
   template = file("${path.module}/cloud-init/jump/cloud-config")
   vars = {
-    rwx_filestore_endpoint = var.storage_type == "dev" ? "" : coalesce(module.netapp.netapp_endpoint, module.nfs.private_ip_address)
-    rwx_filestore_path     = var.storage_type == "dev" ? "" : coalesce(module.netapp.netapp_path, "/export")
+    nfs_rwx_filestore_endpoint = var.storage_type == "dev" ? "" : coalesce(module.netapp.netapp_endpoint, module.nfs.private_ip_address)
+    nfs_rwx_filestore_path     = var.storage_type == "dev" ? "" : coalesce(module.netapp.netapp_path, "/export")
+    jump_rwx_filestore_path    = var.storage_type == "dev" ? "" : var.jump_rwx_filestore_path
   }
 
   depends_on = [module.netapp, module.nfs]
@@ -393,7 +394,7 @@ resource "local_file" "kubeconfig" {
 }
 
 data "external" "git_hash" {
-  program = ["git", "log", "-1", "--format=format:{ \"git-hash\": \"%H\" }"]
+  program = ["files/iac_git_info.sh"]
 }
 
 data "external" "iac_tooling_version" {
@@ -411,10 +412,10 @@ resource "kubernetes_config_map" "sas_iac_buildinfo" {
     timestamp   = chomp(timestamp())
     iac-tooling = var.iac_tooling
     terraform   = <<EOT
-      version: ${lookup(data.external.iac_tooling_version.result, "terraform_version")}
-      revision: ${lookup(data.external.iac_tooling_version.result, "terraform_revision")}
-      provider-selections: ${lookup(data.external.iac_tooling_version.result, "provider_selections")}
-      outdated: ${lookup(data.external.iac_tooling_version.result, "terraform_outdated")}
+version: ${lookup(data.external.iac_tooling_version.result, "terraform_version")}
+revision: ${lookup(data.external.iac_tooling_version.result, "terraform_revision")}
+provider-selections: ${lookup(data.external.iac_tooling_version.result, "provider_selections")}
+outdated: ${lookup(data.external.iac_tooling_version.result, "terraform_outdated")}
 EOT
   }
 }

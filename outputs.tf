@@ -52,6 +52,9 @@ output jump_admin_username {
   value = local.create_jump_vm ? module.jump.admin_username : null
 }
 
+output jump_rwx_filestore_path {
+  value = local.create_jump_vm ? var.jump_rwx_filestore_path : null
+}
 
 # nfs server
 output nfs_private_ip {

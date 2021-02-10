@@ -256,6 +256,11 @@ variable "jump_vm_admin" {
   default     = "jumpuser"
 }
 
+variable "jump_rwx_filestore_path" {
+  description = "OS path used in cloud-init for NFS integration"
+  default     = "/viya-share"
+}
+
 variable "storage_type" {
   type    = string
   default = "standard"
