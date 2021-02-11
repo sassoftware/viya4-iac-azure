@@ -57,4 +57,4 @@ runcmd:
   #
   # Restart nfs-server service
   #
-  - systemctl restart nfs-server
+  - systemctl restart nfs-kerneel-server
