@@ -77,7 +77,7 @@ variable "postgres_public_access_cidrs" {
 
 # AKS config
 variable "default_nodepool_vm_type" {
-  default = "Standard_D4_v2"
+  default = "Standard_D8s_v4"
 }
 variable "kubernetes_version" {
   description = "The AKS cluster K8s version"

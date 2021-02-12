@@ -85,7 +85,7 @@ You can use `default_public_access_cidrs` to set a default range for all created
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
 | node_vm_admin | OS Admin User for VMs of AKS Cluster nodes | string | "azureuser" | |
-| default_nodepool_vm_type | Type of the default nodepool VMs | string | "Standard_D4_v2" | |
+| default_nodepool_vm_type | Type of the default nodepool VMs | string | "Standard_D8s_v4" | |
 | default_nodepool_os_disk_size | Disk size for default nodepool VMs in GB | number | 128 ||
 | default_nodepool_max_pods | Maximum number of pods that can run on each | number | 110 | Changing this forces a new resource to be created |
 | default_nodepool_min_nodes | Minimum and initial number of nodes for the default nodepool | number | 1 |  Value must be between 0 and 100. Setting min and max node counts the same disables autoscaling  |
