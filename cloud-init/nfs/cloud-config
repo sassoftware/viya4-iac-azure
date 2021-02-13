@@ -32,7 +32,6 @@ runcmd:
   #
   # Update systemctl services
   #
-  - exportfs -a
   - systemctl enable nfs-kernel-server
   - systemctl start nfs-kerneel-server
   #
@@ -57,4 +56,5 @@ runcmd:
   #
   # Restart nfs-server service
   #
+  - exportfs -a
   - systemctl restart nfs-kerneel-server
