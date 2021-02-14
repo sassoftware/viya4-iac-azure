@@ -1,5 +1,8 @@
 #cloud-config
-
+system_info:
+  default_user:
+    name: ${vm_admin}
+    
 #
 # Wait for azure disks to be mounted then continue
 #

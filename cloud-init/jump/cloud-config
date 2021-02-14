@@ -1,5 +1,8 @@
 #cloud-config
-
+system_info:
+  default_user:
+    name: ${vm_admin}
+    
 #
 # First we'll update the repo and then update the OS.
 #

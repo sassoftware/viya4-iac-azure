@@ -73,7 +73,7 @@ You can use `default_public_access_cidrs` to set a default range for all created
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
 | kubernetes_version | The AKS cluster K8S version | string | "1.18.14" | |
-| create_jump_vm | Create bastion host | bool | false for storage_type == "dev", otherwise true| |
+| create_jump_vm | Create bastion host | bool | true | |
 | create_jump_public_ip | Add public ip to jump VM | bool | true | |
 | jump_vm_admin | OS Admin User for the Jump VM | string | "jumpuser" | |
 | tags | Map of common tags to be placed on all Azure resources created by this script | map | { project_name = "sasviya4", environment = "dev" } | |
@@ -180,7 +180,7 @@ In addition, you can control the placement for the additional nodepools using
 
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
-| storage_type | Type of Storage. Valid Values: "dev", "standard", "ha"  | string | "dev" | "dev" creates AzureFile, "standard" creates NFS server VM, "ha" creates Azure Netapp Files|
+| storage_type | Type of Storage. Valid Values: "standard", "ha"  | string | "standard" | "standard" creates NFS server VM, "ha" creates Azure Netapp Files|
 
 ### NFS Server VM (only when `storage_type=standard`)
 

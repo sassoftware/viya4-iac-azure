@@ -41,19 +41,19 @@ output "postgres_server_port" {
 
 # jump server
 output jump_private_ip {
-  value = local.create_jump_vm ? module.jump.private_ip_address : null
+  value = var.create_jump_vm ? module.jump.private_ip_address : null
 }
 
 output jump_public_ip {
-  value = local.create_jump_vm && var.create_jump_public_ip ? module.jump.public_ip_address : null
+  value = var.create_jump_vm && var.create_jump_public_ip ? module.jump.public_ip_address : null
 }
 
 output jump_admin_username {
-  value = local.create_jump_vm ? module.jump.admin_username : null
+  value = var.create_jump_vm ? module.jump.admin_username : null
 }
 
 output jump_rwx_filestore_path {
-  value = local.create_jump_vm ? var.jump_rwx_filestore_path : null
+  value = var.create_jump_vm ? var.jump_rwx_filestore_path : null
 }
 
 # nfs server
@@ -111,11 +111,11 @@ output "provider" {
 }
 
 output "rwx_filestore_endpoint" {
-  value = var.storage_type != "dev" ? coalesce(module.netapp.netapp_endpoint, module.nfs.private_ip_address, "") : null
+  value = var.storage_type == "ha" ? module.netapp.netapp_endpoint : module.nfs.private_ip_address
 }
 
 output "rwx_filestore_path" {
-  value = var.storage_type != "dev" ? coalesce(module.netapp.netapp_path, "/export") : null
+  value = var.storage_type == "ha" ? module.netapp.netapp_path : "/export"
 }
 
 output "rwx_filestore_config" {

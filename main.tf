@@ -1,14 +1,14 @@
 terraform {
-  required_version = "~> 0.13"
+  required_version = ">= 0.13.0"
 
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "2.43.0"
+      version = "2.47.0"
     }
     azureread = {
       source  = "hashicorp/azuread"
-      version = "1.2.2"
+      version = "1.3.0"
     }
     external = {
       source  = "hashicorp/external"
@@ -36,7 +36,7 @@ terraform {
     }
     kubernetes = {
       source  = "hashicorp/kubernetes"
-      version = "~> 1.11"
+      version = "2.0.2"
     }
   }
 }
@@ -64,8 +64,6 @@ provider "kubernetes" {
   client_key             = base64decode(module.aks.client_key)
   client_certificate     = base64decode(module.aks.client_certificate)
   cluster_ca_certificate = base64decode(module.aks.cluster_ca_certificate)
-
-  load_config_file = false
 }
 
 
@@ -81,9 +79,6 @@ locals {
   # Subnets
   aks_subnet_name  = "${var.prefix}-aks-subnet"
   misc_subnet_name = "${var.prefix}-misc-subnet"
-  # Jump VM
-  create_jump_vm_default = var.storage_type != "dev" ? true : false
-  create_jump_vm         = var.create_jump_vm != null ? var.create_jump_vm : local.create_jump_vm_default
   # CIDRs 
   default_public_access_cidrs          = var.default_public_access_cidrs == null ? [] : var.default_public_access_cidrs
   vm_public_access_cidrs               = var.vm_public_access_cidrs == null ? local.default_public_access_cidrs : var.vm_public_access_cidrs
@@ -160,9 +155,10 @@ data "azurerm_subnet" "misc-subnet" {
 data "template_file" "jump-cloudconfig" {
   template = file("${path.module}/cloud-init/jump/cloud-config")
   vars = {
-    nfs_rwx_filestore_endpoint = var.storage_type == "dev" ? "" : coalesce(module.netapp.netapp_endpoint, module.nfs.private_ip_address)
-    nfs_rwx_filestore_path     = var.storage_type == "dev" ? "" : coalesce(module.netapp.netapp_path, "/export")
-    jump_rwx_filestore_path    = var.storage_type == "dev" ? "" : var.jump_rwx_filestore_path
+    nfs_rwx_filestore_endpoint = var.storage_type == "ha" ? module.netapp.netapp_endpoint : module.nfs.private_ip_address
+    nfs_rwx_filestore_path     = var.storage_type == "ha" ? module.netapp.netapp_path : "/export"
+    jump_rwx_filestore_path    = var.jump_rwx_filestore_path
+    vm_admin                   = var.jump_vm_admin
   }
 
   depends_on = [module.netapp, module.nfs]
@@ -186,17 +182,19 @@ module "jump" {
   vnet_subnet_id    = data.azurerm_subnet.misc-subnet.id
   azure_nsg_id      = azurerm_network_security_group.nsg.id
   tags              = var.tags
-  create_vm         = local.create_jump_vm
+  create_vm         = var.create_jump_vm
   vm_admin          = var.jump_vm_admin
   ssh_public_key    = file(var.ssh_public_key)
-  cloud_init        = var.storage_type == "dev" ? null : data.template_cloudinit_config.jump.rendered
+  cloud_init        = data.template_cloudinit_config.jump.rendered
   create_public_ip  = var.create_jump_public_ip
+
+  depends_on = [module.nfs]
 }
 
 resource "azurerm_network_security_rule" "ssh" {
   name                        = "${var.prefix}-ssh"
   description                 = "Allow SSH from source"
-  count                       = (var.create_jump_public_ip && local.create_jump_vm && length(local.vm_public_access_cidrs) != 0) ? 1 : 0
+  count                       = (var.create_jump_public_ip && var.create_jump_vm && length(local.vm_public_access_cidrs) != 0) ? 1 : 0
   priority                    = 120
   direction                   = "Inbound"
   access                      = "Allow"
@@ -213,6 +211,7 @@ data "template_file" "nfs-cloudconfig" {
   template = file("${path.module}/cloud-init/nfs/cloud-config")
   vars = {
     base_cidr_block = local.vnet_cidr_block
+    vm_admin        = var.nfs_vm_admin
   }
 }
 

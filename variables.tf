@@ -244,7 +244,7 @@ variable "postgres_configurations" {
 
 variable "create_jump_vm" {
   description = "Create bastion host VM"
-  default     = null
+  default     = true
 }
 
 variable "create_jump_public_ip" {
@@ -266,8 +266,8 @@ variable "storage_type" {
   default = "standard"
 
   validation {
-    condition     = contains(["dev", "standard", "ha"], lower(var.storage_type))
-    error_message = "ERROR: Supported value for `storage_type` are - dev, standard, ha."
+    condition     = contains(["standard", "ha"], lower(var.storage_type))
+    error_message = "ERROR: Supported value for `storage_type` are - standard, ha."
   }
 }
 
