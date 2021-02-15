@@ -191,8 +191,8 @@ module "jump" {
   depends_on = [module.nfs]
 }
 
-resource "azurerm_network_security_rule" "ssh" {
-  name                        = "${var.prefix}-ssh"
+resource "azurerm_network_security_rule" "jump-ssh" {
+  name                        = "${var.prefix}-jump-ssh"
   description                 = "Allow SSH from source"
   count                       = (var.create_jump_public_ip && var.create_jump_vm && length(local.vm_public_access_cidrs) != 0) ? 1 : 0
   priority                    = 120
@@ -242,6 +242,22 @@ module "nfs" {
   ssh_public_key               = file(var.ssh_public_key)
   cloud_init                   = data.template_cloudinit_config.nfs.rendered
   create_public_ip             = var.create_nfs_public_ip
+}
+
+resource "azurerm_network_security_rule" "nfs-ssh" {
+  name                        = "${var.prefix}-nfs-ssh"
+  description                 = "Allow SSH from source"
+  count                       = (var.create_nfs_public_ip && var.storage_type == "standard" && length(local.vm_public_access_cidrs) != 0) ? 1 : 0
+  priority                    = 120
+  direction                   = "Inbound"
+  access                      = "Allow"
+  protocol                    = "Tcp"
+  source_port_range           = "*"
+  destination_port_range      = "22"
+  source_address_prefixes     = local.vm_public_access_cidrs
+  destination_address_prefix  = "*"
+  resource_group_name         = azurerm_resource_group.azure_rg.name
+  network_security_group_name = azurerm_network_security_group.nsg.name
 }
 
 resource "azurerm_container_registry" "acr" {
