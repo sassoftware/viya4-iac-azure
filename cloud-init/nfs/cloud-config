@@ -19,7 +19,6 @@ package_ugrade: true
 # Install packages
 #
 packages:
-  - tree
   - nfs-kernel-server
 
 #
