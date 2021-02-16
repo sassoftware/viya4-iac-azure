@@ -191,22 +191,6 @@ module "jump" {
   depends_on = [module.nfs]
 }
 
-resource "azurerm_network_security_rule" "jump-ssh" {
-  name                        = "${var.prefix}-jump-ssh"
-  description                 = "Allow SSH from source"
-  count                       = (var.create_jump_public_ip && var.create_jump_vm && length(local.vm_public_access_cidrs) != 0) ? 1 : 0
-  priority                    = 120
-  direction                   = "Inbound"
-  access                      = "Allow"
-  protocol                    = "Tcp"
-  source_port_range           = "*"
-  destination_port_range      = "22"
-  source_address_prefixes     = local.vm_public_access_cidrs
-  destination_address_prefix  = "*"
-  resource_group_name         = azurerm_resource_group.azure_rg.name
-  network_security_group_name = azurerm_network_security_group.nsg.name
-}
-
 data "template_file" "nfs-cloudconfig" {
   template = file("${path.module}/cloud-init/nfs/cloud-config")
   vars = {
@@ -244,10 +228,10 @@ module "nfs" {
   create_public_ip             = var.create_nfs_public_ip
 }
 
-resource "azurerm_network_security_rule" "nfs-ssh" {
-  name                        = "${var.prefix}-nfs-ssh"
+resource "azurerm_network_security_rule" "vm-ssh" {
+  name                        = "${var.prefix}-ssh"
   description                 = "Allow SSH from source"
-  count                       = (var.create_nfs_public_ip && var.storage_type == "standard" && length(local.vm_public_access_cidrs) != 0) ? 1 : 0
+  count                       = ( ((var.create_jump_public_ip && var.create_jump_vm && (length(local.vm_public_access_cidrs) > 0)) || (var.create_nfs_public_ip && var.storage_type == "standard" && (length(local.vm_public_access_cidrs) > 0))) != 0 ) ? 1 : 0
   priority                    = 120
   direction                   = "Inbound"
   access                      = "Allow"

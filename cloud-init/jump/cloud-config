@@ -2,7 +2,7 @@
 system_info:
   default_user:
     name: ${vm_admin}
-    
+
 #
 # First we'll update the repo and then update the OS.
 #
@@ -16,19 +16,19 @@ packages:
   - nfs-common
 
 #
+# Update /etc/fstab
+#
+mounts:
+  - [ "${nfs_rwx_filestore_endpoint}:${nfs_rwx_filestore_path}", "${jump_rwx_filestore_path}", nfs, "_netdev,auto,x-systemd.automount,x-systemd.mount-timeout=10,timeo=14,x-systemd.idle-timeout=1min,relatime,hard,rsize=1048576,wsize=1048576,vers=3,tcp,namlen=255,retrans=2,sec=sys,local_lock=none", "0", "0" ]
+
+#
 # Add nfs mounts
 #
 runcmd:
-  - mkdir -p ${jump_rwx_filestore_path}
-  #
-  # fstab entry
-  #
-  - echo "${nfs_rwx_filestore_endpoint}:${nfs_rwx_filestore_path}    ${jump_rwx_filestore_path}    nfs    rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport 0 0" >>/etc/fstab
   #
   # mount the nfs
   #
-  - systemctl enable NetworkManager-wait-online.service
-  - mount -a
+  - while [ `df -h | grep "${nfs_rwx_filestore_endpoint}:${nfs_rwx_filestore_path}" | wc -l` -eq 0 ]; do sleep 5 && mount -a ; done
   #
   # Change permissions and owener
   #
