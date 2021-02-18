@@ -1,5 +1,8 @@
 #cloud-config
-
+system_info:
+  default_user:
+    name: ${vm_admin}
+    
 #
 # Wait for azure disks to be mounted then continue
 #
@@ -10,13 +13,13 @@ bootcmd:
 # First we'll update the repo and then update the OS.
 #
 package_update: true
-package_ugrade: true
+package_upgrade: true
 
 #
 # Install packages
 #
 packages:
-  - nfs-utils
+  - nfs-kernel-server
 
 #
 # Create mount directories
@@ -26,19 +29,15 @@ runcmd:
   # Create /export directory with the correct owner/permissions
   #
   - mkdir /export
-  - chown nobody:nobody /export -R
+  - chown nobody:nogroup /export -R
   - chmod -R 0777 /export
   #
   # Update systemctl services
   #
-  - systemctl enable rpcbind
-  - systemctl enable nfs-server
-  - systemctl enable nfs-lock
-  - systemctl enable nfs-idmap
-  - systemctl start rpcbind
-  - systemctl start nfs-server
-  - systemctl start nfs-lock
-  - systemctl start nfs-idmap
+  - systemctl enable nfs-kernel-server
+  - systemctl start nfs-kerneel-server
+  - systemctl enable rpc-statd
+  - systemctl start rpc-statd
   #
   # Create Raid5 Array
   #
@@ -61,4 +60,5 @@ runcmd:
   #
   # Restart nfs-server service
   #
-  - systemctl restart nfs-server
+  - exportfs -a
+  - systemctl restart nfs-kernel-server

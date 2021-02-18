@@ -34,15 +34,15 @@ variable "ssh_public_key" {
 }
 
 variable "os_publisher" {
-  default = "OpenLogic"
+  default = "Canonical"
 }
 
 variable "os_offer" {
-  default = "CentOS"
+  default = "UbuntuServer"
 }
 
 variable "os_sku" {
-  default = "7_8"
+  default = "18.04-LTS"
 }
 
 variable "os_version" {
