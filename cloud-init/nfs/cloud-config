@@ -61,4 +61,4 @@ runcmd:
   # Restart nfs-server service
   #
   - exportfs -a
-  - systemctl restart nfs-kerneel-server
+  - systemctl restart nfs-kernel-server
