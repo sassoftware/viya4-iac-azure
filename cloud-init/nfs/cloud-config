@@ -13,7 +13,7 @@ bootcmd:
 # First we'll update the repo and then update the OS.
 #
 package_update: true
-package_ugrade: true
+package_upgrade: true
 
 #
 # Install packages

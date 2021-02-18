@@ -76,7 +76,7 @@ You can use `default_public_access_cidrs` to set a default range for all created
 | create_jump_vm | Create bastion host | bool | true | |
 | create_jump_public_ip | Add public ip to jump VM | bool | true | |
 | jump_vm_admin | OS Admin User for the Jump VM | string | "jumpuser" | |
-| jump_rwx_filestore_path | File store mount point on NFS server | string | "/viya-share" | This location cannot include "/mnt" as it's root location. This disk is ephemoral on Ubuntu which is the operating system being used for the Jump/NFS servers. |
+| jump_rwx_filestore_path | File store mount point on Jump server | string | "/viya-share" | This location cannot include "/mnt" as it's root location. This disk is ephemoral on Ubuntu which is the operating system being used for the Jump/NFS servers. |
 | tags | Map of common tags to be placed on all Azure resources created by this script | map | { project_name = "sasviya4", environment = "dev" } | |
 
 ## Nodepools

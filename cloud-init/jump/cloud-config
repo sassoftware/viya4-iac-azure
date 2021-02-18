@@ -7,7 +7,7 @@ system_info:
 # First we'll update the repo and then update the OS.
 #
 package_update: true
-package_ugrade: true
+package_upgrade: true
 
 #
 # Install packages
@@ -33,5 +33,5 @@ runcmd:
   # Change permissions and owener
   #
   - mkdir -p ${jump_rwx_filestore_path}/pvs
-  - chmod 777 ${jump_rwx_filestore_path} -R
-  - chown -R nobody:nogroup ${jump_rwx_filestore_path}
+  - $(chmod -fR 777 ${jump_rwx_filestore_path} ; echo)
+  - $(chown -R nobody:nogroup ${jump_rwx_filestore_path} ; echo)
