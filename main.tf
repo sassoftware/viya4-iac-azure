@@ -417,5 +417,7 @@ provider-selections: ${lookup(data.external.iac_tooling_version.result, "provide
 outdated: ${lookup(data.external.iac_tooling_version.result, "terraform_outdated")}
 EOT
   }
+
+  depends_on = [ module.aks ]
 }
 
