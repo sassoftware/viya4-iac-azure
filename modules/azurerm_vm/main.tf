@@ -96,9 +96,3 @@ resource "azurerm_linux_virtual_machine" "vm" {
 
   tags = var.tags
 }
-
-# resource "local_file" "local_file_private_key_pem" {
-#   content  = data.tls_public_key.public_key.private_key_pem
-#   filename = "${path.root}/${var.name}-private_key.pem"
-#   file_permission = "0700"
-# }

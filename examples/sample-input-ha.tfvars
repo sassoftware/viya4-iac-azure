@@ -102,7 +102,6 @@ jump_vm_admin         = "jumpuser"
 
 # Storage for Viya Compute Services
 # Supported storage_type values
-#    "dev"    - AzureDisk/AzureFiles in Dev/Test environment
 #    "standard" - Custom managed NFS Server VM and disks
 #    "ha"     - Azure NetApp Files managed service
 storage_type = "ha"

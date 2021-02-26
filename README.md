@@ -29,14 +29,17 @@ Operational knowledge of:
 - Access to an **Azure Subscription** and [**Identity**](./docs/user/TerraformAzureAuthentication.md) with '*Contributor*' role
 - Terraform or Docker
   - #### Terraform
-    - [Terraform](https://www.terraform.io/downloads.html) - v0.13.4
+    - [Terraform](https://www.terraform.io/downloads.html) - v0.13.6
     - [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl) - v1.18.8
     - [jq](https://stedolan.github.io/jq/) - v1.6
+    - [Azure CLI](https://docs.microsoft.com/en-us/cli/azure) - v2.19.1 (optional -useful as an alternative to the AWS Web Console)
   - #### Docker
     - [Docker](https://docs.docker.com/get-docker/)
 
 
 ## Getting Started
+
+Ubuntu 18.04 LTS is the operating system used on the Jump/NFS servers. Ubuntu creates the `/mnt` location as an ephemoral drive and cannot be used as the root location of the `jump_rwx_filestore_path` variable.
 
 ### Clone this project
 

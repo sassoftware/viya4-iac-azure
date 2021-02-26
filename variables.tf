@@ -244,7 +244,7 @@ variable "postgres_configurations" {
 
 variable "create_jump_vm" {
   description = "Create bastion host VM"
-  default     = null
+  default     = true
 }
 
 variable "create_jump_public_ip" {
@@ -261,13 +261,18 @@ variable "jump_vm_machine_type" {
   description = "SKU which should be used for this Virtual Machine"
 }
 
+variable "jump_rwx_filestore_path" {
+  description = "OS path used in cloud-init for NFS integration"
+  default     = "/viya-share"
+}
+
 variable "storage_type" {
   type    = string
   default = "standard"
 
   validation {
-    condition     = contains(["dev", "standard", "ha"], lower(var.storage_type))
-    error_message = "ERROR: Supported value for `storage_type` are - dev, standard, ha."
+    condition     = contains(["standard", "ha"], lower(var.storage_type))
+    error_message = "ERROR: Supported value for `storage_type` are - standard, ha."
   }
 }
 
