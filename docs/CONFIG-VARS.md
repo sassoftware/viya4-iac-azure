@@ -70,6 +70,8 @@ You can use `default_public_access_cidrs` to set a default range for all created
 
 ## General
 
+Ubuntu 18.04 LTS is the operating system used on the Jump/NFS servers. Ubuntu creates the `/mnt` location as an ephemeral drive and cannot be used as the root location of the `jump_rwx_filestore_path` variable.
+
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
 | kubernetes_version | The AKS cluster K8S version | string | "1.18.14" | |
@@ -77,7 +79,7 @@ You can use `default_public_access_cidrs` to set a default range for all created
 | create_jump_public_ip | Add public ip to jump VM | bool | true | |
 | jump_vm_admin | OS Admin User for the Jump VM | string | "jumpuser" | |
 | jump_vm_machine_type | SKU to use for the Jump VM | string | "Standard_B2s_v3" | To check for valid types for your subscription `az vm list-skus --resource-type virtualMachines --subscription $subscription --location $location -o table`|
-| jump_rwx_filestore_path | File store mount point on Jump server | string | "/viya-share" | This location cannot include "/mnt" as it's root location. This disk is ephemoral on Ubuntu which is the operating system being used for the Jump/NFS servers. |
+| jump_rwx_filestore_path | File store mount point on Jump server | string | "/viya-share" | This location cannot include "/mnt" as it's root location. This disk is ephemeral on Ubuntu which is the operating system being used for the Jump/NFS servers. |
 | tags | Map of common tags to be placed on all Azure resources created by this script | map | { project_name = "sasviya4", environment = "dev" } | |
 
 ## Nodepools
