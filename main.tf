@@ -183,6 +183,7 @@ module "jump" {
   azure_rg_name     = azurerm_resource_group.azure_rg.name
   azure_rg_location = var.location
   vnet_subnet_id    = data.azurerm_subnet.misc-subnet.id
+  machine_type      = var.jump_vm_machine_type
   azure_nsg_id      = azurerm_network_security_group.nsg.id
   tags              = var.tags
   create_vm         = local.create_jump_vm
@@ -190,6 +191,8 @@ module "jump" {
   ssh_public_key    = file(var.ssh_public_key)
   cloud_init        = var.storage_type == "dev" ? null : data.template_cloudinit_config.jump.rendered
   create_public_ip  = var.create_jump_public_ip
+
+  depends_on = [module.vnet]
 }
 
 resource "azurerm_network_security_rule" "jump-ssh" {
@@ -206,6 +209,8 @@ resource "azurerm_network_security_rule" "jump-ssh" {
   destination_address_prefix  = "*"
   resource_group_name         = azurerm_resource_group.azure_rg.name
   network_security_group_name = azurerm_network_security_group.nsg.name
+
+    depends_on = [module.jump]
 }
 
 data "template_file" "nfs-cloudconfig" {
@@ -234,21 +239,25 @@ module "nfs" {
   azure_rg_location            = var.location
   proximity_placement_group_id = element(coalescelist(azurerm_proximity_placement_group.proximity.*.id, [""]), 0)
   vnet_subnet_id               = data.azurerm_subnet.misc-subnet.id
+  machine_type                 = var.nfs_vm_machine_type
   azure_nsg_id                 = azurerm_network_security_group.nsg.id
   tags                         = var.tags
-  data_disk_count              = 4
-  data_disk_size               = var.nfs_raid_disk_size
   vm_admin                     = var.nfs_vm_admin
+  vm_zone                      = var.nfs_vm_zone
   ssh_public_key               = file(var.ssh_public_key)
   cloud_init                   = data.template_cloudinit_config.nfs.rendered
   create_public_ip             = var.create_nfs_public_ip
+  data_disk_count              = 4
+  data_disk_size               = var.nfs_raid_disk_size
+  data_disk_storage_account_type = var.nfs_raid_disk_type
+  data_disk_zones              = var.nfs_raid_disk_zones
 }
 
 resource "azurerm_network_security_rule" "nfs-ssh" {
   name                        = "${var.prefix}-nfs-ssh"
   description                 = "Allow SSH from source"
   count                       = (var.create_nfs_public_ip && var.storage_type == "standard" && length(local.vm_public_access_cidrs) != 0) ? 1 : 0
-  priority                    = 120
+  priority                    = 130
   direction                   = "Inbound"
   access                      = "Allow"
   protocol                    = "Tcp"
@@ -258,6 +267,8 @@ resource "azurerm_network_security_rule" "nfs-ssh" {
   destination_address_prefix  = "*"
   resource_group_name         = azurerm_resource_group.azure_rg.name
   network_security_group_name = azurerm_network_security_group.nsg.name
+
+  depends_on = [module.nfs]
 }
 
 resource "azurerm_container_registry" "acr" {
@@ -433,5 +444,7 @@ resource "kubernetes_config_map" "sas_iac_buildinfo" {
       outdated: ${lookup(data.external.iac_tooling_version.result, "terraform_outdated")}
 EOT
   }
+
+  depends_on = [ module.aks ]
 }
 
