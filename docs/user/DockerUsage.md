@@ -128,5 +128,5 @@ docker run --rm \
   --env=KUBECONFIG=/workspace/<your prefix>-aks-kubeconfig.conf \
   --volume=$(pwd):/workspace \
   --entrypoint kubectl \
-  viya4-iac-gcp get nodes 
+  viya4-iac-azure get nodes 
 ```
