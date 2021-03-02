@@ -17,9 +17,18 @@ Then source your credentials into your shell environment:
 . $HOME/.azure_creds.sh
 ```
 
-### Pepare Variable Definitions (.tfvars) File
+### Customize TF Input Variables (tfvars)
 
-Prepare your `terraform.tfvars` file, as described in [Customize Input Values](../../README.md#customize-input-values).
+Create a file named `terraform.tfvars` to customize any input variable value. For starters, you can copy one of the provided example variable definition files in `./examples` folder. 
+
+```bash
+# Example copy command
+cp examples/sample-input.tfvars terraform.tfvars
+```
+
+For more details on the variables declared in [variables.tf](variables.tf) refer to [CONFIG-VARS.md](docs/CONFIG-VARS.md).
+
+When using a variable definition file other than `terraform.tfvars`, see [Advanced Terraform Usage](docs/user/AdvancedTerraformUsage.md) for additional command options.
 
 ## Running Terraform Commands
 
