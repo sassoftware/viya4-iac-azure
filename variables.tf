@@ -256,6 +256,11 @@ variable "jump_vm_admin" {
   default     = "jumpuser"
 }
 
+variable "jump_vm_machine_type" {
+  default = "Standard_B2s_v3"
+  description = "SKU which should be used for this Virtual Machine"
+}
+
 variable "jump_rwx_filestore_path" {
   description = "OS path used in cloud-init for NFS integration"
   default     = "/viya-share"
@@ -275,14 +280,39 @@ variable "create_nfs_public_ip" {
   default = false
 }
 
+variable "nfs_vm_machine_type" {
+  default = "Standard_D8s_v4" # "Standard_E8s_v3" "Standard_D8s_v4"
+  description = "SKU which should be used for this Virtual Machine"
+}
+
 variable "nfs_vm_admin" {
   description = "OS Admin User for NFS VM, when storage_type=standard"
   default     = "nfsuser"
 }
 
+variable "nfs_vm_zone" {
+  description = "The Zone in which this Virtual Machine should be created. Changing this forces a new resource to be created"
+  default     = null
+}
+
 variable "nfs_raid_disk_size" {
   description = "Size in Gb for each disk of the RAID5 cluster, when storage_type=standard"
   default     = 128
+}
+
+variable nfs_raid_disk_type {
+  default = "Standard_LRS"
+  description = "The type of storage to use for the managed disk. Possible values are Standard_LRS, Premium_LRS, StandardSSD_LRS or UltraSSD_LRS."
+
+  validation {
+    condition     = contains(["Standard_LRS", "Premium_LRS", "StandardSSD_LRS", "UltraSSD_LRS"], var.nfs_raid_disk_type)
+    error_message = "ERROR: nfs_raid_disk_type - Valid values include - Standard_LRS, Premium_LRS, StandardSSD_LRS or UltraSSD_LRS."
+  }
+}
+
+variable nfs_raid_disk_zones {
+  description = "A collection containing the availability zones to allocate the Managed Disk in."
+  default     = []
 }
 
 # Azure Container Registry (ACR)

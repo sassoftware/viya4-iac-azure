@@ -58,8 +58,6 @@ Note, this project has been tested and verified with these versions.
 
 ## Getting Started
 
-Ubuntu 18.04 LTS is the operating system used on the Jump/NFS servers. Ubuntu creates the `/mnt` location as an ephemoral drive and cannot be used as the root location of the `jump_rwx_filestore_path` variable.
-
 ### Clone this project
 
 Run these commands in a Terminal session:
