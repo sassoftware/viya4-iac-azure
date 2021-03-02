@@ -43,3 +43,8 @@ variable "allowed_clients" {
   type        = list(string)
   default     = ["0.0.0.0/0"]
 }
+
+variable "tags" {
+  description = "Map of tags to be placed on the Resources"
+  type        = map
+}

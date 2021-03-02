@@ -42,7 +42,7 @@ variable "location" {
 
 variable "ssh_public_key" {
   type    = string
-  default = ""
+  default = "~/.ssh/id_rsa.pub"
 }
 
 variable "default_public_access_cidrs" {
@@ -77,11 +77,11 @@ variable "postgres_public_access_cidrs" {
 
 # AKS config
 variable "default_nodepool_vm_type" {
-  default = "Standard_D4_v2"
+  default = "Standard_D8s_v4"
 }
 variable "kubernetes_version" {
   description = "The AKS cluster K8s version"
-  default     = "1.18.8"
+  default     = "1.18.14"
 }
 
 variable "default_nodepool_max_nodes" {
@@ -244,7 +244,7 @@ variable "postgres_configurations" {
 
 variable "create_jump_vm" {
   description = "Create bastion host VM"
-  default     = null
+  default     = true
 }
 
 variable "create_jump_public_ip" {
@@ -256,13 +256,18 @@ variable "jump_vm_admin" {
   default     = "jumpuser"
 }
 
+variable "jump_rwx_filestore_path" {
+  description = "OS path used in cloud-init for NFS integration"
+  default     = "/viya-share"
+}
+
 variable "storage_type" {
   type    = string
   default = "standard"
 
   validation {
-    condition     = contains(["dev", "standard", "ha"], lower(var.storage_type))
-    error_message = "ERROR: Supported value for `storage_type` are - dev, standard, ha."
+    condition     = contains(["standard", "ha"], lower(var.storage_type))
+    error_message = "ERROR: Supported value for `storage_type` are - standard, ha."
   }
 }
 
@@ -339,69 +344,69 @@ variable node_pools_proximity_placement {
 variable node_pools {
   description = "Node pool definitions"
   type = map(object({
-    machine_type          = string
-    os_disk_size          = number
-    min_nodes             = string
-    max_nodes             = string
-    max_pods              = string
-    node_taints           = list(string)
-    node_labels           = map(string)
+    machine_type = string
+    os_disk_size = number
+    min_nodes    = string
+    max_nodes    = string
+    max_pods     = string
+    node_taints  = list(string)
+    node_labels  = map(string)
   }))
 
   default = {
     cas = {
-      "machine_type"          = "Standard_E16s_v3"
-      "os_disk_size"          = 200
-      "min_nodes"             = 0
-      "max_nodes"             = 5
-      "max_pods"              = 110
-      "node_taints"           = ["workload.sas.com/class=cas:NoSchedule"]
+      "machine_type" = "Standard_E16s_v3"
+      "os_disk_size" = 200
+      "min_nodes"    = 0
+      "max_nodes"    = 5
+      "max_pods"     = 110
+      "node_taints"  = ["workload.sas.com/class=cas:NoSchedule"]
       "node_labels" = {
         "workload.sas.com/class" = "cas"
       }
     },
     compute = {
-      "machine_type"          = "Standard_E16s_v3"
-      "os_disk_size"          = 200
-      "min_nodes"             = 0
-      "max_nodes"             = 5
-      "max_pods"              = 110
-      "node_taints"           = ["workload.sas.com/class=compute:NoSchedule"]
+      "machine_type" = "Standard_E16s_v3"
+      "os_disk_size" = 200
+      "min_nodes"    = 0
+      "max_nodes"    = 5
+      "max_pods"     = 110
+      "node_taints"  = ["workload.sas.com/class=compute:NoSchedule"]
       "node_labels" = {
         "workload.sas.com/class"        = "compute"
         "launcher.sas.com/prepullImage" = "sas-programming-environment"
       }
     },
     connect = {
-      "machine_type"          = "Standard_E16s_v3"
-      "os_disk_size"          = 200
-      "min_nodes"             = 0
-      "max_nodes"             = 5
-      "max_pods"              = 110
-      "node_taints"           = ["workload.sas.com/class=connect:NoSchedule"]
+      "machine_type" = "Standard_E16s_v3"
+      "os_disk_size" = 200
+      "min_nodes"    = 0
+      "max_nodes"    = 5
+      "max_pods"     = 110
+      "node_taints"  = ["workload.sas.com/class=connect:NoSchedule"]
       "node_labels" = {
         "workload.sas.com/class"        = "connect"
         "launcher.sas.com/prepullImage" = "sas-programming-environment"
       }
     },
     stateless = {
-      "machine_type"          = "Standard_D16s_v3"
-      "os_disk_size"          = 200
-      "min_nodes"             = 0
-      "max_nodes"             = 5
-      "max_pods"              = 110
-      "node_taints"           = ["workload.sas.com/class=stateless:NoSchedule"]
+      "machine_type" = "Standard_D16s_v3"
+      "os_disk_size" = 200
+      "min_nodes"    = 0
+      "max_nodes"    = 5
+      "max_pods"     = 110
+      "node_taints"  = ["workload.sas.com/class=stateless:NoSchedule"]
       "node_labels" = {
         "workload.sas.com/class" = "stateless"
       }
     },
     stateful = {
-      "machine_type"          = "Standard_D8s_v3"
-      "os_disk_size"          = 200
-      "min_nodes"             = 0
-      "max_nodes"             = 3
-      "max_pods"              = 110
-      "node_taints"           = ["workload.sas.com/class=stateful:NoSchedule"]
+      "machine_type" = "Standard_D8s_v3"
+      "os_disk_size" = 200
+      "min_nodes"    = 0
+      "max_nodes"    = 3
+      "max_pods"     = 110
+      "node_taints"  = ["workload.sas.com/class=stateful:NoSchedule"]
       "node_labels" = {
         "workload.sas.com/class" = "stateful"
       }

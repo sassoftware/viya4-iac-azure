@@ -1,90 +1,50 @@
 # Authenticating Terraform to access Azure
 
-In order to create and destroy Azure objects on your behalf, Terraform needs to log in to Azure with an identity that has sufficient permissions to perform all the actions defined in the terraform manifest.
+In order to create and destroy Azure resources on your behalf, Terraform needs an identity with sufficient permissions to perform all the actions defined in the Terraform manifest. You can use a **Service Principal** or, when running on an Azure VM, **User-assigned Managed Identity** to grant Terraform access to your Azure Subscription. See [Azure Help Topics](./AzureHelpTopics.md) for more information on how to retrieve their values from Azure.
 
-You can use a Service Principal or, when running on an Azure VM, a Managed Identity.
+Your Service Principal or Managed Identity in the Azure subscription requires a **"Contributor"** role to create Azure resources. Follow these links for more information on how to create and retrieve the values to configure Terraform access to Azure. 
 
-Your Service Principal or Managed Identity will need a Role Assignment with the "Contributor" Role for your Azure Subscription.
-
-## Creating Authentication Resources
 - [How to create a Service Principal](./AzureHelpTopics.md#service-principal-using-azurecli)
 
-- [How to create a Managed Identity](./AzureHelpTopics.md#create-a-managed-identity-with-contributor-role-assignment) and [how to assign the Managed Identity to a VM](./AzureHelpTopics.md#assign-the-managed-identity-to-a-vm)
+- [How to create a Managed Identity](./AzureHelpTopics.md#how-to-create-a-user-assigned-managed-identity-with-contributor-role) and [how to assign the Managed Identity to a VM](./AzureHelpTopics.md#how-to-assign-a-user-assigned-managed-identity-to-a-vm)
 
+We recommend using [TF_VAR_name](https://www.terraform.io/docs/cli/config/environment-variables.html#tf_var_name) environment variables to pass the authentication information to Terraform. 
 
-## Using A Service Principal to authenticate with Terraform
+## Using a Service Principal
 
-When using a Service Principal to authenticate with Terraform, you will need to set the following four terraform variables:
+To authenticate Terraform to access Azure, you will need to set the following four input variables:
 
 | Name | Description | Type | Default |
 | :--- | ---: | ---: | ---: |
-| tenant_id | your Azure tenant id | string  |
-| subscription_id | your Azure subscription id | string  |
+| tenant_id | your Azure tenant id | string  | |
+| subscription_id | your Azure subscription id | string  | |
 | client_id | your app_id when using a Service Principal | string | "" |
-| client_secret | your client secret when using a Service Principal| string | "" |
+| client_secret | your client secret when using a Service Principal| string | ""|
 
-See [Azure Help Topics](./AzureHelpTopics.md) for more Information on how to retrieve those values.
+TF_VAR_name environment variables for these would be
 
-## Using a Managed Identity to authenticate with Terraform
+```
+TF_VAR_tenant_id=00000000-0000-0000-0000-000000000000
+TF_VAR_subscription_id=00000000-0000-0000-0000-000000000000
+TF_VAR_client_id=00000000-0000-0000-0000-000000000000
+TF_VAR_client_secret=00000000-0000-0000-0000-000000000000
+```
 
-To authenticate to Terraform when running on an Azure VM with a Managed Identity, you will need to set the following three terraform variables:
+## Using an User-assigned Managed Identity
 
-| Name | Description | Type | Notes |
+To authenticate Terraform to access Azure when running on an Azure VM, you will need to set the following three input variables:
+
+| Name | Description | Type | Default |
 | :--- | ---: | ---: | ---: |
-| tenant_id | your Azure tenant id | string  |
-| subscription_id | your Azure subscription id | string  |
+| tenant_id | your Azure tenant id | string  | |
+| subscription_id | your Azure subscription id | string  | |
 | use_msi | use the Managed Identity of your Azure VM | bool | true |
 
-## How to set the Terraform Authentication variables
-
-We recommend to use environment variables to pass the authentication information into your terraform job.
-
-You can use the `TF_VAR_` prefix to set your terraform variables as environment variables.
-
-### Set Authentication Variables when running Terraform directly
-
-Run these commands to initialize the environment for the project. These commands will need to be run and pulled  into your environment each time you start a new session to use this repo and terraform.
-
-Example for using a Service Principal:
-
-```bash
-# export needed ids and secrets
-export TF_VAR_subscription_id="00000000-0000-0000-0000-000000000000"
-export TF_VAR_tenant_id="00000000-0000-0000-0000-000000000000"
-export TF_VAR_client_id="00000000-0000-0000-0000-000000000000"
-export TF_VAR_client_secret="00000000-0000-0000-0000-000000000000"
-```
-
-**TIP:** These commands can be stored in a file outside of this repo in a secure file.
-Use your favorite editor, take the content above and save it to a file called:
-`$HOME/.azure_creds.sh` . (Protect that file so only you have read access to it.) Now each time you need these values you can do the following:
-
-```bash
-source $HOME/.azure_creds.sh
-```
-
-This will pull in those values into your current terminal session. Any terraform commands submitted in that session will use those values.
-
-### Set Authentication Variables when using the Docker container
-
-When using the docker container to run terraform, create a file with the authentication variable assignments. You then specify that file at container invocation.
-
-Example for using a Managed Identity:
+TF_VAR_name environment variables for these would be
 
 ```
-# Needed ids and secrets for docker
-TF_VAR_subscription_id="00000000-0000-0000-0000-000000000000"
-TF_VAR_tenant_id= "00000000-0000-0000-0000-000000000000"
+TF_VAR_tenant_id=00000000-0000-0000-0000-000000000000
+TF_VAR_subscription_id=00000000-0000-0000-0000-000000000000
 TF_VAR_use_msi=true
 ```
-
-Store these commands outside of this repo in a secure file, for example
-`$HOME/.azure_docker_creds.env` . (Protect that file so only you have read access to it.) Now each time you invoke the container, specify the file in the `--env-file` docker option, e.g.
-
-```bash
-docker <...> \
-  --env-file $HOME/.azure_docker_creds.env \
-  <...>
-```
-
 

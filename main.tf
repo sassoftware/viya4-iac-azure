@@ -1,38 +1,42 @@
 terraform {
-  required_version = "~> 0.13"
+  required_version = ">= 0.13.0"
 
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 2.36.0"
+      version = "2.47.0"
     }
     azureread = {
       source  = "hashicorp/azuread"
-      version = "~> 1.0.0"
+      version = "1.3.0"
     }
     external = {
       source  = "hashicorp/external"
-      version = "~> 2.0.0"
+      version = "2.0.0"
     }
     local = {
       source  = "hashicorp/local"
-      version = "~> 2.0.0"
+      version = "2.0.0"
     }
     null = {
       source  = "hashicorp/null"
-      version = "~> 3.0.0"
+      version = "3.0.0"
     }
     template = {
       source  = "hashicorp/template"
-      version = "~> 2.2.0"
+      version = "2.2.0"
     }
     tls = {
       source  = "hashicorp/tls"
-      version = "~> 3.0.0"
+      version = "3.0.0"
     }
     cloudinit = {
       source  = "hashicorp/cloudinit"
-      version = "~> 1.0.0"
+      version = "2.1.0"
+    }
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = "2.0.2"
     }
   }
 }
@@ -55,19 +59,15 @@ provider "azuread" {
   tenant_id     = var.tenant_id
 }
 
+provider "kubernetes" {
+  host                   = module.aks.host
+  client_key             = base64decode(module.aks.client_key)
+  client_certificate     = base64decode(module.aks.client_certificate)
+  cluster_ca_certificate = base64decode(module.aks.cluster_ca_certificate)
+}
+
 
 data "azurerm_subscription" "current" {}
-
-
-resource "tls_private_key" "private_key" {
-  count     = var.ssh_public_key == "" ? 1 : 0
-  algorithm = "RSA"
-}
-
-data "tls_public_key" "public_key" {
-  count           = var.ssh_public_key == "" ? 1 : 0
-  private_key_pem = element(coalescelist(tls_private_key.private_key.*.private_key_pem), 0)
-}
 
 locals {
   # Network ip ranges
@@ -79,9 +79,6 @@ locals {
   # Subnets
   aks_subnet_name  = "${var.prefix}-aks-subnet"
   misc_subnet_name = "${var.prefix}-misc-subnet"
-  # Jump VM
-  create_jump_vm_default = var.storage_type != "dev" ? true : false
-  create_jump_vm         = var.create_jump_vm != null ? var.create_jump_vm : local.create_jump_vm_default
   # CIDRs 
   default_public_access_cidrs          = var.default_public_access_cidrs == null ? [] : var.default_public_access_cidrs
   vm_public_access_cidrs               = var.vm_public_access_cidrs == null ? local.default_public_access_cidrs : var.vm_public_access_cidrs
@@ -91,7 +88,9 @@ locals {
   postgres_public_access_cidrs         = var.postgres_public_access_cidrs == null ? local.default_public_access_cidrs : var.postgres_public_access_cidrs
   postgres_firewall_rules              = [for addr in local.postgres_public_access_cidrs : { "name" : replace(replace(addr, "/", "_"), ".", "_"), "start_ip" : cidrhost(addr, 0), "end_ip" : cidrhost(addr, abs(pow(2, 32 - split("/", addr)[1]) - 1)) }]
 
-  ssh_public_key = var.ssh_public_key != "" ? file(var.ssh_public_key) : element(coalescelist(data.tls_public_key.public_key.*.public_key_openssh, [""]), 0)
+  kubeconfig_filename = "${var.prefix}-aks-kubeconfig.conf"
+  kubeconfig_path     = var.iac_tooling == "docker" ? "/workspace/${local.kubeconfig_filename}" : local.kubeconfig_filename
+
 }
 
 resource "azurerm_resource_group" "azure_rg" {
@@ -156,8 +155,10 @@ data "azurerm_subnet" "misc-subnet" {
 data "template_file" "jump-cloudconfig" {
   template = file("${path.module}/cloud-init/jump/cloud-config")
   vars = {
-    rwx_filestore_endpoint = var.storage_type == "dev" ? "" : coalesce(module.netapp.netapp_endpoint, module.nfs.private_ip_address)
-    rwx_filestore_path     = var.storage_type == "dev" ? "" : coalesce(module.netapp.netapp_path, "/export")
+    nfs_rwx_filestore_endpoint = var.storage_type == "ha" ? module.netapp.netapp_endpoint : module.nfs.private_ip_address
+    nfs_rwx_filestore_path     = var.storage_type == "ha" ? module.netapp.netapp_path : "/export"
+    jump_rwx_filestore_path    = var.jump_rwx_filestore_path
+    vm_admin                   = var.jump_vm_admin
   }
 
   depends_on = [module.netapp, module.nfs]
@@ -181,33 +182,20 @@ module "jump" {
   vnet_subnet_id    = data.azurerm_subnet.misc-subnet.id
   azure_nsg_id      = azurerm_network_security_group.nsg.id
   tags              = var.tags
-  create_vm         = local.create_jump_vm
+  create_vm         = var.create_jump_vm
   vm_admin          = var.jump_vm_admin
-  ssh_public_key    = local.ssh_public_key
-  cloud_init        = var.storage_type == "dev" ? null : data.template_cloudinit_config.jump.rendered
+  ssh_public_key    = file(var.ssh_public_key)
+  cloud_init        = data.template_cloudinit_config.jump.rendered
   create_public_ip  = var.create_jump_public_ip
-}
 
-resource "azurerm_network_security_rule" "ssh" {
-  name                        = "${var.prefix}-ssh"
-  description                 = "Allow SSH from source"
-  count                       = (var.create_jump_public_ip && local.create_jump_vm && length(local.vm_public_access_cidrs) != 0) ? 1 : 0
-  priority                    = 120
-  direction                   = "Inbound"
-  access                      = "Allow"
-  protocol                    = "Tcp"
-  source_port_range           = "*"
-  destination_port_range      = "22"
-  source_address_prefixes     = local.vm_public_access_cidrs
-  destination_address_prefix  = "*"
-  resource_group_name         = azurerm_resource_group.azure_rg.name
-  network_security_group_name = azurerm_network_security_group.nsg.name
+  depends_on = [module.nfs]
 }
 
 data "template_file" "nfs-cloudconfig" {
   template = file("${path.module}/cloud-init/nfs/cloud-config")
   vars = {
     base_cidr_block = local.vnet_cidr_block
+    vm_admin        = var.nfs_vm_admin
   }
 }
 
@@ -235,9 +223,25 @@ module "nfs" {
   data_disk_count              = 4
   data_disk_size               = var.nfs_raid_disk_size
   vm_admin                     = var.nfs_vm_admin
-  ssh_public_key               = local.ssh_public_key
+  ssh_public_key               = file(var.ssh_public_key)
   cloud_init                   = data.template_cloudinit_config.nfs.rendered
   create_public_ip             = var.create_nfs_public_ip
+}
+
+resource "azurerm_network_security_rule" "vm-ssh" {
+  name                        = "${var.prefix}-ssh"
+  description                 = "Allow SSH from source"
+  count                       = ( ((var.create_jump_public_ip && var.create_jump_vm && (length(local.vm_public_access_cidrs) > 0)) || (var.create_nfs_public_ip && var.storage_type == "standard" && (length(local.vm_public_access_cidrs) > 0))) != 0 ) ? 1 : 0
+  priority                    = 120
+  direction                   = "Inbound"
+  access                      = "Allow"
+  protocol                    = "Tcp"
+  source_port_range           = "*"
+  destination_port_range      = "22"
+  source_address_prefixes     = local.vm_public_access_cidrs
+  destination_address_prefix  = "*"
+  resource_group_name         = azurerm_resource_group.azure_rg.name
+  network_security_group_name = azurerm_network_security_group.nsg.name
 }
 
 resource "azurerm_container_registry" "acr" {
@@ -283,7 +287,7 @@ module "aks" {
   aks_cluster_os_disk_size                 = var.default_nodepool_os_disk_size
   aks_cluster_node_vm_size                 = var.default_nodepool_vm_type
   aks_cluster_node_admin                   = var.node_vm_admin
-  aks_cluster_ssh_public_key               = local.ssh_public_key
+  aks_cluster_ssh_public_key               = file(var.ssh_public_key)
   aks_vnet_subnet_id                       = data.azurerm_subnet.aks-subnet.id
   kubernetes_version                       = var.kubernetes_version
   aks_cluster_endpoint_public_access_cidrs = local.cluster_endpoint_public_access_cidrs
@@ -380,48 +384,40 @@ module "netapp" {
   size_in_tb            = var.netapp_size_in_tb
   protocols             = var.netapp_protocols
   volume_path           = "${var.prefix}-${var.netapp_volume_path}"
+  tags                  = var.tags
 }
 
 resource "local_file" "kubeconfig" {
   content  = module.aks.kube_config
-  filename = "${var.prefix}-aks-kubeconfig.conf"
+  filename = local.kubeconfig_path
 }
 
 data "external" "git_hash" {
-  program = ["git", "log", "-1", "--format=format:{ \"git-hash\": \"%H\" }"]
+  program = ["files/iac_git_info.sh"]
 }
 
 data "external" "iac_tooling_version" {
   program = ["files/iac_tooling_version.sh"]
 }
 
-data "template_file" "sas_iac_buildinfo" {
-  template = file("${path.module}/files/sas-iac-buildinfo.yaml.tmpl")
-  vars = {
-    git-hash            = lookup(data.external.git_hash.result, "git-hash")
-    timestamp           = chomp(timestamp())
-    iac-tooling         = var.iac_tooling
-    terraform-version   = lookup(data.external.iac_tooling_version.result, "terraform_version")
-    provider-selections = lookup(data.external.iac_tooling_version.result, "provider_selections")
-    terraform-revision  = lookup(data.external.iac_tooling_version.result, "terraform_revision")
-    terraform-outdated  = lookup(data.external.iac_tooling_version.result, "terraform_outdated")
-  }
-}
-
-resource "local_file" "sas_iac_buildinfo" {
-  content  = data.template_file.sas_iac_buildinfo.rendered
-  filename = "${path.module}/sas_iac_buildinfo.yaml"
-}
-
-resource "null_resource" "sas_iac_buildinfo" {
-  triggers = {
-    always_run = timestamp()
-  }
-  provisioner "local-exec" {
-    command = <<-EOF
-      kubectl --kubeconfig "${var.prefix}-aks-kubeconfig.conf" apply -f ${path.module}/sas_iac_buildinfo.yaml
-    EOF
+resource "kubernetes_config_map" "sas_iac_buildinfo" {
+  metadata {
+    name      = "sas-iac-buildinfo"
+    namespace = "kube-system"
   }
 
-  depends_on = [local_file.kubeconfig]
+  data = {
+    git-hash    = lookup(data.external.git_hash.result, "git-hash")
+    timestamp   = chomp(timestamp())
+    iac-tooling = var.iac_tooling
+    terraform   = <<EOT
+version: ${lookup(data.external.iac_tooling_version.result, "terraform_version")}
+revision: ${lookup(data.external.iac_tooling_version.result, "terraform_revision")}
+provider-selections: ${lookup(data.external.iac_tooling_version.result, "provider_selections")}
+outdated: ${lookup(data.external.iac_tooling_version.result, "terraform_outdated")}
+EOT
+  }
+
+  depends_on = [ module.aks ]
 }
+

@@ -1,4 +1,4 @@
-# SAS Viya 4 IaC for Azure
+# SAS Viya 4 Infrastructure as Code (IaC) for Microsoft Azure
 
 ## Overview
 
@@ -36,6 +36,14 @@ Note, this project has been tested and verified with the following versions.
 - [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl) - v1.18.8
 - [jq](https://stedolan.github.io/jq/) - v1.6
 - Access to an **Azure Subscription** and [**Identity**](./docs/user/TerraformAzureAuthentication.md) with '*Contributor*' role
+- Terraform or Docker
+  - #### Terraform
+    - [Terraform](https://www.terraform.io/downloads.html) - v0.13.6
+    - [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl) - v1.18.8
+    - [jq](https://stedolan.github.io/jq/) - v1.6
+    - [Azure CLI](https://docs.microsoft.com/en-us/cli/azure) - v2.19.1 (optional -useful as an alternative to the AWS Web Console)
+  - #### Docker
+    - [Docker](https://docs.docker.com/get-docker/)
 
 ### Or Docker:
 
@@ -45,9 +53,11 @@ Note, this project has been tested and verified with the following versions.
 
 ## Getting Started
 
-Run these commands in a Terminal session
+Ubuntu 18.04 LTS is the operating system used on the Jump/NFS servers. Ubuntu creates the `/mnt` location as an ephemoral drive and cannot be used as the root location of the `jump_rwx_filestore_path` variable.
 
 ### Clone this project
+
+Run these commands in a Terminal session:
 
 ```bash
 # clone this repo
@@ -199,7 +209,8 @@ kubectl get nodes
 ```
 ### Examples
 
-We include several samples - `sample-input*.tfvars` in this repo to get started. Evaluate the sample files, then review the [CONFIG-VARS.md](docs/CONFIG-VARS.md) to see what other variables can be used.
+- using [Terraform](docs/user/TerraformUsage.md) directly on your workstation, or
+- using a [Docker container](docs/user/DockerUsage.md). 
 
 ### Troubleshooting
 

@@ -4,20 +4,20 @@ Supported configuration variables are listed in the table below.  All variables 
 
 ## Table of Contents
 
-- [Table of Contents](#table-of-contents)
-- [Required Variables](#required-variables)
-  - [Application](#application)
-  - [Azure Authentication](#azure-authentication)
-- [Admin Access](#admin-access)
-- [General](#general)
-- [Nodepools](#nodepools)
-  - [Default Nodepool](#default-nodepool)
-  - [Additional Nodepools](#additional-nodepools)
-- [Storage](#storage)
-  - [storage_type=standard - nfs server VM](#storage_typestandard---nfs-server-vm)
-  - [storage_type=ha - Azure NetApp](#storage_typeha---azure-netapp)
-- [Azure Container Registry (ACR)](#azure-container-registry-acr)
-- [Postgres](#postgres)
+- [List of valid configuration variables](#list-of-valid-configuration-variables)
+  - [Table of Contents](#table-of-contents)
+  - [Required Variables](#required-variables)
+    - [Azure Authentication](#azure-authentication)
+  - [Admin Access](#admin-access)
+  - [General](#general)
+  - [Nodepools](#nodepools)
+    - [Default Nodepool](#default-nodepool)
+    - [Additional Nodepools](#additional-nodepools)
+  - [Storage](#storage)
+    - [NFS Server VM (only when `storage_type=standard`)](#nfs-server-vm-only-when-storage_typestandard)
+    - [Azure NetApp Files (only when `storage_type=ha`)](#azure-netapp-files-only-when-storage_typeha)
+  - [Azure Container Registry (ACR)](#azure-container-registry-acr)
+  - [Postgres](#postgres)
 
 Terraform input variables can be set in the following ways:
 
@@ -27,13 +27,11 @@ Terraform input variables can be set in the following ways:
 
 ## Required Variables
 
-### Application
-
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
 | prefix | A prefix used in the name of all the Azure resources created by this script. | string | | The prefix string must start with a lowercase letter and contain only alphanumeric characters and dashes (-), but cannot end with a dash. |
 | location | The Azure Region to provision all resources in this script | string | "East US" | |
-| tags | Map of common tags to be placed on all Azure resources created by this script | map | { project_name = "sasviya4", environment = "dev" } | |
+| ssh_public_key | Name of file with public ssh key for VMs | string | "~/.ssh/id_rsa.pub" | Value is required in order to access your VMs |
 
 ### Azure Authentication
 
@@ -43,8 +41,8 @@ Find details on how to retrieve that information under [Azure Help Topics](./use
 
 | Name | Description | Type | Default |
 | :--- | ---: | ---: | ---: |
-| tenant_id | your Azure tenant id | string  |
-| subscription_id | your Azure subscription id | string  |
+| tenant_id | your Azure tenant id | string  | |
+| subscription_id | your Azure subscription id | string  | |
 | client_id | your app_id when using a Service Principal | string | "" |
 | client_secret | your client secret when using a Service Principal| string | "" |
 | use_msi | use the Managed Identity of your Azure VM | bool | false |
@@ -74,11 +72,12 @@ You can use `default_public_access_cidrs` to set a default range for all created
 
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
-| kubernetes_version | The AKS cluster K8S version | string | "1.18.8" | |
-| ssh_public_key | Name of file with public ssh key for VMs | string |"" | If no key is given, a keypair will be generated and output into the `ssh_public_key` and `ssh_private_key` output variables |
-| create_jump_vm | Create bastion host | bool | false for storage_type == "dev", otherwise true| |
+| kubernetes_version | The AKS cluster K8S version | string | "1.18.14" | |
+| create_jump_vm | Create bastion host | bool | true | |
 | create_jump_public_ip | Add public ip to jump VM | bool | true | |
 | jump_vm_admin | OS Admin User for the Jump VM | string | "jumpuser" | |
+| jump_rwx_filestore_path | File store mount point on Jump server | string | "/viya-share" | This location cannot include "/mnt" as it's root location. This disk is ephemoral on Ubuntu which is the operating system being used for the Jump/NFS servers. |
+| tags | Map of common tags to be placed on all Azure resources created by this script | map | { project_name = "sasviya4", environment = "dev" } | |
 
 ## Nodepools
 
@@ -87,7 +86,7 @@ You can use `default_public_access_cidrs` to set a default range for all created
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
 | node_vm_admin | OS Admin User for VMs of AKS Cluster nodes | string | "azureuser" | |
-| default_nodepool_vm_type | Type of the default nodepool VMs | string | "Standard_D4_v2" | |
+| default_nodepool_vm_type | Type of the default nodepool VMs | string | "Standard_D8s_v4" | |
 | default_nodepool_os_disk_size | Disk size for default nodepool VMs in GB | number | 128 ||
 | default_nodepool_max_pods | Maximum number of pods that can run on each | number | 110 | Changing this forces a new resource to be created |
 | default_nodepool_min_nodes | Minimum and initial number of nodes for the default nodepool | number | 1 |  Value must be between 0 and 100. Setting min and max node counts the same disables autoscaling  |
@@ -106,7 +105,6 @@ Additional node pools can be created separate from the default nodepool. This is
 | max_pods | Maximum number of pods per node | number | Default is 110
 | node_taints | Taints for the nodepool VMs | list of strings | |
 | node_labels | Labels to add to the nodepool VMs | map | |
-
 
 The default values for the `node_pools` variable are:
 
@@ -179,25 +177,29 @@ In addition, you can control the placement for the additional nodepools using
 | node_pools_availability_zone | Availability Zone for the additional nodepools and the NFS VM, for `storage_type="standard"'| string | "1" | The possible values depend on the region set in the "location" variable. |
 | node_pools_proximity_placement | Co-locates all node pool VMs for improved application performance. | bool | false | Selecting proximity placement imposes an additional constraint on VM creation and can lead to more frequent denials of VM allocation requests. We recommend to set `node_pools_availability_zone=""` and allocate all required resources at one time by setting `min_nodes` and `max_nodes` to the same value for all node pools.  Additional Information: [Proximity Group Placement](./user/ProximityPlacementGroup.md) |
 
-
 ## Storage
 
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
-| storage_type | Type of Storage. Valid Values: "dev", "standard", "ha"  | string | "dev" | "dev" creates AzureFile, "standard" creates NFS server VM, "ha" creates Azure Netapp Files|
+| storage_type | Type of Storage. Valid Values: "standard", "ha"  | string | "standard" | "standard" creates NFS server VM, "ha" creates Azure Netapp Files|
 
-### storage_type=standard - nfs server VM
+### NFS Server VM (only when `storage_type=standard`)
+
+When `storage_type=standard`, a NFS Server VM is created, only when these variables are applicable.
+
+Note: When `node_pools_proximity_placement=true` is set, the NFS VM will be co-located in the proximity group with the additional node pool VMs.
+
+Note: The 128 default is in GB, so with a RAID5, the default is 4 disks, [so the defaults would yield (N-1) x S(min)](https://superuser.com/questions/272990/how-to-calculate-the-final-raid-size-of-a-raid-5-array), or (4-1) x 128GB = ~384GB.
 
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
-| create_nfs_public_ip | Add public ip to the NFS server VM | bool | false | The NFS server VM is only created when storage_type="standard" |
-| nfs_vm_admin | OS Admin User for the NFS server VM | string | "nfsuser" | The NFS server VM is only created when storage_type="standard" |
-| nfs_raid_disk_size | Size in Gb for each disk of the RAID5 cluster on the NFS server VM | number | 128 | The NFS server VM is only created when storage_type="standard" |
+| create_nfs_public_ip | Add public ip to the NFS server VM | bool | false | |
+| nfs_vm_admin | OS Admin User for the NFS server VM | string | "nfsuser" | |
+| nfs_raid_disk_size | Size in Gb for each disk of the RAID5 cluster on the NFS server VM | number | 128 | |
 
-Note: When `node_pools_proximity_placement=true` is set, the NFS VM will be co-located in the proximity group with the additional node pool VMs.
-Note: The 128 default is in GB, so with a RAID5, the default is 4 disks, [so the defaults would yield (N-1) x S(min)](https://superuser.com/questions/272990/how-to-calculate-the-final-raid-size-of-a-raid-5-array), or (4-1) x 128GB = ~384GB.
+### Azure NetApp Files (only when `storage_type=ha`)
 
-### storage_type=ha - Azure NetApp
+When `storage_type=ha` (high availability), [Microsoft Azure NetApp Files](https://azure.microsoft.com/en-us/services/netapp/) service is created, only when these variables are applicable. Before using this storage option, see how to [Register for Azure NetApp Files](https://docs.microsoft.com/en-us/azure/azure-netapp-files/azure-netapp-files-register) to ensure your Azure Subscription has been granted access to the service.
 
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
