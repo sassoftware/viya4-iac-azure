@@ -189,7 +189,8 @@ module "jump" {
   cloud_init        = data.template_cloudinit_config.jump.rendered
   create_public_ip  = var.create_jump_public_ip
 
-  depends_on = [module.vnet]
+  # Jump VM mounts NFS path hence dependency on 'module.nfs'
+  depends_on = [module.vnet, module.nfs]
 }
 
 data "template_file" "nfs-cloudconfig" {
@@ -247,8 +248,6 @@ resource "azurerm_network_security_rule" "vm-ssh" {
   destination_address_prefix  = "*"
   resource_group_name         = azurerm_resource_group.azure_rg.name
   network_security_group_name = azurerm_network_security_group.nsg.name
-
-  depends_on = [module.nfs]
 }
 
 resource "azurerm_container_registry" "acr" {
