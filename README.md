@@ -26,16 +26,21 @@ Operational knowledge of:
  
 This tool supports running **either** from terraform installed on your local machine **or** via a docker container. 
 
-#### Terraform
+### Technical Prerequisites:
+
+Note, this project has been tested and verified with the following versions.
+
+#### Either Terraform:
 
 - [Terraform](https://www.terraform.io/downloads.html) - v0.13.4
 - [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl) - v1.18.8
 - [jq](https://stedolan.github.io/jq/) - v1.6
 - Access to an **Azure Subscription** and [**Identity**](./docs/user/TerraformAzureAuthentication.md) with '*Contributor*' role
 
-#### Docker
+### Or Docker:
 
 - [Docker](https://docs.docker.com/get-docker/)
+  - The Dockerfile for the container can be found [here](Dockerfile)
 - Access to an **Azure Subscription** and [**Identity**](./docs/user/TerraformAzureAuthentication.md) with '*Contributor*' role
 
 ## Getting Started
@@ -58,7 +63,7 @@ We recommmend to put your authentication information into a file that you can so
 
 For details on the required variables and values,  see [Terraform Azure Authentication](./docs/user/TerraformAzureAuthentication.md)
 
-Example when using a Service Principal and running Terraform directly in your shell:
+#### Example 1:  using a Service Principal and running Terraform directly in your shell:
 
 ```bash
 # export needed IDs and Secrets
@@ -69,7 +74,7 @@ export TF_VAR_client_secret="00000000-0000-0000-0000-000000000000"
 ```
 Save this to a file that you can source and use later, for example `$HOME/.azure_creds.sh`
 
-Example when using a Managed Identity and running the Docker container:
+#### Example2: using a Managed Identity and running the Docker container:
 
 ```bash
 # export the needed IDs and flags
@@ -87,15 +92,22 @@ Run the following command to create your `viya4-iac-azure` local docker image
 docker build -t viya4-iac-azure .
 ```
 
-### Customize Input Values
+### Customize TF Input Variables (tfvars)
 
-Create a file named `terraform.tfvars` to customize any input variable value. For starters, you can copy one of the provided example variable definition files in `./examples` folder. For more details on the variables declared in [variables.tf](variables.tf) refer to [CONFIG-VARS.md](docs/CONFIG-VARS.md).
+Create a file named `terraform.tfvars` to customize any input variable value. For starters, you can copy one of the provided example variable definition files in `./examples` folder. 
+
+```bash
+# Example copy command
+cp examples/sample-input.tfvars terraform.tfvars
+```
+
+For more details on the variables declared in [variables.tf](variables.tf) refer to [CONFIG-VARS.md](docs/CONFIG-VARS.md).
 
 When using a variable definition file other than `terraform.tfvars`, see [Advanced Terraform Usage](docs/user/AdvancedTerraformUsage.md) for additional command options.
 
-### Running
+### Run the IAC Project
 
-#### Terraform
+#### Run the Terraform Version
 
 Source your credentials into your shell enviornment
 
@@ -130,9 +142,9 @@ terraform apply
 ```bash
 terraform output
 ```
-#### Docker
+#### Run the Docker Version
 
-To preview the resources that the Terraform script will create, optionally run
+To preview the resources that the Terraform variables / scripts will create, optionally run
 
 ```bash
 docker run --rm \
@@ -151,7 +163,7 @@ docker run --rm \
   apply -var-file /workspace/terraform.tfvars -auto-approve \
         -state /workspace/terraform.tfstate
 ```
-`terraform apply` can take a few minutes to complete. Once complete, output values are written to the console.
+Note, the `terraform apply` can take a few minutes to complete. Once complete, output values are written to the console.
 
 The output values can be displayed anytime by again running
 
@@ -162,7 +174,7 @@ docker run --rm \
   output -state /workspace/terraform.tfstate
 ```
 
-### Modifying Cloud Resources
+### Modifying Cloud Resources Afterwards
 
 After provisioning the infrastructure if changes were to be made to inputs e.g., change number of nodes in a node pool or set create_postgres to true/false, then add the variable to terraform.tfvars and changes the value and run either `terraform apply` or the equivalent `docker run ... apply` command.
 
