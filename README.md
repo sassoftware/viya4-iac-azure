@@ -5,7 +5,6 @@
     - [Technical Prerequisites:](#technical-prerequisites)
   - [Getting Started](#getting-started)
     - [Clone this project](#clone-this-project)
-    - [Authenticating Terraform to access Azure](#authenticating-terraform-to-access-azure)
   - [Run -- Creating and Managaging the Cloud Resources](#run----creating-and-managaging-the-cloud-resources)
     - [Troubleshooting](#troubleshooting)
   - [Contributing](#contributing)
@@ -72,10 +71,6 @@ git clone https://github.com/sassoftware/viya4-iac-azure
 # move to directory
 cd viya4-iac-azure
 ```
-
-### Authenticating Terraform to access Azure
-
-See [Terraform Azure Authentication](./docs/user/TerraformAzureAuthentication.md) for details.
 
 ## Run -- Creating and Managaging the Cloud Resources
 
