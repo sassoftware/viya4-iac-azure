@@ -1,3 +1,20 @@
+- [SAS Viya 4 Infrastructure as Code (IaC) for Microsoft Azure](#sas-viya-4-infrastructure-as-code-iac-for-microsoft-azure)
+  - [Overview](#overview)
+  - [Prerequisite Information](#prerequisite-information)
+    - [Operational knowledge of:](#operational-knowledge-of)
+    - [Technical Prerequisites:](#technical-prerequisites)
+  - [Getting Started](#getting-started)
+    - [Clone this project](#clone-this-project)
+    - [Authenticating Terraform to access Azure](#authenticating-terraform-to-access-azure)
+  - [Run -- Creating and Managaging the Cloud Resources](#run----creating-and-managaging-the-cloud-resources)
+    - [Troubleshooting](#troubleshooting)
+  - [Contributing](#contributing)
+  - [License](#license)
+  - [Additional Resources](#additional-resources)
+    - [Azure resources](#azure-resources)
+    - [Terraform resources](#terraform-resources)
+
+
 # SAS Viya 4 Infrastructure as Code (IaC) for Microsoft Azure
 
 ## Overview
@@ -15,19 +32,21 @@ This project contains Terraform scripts to provision Microsoft Azure Cloud infra
 
 [<img src="./docs/images/viya4-iac-azure-diag.png" alt="Architecture Diagram" width="750"/>](./docs/images/viya4-iac-azure-diag.png?raw=true)
 
-## Prerequisites
+## Prerequisite Information
 
-Operational knowledge of:
+### Operational knowledge of:
 
 - [Terraform](https://www.terraform.io/intro/index.html)
 - [Docker](https://www.docker.com/)
 - [Microsoft Azure Cloud](https://azure.microsoft.com/)
 - [Kubernetes](https://kubernetes.io/docs/concepts/)
  
-### Required
+
+### Technical Prerequisites:
+
+This project supports running **either** via terraform installed on your local machine **or** via a docker container. 
 
 - Access to an **Azure Subscription** and [**Identity**](./docs/user/TerraformAzureAuthentication.md) with '*Contributor*' role
-- Terraform or Docker
   - #### Terraform
     - [Terraform](https://www.terraform.io/downloads.html) - v0.13.6
     - [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl) - v1.18.8
@@ -36,6 +55,7 @@ Operational knowledge of:
   - #### Docker
     - [Docker](https://docs.docker.com/get-docker/)
 
+Note, this project has been tested and verified with these versions.
 
 ## Getting Started
 
@@ -57,18 +77,12 @@ cd viya4-iac-azure
 
 See [Terraform Azure Authentication](./docs/user/TerraformAzureAuthentication.md) for details.
 
-### Customize Input Values
+## Run -- Creating and Managaging the Cloud Resources
 
-Create a file named `terraform.tfvars` to customize any input variable value. For starters, you can copy one of the provided example variable definition files in `./examples` folder. For more details on the variables declared in [variables.tf](variables.tf) refer to [CONFIG-VARS.md](docs/CONFIG-VARS.md).
+Create and manage the Azure cloud resources by either:
 
-When using a variable definition file other than `terraform.tfvars`, see [Advanced Terraform Usage](docs/user/AdvancedTerraformUsage.md) for additional command options.
-
-## Creating and Managaging the Cloud Resources
-
-Create and manage the AWS cloud resources by either 
-
-- using [Terraform](docs/user/TerraformUsage.md) directly on your workstation, or
-- using a [Docker container](docs/user/DockerUsage.md). 
+- run using [Terraform](docs/user/TerraformUsage.md) directly on your workstation, or
+- run using a [Docker container](docs/user/DockerUsage.md). 
 
 ### Troubleshooting
 
