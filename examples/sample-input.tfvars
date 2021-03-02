@@ -99,13 +99,16 @@ node_pools = {
 # Jump Box
 create_jump_public_ip = true
 jump_vm_admin         = "jumpuser"
+jump_vm_machine_type = "Standard_B2s_v3"
 
 # Storage for SAS Viya CAS/Compute
 storage_type = "standard"
 # required ONLY when storage_type is "standard" to create NFS Server VM
 create_nfs_public_ip = false
 nfs_vm_admin         = "nfsuser"
+nfs_vm_machine_type  = "Standard_D8s_v4"
 nfs_raid_disk_size   = 128
+nfs_raid_disk_type   = "Standard_LRS"
 
 # Azure Monitor
 create_aks_azure_monitor = false

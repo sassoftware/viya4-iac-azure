@@ -70,13 +70,16 @@ You can use `default_public_access_cidrs` to set a default range for all created
 
 ## General
 
+Ubuntu 18.04 LTS is the operating system used on the Jump/NFS servers. Ubuntu creates the `/mnt` location as an ephemeral drive and cannot be used as the root location of the `jump_rwx_filestore_path` variable.
+
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
 | kubernetes_version | The AKS cluster K8S version | string | "1.18.14" | |
 | create_jump_vm | Create bastion host | bool | true | |
 | create_jump_public_ip | Add public ip to jump VM | bool | true | |
 | jump_vm_admin | OS Admin User for the Jump VM | string | "jumpuser" | |
-| jump_rwx_filestore_path | File store mount point on Jump server | string | "/viya-share" | This location cannot include "/mnt" as it's root location. This disk is ephemoral on Ubuntu which is the operating system being used for the Jump/NFS servers. |
+| jump_vm_machine_type | SKU to use for the Jump VM | string | "Standard_B2s_v3" | To check for valid types for your subscription `az vm list-skus --resource-type virtualMachines --subscription $subscription --location $location -o table`|
+| jump_rwx_filestore_path | File store mount point on Jump server | string | "/viya-share" | This location cannot include "/mnt" as it's root location. This disk is ephemeral on Ubuntu which is the operating system being used for the Jump/NFS servers. |
 | tags | Map of common tags to be placed on all Azure resources created by this script | map | { project_name = "sasviya4", environment = "dev" } | |
 
 ## Nodepools
@@ -195,7 +198,11 @@ Note: The 128 default is in GB, so with a RAID5, the default is 4 disks, [so the
 | :--- | ---: | ---: | ---: | ---: |
 | create_nfs_public_ip | Add public ip to the NFS server VM | bool | false | |
 | nfs_vm_admin | OS Admin User for the NFS server VM | string | "nfsuser" | |
+| nfs_vm_machine_type | SKU to use for NFS server VM | string | "Standard_B2s_v3" | To check for valid types for your subscription `az vm list-skus --resource-type virtualMachines --subscription $subscription --location $location -o table`|
+| nfs_vm_zone | Zone in which NFS server VM should be created | string | null | |
+| nfs_raid_disk_type | Managed disk types | string | "Standard_LRS" | Supported values are - Standard_LRS, Premium_LRS, StandardSSD_LRS or UltraSSD_LRS. When using `UltraSSD_LRS`, `nfs_vm_zone` and `nfs_raid_disk_zones` must be specified. See [Azure documentation](https://docs.microsoft.com/en-us/azure/virtual-machines/disks-enable-ultra-ssd) for limitations on Availability Zones and VM types|
 | nfs_raid_disk_size | Size in Gb for each disk of the RAID5 cluster on the NFS server VM | number | 128 | |
+| nfs_raid_disk_zones | A collection containing the availability zones to allocate the Managed Disks for NFS | list of strings | [] | |
 
 ### Azure NetApp Files (only when `storage_type=ha`)
 

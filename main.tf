@@ -180,6 +180,7 @@ module "jump" {
   azure_rg_name     = azurerm_resource_group.azure_rg.name
   azure_rg_location = var.location
   vnet_subnet_id    = data.azurerm_subnet.misc-subnet.id
+  machine_type      = var.jump_vm_machine_type
   azure_nsg_id      = azurerm_network_security_group.nsg.id
   tags              = var.tags
   create_vm         = var.create_jump_vm
@@ -188,7 +189,8 @@ module "jump" {
   cloud_init        = data.template_cloudinit_config.jump.rendered
   create_public_ip  = var.create_jump_public_ip
 
-  depends_on = [module.nfs]
+  # Jump VM mounts NFS path hence dependency on 'module.nfs'
+  depends_on = [module.vnet, module.nfs]
 }
 
 data "template_file" "nfs-cloudconfig" {
@@ -218,14 +220,18 @@ module "nfs" {
   azure_rg_location            = var.location
   proximity_placement_group_id = element(coalescelist(azurerm_proximity_placement_group.proximity.*.id, [""]), 0)
   vnet_subnet_id               = data.azurerm_subnet.misc-subnet.id
+  machine_type                 = var.nfs_vm_machine_type
   azure_nsg_id                 = azurerm_network_security_group.nsg.id
   tags                         = var.tags
-  data_disk_count              = 4
-  data_disk_size               = var.nfs_raid_disk_size
   vm_admin                     = var.nfs_vm_admin
+  vm_zone                      = var.nfs_vm_zone
   ssh_public_key               = file(var.ssh_public_key)
   cloud_init                   = data.template_cloudinit_config.nfs.rendered
   create_public_ip             = var.create_nfs_public_ip
+  data_disk_count              = 4
+  data_disk_size               = var.nfs_raid_disk_size
+  data_disk_storage_account_type = var.nfs_raid_disk_type
+  data_disk_zones              = var.nfs_raid_disk_zones
 }
 
 resource "azurerm_network_security_rule" "vm-ssh" {
