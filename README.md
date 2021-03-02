@@ -24,7 +24,7 @@ Operational knowledge of:
 - [Microsoft Azure Cloud](https://azure.microsoft.com/)
 - [Kubernetes](https://kubernetes.io/docs/concepts/)
  
-This tool supports running both from terraform installed on your local machine or via a docker container. The Dockerfile for the container can be found [here](Dockerfile)
+This tool supports running **either** from terraform installed on your local machine **or** via a docker container. 
 
 #### Terraform
 
