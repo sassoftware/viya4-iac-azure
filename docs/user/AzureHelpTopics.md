@@ -2,9 +2,10 @@
 
 ## How to authenticate using AzureCLI
 
-Ask your Azure Cloud administrator for your Subscription and Tenant IDs. You can find the information from Azure CLI upon login.
+You can **either** ask your Azure Cloud administrator for your Subscription and Tenant IDs, **or** you can find the information from Azure CLI upon login (see below).
 
 ```yaml
+# example of an Azure CLI login command
 az login
 [
   {
@@ -24,7 +25,23 @@ az login
 ]
 ```
 
-You can also use the ```az account list``` command to list all the subscriptions and tenants you belong to. From Azure CLI commands, the value of `id` is used in `TF_VAR_subscription_id` and `tenantId` is used in `TF_VAR_tenant_id`.
+## How to establish the TF environment variables:
+
+You can use the following commands, or alter them as needed to establish the environment variables with your `Tenant ID` and `Subscription`:
+
+```bash
+# the following commands should work and should establish `TF_VAR_subscription_id` and `TF_VAR_tenant_id`
+# az account list and az account show are helpful commands to determine this information
+# for example, az account show --query '[environmentName, name, tenantId, user.name]'
+
+# set the tenant ID from a query; validate
+TF_VAR_tenant_id=$(az account show --query 'tenantId')
+echo $TF_VAR_tenant_id
+
+# set the subscription ID from a query; validate
+TF_VAR_subscription_id=$(az account show --query 'name')
+echo $TF_VAR_subscription_id
+```
 
 ## How to create Service Principal using AzureCLI
 
