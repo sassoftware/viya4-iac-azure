@@ -4,7 +4,7 @@ In order to create and destroy Azure resources on your behalf, Terraform needs a
 
 Your Service Principal or Managed Identity in the Azure subscription requires a **"Contributor"** role to create Azure resources. Follow these links for more information on how to create and retrieve the values to configure Terraform access to Azure. 
 
-- [How to create a Service Principal](./AzureHelpTopics.md#service-principal-using-azurecli)
+- [How to create a Service Principal](./AzureHelpTopics.md#service-principal-using-azurecli) | See Using a Service Principal Below
 
 - [How to create a Managed Identity](./AzureHelpTopics.md#how-to-create-a-user-assigned-managed-identity-with-contributor-role) and [how to assign the Managed Identity to a VM](./AzureHelpTopics.md#how-to-assign-a-user-assigned-managed-identity-to-a-vm)
 
@@ -21,14 +21,7 @@ To authenticate Terraform to access Azure, you will need to set the following fo
 | client_id | your app_id when using a Service Principal | string | "" |
 | client_secret | your client secret when using a Service Principal| string | ""|
 
-TF_VAR_name environment variables for these would be
-
-```
-TF_VAR_tenant_id=00000000-0000-0000-0000-000000000000
-TF_VAR_subscription_id=00000000-0000-0000-0000-000000000000
-TF_VAR_client_id=00000000-0000-0000-0000-000000000000
-TF_VAR_client_secret=00000000-0000-0000-0000-000000000000
-```
+The following [bash (code) script](../../files/TerraformEnvVariableAssignment.sh) can be used to (re)assign the TF Environment Variables:
 
 ## Using an User-assigned Managed Identity
 
