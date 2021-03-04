@@ -23,6 +23,11 @@ To authenticate Terraform to access Azure, you will need to set the following fo
 
 The following [bash (code) script](../../files/TerraformEnvVariableAssignment.sh) can be used to (re)assign the TF Environment Variables:
 
+```bash
+# source the bash script, presuming the file 
+source {path-to-file}azure.sh
+```
+
 ## Using an User-assigned Managed Identity
 
 To authenticate Terraform to access Azure when running on an Azure VM, you will need to set the following three input variables:

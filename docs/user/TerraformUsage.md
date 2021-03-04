@@ -9,6 +9,8 @@ When using the Terraform CLI, make sure you have all the necessary tools [instal
 
 Follow either one of the authentication methods described in [Authenticating Terraform to access Azure](./TerraformAzureAuthentication.md) and set all TF_VAR_name environment variables using `export TF_VAR_*=<value>` command.
 
+*TIP:* These environment variables can be re-loaded using the bash script referenced in the Authenticating Terraform link above.
+
 *TIP:* These commands can be stored in a file outside of this repo in a secure file, for example `$HOME/.azure_creds.sh.` Protect that file so only you have read access to it.
 
 Then source your credentials into your shell environment:
