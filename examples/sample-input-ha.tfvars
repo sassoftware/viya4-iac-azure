@@ -4,8 +4,8 @@
 
 # ****************  REQUIRED VARIABLES  ****************
 # These required variables' values MUST be provided by the user
-prefix   = "<prefix-value>"
-location = "<azure-location-value>" # e.g., "eastus2"
+prefix         = "<prefix-value>"
+location       = "<azure-location-value>" # e.g., "eastus2"
 ssh_public_key = "~/.ssh/id_rsa.pub"
 # ****************  REQUIRED VARIABLES  ****************
 
@@ -38,58 +38,58 @@ default_nodepool_vm_type   = "Standard_D8s_v4"
 # AKS Node Pools config
 node_pools = {
   cas = {
-    "machine_type"          = "Standard_E16s_v3"
-    "os_disk_size"          = 200
-    "min_nodes"             = 2
-    "max_nodes"             = 3
-    "max_pods"              = 110
-    "node_taints"           = ["workload.sas.com/class=cas:NoSchedule"]
+    "machine_type" = "Standard_E16s_v3"
+    "os_disk_size" = 200
+    "min_nodes"    = 2
+    "max_nodes"    = 3
+    "max_pods"     = 110
+    "node_taints"  = ["workload.sas.com/class=cas:NoSchedule"]
     "node_labels" = {
       "workload.sas.com/class" = "cas"
     }
   },
   compute = {
-    "machine_type"          = "Standard_E16s_v3"
-    "os_disk_size"          = 200
-    "min_nodes"             = 2
-    "max_nodes"             = 3
-    "max_pods"              = 110
-    "node_taints"           = ["workload.sas.com/class=compute:NoSchedule"]
+    "machine_type" = "Standard_E16s_v3"
+    "os_disk_size" = 200
+    "min_nodes"    = 2
+    "max_nodes"    = 3
+    "max_pods"     = 110
+    "node_taints"  = ["workload.sas.com/class=compute:NoSchedule"]
     "node_labels" = {
       "workload.sas.com/class"        = "compute"
       "launcher.sas.com/prepullImage" = "sas-programming-environment"
     }
   },
   connect = {
-    "machine_type"          = "Standard_E16s_v3"
-    "os_disk_size"          = 200
-    "min_nodes"             = 2
-    "max_nodes"             = 3
-    "max_pods"              = 110
-    "node_taints"           = ["workload.sas.com/class=connect:NoSchedule"]
+    "machine_type" = "Standard_E16s_v3"
+    "os_disk_size" = 200
+    "min_nodes"    = 2
+    "max_nodes"    = 3
+    "max_pods"     = 110
+    "node_taints"  = ["workload.sas.com/class=connect:NoSchedule"]
     "node_labels" = {
       "workload.sas.com/class"        = "connect"
       "launcher.sas.com/prepullImage" = "sas-programming-environment"
     }
   },
   stateless = {
-    "machine_type"          = "Standard_D16s_v3"
-    "os_disk_size"          = 200
-    "min_nodes"             = 2
-    "max_nodes"             = 3
-    "max_pods"              = 110
-    "node_taints"           = ["workload.sas.com/class=stateless:NoSchedule"]
+    "machine_type" = "Standard_D16s_v3"
+    "os_disk_size" = 200
+    "min_nodes"    = 2
+    "max_nodes"    = 3
+    "max_pods"     = 110
+    "node_taints"  = ["workload.sas.com/class=stateless:NoSchedule"]
     "node_labels" = {
       "workload.sas.com/class" = "stateless"
     }
   },
   stateful = {
-    "machine_type"          = "Standard_D8s_v3"
-    "os_disk_size"          = 200
-    "min_nodes"             = 2
-    "max_nodes"             = 3
-    "max_pods"              = 110
-    "node_taints"           = ["workload.sas.com/class=stateful:NoSchedule"]
+    "machine_type" = "Standard_D8s_v3"
+    "os_disk_size" = 200
+    "min_nodes"    = 2
+    "max_nodes"    = 3
+    "max_pods"     = 110
+    "node_taints"  = ["workload.sas.com/class=stateful:NoSchedule"]
     "node_labels" = {
       "workload.sas.com/class" = "stateful"
     }

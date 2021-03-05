@@ -4,8 +4,8 @@
 
 # ****************  REQUIRED VARIABLES  ****************
 # These required variables' values MUST be provided by the User
-prefix   = "<prefix-value>"
-location = "<azure-location-value>" # e.g., "eastus2"
+prefix         = "<prefix-value>"
+location       = "<azure-location-value>" # e.g., "eastus2"
 ssh_public_key = "~/.ssh/id_rsa.pub"
 # ****************  REQUIRED VARIABLES  ****************
 

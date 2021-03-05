@@ -71,7 +71,7 @@ variable data_disk_caching {
 }
 
 variable data_disk_storage_account_type {
-  default = "Standard_LRS"
+  default     = "Standard_LRS"
   description = "The type of storage to use for the managed disk. Possible values are Standard_LRS, Premium_LRS, StandardSSD_LRS or UltraSSD_LRS."
 }
 
@@ -85,7 +85,7 @@ variable os_disk_size {
 }
 
 variable os_disk_storage_account_type {
-  default = "Standard_LRS"
+  default     = "Standard_LRS"
   description = "The Type of Storage Account which should back this the Internal OS Disk. Possible values are Standard_LRS, StandardSSD_LRS and Premium_LRS. Changing this forces a new resource to be created"
 }
 

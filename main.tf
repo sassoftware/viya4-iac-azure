@@ -203,23 +203,23 @@ module "nfs" {
   source    = "./modules/azurerm_vm"
   create_vm = var.storage_type == "standard" ? true : false
 
-  name                         = "${var.prefix}-nfs"
-  azure_rg_name                = azurerm_resource_group.azure_rg.name
-  azure_rg_location            = var.location
-  proximity_placement_group_id = element(coalescelist(azurerm_proximity_placement_group.proximity.*.id, [""]), 0)
-  vnet_subnet_id               = data.azurerm_subnet.misc-subnet.id
-  machine_type                 = var.nfs_vm_machine_type
-  azure_nsg_id                 = azurerm_network_security_group.nsg.id
-  tags                         = var.tags
-  vm_admin                     = var.nfs_vm_admin
-  vm_zone                      = var.nfs_vm_zone
-  ssh_public_key               = file(var.ssh_public_key)
-  cloud_init                   = data.template_cloudinit_config.nfs.rendered
-  create_public_ip             = var.create_nfs_public_ip
-  data_disk_count              = 4
-  data_disk_size               = var.nfs_raid_disk_size
+  name                           = "${var.prefix}-nfs"
+  azure_rg_name                  = azurerm_resource_group.azure_rg.name
+  azure_rg_location              = var.location
+  proximity_placement_group_id   = element(coalescelist(azurerm_proximity_placement_group.proximity.*.id, [""]), 0)
+  vnet_subnet_id                 = data.azurerm_subnet.misc-subnet.id
+  machine_type                   = var.nfs_vm_machine_type
+  azure_nsg_id                   = azurerm_network_security_group.nsg.id
+  tags                           = var.tags
+  vm_admin                       = var.nfs_vm_admin
+  vm_zone                        = var.nfs_vm_zone
+  ssh_public_key                 = file(var.ssh_public_key)
+  cloud_init                     = data.template_cloudinit_config.nfs.rendered
+  create_public_ip               = var.create_nfs_public_ip
+  data_disk_count                = 4
+  data_disk_size                 = var.nfs_raid_disk_size
   data_disk_storage_account_type = var.nfs_raid_disk_type
-  data_disk_zones              = var.nfs_raid_disk_zones
+  data_disk_zones                = var.nfs_raid_disk_zones
 
   depends_on = [module.vnet, azurerm_resource_group.azure_rg]
 }
@@ -227,7 +227,7 @@ module "nfs" {
 resource "azurerm_network_security_rule" "vm-ssh" {
   name                        = "${var.prefix}-ssh"
   description                 = "Allow SSH from source"
-  count                       = ( ((var.create_jump_public_ip && var.create_jump_vm && (length(local.vm_public_access_cidrs) > 0)) || (var.create_nfs_public_ip && var.storage_type == "standard" && (length(local.vm_public_access_cidrs) > 0))) != 0 ) ? 1 : 0
+  count                       = (((var.create_jump_public_ip && var.create_jump_vm && (length(local.vm_public_access_cidrs) > 0)) || (var.create_nfs_public_ip && var.storage_type == "standard" && (length(local.vm_public_access_cidrs) > 0))) != 0) ? 1 : 0
   priority                    = 120
   direction                   = "Inbound"
   access                      = "Allow"
@@ -390,7 +390,7 @@ resource "local_file" "kubeconfig" {
   content  = module.aks.kube_config
   filename = local.kubeconfig_path
 
-  depends_on = [ module.aks ]
+  depends_on = [module.aks]
 }
 
 data "external" "git_hash" {
@@ -402,32 +402,32 @@ data "external" "iac_tooling_version" {
 }
 
 data "template_file" "sas_iac_buildinfo" {
-   template = file("${path.module}/files/sas-iac-buildinfo.yaml.tmpl")
-   vars = {
-     git-hash            = lookup(data.external.git_hash.result, "git-hash")
-     timestamp           = chomp(timestamp())
-     iac-tooling         = var.iac_tooling
-     terraform-version   = lookup(data.external.iac_tooling_version.result, "terraform_version")
-     provider-selections = lookup(data.external.iac_tooling_version.result, "provider_selections")
-     terraform-revision  = lookup(data.external.iac_tooling_version.result, "terraform_revision")
-     terraform-outdated  = lookup(data.external.iac_tooling_version.result, "terraform_outdated")
-   }
- }
+  template = file("${path.module}/files/sas-iac-buildinfo.yaml.tmpl")
+  vars = {
+    git-hash            = lookup(data.external.git_hash.result, "git-hash")
+    timestamp           = chomp(timestamp())
+    iac-tooling         = var.iac_tooling
+    terraform-version   = lookup(data.external.iac_tooling_version.result, "terraform_version")
+    provider-selections = lookup(data.external.iac_tooling_version.result, "provider_selections")
+    terraform-revision  = lookup(data.external.iac_tooling_version.result, "terraform_revision")
+    terraform-outdated  = lookup(data.external.iac_tooling_version.result, "terraform_outdated")
+  }
+}
 
- resource "local_file" "sas_iac_buildinfo" {
-   content  = data.template_file.sas_iac_buildinfo.rendered
-   filename = "${path.module}/sas_iac_buildinfo.yaml"
- }
+resource "local_file" "sas_iac_buildinfo" {
+  content  = data.template_file.sas_iac_buildinfo.rendered
+  filename = "${path.module}/sas_iac_buildinfo.yaml"
+}
 
- resource "null_resource" "sas_iac_buildinfo" {
-   triggers = {
-     always_run = timestamp()
-   }
-   provisioner "local-exec" {
-     command = <<-EOF
+resource "null_resource" "sas_iac_buildinfo" {
+  triggers = {
+    always_run = timestamp()
+  }
+  provisioner "local-exec" {
+    command = <<-EOF
        kubectl --kubeconfig "${var.prefix}-aks-kubeconfig.conf" apply -f ${path.module}/sas_iac_buildinfo.yaml
      EOF
-   }
+  }
 
-   depends_on = [local_file.kubeconfig, local_file.sas_iac_buildinfo]
- }
+  depends_on = [local_file.kubeconfig, local_file.sas_iac_buildinfo]
+}

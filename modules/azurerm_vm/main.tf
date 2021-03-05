@@ -7,7 +7,7 @@ resource "azurerm_public_ip" "vm_ip" {
   resource_group_name = var.azure_rg_name
   allocation_method   = "Static"
   sku                 = var.vm_zone == null ? "Basic" : "Standard"
-  zones               = var.vm_zone == null ? [] : [ var.vm_zone ]
+  zones               = var.vm_zone == null ? [] : [var.vm_zone]
   tags                = var.tags
 }
 
