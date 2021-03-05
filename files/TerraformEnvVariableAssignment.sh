@@ -1,4 +1,4 @@
-# usage: source ~/azure.sh
+# usage: source <path-to-file>TerraformEnvVariableAssignment.sh
 
 echo -e "You must have an active az cli login 'az login' before this script will work"
 echo -e "\nPausing for 5 seconds; use ctrl-c to exit and login"
@@ -10,7 +10,7 @@ echo -e "\nTF_VAR_tenant_id:"
 echo -e $TF_VAR_tenant_id
 
 # set the subscription ID from a query; validate
-export TF_VAR_subscription_id=$(az account show --query 'name' --output tsv)
+export TF_VAR_subscription_id=$(az account show --query 'id' --output tsv)
 echo -e "\nTF_VAR_subscription_id:"
 echo -e $TF_VAR_subscription_id
 
