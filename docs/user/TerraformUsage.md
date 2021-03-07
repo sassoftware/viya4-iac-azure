@@ -9,9 +9,16 @@ When using the Terraform CLI, make sure you have all the necessary tools [instal
 
 Follow either one of the authentication methods described in [Authenticating Terraform to access Azure](./TerraformAzureAuthentication.md) and set all TF_VAR_name environment variables using `export TF_VAR_*=<value>` command.
 
-*TIP:* These environment variables can be re-loaded using the bash script referenced in the Authenticating Terraform link above.
+*TIP:* These environment variables can be re-loaded using the bash script referenced in the Authenticating Terraform link above, 
 
-*TIP:* These commands can be stored in a file outside of this repo in a secure file, for example `$HOME/.azure_creds.sh.` Protect that file so only you have read access to it.
+Once authenticated to the `az cli`, the following [bash (code) script](../../files/TerraformEnvVariableAssignment.sh) can be used to (re)assign the TF Environment Variables:
+
+```bash
+# source the bash script, presuming the file path
+source {path-to-file}TerraformEnvVariableAssignment.sh
+```
+
+*Althernative TIP:* These commands can be stored in a file outside of this repo in a secure file, for example `$HOME/.azure_creds.sh.` Protect that file so only you have read access to it.
 
 Then source your credentials into your shell environment:
 
@@ -52,6 +59,8 @@ To preview the cloud resources before creating, run
 
 ```bash
 terraform plan
+# alternative to store your plan for later
+terraform plan -out=tf-plan.out 
 ```
 ### Create Cloud Resources
 

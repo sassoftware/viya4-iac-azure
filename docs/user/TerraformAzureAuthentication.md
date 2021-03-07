@@ -12,7 +12,7 @@ We recommend using [TF_VAR_name](https://www.terraform.io/docs/cli/config/enviro
 
 ## Using a Service Principal
 
-To authenticate Terraform to access Azure, you will need to set the following four input variables:
+To authenticate Terraform to access Azure, you will need to set the following four input variables (**or run the following script**):
 
 | Name | Description | Type | Default |
 | :--- | ---: | ---: | ---: |
@@ -21,11 +21,11 @@ To authenticate Terraform to access Azure, you will need to set the following fo
 | client_id | your app_id when using a Service Principal | string | "" |
 | client_secret | your client secret when using a Service Principal| string | ""|
 
-The following [bash (code) script](../../files/TerraformEnvVariableAssignment.sh) can be used to (re)assign the TF Environment Variables:
+Once authenticated to the `az cli`, the following [bash (code) script](../../files/TerraformEnvVariableAssignment.sh) can be used to (re)assign the TF Environment Variables:
 
 ```bash
-# source the bash script, presuming the file 
-source {path-to-file}azure.sh
+# source the bash script, presuming the file path
+source {path-to-file}TerraformEnvVariableAssignment.sh
 ```
 
 ## Using an User-assigned Managed Identity
