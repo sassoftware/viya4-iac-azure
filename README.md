@@ -20,7 +20,7 @@
 
 This project contains Terraform scripts to provision Microsoft Azure Cloud infrastructure resources required to deploy SAS Viya 4 products. Here is a list of resources this project can create -
 
-  >- Azure Resource Group
+  >- Azure Resource Group(s), the default is 2 RGs (one for AKS and another for the VM IaaS)
   >- Virtual Network, Network Security Groups and Network Security Rules
   >- Managed Azure Kubernetes Service (AKS) cluster
   >- System and User AKS Node pools with required Labels and Taints
