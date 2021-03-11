@@ -256,6 +256,11 @@ variable "jump_vm_admin" {
   default     = "jumpuser"
 }
 
+variable "jump_vm_zone" {
+  description = "The Zone in which this Virtual Machine should be created. Changing this forces a new resource to be created"
+  default     = null
+}
+
 variable "jump_vm_machine_type" {
   default     = "Standard_B2s_v3"
   description = "SKU which should be used for this Virtual Machine"
