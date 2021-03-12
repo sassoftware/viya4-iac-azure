@@ -262,7 +262,7 @@ variable "jump_vm_zone" {
 }
 
 variable "jump_vm_machine_type" {
-  default     = "Standard_B2s_v3"
+  default = "Standard_B2s"
   description = "SKU which should be used for this Virtual Machine"
 }
 
