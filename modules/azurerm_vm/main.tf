@@ -7,12 +7,11 @@ resource "azurerm_public_ip" "vm_ip" {
   resource_group_name = var.azure_rg_name
   allocation_method   = "Static"
   sku                 = var.vm_zone == null ? "Basic" : "Standard"
-  zones               = var.vm_zone == null ? [] : [ var.vm_zone ]
+  zones               = var.vm_zone == null ? [] : [var.vm_zone]
   tags                = var.tags
 }
 
 resource "azurerm_network_interface" "vm_nic" {
-  count                         = var.create_vm ? 1 : 0
   name                          = "${var.name}-nic"
   location                      = var.azure_rg_location
   resource_group_name           = var.azure_rg_name
@@ -28,35 +27,33 @@ resource "azurerm_network_interface" "vm_nic" {
 }
 
 resource "azurerm_network_interface_security_group_association" "vm_nic_sg" {
-  count                     = var.create_vm ? 1 : 0
-  network_interface_id      = azurerm_network_interface.vm_nic.0.id
+  network_interface_id      = azurerm_network_interface.vm_nic.id
   network_security_group_id = var.azure_nsg_id
 }
 
 # https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/managed_disk
 resource "azurerm_managed_disk" "vm_data_disk" {
+  count                = var.data_disk_count
   name                 = format("%s-disk%02d", var.name, count.index + 1)
   location             = var.azure_rg_location
   resource_group_name  = var.azure_rg_name
   storage_account_type = var.data_disk_storage_account_type
   create_option        = "Empty"
   disk_size_gb         = var.data_disk_size
-  count                = var.create_vm ? var.data_disk_count : 0
   zones                = var.data_disk_zones
   tags                 = var.tags
 }
 
 resource "azurerm_virtual_machine_data_disk_attachment" "vm_data_disk_attach" {
+  count              = var.data_disk_count
   managed_disk_id    = azurerm_managed_disk.vm_data_disk[count.index].id
-  virtual_machine_id = azurerm_linux_virtual_machine.vm.0.id
+  virtual_machine_id = azurerm_linux_virtual_machine.vm.id
   lun                = count.index + 10
   caching            = var.data_disk_storage_account_type == "UltraSSD_LRS" ? "None" : var.data_disk_caching
-  count              = var.create_vm ? var.data_disk_count : 0
 }
 
 # https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/linux_virtual_machine
 resource "azurerm_linux_virtual_machine" "vm" {
-  count                        = var.create_vm ? 1 : 0
   name                         = "${var.name}-vm"
   location                     = var.azure_rg_location
   proximity_placement_group_id = var.proximity_placement_group_id == "" ? null : var.proximity_placement_group_id
@@ -69,7 +66,7 @@ resource "azurerm_linux_virtual_machine" "vm" {
   custom_data = (var.cloud_init != "" ? var.cloud_init : null)
 
   network_interface_ids = [
-    azurerm_network_interface.vm_nic.0.id,
+    azurerm_network_interface.vm_nic.id,
   ]
 
   admin_ssh_key {

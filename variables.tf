@@ -256,6 +256,11 @@ variable "jump_vm_admin" {
   default     = "jumpuser"
 }
 
+variable "jump_vm_zone" {
+  description = "The Zone in which this Virtual Machine should be created. Changing this forces a new resource to be created"
+  default     = null
+}
+
 variable "jump_vm_machine_type" {
   default = "Standard_B2s"
   description = "SKU which should be used for this Virtual Machine"
@@ -281,7 +286,7 @@ variable "create_nfs_public_ip" {
 }
 
 variable "nfs_vm_machine_type" {
-  default = "Standard_D8s_v4" # "Standard_E8s_v3" "Standard_D8s_v4"
+  default     = "Standard_D8s_v4" # "Standard_E8s_v3" "Standard_D8s_v4"
   description = "SKU which should be used for this Virtual Machine"
 }
 
@@ -301,7 +306,7 @@ variable "nfs_raid_disk_size" {
 }
 
 variable nfs_raid_disk_type {
-  default = "Standard_LRS"
+  default     = "Standard_LRS"
   description = "The type of storage to use for the managed disk. Possible values are Standard_LRS, Premium_LRS, StandardSSD_LRS or UltraSSD_LRS."
 
   validation {
