@@ -34,6 +34,10 @@ terraform {
       source  = "hashicorp/cloudinit"
       version = "2.1.0"
     }
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = "2.0.2"
+    }
   }
 }
 
@@ -53,6 +57,13 @@ provider "azuread" {
   client_id     = var.client_id
   client_secret = var.client_secret
   tenant_id     = var.tenant_id
+}
+
+provider "kubernetes" {
+  host                   = module.aks.host
+  client_key             = base64decode(module.aks.client_key)
+  client_certificate     = base64decode(module.aks.client_certificate)
+  cluster_ca_certificate = base64decode(module.aks.cluster_ca_certificate)
 }
 
 data "azurerm_subscription" "current" {}
@@ -379,34 +390,22 @@ data "external" "iac_tooling_version" {
   program = ["files/iac_tooling_version.sh"]
 }
 
-data "template_file" "sas_iac_buildinfo" {
-  template = file("${path.module}/files/sas-iac-buildinfo.yaml.tmpl")
-  vars = {
-    git-hash            = lookup(data.external.git_hash.result, "git-hash")
-    timestamp           = chomp(timestamp())
-    iac-tooling         = var.iac_tooling
-    terraform-version   = lookup(data.external.iac_tooling_version.result, "terraform_version")
-    provider-selections = lookup(data.external.iac_tooling_version.result, "provider_selections")
-    terraform-revision  = lookup(data.external.iac_tooling_version.result, "terraform_revision")
-    terraform-outdated  = lookup(data.external.iac_tooling_version.result, "terraform_outdated")
-  }
-}
-
-resource "local_file" "sas_iac_buildinfo" {
-  content  = data.template_file.sas_iac_buildinfo.rendered
-  filename = "${path.module}/sas_iac_buildinfo.yaml"
-}
-
-# https://www.terraform.io/docs/language/resources/provisioners/null_resource.html
-resource "null_resource" "sas_iac_buildinfo" {
-  triggers = {
-    always_run = timestamp()
-  }
-  provisioner "local-exec" {
-    command = <<-EOF
-       kubectl --kubeconfig "${var.prefix}-aks-kubeconfig.conf" apply -f ${path.module}/sas_iac_buildinfo.yaml
-     EOF
+resource "kubernetes_config_map" "sas_iac_buildinfo" {
+  metadata {
+    name      = "sas-iac-buildinfo"
+    namespace = "kube-system"
   }
 
-  depends_on = [local_file.kubeconfig, local_file.sas_iac_buildinfo]
+  data = {
+    git-hash    = lookup(data.external.git_hash.result, "git-hash")
+    iac-tooling = var.iac_tooling
+    terraform   = <<EOT
+version: ${lookup(data.external.iac_tooling_version.result, "terraform_version")}
+revision: ${lookup(data.external.iac_tooling_version.result, "terraform_revision")}
+provider-selections: ${lookup(data.external.iac_tooling_version.result, "provider_selections")}
+outdated: ${lookup(data.external.iac_tooling_version.result, "terraform_outdated")}
+EOT
+  }
+
+  depends_on = [ module.aks ]
 }
