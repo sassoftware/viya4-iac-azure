@@ -15,10 +15,10 @@ output "location" {
 
 output "address_space" {
   description = "The address space of the vNet"
-  value       = element(coalesce([data.azurerm_virtual_network.vnet.*.address_space], azurerm_virtual_network.vnet.*.address_space), 0)
+  value       = element(coalescelist(data.azurerm_virtual_network.vnet.*.address_space, azurerm_virtual_network.vnet.*.address_space), 0)
 }
 
 output "subnets" {
   description = "The ids of subnets inside the vNet"
-  value       = length(var.existing_subnets) == 0 ? azurerm_virtual_network.vnet.*.id : data.azurerm_virtual_network.vnet.*.id
+  value       = length(var.existing_subnets) == 0 ? azurerm_subnet.subnet.*.id : data.azurerm_subnet.subnet.*.id
 }

@@ -26,8 +26,6 @@ provider "kubernetes" {
 data "azurerm_subscription" "current" {}
 
 locals {
-  # Network ip ranges
-  netapp_subnet_cidr_block = "192.168.0.0/24"
   # CIDRs 
   default_public_access_cidrs          = var.default_public_access_cidrs == null ? [] : var.default_public_access_cidrs
   vm_public_access_cidrs               = var.vm_public_access_cidrs == null ? local.default_public_access_cidrs : var.vm_public_access_cidrs
@@ -314,7 +312,7 @@ module "netapp" {
   resource_group_name   = module.azurerm_resource_group.name
   location              = module.azurerm_resource_group.location
   vnet_name             = module.vnet.name
-  subnet_address_prefix = [local.netapp_subnet_cidr_block]
+  subnet_address_prefix = ["192.168.0.0/24"]
   service_level         = var.netapp_service_level
   size_in_tb            = var.netapp_size_in_tb
   protocols             = var.netapp_protocols
