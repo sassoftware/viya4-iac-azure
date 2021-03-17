@@ -524,7 +524,7 @@ variable "subnets" {
   default = [
     {
       "name": "aks-subnet",
-      "prefixes": ["192.168.16.0/20"],
+      "prefixes": ["192.168.0.0/23"],
       "service_endpoints": ["Microsoft.Sql"],
       "enforce_private_link_endpoint_network_policies": false,
       "enforce_private_link_service_network_policies": false,

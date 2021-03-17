@@ -312,7 +312,7 @@ module "netapp" {
   resource_group_name   = module.azurerm_resource_group.name
   location              = module.azurerm_resource_group.location
   vnet_name             = module.vnet.name
-  subnet_address_prefix = ["192.168.0.0/24"]
+  subnet_address_prefix = ["192.168.3.0/24"]
   service_level         = var.netapp_service_level
   size_in_tb            = var.netapp_size_in_tb
   protocols             = var.netapp_protocols
