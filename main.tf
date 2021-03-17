@@ -27,8 +27,6 @@ data "azurerm_subscription" "current" {}
 
 locals {
   # Network ip ranges
-  vnet_cidr_block          = "192.168.0.0/16"
-  gw_subnet_cidr_block     = "192.168.3.0/24"
   netapp_subnet_cidr_block = "192.168.0.0/24"
   # CIDRs 
   default_public_access_cidrs          = var.default_public_access_cidrs == null ? [] : var.default_public_access_cidrs
@@ -78,7 +76,7 @@ module "vnet" {
   location            = var.location
   subnets             = var.subnets
   existing_subnets    = var.existing_subnets
-  address_space       = [local.vnet_cidr_block]
+  address_space       = ["192.168.0.0/16"]
   tags                = module.azurerm_resource_group.tags
   depends_on          = [module.azurerm_resource_group]
 }
@@ -127,7 +125,7 @@ module "jump" {
 data "template_file" "nfs-cloudconfig" {
   template = file("${path.module}/cloud-init/nfs/cloud-config")
   vars = {
-    base_cidr_block = local.vnet_cidr_block
+    base_cidr_block = module.vnet.address_space
     vm_admin        = var.nfs_vm_admin
   }
 }
