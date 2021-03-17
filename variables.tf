@@ -513,14 +513,34 @@ variable vnet_name {
   description = "Name of pre-exising vnet. Leave blank to have one created"
 }
 
-variable aks_subnet_name {
-  type    = string
-  default = ""
-  description = "Name of pre-exising subnet to use for aks cluster. Leave blank to have one created"
+variable "subnets" {
+  type = list(object({
+    name                                           = string
+    prefixes                                       = list(string)
+    service_endpoints                              = list(string)
+    enforce_private_link_endpoint_network_policies = bool
+    enforce_private_link_service_network_policies  = bool
+  }))
+  default = [
+    {
+      "name": "aks-subnet",
+      "prefixes": ["192.168.16.0/20"],
+      "service_endpoints": ["Microsoft.Sql"],
+      "enforce_private_link_endpoint_network_policies": false,
+      "enforce_private_link_service_network_policies": false,
+    },
+    {
+      "name": "misc-subnet",
+      "prefixes": ["192.168.2.0/24"],
+      "service_endpoints": ["Microsoft.Sql"],
+      "enforce_private_link_endpoint_network_policies": false,
+      "enforce_private_link_service_network_policies": false,
+    }
+  ]
 }
 
-variable misc_subnet_name {
-  type    = string
-  default = ""
-  description = "Name of pre-exising subnet to use for support vms. Leave blank to have one created"
+variable "existing_subnets" {
+  type        = list(string)
+  default     = []
+  description = "Ordered list of exsting subenets. Frist will be used for AKS and the seconed will be used for auxilary systems/services"
 }

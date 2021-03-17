@@ -28,13 +28,8 @@ data "azurerm_subscription" "current" {}
 locals {
   # Network ip ranges
   vnet_cidr_block          = "192.168.0.0/16"
-  aks_subnet_cidr_block    = "192.168.16.0/20"
-  misc_subnet_cidr_block   = "192.168.2.0/24"
   gw_subnet_cidr_block     = "192.168.3.0/24"
   netapp_subnet_cidr_block = "192.168.0.0/24"
-  # Subnets
-  aks_subnet_name  = "${var.prefix}-aks-subnet"
-  misc_subnet_name = "${var.prefix}-misc-subnet"
   # CIDRs 
   default_public_access_cidrs          = var.default_public_access_cidrs == null ? [] : var.default_public_access_cidrs
   vm_public_access_cidrs               = var.vm_public_access_cidrs == null ? local.default_public_access_cidrs : var.vm_public_access_cidrs
@@ -77,20 +72,15 @@ resource "azurerm_network_security_group" "nsg" {
 module "vnet" {
   source = "./modules/azurerm_vnet"
 
-  vnet_name           = "${var.prefix}-vnet"
+  name                = var.vnet_name
+  prefix              = var.prefix
   resource_group_name = module.azurerm_resource_group.name
   location            = var.location
+  subnets             = var.subnets
+  existing_subnets    = var.existing_subnets
   address_space       = [local.vnet_cidr_block]
-  subnet_prefixes     = [local.aks_subnet_cidr_block, local.misc_subnet_cidr_block]
-  subnet_names        = [local.aks_subnet_name, local.misc_subnet_name]
-
-  subnet_service_endpoints = {
-    coalesce(local.aks_subnet_name)  = ["Microsoft.Sql"],
-    coalesce(local.misc_subnet_name) = ["Microsoft.Sql"]
-  }
-  tags = module.azurerm_resource_group.tags
-
-  depends_on = [module.azurerm_resource_group]
+  tags                = module.azurerm_resource_group.tags
+  depends_on          = [module.azurerm_resource_group]
 }
 
 data "template_file" "jump-cloudconfig" {
@@ -325,7 +315,7 @@ module "netapp" {
   prefix                = var.prefix
   resource_group_name   = module.azurerm_resource_group.name
   location              = module.azurerm_resource_group.location
-  vnet_name             = module.vnet.vnet_name
+  vnet_name             = module.vnet.name
   subnet_address_prefix = [local.netapp_subnet_cidr_block]
   service_level         = var.netapp_service_level
   size_in_tb            = var.netapp_size_in_tb
