@@ -497,3 +497,30 @@ variable "log_analytics_solution_promotion_code" {
   description = "A promotion code to be used with the solution"
   default     = ""
 }
+
+###############################
+## BYO ##
+###############################
+variable resource_group_name {
+  type    = string
+  default = ""
+  description = "Name of pre-exising resource group. Leave blank to have one created"
+}
+
+variable vnet_name {
+  type    = string
+  default = ""
+  description = "Name of pre-exising vnet. Leave blank to have one created"
+}
+
+variable aks_subnet_name {
+  type    = string
+  default = ""
+  description = "Name of pre-exising subnet to use for aks cluster. Leave blank to have one created"
+}
+
+variable misc_subnet_name {
+  type    = string
+  default = ""
+  description = "Name of pre-exising subnet to use for support vms. Leave blank to have one created"
+}

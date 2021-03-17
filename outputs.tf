@@ -126,7 +126,7 @@ output "rwx_filestore_config" {
     "tenantID" : data.azurerm_subscription.current.tenant_id,
     "clientID" : var.client_id,
     "clientSecret" : var.client_secret,
-    "location" : azurerm_resource_group.azure_rg.location,
+    "location" : module.azurerm_resource_group.location,
     "serviceLevel" : var.netapp_service_level,
     "virtualNetwork" : module.vnet.vnet_name,
     "subnet" : element(coalescelist(module.netapp.*.netapp_subnet, [""] ),0),
