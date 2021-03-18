@@ -9,6 +9,8 @@ Supported configuration variables are listed in the table below.  All variables 
   - [Required Variables](#required-variables)
     - [Azure Authentication](#azure-authentication)
   - [Admin Access](#admin-access)
+  - [Networking](#networking)
+    - [Bring your own](#bring-your-own)
   - [General](#general)
   - [Nodepools](#nodepools)
     - [Default Nodepool](#default-nodepool)
@@ -18,8 +20,6 @@ Supported configuration variables are listed in the table below.  All variables 
     - [Azure NetApp Files (only when `storage_type=ha`)](#azure-netapp-files-only-when-storage_typeha)
   - [Azure Container Registry (ACR)](#azure-container-registry-acr)
   - [Postgres](#postgres)
-  - [Networking](#networking)
-    - [Bring your own](#bring-your-own)
 
 Terraform input variables can be set in the following ways:
 
@@ -69,6 +69,55 @@ You can use `default_public_access_cidrs` to set a default range for all created
 | vm_public_access_cidrs | IP Ranges allowed to access the VMs | list of strings | | opens port 22 for SSH access to the jump and/or nfs VM |
 | postgres_access_cidrs | IP Ranges allowed to access the Azure PostgreSQL Server | list of strings |||
 | acr_access_cidrs | IP Ranges allowed to access the ACR instance | list of strings |||
+
+## Networking
+| Name | Description | Type | Default | Notes |
+| :--- | ---: | ---: | ---: | ---: |
+| vnet_address_space | Address space for created vnet | string | "192.168.0.0/16" | This variable is ignored when vnet_name is set (aka bring your own vnet) |
+| subnets | Map defining subnets to be created | map(object) | *check below* | All defined subnets must exist within the vnet address space. This variable is ignored when subnet_names is set (aka bring your own subnets) |
+
+The default values for the subnets variable are:
+
+```yaml
+{
+  aks = {
+    "prefixes": ["192.168.0.0/23"],
+    "service_endpoints": ["Microsoft.Sql"],
+    "enforce_private_link_endpoint_network_policies": false,
+    "enforce_private_link_service_network_policies": false,
+    "service_delegations": {},
+  }
+  misc = {
+    "prefixes": ["192.168.2.0/24"],
+    "service_endpoints": ["Microsoft.Sql"],
+    "enforce_private_link_endpoint_network_policies": false,
+    "enforce_private_link_service_network_policies": false,
+    "service_delegations": {},
+  }
+  netapp = {
+    "prefixes": ["192.168.3.0/24"],
+    "service_endpoints": [],
+    "enforce_private_link_endpoint_network_policies": false,
+    "enforce_private_link_service_network_policies": false,
+    "service_delegations": {
+      netapp = {
+        "name"    : "Microsoft.Netapp/volumes"
+        "actions" : ["Microsoft.Network/networkinterfaces/*", "Microsoft.Network/virtualNetworks/subnets/join/action"]
+      }
+    }
+  }
+}
+```
+
+### Bring your own
+When desiring to deploy into exising resource group, vnet, subnets, or network security group the varaiables below can be used to define the exsting resources
+
+| Name | Description | Type | Default | Notes |
+| :--- | ---: | ---: | ---: | ---: |
+| resource_group_name | Name of pre-existing resource group | string | null | |
+| vnet_name | Name of pre-existing vnet | string | null | |
+| nsg_name | Name of pre-existing resource group | string | null | |
+| subnet_names | Map of subnet role to pre-existing subnet names | map(string) | null | Example: subnet_names = {'aks': 'my_aks_subnet', 'misc': 'my_misc_subnet'} |
 
 ## General
 
@@ -244,52 +293,3 @@ When `storage_type=ha` (high availability), [Microsoft Azure NetApp Files](https
 | postgres_db_charset | The Charset for the PostgreSQL Database. Needs to be a valid PostgreSQL Charset. Changing this forces a new resource to be created. | string | "UTF8" | |
 | postgres_db_collation | The Collation for the PostgreSQL Database. Needs to be a valid PostgreSQL Collation. Changing this forces a new resource to be created. |string| "English_United States.1252" | |
 | postgres_configurations | Configurations to enable on the PostgreSQL Database server instance | map | {} | |
-
-## Networking
-| Name | Description | Type | Default | Notes |
-| :--- | ---: | ---: | ---: | ---: |
-| vnet_address_space | Address space for created vnet | string | "192.168.0.0/16" | This variable is ignored when vnet_name is set (aka bring your own vnet) |
-| subnets | Map defining subnets to be created | map(object) | *check below* | All defined subnets must exist within the vnet address space. This variable is ignored when subnet_names is set (aka bring your own subnets) |
-
-The default values for the subnets variable are:
-
-```yaml
-{
-  aks = {
-    "prefixes": ["192.168.0.0/23"],
-    "service_endpoints": ["Microsoft.Sql"],
-    "enforce_private_link_endpoint_network_policies": false,
-    "enforce_private_link_service_network_policies": false,
-    "service_delegations": {},
-  }
-  misc = {
-    "prefixes": ["192.168.2.0/24"],
-    "service_endpoints": ["Microsoft.Sql"],
-    "enforce_private_link_endpoint_network_policies": false,
-    "enforce_private_link_service_network_policies": false,
-    "service_delegations": {},
-  }
-  netapp = {
-    "prefixes": ["192.168.3.0/24"],
-    "service_endpoints": [],
-    "enforce_private_link_endpoint_network_policies": false,
-    "enforce_private_link_service_network_policies": false,
-    "service_delegations": {
-      netapp = {
-        "name"    : "Microsoft.Netapp/volumes"
-        "actions" : ["Microsoft.Network/networkinterfaces/*", "Microsoft.Network/virtualNetworks/subnets/join/action"]
-      }
-    }
-  }
-}
-```
-
-### Bring your own
-When desiring to deploy into exising resource group, vnet, subnets, or network security group the varaiables below can be used to define the exsting resources
-
-| Name | Description | Type | Default | Notes |
-| :--- | ---: | ---: | ---: | ---: |
-| resource_group_name | Name of pre-existing resource group | string | null | |
-| vnet_name | Name of pre-existing vnet | string | null | |
-| nsg_name | Name of pre-existing resource group | string | null | |
-| subnet_names | Map of subnet role to pre-existing subnet names | map(string) | null | Example: subnet_names = {'aks': 'my_aks_subnet', 'misc': 'my_misc_subnet'} |
