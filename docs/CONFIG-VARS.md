@@ -115,10 +115,10 @@ When desiring to deploy into exising resource group, vnet, subnets, or network s
 
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
-| resource_group_name | Name of pre-existing resource group | string | null | |
-| vnet_name | Name of pre-existing vnet | string | null | |
-| nsg_name | Name of pre-existing network security group | string | null | |
-| subnet_names | Map of subnet role to pre-existing subnet names | map(string) | null | aks and misc subnets are required. See example below |
+| resource_group_name | Name of pre-existing resource group | string | null | Only required if deploying into existing resource group|
+| vnet_name | Name of pre-existing vnet | string | null | Only required if deploying into existing vnet |
+| nsg_name | Name of pre-existing network security group | string | null | Only required if deploying into existing nsg |
+| subnet_names | Map of subnet role to pre-existing subnet names | map(string) | null | Only required if deploying into existing subnets. Aks and misc subnets are required. See example below |
 
 Example subnet_names variable:
 
