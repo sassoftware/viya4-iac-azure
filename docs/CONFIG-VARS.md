@@ -74,7 +74,7 @@ You can use `default_public_access_cidrs` to set a default range for all created
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
 | vnet_address_space | Address space for created vnet | string | "192.168.0.0/16" | This variable is ignored when vnet_name is set (aka bring your own vnet) |
-| subnets | Map defining subnets to be created | map(object) | *check below* | This variable is ignored when subnet_names is set (aka bring your own subnets). All defined subnets must exist within the vnet address space.  |
+| subnets | Subnets to be created and their settings | map(object) | *check below* | This variable is ignored when subnet_names is set (aka bring your own subnets). All defined subnets must exist within the vnet address space.  |
 
 The default values for the subnets variable are:
 
@@ -118,7 +118,7 @@ When desiring to deploy into exising resource group, vnet, subnets, or network s
 | resource_group_name | Name of pre-existing resource group | string | null | Only required if deploying into existing resource group|
 | vnet_name | Name of pre-existing vnet | string | null | Only required if deploying into existing vnet |
 | nsg_name | Name of pre-existing network security group | string | null | Only required if deploying into existing nsg |
-| subnet_names | Map of subnet role to pre-existing subnet names | map(string) | null | Only required if deploying into existing subnets. See example below |
+| subnet_names | Existing subnets mapped to desired usage | map(string) | null | Only required if deploying into existing subnets. See example below |
 
 Example subnet_names variable:
 
