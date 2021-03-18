@@ -541,7 +541,7 @@ variable "subnets" {
     }
     netapp = {
       "prefixes": ["192.168.3.0/24"],
-      "service_endpoints": [],
+      "service_endpoints": ["Microsoft.Sql"],
       "enforce_private_link_endpoint_network_policies": false,
       "enforce_private_link_service_network_policies": false,
       "service_delegations": {
@@ -554,12 +554,12 @@ variable "subnets" {
   }
 }
 
-variable "existing_subnets" {
+variable "subnet_names" {
   type        = map(string)
   default     = null
-  description = "Map needed roles to existing subnet names"
+  description = "Map subnet usage roles to existing subnet names"
   # Example:
-  # existing_subnets = {
+  # subnet_names = {
   #   'aks': 'my_aks_subnet', 
   #   'misc': 'my_misc_subnet', 
   #   'netapp': 'my_netapp_subnet'

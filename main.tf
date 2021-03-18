@@ -73,7 +73,7 @@ module "vnet" {
   resource_group_name = module.resource_group.name
   location            = var.location
   subnets             = var.subnets
-  existing_subnets    = var.existing_subnets
+  existing_subnets    = var.subnet_names
   address_space       = ["192.168.0.0/16"]
   tags                = module.resource_group.tags
   depends_on          = [module.resource_group]
