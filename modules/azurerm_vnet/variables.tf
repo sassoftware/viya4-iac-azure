@@ -12,13 +12,11 @@ variable "location" {}
 variable "resource_group_name" {
   description = "Name of the resource group to be imported."
   type        = string
-  default = "vnetst-rg"
 }
 
 variable "address_space" {
   type        = list(string)
   description = "The address space that is used by the virtual network."
-  default     = ["10.0.0.0/16"]
 }
 
 # If no values specified, this defaults to Azure DNS 
