@@ -18,6 +18,7 @@ Supported configuration variables are listed in the table below.  All variables 
     - [Azure NetApp Files (only when `storage_type=ha`)](#azure-netapp-files-only-when-storage_typeha)
   - [Azure Container Registry (ACR)](#azure-container-registry-acr)
   - [Postgres](#postgres)
+  - [Bring your own](#bring-your-own)
 
 Terraform input variables can be set in the following ways:
 
@@ -242,3 +243,19 @@ When `storage_type=ha` (high availability), [Microsoft Azure NetApp Files](https
 | postgres_db_charset | The Charset for the PostgreSQL Database. Needs to be a valid PostgreSQL Charset. Changing this forces a new resource to be created. | string | "UTF8" | |
 | postgres_db_collation | The Collation for the PostgreSQL Database. Needs to be a valid PostgreSQL Collation. Changing this forces a new resource to be created. |string| "English_United States.1252" | |
 | postgres_configurations | Configurations to enable on the PostgreSQL Database server instance | map | {} | |
+
+## Networking
+| Name | Description | Type | Default | Notes |
+| :--- | ---: | ---: | ---: | ---: |
+| subnets | Map defining subnets to be created | map(object) | *check default in varaibles.tf* | All defined subnets must exist within the vnet address space. This variable is ignored when subnet_names is set (aka bring your own subnets) |
+
+
+## Bring your own
+When desiring to deploy into exising resource group, vnet, subnet, or network security group the varaiables below can be used to define the exsting resources
+
+| Name | Description | Type | Default | Notes |
+| :--- | ---: | ---: | ---: | ---: |
+| resource_group_name | Name of pre-existing resource group | string | "" | |
+| vnet_name | Name of pre-existing vnet | string | "" | |
+| nsg_name | Name of pre-existing resource group | string | "" | |
+| subnet_names | Map of subnet role to pre-existing subnet names | map(string) | null | Example: subnet_names = {'aks': 'my_aks_subnet', 'misc': 'my_misc_subnet'} |
