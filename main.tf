@@ -106,7 +106,7 @@ module "jump" {
   name              = "${var.prefix}-jump"
   azure_rg_name     = module.azurerm_resource_group.name
   azure_rg_location = var.location
-  vnet_subnet_id    = module.vnet.vnet_subnets[1] # misc_subnet
+  vnet_subnet_id    = module.vnet.subnets["misc"]
   machine_type      = var.jump_vm_machine_type
   azure_nsg_id      = azurerm_network_security_group.nsg.id
   tags              = module.azurerm_resource_group.tags
@@ -123,7 +123,7 @@ module "jump" {
 data "template_file" "nfs-cloudconfig" {
   template = file("${path.module}/cloud-init/nfs/cloud-config")
   vars = {
-    base_cidr_block = module.vnet.address_space
+    base_cidr_block = element(module.vnet.address_space, 0)
     vm_admin        = var.nfs_vm_admin
   }
 }
@@ -146,7 +146,7 @@ module "nfs" {
   azure_rg_name                  = module.azurerm_resource_group.name
   azure_rg_location              = var.location
   proximity_placement_group_id   = element(coalescelist(azurerm_proximity_placement_group.proximity.*.id, [""]), 0)
-  vnet_subnet_id                 = module.vnet.vnet_subnets[1] # misc_subnet
+  vnet_subnet_id                 = module.vnet.subnets["misc"]
   machine_type                   = var.nfs_vm_machine_type
   azure_nsg_id                   = azurerm_network_security_group.nsg.id
   tags                           = module.azurerm_resource_group.tags
@@ -222,7 +222,7 @@ module "aks" {
   aks_cluster_node_vm_size                 = var.default_nodepool_vm_type
   aks_cluster_node_admin                   = var.node_vm_admin
   aks_cluster_ssh_public_key               = file(var.ssh_public_key)
-  aks_vnet_subnet_id                       = module.vnet.vnet_subnets[0] # aks_subnet
+  aks_vnet_subnet_id                       = module.vnet.subnets["aks"]
   kubernetes_version                       = var.kubernetes_version
   aks_cluster_endpoint_public_access_cidrs = local.cluster_endpoint_public_access_cidrs
   aks_availability_zones                   = var.default_nodepool_availability_zones
@@ -255,7 +255,7 @@ module "node_pools" {
 
   node_pool_name = each.key
   aks_cluster_id = module.aks.cluster_id
-  vnet_subnet_id = module.vnet.vnet_subnets[0] # aks_subnet
+  vnet_subnet_id = module.vnet.subnets["aks"]
   machine_type   = each.value.machine_type
   os_disk_size   = each.value.os_disk_size
   # TODO: enable with azurerm v2.37.0
@@ -299,8 +299,8 @@ module "postgresql" {
   postgresql_configurations    = var.postgres_configurations
   tags                         = module.azurerm_resource_group.tags
   vnet_rules = [
-    { name = local.aks_subnet_name, subnet_id = module.vnet.vnet_subnets[0] },
-    { name = local.misc_subnet_name, subnet_id = module.vnet.vnet_subnets[1] }
+    { name = "aks", subnet_id = module.vnet.subnets["aks"] },
+    { name = "misc", subnet_id = module.vnet.subnets["misc"] }
   ]
 }
 
@@ -312,7 +312,7 @@ module "netapp" {
   resource_group_name   = module.azurerm_resource_group.name
   location              = module.azurerm_resource_group.location
   vnet_name             = module.vnet.name
-  subnet_address_prefix = ["192.168.3.0/24"]
+  subnet_id             = module.vnet.subnets["netapp"]
   service_level         = var.netapp_service_level
   size_in_tb            = var.netapp_size_in_tb
   protocols             = var.netapp_protocols

@@ -129,9 +129,9 @@ output "rwx_filestore_config" {
     "location" : module.azurerm_resource_group.location,
     "serviceLevel" : var.netapp_service_level,
     "virtualNetwork" : module.vnet.vnet_name,
-    "subnet" : element(coalescelist(module.netapp.*.netapp_subnet, [""] ),0),
+    "subnet" : module.vnet.subnets["netapp"],
     "defaults" : {
-      "exportRule" : local.vnet_cidr_block,
+      "exportRule" : element(module.vnet.address_space, 0),
     }
   }) : null
 }
