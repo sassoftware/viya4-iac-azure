@@ -555,11 +555,7 @@ variable "subnets" {
 }
 
 variable "existing_subnets" {
-  type        = object({
-    aks = string
-    misc = string
-    netapp = string
-  })
+  type        = map(string)
   default     = null
   description = "Map needed roles to existing subnet names"
   # Example:
