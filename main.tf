@@ -77,7 +77,7 @@ module "vnet" {
   location            = var.location
   subnets             = var.subnets
   existing_subnets    = var.subnet_names
-  address_space       = var.vnet_address_space
+  address_space       = [var.vnet_address_space]
   tags                = module.resource_group.tags
   depends_on          = [module.resource_group]
 }

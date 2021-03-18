@@ -512,8 +512,8 @@ variable "vnet_name" {
 }
 
 variable "vnet_address_space" {
-  type    = list(string)
-  default = ["192.168.0.0/16"]
+  type        = string
+  default     = "192.168.0.0/16"
   description = "Address space for created vnet"
 }
 
