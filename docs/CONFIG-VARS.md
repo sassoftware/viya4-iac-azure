@@ -10,7 +10,7 @@ Supported configuration variables are listed in the table below.  All variables 
     - [Azure Authentication](#azure-authentication)
   - [Admin Access](#admin-access)
   - [Networking](#networking)
-    - [Bring your own](#bring-your-own)
+    - [Use Existing](#use-existing)
   - [General](#general)
   - [Nodepools](#nodepools)
     - [Default Nodepool](#default-nodepool)
@@ -110,7 +110,7 @@ The default values for the subnets variable are:
 }
 ```
 
-### Bring your own
+### Use Exisiting
 When desiring to deploy into exising resource group, vnet, subnets, or network security group the varaiables below can be used to define the exsting resources
 
 | Name | Description | Type | Default | Notes |
