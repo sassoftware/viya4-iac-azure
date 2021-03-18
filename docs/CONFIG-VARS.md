@@ -126,7 +126,7 @@ Example subnet_names variable:
 subnet_names = {
   'aks': 'my_aks_subnet', 
   'misc': 'my_misc_subnet',
-  ## If using ha storage then the following is also added
+  ## If using ha storage then the following is also required
   'netapp': 'my_netapp_subnet'
 }
 ```
