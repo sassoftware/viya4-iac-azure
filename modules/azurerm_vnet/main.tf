@@ -1,6 +1,7 @@
 # Sourced and modified from https://github.com/Azure/terraform-azurerm-vnet
 locals {
   vnet_name = coalesce(var.name, "${var.prefix}-vnet")
+  subnets = var.existing_subnets == null ? var.subnets : {} 
 }
 
 data "azurerm_virtual_network" "vnet" {
@@ -20,21 +21,21 @@ resource "azurerm_virtual_network" "vnet" {
 }
 
 data "azurerm_subnet" "subnet" {
-  count                = length(var.existing_subnets)
-  name                 = var.existing_subnets[count.index]
+  for_each             = var.existing_subnets == null ? {} : var.existing_subnets
+  name                 = each.value
   virtual_network_name = local.vnet_name
   resource_group_name  = var.resource_group_name
   depends_on           = [data.azurerm_virtual_network.vnet, azurerm_virtual_network.vnet]
 }
 
 resource "azurerm_subnet" "subnet" {
-  count                                          = length(var.existing_subnets) == 0 ? length(var.subnets) : 0
-  name                                           = "${var.prefix}-${var.subnets[count.index].name}"
+  for_each                                       = local.subnets
+  name                                           = "${var.prefix}-${each.key}-subnet"
   resource_group_name                            = var.resource_group_name
   virtual_network_name                           = local.vnet_name
-  address_prefixes                               = var.subnets[count.index].prefixes
-  service_endpoints                              = var.subnets[count.index].service_endpoints
-  enforce_private_link_endpoint_network_policies = var.subnets[count.index].enforce_private_link_endpoint_network_policies
-  enforce_private_link_service_network_policies  = var.subnets[count.index].enforce_private_link_service_network_policies
+  address_prefixes                               = each.value.prefixes
+  service_endpoints                              = each.value.service_endpoints
+  enforce_private_link_endpoint_network_policies = each.value.enforce_private_link_endpoint_network_policies
+  enforce_private_link_service_network_policies  = each.value.enforce_private_link_service_network_policies
   depends_on                                     = [data.azurerm_virtual_network.vnet, azurerm_virtual_network.vnet]
 }

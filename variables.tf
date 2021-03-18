@@ -514,33 +514,58 @@ variable vnet_name {
 }
 
 variable "subnets" {
-  type = list(object({
-    name                                           = string
+  type = map(object({
     prefixes                                       = list(string)
     service_endpoints                              = list(string)
     enforce_private_link_endpoint_network_policies = bool
     enforce_private_link_service_network_policies  = bool
+    service_delegations                            = map(object({
+      name    = string
+      actions = list(string)
+    }))
   }))
-  default = [
-    {
-      "name": "aks-subnet",
+  default = {
+    aks = {
       "prefixes": ["192.168.0.0/23"],
       "service_endpoints": ["Microsoft.Sql"],
       "enforce_private_link_endpoint_network_policies": false,
       "enforce_private_link_service_network_policies": false,
-    },
-    {
-      "name": "misc-subnet",
+      "service_delegations": {},
+    }
+    misc = {
       "prefixes": ["192.168.2.0/24"],
       "service_endpoints": ["Microsoft.Sql"],
       "enforce_private_link_endpoint_network_policies": false,
       "enforce_private_link_service_network_policies": false,
+      "service_delegations": {},
     }
-  ]
+    netapp = {
+      "prefixes": ["192.168.3.0/24"],
+      "service_endpoints": ["Microsoft.Sql"],
+      "enforce_private_link_endpoint_network_policies": false,
+      "enforce_private_link_service_network_policies": false,
+      "service_delegations": {
+        netapp = {
+          "name"    : "Microsoft.Netapp/volumes"
+          "actions" : ["Microsoft.Network/networkinterfaces/*", "Microsoft.Network/virtualNetworks/subnets/join/action"]
+        }
+      }
+    }
+  }
 }
 
 variable "existing_subnets" {
-  type        = list(string)
-  default     = []
-  description = "Ordered list of exsting subenets. Frist will be used for AKS and the seconed will be used for auxilary systems/services"
+  type        = object({
+    aks = string
+    misc = string
+    netapp = string
+  })
+  default     = null
+  description = "Map needed roles to existing subnet names"
+  # Example:
+  # existing_subnets = {
+  #   'aks': 'my_aks_subnet', 
+  #   'misc': 'my_misc_subnet', 
+  #   'netapp': 'my_netapp_subnet'
+  # }
 }

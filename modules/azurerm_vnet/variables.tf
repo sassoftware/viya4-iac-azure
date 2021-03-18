@@ -28,44 +28,27 @@ variable "dns_servers" {
   default     = []
 }
 
-## TODO: TF14 add support for optional object type attributes
 variable "subnets" {
-  type = list(object({
-    name                                           = string
+  type = map(object({
     prefixes                                       = list(string)
     service_endpoints                              = list(string)
     enforce_private_link_endpoint_network_policies = bool
     enforce_private_link_service_network_policies  = bool
+    service_delegations                            = map(object({
+      name    = string
+      actions = list(string)
+    }))
   }))
-  default = [
-    {
-      "name": "subnet1",
-      "prefixes": ["10.0.1.0/24"],
-      "service_endpoints": [],
-      "enforce_private_link_endpoint_network_policies": false,
-      "enforce_private_link_service_network_policies": false,
-    },
-    {
-      "name": "subnet2",
-      "prefixes": ["10.0.2.0/24"],
-      "service_endpoints": [],
-      "enforce_private_link_endpoint_network_policies": false,
-      "enforce_private_link_service_network_policies": false,
-    }
-  ]
+
+  default = null
 }
 
 variable "existing_subnets" {
-  type    = list
-  default = []
+  type    = map(string)
+  default = null
 }
-
 
 variable "tags" {
   description = "The tags to associate with your network and subnets."
   type        = map(string)
-
-  default = {
-    ENV = "test"
-  }
 }
