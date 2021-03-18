@@ -249,8 +249,40 @@ When `storage_type=ha` (high availability), [Microsoft Azure NetApp Files](https
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
 | vnet_address_space | Address space for created vnet | string | "192.168.0.0/16" | This variable is ignored when vnet_name is set (aka bring your own vnet) |
-| subnets | Map defining subnets to be created | map(object) | *check default in varaibles.tf* | All defined subnets must exist within the vnet address space. This variable is ignored when subnet_names is set (aka bring your own subnets) |
+| subnets | Map defining subnets to be created | map(object) | *check below* | All defined subnets must exist within the vnet address space. This variable is ignored when subnet_names is set (aka bring your own subnets) |
 
+The default values for the subnets variable are:
+
+```yaml
+{
+  aks = {
+    "prefixes": ["192.168.0.0/23"],
+    "service_endpoints": ["Microsoft.Sql"],
+    "enforce_private_link_endpoint_network_policies": false,
+    "enforce_private_link_service_network_policies": false,
+    "service_delegations": {},
+  }
+  misc = {
+    "prefixes": ["192.168.2.0/24"],
+    "service_endpoints": ["Microsoft.Sql"],
+    "enforce_private_link_endpoint_network_policies": false,
+    "enforce_private_link_service_network_policies": false,
+    "service_delegations": {},
+  }
+  netapp = {
+    "prefixes": ["192.168.3.0/24"],
+    "service_endpoints": [],
+    "enforce_private_link_endpoint_network_policies": false,
+    "enforce_private_link_service_network_policies": false,
+    "service_delegations": {
+      netapp = {
+        "name"    : "Microsoft.Netapp/volumes"
+        "actions" : ["Microsoft.Network/networkinterfaces/*", "Microsoft.Network/virtualNetworks/subnets/join/action"]
+      }
+    }
+  }
+}
+```
 
 ### Bring your own
 When desiring to deploy into exising resource group, vnet, subnets, or network security group the varaiables below can be used to define the exsting resources
