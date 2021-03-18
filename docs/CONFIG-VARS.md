@@ -292,4 +292,4 @@ When desiring to deploy into exising resource group, vnet, subnets, or network s
 | resource_group_name | Name of pre-existing resource group | string | null | |
 | vnet_name | Name of pre-existing vnet | string | null | |
 | nsg_name | Name of pre-existing resource group | string | null | |
-| subnet_names | Map of subnet role to pre-existing subnet names | map(string) | null | Example: subnet_names = \n {'aks': 'my_aks_subnet', 'misc': 'my_misc_subnet'} |
+| subnet_names | Map of subnet role to pre-existing subnet names | map(string) | null | Example: subnet_names = {'aks': 'my_aks_subnet', 'misc': 'my_misc_subnet'} |
