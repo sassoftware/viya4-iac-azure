@@ -1,7 +1,6 @@
 # Sourced and modified from https://github.com/Azure/terraform-azurerm-vnet
 locals {
   vnet_name = coalesce(var.name, "${var.prefix}-vnet")
-  subnets = var.existing_subnets == null ? var.subnets : {} 
 }
 
 data "azurerm_virtual_network" "vnet" {
@@ -21,7 +20,7 @@ resource "azurerm_virtual_network" "vnet" {
 }
 
 data "azurerm_subnet" "subnet" {
-  for_each             = var.existing_subnets == null ? {} : var.existing_subnets
+  for_each             = var.existing_subnets ? {} : var.existing_subnets
   name                 = each.value
   virtual_network_name = local.vnet_name
   resource_group_name  = var.resource_group_name
@@ -29,7 +28,7 @@ data "azurerm_subnet" "subnet" {
 }
 
 resource "azurerm_subnet" "subnet" {
-  for_each                                       = local.subnets
+  for_each                                       = var.existing_subnets ? {} : var.subnets 
   name                                           = "${var.prefix}-${each.key}-subnet"
   resource_group_name                            = var.resource_group_name
   virtual_network_name                           = local.vnet_name
