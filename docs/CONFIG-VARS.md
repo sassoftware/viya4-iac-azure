@@ -125,11 +125,11 @@ Example subnet_names variable:
 ```yaml
 subnet_names = {
   ## Required subnets
-  'aks': 'my_aks_subnet', 
-  'misc': 'my_misc_subnet',
-  
+  'aks': '<my_aks_subnet_name>', 
+  'misc': '<my_misc_subnet_name>',
+
   ## If using ha storage then the following is also required
-  'netapp': 'my_netapp_subnet'
+  'netapp': '<my_netapp_subnet_name>'
 }
 ```
 
