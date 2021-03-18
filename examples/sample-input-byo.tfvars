@@ -114,11 +114,11 @@ nfs_raid_disk_type   = "Standard_LRS"
 create_aks_azure_monitor = false
 
 # Bring your own existing resources
-resource_group_name = "<existing-resource-group-name>"
-vnet_name           = "<existing-vnet-name>"
-nsg_name            = "<existing-nsg-name>"
+resource_group_name = "<existing-resource-group-name>" # only needed if using pre-existing
+vnet_name           = "<existing-vnet-name>"           # only needed if using pre-existing
+nsg_name            = "<existing-nsg-name>"            # only needed if using pre-existing
 subnet_names        = {
   "aks": "<existing-subnet-name-1>", 
   "misc": "<existing-subnet-name-2>", 
-  "netapp": "<existing-subnet-name-3>" # needed for ha storage only (aka netapp)
+  "netapp": "<existing-subnet-name-3>" # only needed if using ha storage (aka netapp)
 }
