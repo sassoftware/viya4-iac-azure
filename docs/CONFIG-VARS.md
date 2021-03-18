@@ -74,7 +74,7 @@ You can use `default_public_access_cidrs` to set a default range for all created
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
 | vnet_address_space | Address space for created vnet | string | "192.168.0.0/16" | This variable is ignored when vnet_name is set (aka bring your own vnet) |
-| subnets | Map defining subnets to be created | map(object) | *check below* | All defined subnets must exist within the vnet address space. This variable is ignored when subnet_names is set (aka bring your own subnets) |
+| subnets | Map defining subnets to be created | map(object) | *check below* | This variable is ignored when subnet_names is set (aka bring your own subnets). All defined subnets must exist within the vnet address space.  |
 
 The default values for the subnets variable are:
 
@@ -94,6 +94,7 @@ The default values for the subnets variable are:
     "enforce_private_link_service_network_policies": false,
     "service_delegations": {},
   }
+  ## If using ha storage then the following is also added
   netapp = {
     "prefixes": ["192.168.3.0/24"],
     "service_endpoints": [],
@@ -116,8 +117,19 @@ When desiring to deploy into exising resource group, vnet, subnets, or network s
 | :--- | ---: | ---: | ---: | ---: |
 | resource_group_name | Name of pre-existing resource group | string | null | |
 | vnet_name | Name of pre-existing vnet | string | null | |
-| nsg_name | Name of pre-existing resource group | string | null | |
-| subnet_names | Map of subnet role to pre-existing subnet names | map(string) | null | Example: subnet_names = {'aks': 'my_aks_subnet', 'misc': 'my_misc_subnet'} |
+| nsg_name | Name of pre-existing network security group | string | null | |
+| subnet_names | Map of subnet role to pre-existing subnet names | map(string) | null | aks and misc subnet must be defined. If using ha storage then netapp subnet must also be defined. See example below |
+
+Example subnet_names variable:
+
+```yaml
+subnet_names = {
+  'aks': 'my_aks_subnet', 
+  'misc': 'my_misc_subnet',
+  ## If using ha storage then the following is also added
+  'netapp': 'my_netapp_subnet'
+}
+```
 
 ## General
 
