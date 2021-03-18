@@ -513,6 +513,24 @@ variable vnet_name {
   description = "Name of pre-exising vnet. Leave blank to have one created"
 }
 
+variable "nsg_name" {
+  type    = string
+  default = ""
+  description = "Name of pre-exising NSG. Leave blank to have one created"
+}
+
+variable "subnet_names" {
+  type        = map(string)
+  default     = null
+  description = "Map subnet usage roles to existing subnet names"
+  # Example:
+  # subnet_names = {
+  #   'aks': 'my_aks_subnet', 
+  #   'misc': 'my_misc_subnet', 
+  #   'netapp': 'my_netapp_subnet'
+  # }
+}
+
 variable "subnets" {
   type = map(object({
     prefixes                                       = list(string)
@@ -552,16 +570,4 @@ variable "subnets" {
       }
     }
   }
-}
-
-variable "subnet_names" {
-  type        = map(string)
-  default     = null
-  description = "Map subnet usage roles to existing subnet names"
-  # Example:
-  # subnet_names = {
-  #   'aks': 'my_aks_subnet', 
-  #   'misc': 'my_misc_subnet', 
-  #   'netapp': 'my_netapp_subnet'
-  # }
 }

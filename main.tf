@@ -57,12 +57,15 @@ resource "azurerm_proximity_placement_group" "proximity" {
 
   tags = module.resource_group.tags
 }
-resource "azurerm_network_security_group" "nsg" {
-  name                = "${var.prefix}-nsg"
+
+module "nsg" {
+  source              = "./modules/azurerm_network_security_group"
+  prefix              = var.prefix
+  name                = var.nsg_name
   location            = var.location
   resource_group_name = module.resource_group.name
-
-  tags = module.resource_group.tags
+  tags                = module.resource_group.tags
+  depends_on          = [module.resource_group]
 }
 
 module "vnet" {
@@ -108,7 +111,7 @@ module "jump" {
   azure_rg_location = var.location
   vnet_subnet_id    = module.vnet.subnets["misc"].id
   machine_type      = var.jump_vm_machine_type
-  azure_nsg_id      = azurerm_network_security_group.nsg.id
+  azure_nsg_id      = module.nsg.id
   tags              = module.resource_group.tags
   vm_admin          = var.jump_vm_admin
   vm_zone           = var.jump_vm_zone
@@ -148,7 +151,7 @@ module "nfs" {
   proximity_placement_group_id   = element(coalescelist(azurerm_proximity_placement_group.proximity.*.id, [""]), 0)
   vnet_subnet_id                 = module.vnet.subnets["misc"].id
   machine_type                   = var.nfs_vm_machine_type
-  azure_nsg_id                   = azurerm_network_security_group.nsg.id
+  azure_nsg_id                   = module.nsg.id
   tags                           = module.resource_group.tags
   vm_admin                       = var.nfs_vm_admin
   vm_zone                        = var.nfs_vm_zone
@@ -176,7 +179,7 @@ resource "azurerm_network_security_rule" "vm-ssh" {
   source_address_prefixes     = local.vm_public_access_cidrs
   destination_address_prefix  = "*"
   resource_group_name         = module.resource_group.name
-  network_security_group_name = azurerm_network_security_group.nsg.name
+  network_security_group_name = module.nsg.name
 }
 
 resource "azurerm_container_registry" "acr" {
@@ -203,7 +206,7 @@ resource "azurerm_network_security_rule" "acr" {
   source_address_prefixes     = local.acr_public_access_cidrs
   destination_address_prefix  = "*"
   resource_group_name         = module.resource_group.name
-  network_security_group_name = azurerm_network_security_group.nsg.name
+  network_security_group_name = module.nsg.name
 }
 
 module "aks" {
