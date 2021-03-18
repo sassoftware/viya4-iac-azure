@@ -18,7 +18,8 @@ Supported configuration variables are listed in the table below.  All variables 
     - [Azure NetApp Files (only when `storage_type=ha`)](#azure-netapp-files-only-when-storage_typeha)
   - [Azure Container Registry (ACR)](#azure-container-registry-acr)
   - [Postgres](#postgres)
-  - [Bring your own](#bring-your-own)
+  - [Networking](#networking)
+    - [Bring your own](#bring-your-own)
 
 Terraform input variables can be set in the following ways:
 
@@ -250,7 +251,7 @@ When `storage_type=ha` (high availability), [Microsoft Azure NetApp Files](https
 | subnets | Map defining subnets to be created | map(object) | *check default in varaibles.tf* | All defined subnets must exist within the vnet address space. This variable is ignored when subnet_names is set (aka bring your own subnets) |
 
 
-## Bring your own
+### Bring your own
 When desiring to deploy into exising resource group, vnet, subnet, or network security group the varaiables below can be used to define the exsting resources
 
 | Name | Description | Type | Default | Notes |
