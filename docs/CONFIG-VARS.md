@@ -252,7 +252,7 @@ When `storage_type=ha` (high availability), [Microsoft Azure NetApp Files](https
 
 
 ### Bring your own
-When desiring to deploy into exising resource group, vnet, subnet, or network security group the varaiables below can be used to define the exsting resources
+When desiring to deploy into exising resource group, vnet, subnets, or network security group the varaiables below can be used to define the exsting resources
 
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
