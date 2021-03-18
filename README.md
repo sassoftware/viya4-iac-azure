@@ -32,7 +32,7 @@ Operational knowledge of:
     - [Terraform](https://www.terraform.io/downloads.html) - v0.13.6
     - [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl) - v1.18.8
     - [jq](https://stedolan.github.io/jq/) - v1.6
-    - [Azure CLI](https://docs.microsoft.com/en-us/cli/azure) - v2.19.1 (optional -useful as an alternative to the AWS Web Console)
+    - [Azure CLI](https://docs.microsoft.com/en-us/cli/azure) - v2.19.1 (optional -useful as an alternative to the Azure Portal)
   - #### Docker
     - [Docker](https://docs.docker.com/get-docker/)
 
@@ -63,7 +63,7 @@ When using a variable definition file other than `terraform.tfvars`, see [Advanc
 
 ## Creating and Managaging the Cloud Resources
 
-Create and manage the AWS cloud resources by either 
+Create and manage the cloud resources by either 
 
 - using [Terraform](docs/user/TerraformUsage.md) directly on your workstation, or
 - using a [Docker container](docs/user/DockerUsage.md). 
