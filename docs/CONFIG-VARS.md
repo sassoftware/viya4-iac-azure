@@ -248,6 +248,7 @@ When `storage_type=ha` (high availability), [Microsoft Azure NetApp Files](https
 ## Networking
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
+| vnet_address_space | Address space for created vnet | string | "192.168.0.0/16" | This variable is ignored when vnet_name is set (aka bring your own vnet) |
 | subnets | Map defining subnets to be created | map(object) | *check default in varaibles.tf* | All defined subnets must exist within the vnet address space. This variable is ignored when subnet_names is set (aka bring your own subnets) |
 
 
@@ -259,4 +260,4 @@ When desiring to deploy into exising resource group, vnet, subnets, or network s
 | resource_group_name | Name of pre-existing resource group | string | "" | |
 | vnet_name | Name of pre-existing vnet | string | "" | |
 | nsg_name | Name of pre-existing resource group | string | "" | |
-| subnet_names | Map of subnet role to pre-existing subnet names | map(string) | null | Example: subnet_names = {'aks': 'my_aks_subnet', 'misc': 'my_misc_subnet'} |
+| subnet_names | Map of subnet role to pre-existing subnet names | map(string) | null | Example: subnet_names = \n {'aks': 'my_aks_subnet', 'misc': 'my_misc_subnet'} |

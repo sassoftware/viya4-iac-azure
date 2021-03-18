@@ -498,19 +498,23 @@ variable "log_analytics_solution_promotion_code" {
   default     = ""
 }
 
-###############################
-## BYO ##
-###############################
-variable resource_group_name {
+# Networking
+variable "resource_group_name" {
   type    = string
   default = ""
   description = "Name of pre-exising resource group. Leave blank to have one created"
 }
 
-variable vnet_name {
+variable "vnet_name" {
   type    = string
   default = ""
   description = "Name of pre-exising vnet. Leave blank to have one created"
+}
+
+variable "vnet_address_space" {
+  type    = list(string)
+  default = ["192.168.0.0/16"]
+  description = "Address space for created vnet"
 }
 
 variable "nsg_name" {
