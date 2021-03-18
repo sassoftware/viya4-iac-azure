@@ -113,7 +113,7 @@ nfs_raid_disk_type   = "Standard_LRS"
 # Azure Monitor
 create_aks_azure_monitor = false
 
-# Existing resources
+# Bring your own existing resources
 resource_group_name = "<existing-resource-group-name>"
 vnet_name           = "<existing-vnet-name>"
 nsg_name            = "<existing-nsg-name>"
