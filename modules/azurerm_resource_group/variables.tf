@@ -1,12 +1,12 @@
 variable "name" {
   description = "Name of the existing resource group"
   type        = string
-  default     = ""
+  default     = null
 }
 
 variable "prefix" {
   type        = string
-  default     = ""
+  default     = null
 }
 
 variable "location" {

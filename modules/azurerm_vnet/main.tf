@@ -5,13 +5,13 @@ locals {
 }
 
 data "azurerm_virtual_network" "vnet" {
-  count               = var.name == "" ? 0 : 1
+  count               = var.name ? 0 : 1
   name                = local.vnet_name
   resource_group_name = var.resource_group_name
 }
 
 resource "azurerm_virtual_network" "vnet" {
-  count               = var.name == "" ? 1 : 0
+  count               = var.name ? 1 : 0
   name                = local.vnet_name
   resource_group_name = var.resource_group_name
   location            = var.location

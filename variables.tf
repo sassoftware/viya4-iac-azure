@@ -501,13 +501,13 @@ variable "log_analytics_solution_promotion_code" {
 # Networking
 variable "resource_group_name" {
   type    = string
-  default = ""
+  default = null
   description = "Name of pre-exising resource group. Leave blank to have one created"
 }
 
 variable "vnet_name" {
   type    = string
-  default = ""
+  default = null
   description = "Name of pre-exising vnet. Leave blank to have one created"
 }
 
@@ -519,7 +519,7 @@ variable "vnet_address_space" {
 
 variable "nsg_name" {
   type    = string
-  default = ""
+  default = null
   description = "Name of pre-exising NSG. Leave blank to have one created"
 }
 

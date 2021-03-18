@@ -1,10 +1,10 @@
 variable "name" {
   description = "Name of the pre-existing vNet"
-  default     = ""
+  default     = null
 }
 
 variable "prefix" {
-  default = ""
+  default = null
 }
 
 variable "location" {}
