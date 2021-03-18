@@ -1,6 +1,6 @@
 output "id" {
   description = "The id of the vNet"
-  value       = element(coalesce(data.azurerm_virtual_network.vnet.*.id, azurerm_virtual_network.vnet.*.id), 0)
+  value       = var.existing_subnets == null ? azurerm_virtual_network.vnet.0.id : data.azurerm_virtual_network.vnet.0.id
 }
 
 output "name" {
@@ -10,12 +10,12 @@ output "name" {
 
 output "location" {
   description = "The location of the vNet"
-  value       = element(coalesce(data.azurerm_virtual_network.vnet.*.location, azurerm_virtual_network.vnet.*.location), 0)
+  value       = var.existing_subnets == null ? azurerm_virtual_network.vnet.0.location : data.azurerm_virtual_network.vnet.0.location
 }
 
 output "address_space" {
   description = "The address space of the vNet"
-  value       = element(coalescelist(data.azurerm_virtual_network.vnet.*.address_space, azurerm_virtual_network.vnet.*.address_space), 0)
+  value       = var.existing_subnets == null ? azurerm_virtual_network.vnet.0.address_space : data.azurerm_virtual_network.vnet.0.address_space
 }
 
 output "subnets" {

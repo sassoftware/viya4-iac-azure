@@ -5,5 +5,5 @@ output "id" {
 
 output "name" {
   description = "The name of the NSG"
-  value       = coalesce(var.name, "${var.prefix}-rg")
+  value       = coalesce(var.name, "${var.prefix}-nsg")
 }
