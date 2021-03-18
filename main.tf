@@ -40,7 +40,7 @@ locals {
 
 }
 
-module "azurerm_resource_group" {
+module "resource_group" {
   source   = "./modules/azurerm_resource_group"
   prefix   = var.prefix
   name     = var.resource_group_name
@@ -53,16 +53,16 @@ resource "azurerm_proximity_placement_group" "proximity" {
 
   name                = "${var.prefix}-ProximityPlacementGroup"
   location            = var.location
-  resource_group_name = module.azurerm_resource_group.name
+  resource_group_name = module.resource_group.name
 
-  tags = module.azurerm_resource_group.tags
+  tags = module.resource_group.tags
 }
 resource "azurerm_network_security_group" "nsg" {
   name                = "${var.prefix}-nsg"
   location            = var.location
-  resource_group_name = module.azurerm_resource_group.name
+  resource_group_name = module.resource_group.name
 
-  tags = module.azurerm_resource_group.tags
+  tags = module.resource_group.tags
 }
 
 module "vnet" {
@@ -70,13 +70,13 @@ module "vnet" {
 
   name                = var.vnet_name
   prefix              = var.prefix
-  resource_group_name = module.azurerm_resource_group.name
+  resource_group_name = module.resource_group.name
   location            = var.location
   subnets             = var.subnets
   existing_subnets    = var.existing_subnets
   address_space       = ["192.168.0.0/16"]
-  tags                = module.azurerm_resource_group.tags
-  depends_on          = [module.azurerm_resource_group]
+  tags                = module.resource_group.tags
+  depends_on          = [module.resource_group]
 }
 
 data "template_file" "jump-cloudconfig" {
@@ -104,12 +104,12 @@ module "jump" {
 
   count             = var.create_jump_vm ? 1 : 0
   name              = "${var.prefix}-jump"
-  azure_rg_name     = module.azurerm_resource_group.name
+  azure_rg_name     = module.resource_group.name
   azure_rg_location = var.location
-  vnet_subnet_id    = module.vnet.subnets["misc"]
+  vnet_subnet_id    = module.vnet.subnets["misc"].id
   machine_type      = var.jump_vm_machine_type
   azure_nsg_id      = azurerm_network_security_group.nsg.id
-  tags              = module.azurerm_resource_group.tags
+  tags              = module.resource_group.tags
   vm_admin          = var.jump_vm_admin
   vm_zone           = var.jump_vm_zone
   ssh_public_key    = file(var.ssh_public_key)
@@ -143,13 +143,13 @@ module "nfs" {
 
   count                          = var.storage_type == "standard" ? 1 : 0
   name                           = "${var.prefix}-nfs"
-  azure_rg_name                  = module.azurerm_resource_group.name
+  azure_rg_name                  = module.resource_group.name
   azure_rg_location              = var.location
   proximity_placement_group_id   = element(coalescelist(azurerm_proximity_placement_group.proximity.*.id, [""]), 0)
-  vnet_subnet_id                 = module.vnet.subnets["misc"]
+  vnet_subnet_id                 = module.vnet.subnets["misc"].id
   machine_type                   = var.nfs_vm_machine_type
   azure_nsg_id                   = azurerm_network_security_group.nsg.id
-  tags                           = module.azurerm_resource_group.tags
+  tags                           = module.resource_group.tags
   vm_admin                       = var.nfs_vm_admin
   vm_zone                        = var.nfs_vm_zone
   ssh_public_key                 = file(var.ssh_public_key)
@@ -175,19 +175,19 @@ resource "azurerm_network_security_rule" "vm-ssh" {
   destination_port_range      = "22"
   source_address_prefixes     = local.vm_public_access_cidrs
   destination_address_prefix  = "*"
-  resource_group_name         = module.azurerm_resource_group.name
+  resource_group_name         = module.resource_group.name
   network_security_group_name = azurerm_network_security_group.nsg.name
 }
 
 resource "azurerm_container_registry" "acr" {
   count                    = var.create_container_registry ? 1 : 0
   name                     = join("", regexall("[a-zA-Z0-9]+", "${var.prefix}acr")) # alpha numeric characters only are allowed
-  resource_group_name      = module.azurerm_resource_group.name
+  resource_group_name      = module.resource_group.name
   location                 = var.location
   sku                      = var.container_registry_sku
   admin_enabled            = var.container_registry_admin_enabled
   georeplication_locations = var.container_registry_geo_replica_locs
-  tags                     = module.azurerm_resource_group.tags
+  tags                     = module.resource_group.tags
 }
 
 resource "azurerm_network_security_rule" "acr" {
@@ -202,7 +202,7 @@ resource "azurerm_network_security_rule" "acr" {
   destination_port_range      = "5000"
   source_address_prefixes     = local.acr_public_access_cidrs
   destination_address_prefix  = "*"
-  resource_group_name         = module.azurerm_resource_group.name
+  resource_group_name         = module.resource_group.name
   network_security_group_name = azurerm_network_security_group.nsg.name
 }
 
@@ -210,7 +210,7 @@ module "aks" {
   source = "./modules/azure_aks"
 
   aks_cluster_name                         = "${var.prefix}-aks"
-  aks_cluster_rg                           = module.azurerm_resource_group.name
+  aks_cluster_rg                           = module.resource_group.name
   aks_cluster_dns_prefix                   = "${var.prefix}-aks"
   aks_cluster_location                     = var.location
   aks_cluster_node_auto_scaling            = var.default_nodepool_min_nodes == var.default_nodepool_max_nodes ? false : true
@@ -222,7 +222,7 @@ module "aks" {
   aks_cluster_node_vm_size                 = var.default_nodepool_vm_type
   aks_cluster_node_admin                   = var.node_vm_admin
   aks_cluster_ssh_public_key               = file(var.ssh_public_key)
-  aks_vnet_subnet_id                       = module.vnet.subnets["aks"]
+  aks_vnet_subnet_id                       = module.vnet.subnets["aks"].id
   kubernetes_version                       = var.kubernetes_version
   aks_cluster_endpoint_public_access_cidrs = local.cluster_endpoint_public_access_cidrs
   aks_availability_zones                   = var.default_nodepool_availability_zones
@@ -235,14 +235,14 @@ module "aks" {
   aks_outbound_type                        = var.aks_outbound_type
   aks_pod_cidr                             = var.aks_pod_cidr
   aks_service_cidr                         = var.aks_service_cidr
-  aks_cluster_tags                         = module.azurerm_resource_group.tags
+  aks_cluster_tags                         = module.resource_group.tags
 
   depends_on = [module.vnet]
 }
 
 data "azurerm_public_ip" "aks_public_ip" {
   name                = split("/", module.aks.cluster_slb_ip_id)[8]
-  resource_group_name = "MC_${module.azurerm_resource_group.name}_${module.aks.name}_${module.azurerm_resource_group.location}"
+  resource_group_name = "MC_${module.resource_group.name}_${module.aks.name}_${module.resource_group.location}"
 
   depends_on = [module.aks, module.node_pools]
 }
@@ -255,7 +255,7 @@ module "node_pools" {
 
   node_pool_name = each.key
   aks_cluster_id = module.aks.cluster_id
-  vnet_subnet_id = module.vnet.subnets["aks"]
+  vnet_subnet_id = module.vnet.subnets["aks"].id
   machine_type   = each.value.machine_type
   os_disk_size   = each.value.os_disk_size
   # TODO: enable with azurerm v2.37.0
@@ -270,7 +270,7 @@ module "node_pools" {
   availability_zones           = (var.node_pools_availability_zone == "" || var.node_pools_proximity_placement == true) ? [] : [var.node_pools_availability_zone]
   proximity_placement_group_id = element(coalescelist(azurerm_proximity_placement_group.proximity.*.id, [""]), 0)
   orchestrator_version         = var.kubernetes_version
-  tags                         = module.azurerm_resource_group.tags
+  tags                         = module.resource_group.tags
 }
 
 # Module Registry - https://registry.terraform.io/modules/Azure/postgresql/azurerm/2.1.0
@@ -279,7 +279,7 @@ module "postgresql" {
   version = "2.1.0"
 
   count                        = var.create_postgres ? 1 : 0
-  resource_group_name          = module.azurerm_resource_group.name
+  resource_group_name          = module.resource_group.name
   location                     = var.location
   server_name                  = lower("${var.prefix}-pgsql")
   sku_name                     = var.postgres_sku_name
@@ -297,10 +297,10 @@ module "postgresql" {
   firewall_rules               = local.postgres_firewall_rules
   vnet_rule_name_prefix        = "${var.prefix}-postgresql-vnet-rule-"
   postgresql_configurations    = var.postgres_configurations
-  tags                         = module.azurerm_resource_group.tags
+  tags                         = module.resource_group.tags
   vnet_rules = [
-    { name = "aks", subnet_id = module.vnet.subnets["aks"] },
-    { name = "misc", subnet_id = module.vnet.subnets["misc"] }
+    { name = "aks", subnet_id = module.vnet.subnets["aks"].id },
+    { name = "misc", subnet_id = module.vnet.subnets["misc"].id }
   ]
 }
 
@@ -309,15 +309,17 @@ module "netapp" {
   count                = var.storage_type == "ha" ? 1 : 0
 
   prefix                = var.prefix
-  resource_group_name   = module.azurerm_resource_group.name
-  location              = module.azurerm_resource_group.location
+  resource_group_name   = module.resource_group.name
+  location              = module.resource_group.location
   vnet_name             = module.vnet.name
-  subnet_id             = module.vnet.subnets["netapp"]
+  subnet_id             = module.vnet.subnets["netapp"].id
   service_level         = var.netapp_service_level
   size_in_tb            = var.netapp_size_in_tb
   protocols             = var.netapp_protocols
   volume_path           = "${var.prefix}-${var.netapp_volume_path}"
-  tags                  = module.azurerm_resource_group.tags
+  tags                  = module.resource_group.tags
+  # TODO: lockdown to aks and misc subnets
+  allowed_clients       = concat(module.vnet.subnets["aks"].address_prefixes, module.vnet.subnets["misc"].address_prefixes)
 }
 
 resource "local_file" "kubeconfig" {

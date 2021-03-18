@@ -126,12 +126,16 @@ output "rwx_filestore_config" {
     "tenantID" : data.azurerm_subscription.current.tenant_id,
     "clientID" : var.client_id,
     "clientSecret" : var.client_secret,
-    "location" : module.azurerm_resource_group.location,
+    "location" : module.resource_group.location,
     "serviceLevel" : var.netapp_service_level,
-    "virtualNetwork" : module.vnet.vnet_name,
+    "virtualNetwork" : module.vnet.name,
     "subnet" : module.vnet.subnets["netapp"],
     "defaults" : {
       "exportRule" : element(module.vnet.address_space, 0),
     }
   }) : null
+}
+
+output "test" {
+  value = module.vnet.subnets
 }

@@ -37,5 +37,17 @@ resource "azurerm_subnet" "subnet" {
   service_endpoints                              = each.value.service_endpoints
   enforce_private_link_endpoint_network_policies = each.value.enforce_private_link_endpoint_network_policies
   enforce_private_link_service_network_policies  = each.value.enforce_private_link_service_network_policies
-  depends_on                                     = [data.azurerm_virtual_network.vnet, azurerm_virtual_network.vnet]
+  dynamic "delegation" {
+    for_each = each.value.service_delegations
+    content {
+      name = delegation.key
+
+      service_delegation {
+        name    = delegation.value.name
+        actions = delegation.value.actions
+      }
+    }
+  }
+
+  depends_on                                     = [data.azurerm_virtual_network.vnet, azurerm_virtual_network.vnet]  
 }

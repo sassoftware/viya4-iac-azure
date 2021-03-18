@@ -20,5 +20,5 @@ output "address_space" {
 
 output "subnets" {
   description = "The ids of subnets inside the vNet"
-  value = var.existing_subnets == null ? [for k, v in azurerm_subnet.subnet[*] :{for kk, vv in v: kk => vv.id}][0] : [for k, v in data.azurerm_subnet.subnet[*] :{for kk, vv in v: kk => vv.id}][0]
+  value = var.existing_subnets == null ? [for k, v in azurerm_subnet.subnet[*] :{for kk, vv in v: kk => {"id": vv.id, "address_prefixes": vv.address_prefixes }}][0] : [for k, v in data.azurerm_subnet.subnet[*] :{for kk, vv in v: kk => {"id": vv.id, "address_prefixes": vv.address_prefixes }}][0]
 }

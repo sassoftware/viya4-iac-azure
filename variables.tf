@@ -541,7 +541,7 @@ variable "subnets" {
     }
     netapp = {
       "prefixes": ["192.168.3.0/24"],
-      "service_endpoints": ["Microsoft.Sql"],
+      "service_endpoints": [],
       "enforce_private_link_endpoint_network_policies": false,
       "enforce_private_link_service_network_policies": false,
       "service_delegations": {
