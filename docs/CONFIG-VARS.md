@@ -31,7 +31,7 @@ Terraform input variables can be set in the following ways:
 | :--- | ---: | ---: | ---: | ---: |
 | prefix | A prefix used in the name of all the Azure resources created by this script. | string | | The prefix string must start with a lowercase letter and contain only alphanumeric characters and dashes (-), but cannot end with a dash. |
 | location | The Azure Region to provision all resources in this script | string | "East US" | |
-| ssh_public_key | Name of file with public ssh key for VMs | string | "~/.ssh/id_rsa.pub" | Value is required in order to access your VMs |
+| ssh_public_key | Name of file with public ssh key for VMs | string | "\<path-to-public-key-on-host-running-iac>" | Value is required in order to access your VMs |
 
 ### Azure Authentication
 

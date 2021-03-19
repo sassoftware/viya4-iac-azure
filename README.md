@@ -1,26 +1,10 @@
-- [SAS Viya 4 Infrastructure as Code (IaC) for Microsoft Azure](#sas-viya-4-infrastructure-as-code-iac-for-microsoft-azure)
-  - [Overview](#overview)
-  - [Prerequisite Information](#prerequisite-information)
-    - [Operational knowledge of:](#operational-knowledge-of)
-    - [Technical Prerequisites:](#technical-prerequisites)
-  - [Getting Started](#getting-started)
-    - [Clone this project](#clone-this-project)
-  - [Run -- Creating and Managaging the Cloud Resources](#run----creating-and-managaging-the-cloud-resources)
-    - [Troubleshooting](#troubleshooting)
-  - [Contributing](#contributing)
-  - [License](#license)
-  - [Additional Resources](#additional-resources)
-    - [Azure resources](#azure-resources)
-    - [Terraform resources](#terraform-resources)
-
-
 # SAS Viya 4 Infrastructure as Code (IaC) for Microsoft Azure
 
 ## Overview
 
 This project contains Terraform scripts to provision Microsoft Azure Cloud infrastructure resources required to deploy SAS Viya 4 products. Here is a list of resources this project can create -
 
-  >- Azure Resource Group(s), the default is 2 RGs (one for AKS and another for the VM IaaS)
+  >- Azure Resource Group(s): Primary Resource Group and AKS Resource Group
   >- Virtual Network, Network Security Groups and Network Security Rules
   >- Managed Azure Kubernetes Service (AKS) cluster
   >- System and User AKS Node pools with required Labels and Taints
