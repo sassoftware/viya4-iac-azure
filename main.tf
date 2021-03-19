@@ -66,7 +66,6 @@ provider "kubernetes" {
   cluster_ca_certificate = base64decode(module.aks.cluster_ca_certificate)
 }
 
-
 data "azurerm_subscription" "current" {}
 
 locals {
@@ -106,23 +105,22 @@ resource "azurerm_proximity_placement_group" "proximity" {
   location            = var.location
   resource_group_name = azurerm_resource_group.azure_rg.name
 
-  tags = var.tags
+  tags = azurerm_resource_group.azure_rg.tags
 }
 resource "azurerm_network_security_group" "nsg" {
   name                = "${var.prefix}-nsg"
   location            = var.location
   resource_group_name = azurerm_resource_group.azure_rg.name
 
-  tags = var.tags
+  tags = azurerm_resource_group.azure_rg.tags
 }
 
-# Module registry: https://registry.terraform.io/modules/Azure/vnet/azurerm/2.3.0
 module "vnet" {
-  source  = "Azure/vnet/azurerm"
-  version = "2.3.0"
+  source = "./modules/azurerm_vnet"
 
   vnet_name           = "${var.prefix}-vnet"
   resource_group_name = azurerm_resource_group.azure_rg.name
+  location            = var.location
   address_space       = [local.vnet_cidr_block]
   subnet_prefixes     = [local.aks_subnet_cidr_block, local.misc_subnet_cidr_block]
   subnet_names        = [local.aks_subnet_name, local.misc_subnet_name]
@@ -131,37 +129,19 @@ module "vnet" {
     coalesce(local.aks_subnet_name)  = ["Microsoft.Sql"],
     coalesce(local.misc_subnet_name) = ["Microsoft.Sql"]
   }
-  tags = var.tags
+  tags = azurerm_resource_group.azure_rg.tags
 
   depends_on = [azurerm_resource_group.azure_rg]
-}
-
-data "azurerm_subnet" "aks-subnet" {
-  name                 = local.aks_subnet_name
-  virtual_network_name = module.vnet.vnet_name
-  resource_group_name  = azurerm_resource_group.azure_rg.name
-
-  depends_on = [module.vnet]
-}
-
-data "azurerm_subnet" "misc-subnet" {
-  name                 = local.misc_subnet_name
-  virtual_network_name = module.vnet.vnet_name
-  resource_group_name  = azurerm_resource_group.azure_rg.name
-
-  depends_on = [module.vnet]
 }
 
 data "template_file" "jump-cloudconfig" {
   template = file("${path.module}/cloud-init/jump/cloud-config")
   vars = {
-    nfs_rwx_filestore_endpoint = var.storage_type == "ha" ? module.netapp.netapp_endpoint : module.nfs.private_ip_address
-    nfs_rwx_filestore_path     = var.storage_type == "ha" ? module.netapp.netapp_path : "/export"
+    nfs_rwx_filestore_endpoint = var.storage_type == "ha" ? module.netapp.0.netapp_endpoint : module.nfs.0.private_ip_address
+    nfs_rwx_filestore_path     = var.storage_type == "ha" ? module.netapp.0.netapp_path : "/export"
     jump_rwx_filestore_path    = var.jump_rwx_filestore_path
     vm_admin                   = var.jump_vm_admin
   }
-
-  depends_on = [module.netapp, module.nfs]
 }
 
 data "template_cloudinit_config" "jump" {
@@ -176,15 +156,17 @@ data "template_cloudinit_config" "jump" {
 
 module "jump" {
   source            = "./modules/azurerm_vm"
+
+  count             = var.create_jump_vm ? 1 : 0
   name              = "${var.prefix}-jump"
   azure_rg_name     = azurerm_resource_group.azure_rg.name
   azure_rg_location = var.location
-  vnet_subnet_id    = data.azurerm_subnet.misc-subnet.id
+  vnet_subnet_id    = module.vnet.vnet_subnets[1] # misc_subnet
   machine_type      = var.jump_vm_machine_type
   azure_nsg_id      = azurerm_network_security_group.nsg.id
-  tags              = var.tags
-  create_vm         = var.create_jump_vm
+  tags              = azurerm_resource_group.azure_rg.tags
   vm_admin          = var.jump_vm_admin
+  vm_zone           = var.jump_vm_zone
   ssh_public_key    = file(var.ssh_public_key)
   cloud_init        = data.template_cloudinit_config.jump.rendered
   create_public_ip  = var.create_jump_public_ip
@@ -212,32 +194,34 @@ data "template_cloudinit_config" "nfs" {
 }
 
 module "nfs" {
-  source    = "./modules/azurerm_vm"
-  create_vm = var.storage_type == "standard" ? true : false
+  source                         = "./modules/azurerm_vm"
 
-  name                         = "${var.prefix}-nfs"
-  azure_rg_name                = azurerm_resource_group.azure_rg.name
-  azure_rg_location            = var.location
-  proximity_placement_group_id = element(coalescelist(azurerm_proximity_placement_group.proximity.*.id, [""]), 0)
-  vnet_subnet_id               = data.azurerm_subnet.misc-subnet.id
-  machine_type                 = var.nfs_vm_machine_type
-  azure_nsg_id                 = azurerm_network_security_group.nsg.id
-  tags                         = var.tags
-  vm_admin                     = var.nfs_vm_admin
-  vm_zone                      = var.nfs_vm_zone
-  ssh_public_key               = file(var.ssh_public_key)
-  cloud_init                   = data.template_cloudinit_config.nfs.rendered
-  create_public_ip             = var.create_nfs_public_ip
-  data_disk_count              = 4
-  data_disk_size               = var.nfs_raid_disk_size
+  count                          = var.storage_type == "standard" ? 1 : 0
+  name                           = "${var.prefix}-nfs"
+  azure_rg_name                  = azurerm_resource_group.azure_rg.name
+  azure_rg_location              = var.location
+  proximity_placement_group_id   = element(coalescelist(azurerm_proximity_placement_group.proximity.*.id, [""]), 0)
+  vnet_subnet_id                 = module.vnet.vnet_subnets[1] # misc_subnet
+  machine_type                   = var.nfs_vm_machine_type
+  azure_nsg_id                   = azurerm_network_security_group.nsg.id
+  tags                           = azurerm_resource_group.azure_rg.tags
+  vm_admin                       = var.nfs_vm_admin
+  vm_zone                        = var.nfs_vm_zone
+  ssh_public_key                 = file(var.ssh_public_key)
+  cloud_init                     = data.template_cloudinit_config.nfs.rendered
+  create_public_ip               = var.create_nfs_public_ip
+  data_disk_count                = 4
+  data_disk_size                 = var.nfs_raid_disk_size
   data_disk_storage_account_type = var.nfs_raid_disk_type
-  data_disk_zones              = var.nfs_raid_disk_zones
+  data_disk_zones                = var.nfs_raid_disk_zones
+
+  depends_on = [module.vnet]
 }
 
 resource "azurerm_network_security_rule" "vm-ssh" {
   name                        = "${var.prefix}-ssh"
   description                 = "Allow SSH from source"
-  count                       = ( ((var.create_jump_public_ip && var.create_jump_vm && (length(local.vm_public_access_cidrs) > 0)) || (var.create_nfs_public_ip && var.storage_type == "standard" && (length(local.vm_public_access_cidrs) > 0))) != 0 ) ? 1 : 0
+  count                       = (((var.create_jump_public_ip && var.create_jump_vm && (length(local.vm_public_access_cidrs) > 0)) || (var.create_nfs_public_ip && var.storage_type == "standard" && (length(local.vm_public_access_cidrs) > 0))) != 0) ? 1 : 0
   priority                    = 120
   direction                   = "Inbound"
   access                      = "Allow"
@@ -251,14 +235,14 @@ resource "azurerm_network_security_rule" "vm-ssh" {
 }
 
 resource "azurerm_container_registry" "acr" {
-  count = var.create_container_registry ? 1 : 0
-
+  count                    = var.create_container_registry ? 1 : 0
   name                     = join("", regexall("[a-zA-Z0-9]+", "${var.prefix}acr")) # alpha numeric characters only are allowed
   resource_group_name      = azurerm_resource_group.azure_rg.name
   location                 = var.location
   sku                      = var.container_registry_sku
   admin_enabled            = var.container_registry_admin_enabled
   georeplication_locations = var.container_registry_geo_replica_locs
+  tags                     = azurerm_resource_group.azure_rg.tags
 }
 
 resource "azurerm_network_security_rule" "acr" {
@@ -280,9 +264,8 @@ resource "azurerm_network_security_rule" "acr" {
 module "aks" {
   source = "./modules/azure_aks"
 
-  aks_cluster_name = "${var.prefix}-aks"
-  aks_cluster_rg   = azurerm_resource_group.azure_rg.name
-  #aks_cluster_dns_prefix - must contain between 2 and 45 characters. The name can contain only letters, numbers, and hyphens. The name must start with a letter and must end with an alphanumeric character
+  aks_cluster_name                         = "${var.prefix}-aks"
+  aks_cluster_rg                           = azurerm_resource_group.azure_rg.name
   aks_cluster_dns_prefix                   = "${var.prefix}-aks"
   aks_cluster_location                     = var.location
   aks_cluster_node_auto_scaling            = var.default_nodepool_min_nodes == var.default_nodepool_max_nodes ? false : true
@@ -294,7 +277,7 @@ module "aks" {
   aks_cluster_node_vm_size                 = var.default_nodepool_vm_type
   aks_cluster_node_admin                   = var.node_vm_admin
   aks_cluster_ssh_public_key               = file(var.ssh_public_key)
-  aks_vnet_subnet_id                       = data.azurerm_subnet.aks-subnet.id
+  aks_vnet_subnet_id                       = module.vnet.vnet_subnets[0] # aks_subnet
   kubernetes_version                       = var.kubernetes_version
   aks_cluster_endpoint_public_access_cidrs = local.cluster_endpoint_public_access_cidrs
   aks_availability_zones                   = var.default_nodepool_availability_zones
@@ -307,7 +290,9 @@ module "aks" {
   aks_outbound_type                        = var.aks_outbound_type
   aks_pod_cidr                             = var.aks_pod_cidr
   aks_service_cidr                         = var.aks_service_cidr
-  aks_cluster_tags                         = var.tags
+  aks_cluster_tags                         = azurerm_resource_group.azure_rg.tags
+
+  depends_on = [module.vnet]
 }
 
 data "azurerm_public_ip" "aks_public_ip" {
@@ -325,7 +310,7 @@ module "node_pools" {
 
   node_pool_name = each.key
   aks_cluster_id = module.aks.cluster_id
-  vnet_subnet_id = data.azurerm_subnet.aks-subnet.id
+  vnet_subnet_id = module.vnet.vnet_subnets[0] # aks_subnet
   machine_type   = each.value.machine_type
   os_disk_size   = each.value.os_disk_size
   # TODO: enable with azurerm v2.37.0
@@ -340,7 +325,7 @@ module "node_pools" {
   availability_zones           = (var.node_pools_availability_zone == "" || var.node_pools_proximity_placement == true) ? [] : [var.node_pools_availability_zone]
   proximity_placement_group_id = element(coalescelist(azurerm_proximity_placement_group.proximity.*.id, [""]), 0)
   orchestrator_version         = var.kubernetes_version
-  tags                         = var.tags
+  tags                         = azurerm_resource_group.azure_rg.tags
 }
 
 # Module Registry - https://registry.terraform.io/modules/Azure/postgresql/azurerm/2.1.0
@@ -348,8 +333,7 @@ module "postgresql" {
   source  = "Azure/postgresql/azurerm"
   version = "2.1.0"
 
-  count = var.create_postgres ? 1 : 0
-
+  count                        = var.create_postgres ? 1 : 0
   resource_group_name          = azurerm_resource_group.azure_rg.name
   location                     = var.location
   server_name                  = lower("${var.prefix}-pgsql")
@@ -368,18 +352,16 @@ module "postgresql" {
   firewall_rules               = local.postgres_firewall_rules
   vnet_rule_name_prefix        = "${var.prefix}-postgresql-vnet-rule-"
   postgresql_configurations    = var.postgres_configurations
-  tags                         = var.tags
+  tags                         = azurerm_resource_group.azure_rg.tags
   vnet_rules = [
-    { name = local.aks_subnet_name, subnet_id = data.azurerm_subnet.aks-subnet.id },
-    { name = local.misc_subnet_name, subnet_id = data.azurerm_subnet.misc-subnet.id }
+    { name = local.aks_subnet_name, subnet_id = module.vnet.vnet_subnets[0] },
+    { name = local.misc_subnet_name, subnet_id = module.vnet.vnet_subnets[1] }
   ]
-
-  depends_on = [azurerm_resource_group.azure_rg]
 }
 
 module "netapp" {
   source        = "./modules/azurerm_netapp"
-  create_netapp = var.storage_type == "ha" ? true : false
+  count                = var.storage_type == "ha" ? 1 : 0
 
   prefix                = var.prefix
   resource_group_name   = azurerm_resource_group.azure_rg.name
@@ -390,12 +372,14 @@ module "netapp" {
   size_in_tb            = var.netapp_size_in_tb
   protocols             = var.netapp_protocols
   volume_path           = "${var.prefix}-${var.netapp_volume_path}"
-  tags                  = var.tags
+  tags                  = azurerm_resource_group.azure_rg.tags
 }
 
 resource "local_file" "kubeconfig" {
   content  = module.aks.kube_config
   filename = local.kubeconfig_path
+
+  depends_on = [module.aks]
 }
 
 data "external" "git_hash" {
@@ -414,7 +398,6 @@ resource "kubernetes_config_map" "sas_iac_buildinfo" {
 
   data = {
     git-hash    = lookup(data.external.git_hash.result, "git-hash")
-    timestamp   = chomp(timestamp())
     iac-tooling = var.iac_tooling
     terraform   = <<EOT
 version: ${lookup(data.external.iac_tooling_version.result, "terraform_version")}
@@ -426,4 +409,3 @@ EOT
 
   depends_on = [ module.aks ]
 }
-

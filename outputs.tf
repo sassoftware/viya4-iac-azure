@@ -41,15 +41,15 @@ output "postgres_server_port" {
 
 # jump server
 output jump_private_ip {
-  value = var.create_jump_vm ? module.jump.private_ip_address : null
+  value = var.create_jump_vm ? element(coalescelist(module.jump.*.private_ip_address, [""] ),0) : null
 }
 
 output jump_public_ip {
-  value = var.create_jump_vm && var.create_jump_public_ip ? module.jump.public_ip_address : null
+  value = var.create_jump_vm && var.create_jump_public_ip ? element(coalescelist(module.jump.*.public_ip_address, [""] ),0) : null
 }
 
 output jump_admin_username {
-  value = var.create_jump_vm ? module.jump.admin_username : null
+  value = var.create_jump_vm ? element(coalescelist(module.jump.*.admin_username, [""] ),0): null
 }
 
 output jump_rwx_filestore_path {
@@ -58,15 +58,15 @@ output jump_rwx_filestore_path {
 
 # nfs server
 output nfs_private_ip {
-  value = var.storage_type == "standard" ? module.nfs.private_ip_address : null
+  value = var.storage_type == "standard" ? element(coalescelist(module.nfs.*.private_ip_address, [""] ),0) : null
 }
 
 output nfs_public_ip {
-  value = var.storage_type == "standard" && var.create_nfs_public_ip ? module.nfs.public_ip_address : null
+  value = var.storage_type == "standard" && var.create_nfs_public_ip ? element(coalescelist(module.nfs.*.public_ip_address, [""] ),0) : null
 }
 
 output nfs_admin_username {
-  value = var.storage_type == "standard" ? module.nfs.admin_username : null
+  value = var.storage_type == "standard" ? element(coalescelist(module.nfs.*.admin_username, [""] ),0) : null
 }
 
 # acr
@@ -111,11 +111,11 @@ output "provider" {
 }
 
 output "rwx_filestore_endpoint" {
-  value = var.storage_type == "ha" ? module.netapp.netapp_endpoint : module.nfs.private_ip_address
+  value = var.storage_type == "ha" ? element(coalescelist(module.netapp.*.netapp_endpoint, [""] ),0) : element(coalescelist(module.nfs.*.private_ip_address, [""] ),0)
 }
 
 output "rwx_filestore_path" {
-  value = var.storage_type == "ha" ? module.netapp.netapp_path : "/export"
+  value = var.storage_type == "ha" ? element(coalescelist(module.netapp.*.netapp_path, [""] ),0) : "/export"
 }
 
 output "rwx_filestore_config" {
@@ -129,7 +129,7 @@ output "rwx_filestore_config" {
     "location" : azurerm_resource_group.azure_rg.location,
     "serviceLevel" : var.netapp_service_level,
     "virtualNetwork" : module.vnet.vnet_name,
-    "subnet" : module.netapp.netapp_subnet,
+    "subnet" : element(coalescelist(module.netapp.*.netapp_subnet, [""] ),0),
     "defaults" : {
       "exportRule" : local.vnet_cidr_block,
     }

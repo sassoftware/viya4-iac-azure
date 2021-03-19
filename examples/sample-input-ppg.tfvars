@@ -49,58 +49,58 @@ node_pools_availability_zone   = ""
 # AKS Node Pools config
 node_pools = {
   cas = {
-    "machine_type"          = "Standard_E16s_v3"
-    "os_disk_size"          = 200
-    "min_nodes"             = 1
-    "max_nodes"             = 1
-    "max_pods"              = 110
-    "node_taints"           = ["workload.sas.com/class=cas:NoSchedule"]
+    "machine_type" = "Standard_E16s_v3"
+    "os_disk_size" = 200
+    "min_nodes"    = 1
+    "max_nodes"    = 1
+    "max_pods"     = 110
+    "node_taints"  = ["workload.sas.com/class=cas:NoSchedule"]
     "node_labels" = {
       "workload.sas.com/class" = "cas"
     }
   },
   compute = {
-    "machine_type"          = "Standard_E16s_v3"
-    "os_disk_size"          = 200
-    "min_nodes"             = 1
-    "max_nodes"             = 1
-    "max_pods"              = 110
-    "node_taints"           = ["workload.sas.com/class=compute:NoSchedule"]
+    "machine_type" = "Standard_E16s_v3"
+    "os_disk_size" = 200
+    "min_nodes"    = 1
+    "max_nodes"    = 1
+    "max_pods"     = 110
+    "node_taints"  = ["workload.sas.com/class=compute:NoSchedule"]
     "node_labels" = {
       "workload.sas.com/class"        = "compute"
       "launcher.sas.com/prepullImage" = "sas-programming-environment"
     }
   },
   connect = {
-    "machine_type"          = "Standard_E16s_v3"
-    "os_disk_size"          = 200
-    "min_nodes"             = 1
-    "max_nodes"             = 1
-    "max_pods"              = 110
-    "node_taints"           = ["workload.sas.com/class=connect:NoSchedule"]
+    "machine_type" = "Standard_E16s_v3"
+    "os_disk_size" = 200
+    "min_nodes"    = 1
+    "max_nodes"    = 1
+    "max_pods"     = 110
+    "node_taints"  = ["workload.sas.com/class=connect:NoSchedule"]
     "node_labels" = {
       "workload.sas.com/class"        = "connect"
       "launcher.sas.com/prepullImage" = "sas-programming-environment"
     }
   },
   stateless = {
-    "machine_type"          = "Standard_D16s_v3"
-    "os_disk_size"          = 200
-    "min_nodes"             = 2
-    "max_nodes"             = 2
-    "max_pods"              = 110
-    "node_taints"           = ["workload.sas.com/class=stateless:NoSchedule"]
+    "machine_type" = "Standard_D16s_v3"
+    "os_disk_size" = 200
+    "min_nodes"    = 2
+    "max_nodes"    = 2
+    "max_pods"     = 110
+    "node_taints"  = ["workload.sas.com/class=stateless:NoSchedule"]
     "node_labels" = {
       "workload.sas.com/class" = "stateless"
     }
   },
   stateful = {
-    "machine_type"          = "Standard_D8s_v3"
-    "os_disk_size"          = 200
-    "min_nodes"             = 3
-    "max_nodes"             = 3
-    "max_pods"              = 110
-    "node_taints"           = ["workload.sas.com/class=stateful:NoSchedule"]
+    "machine_type" = "Standard_D8s_v3"
+    "os_disk_size" = 200
+    "min_nodes"    = 3
+    "max_nodes"    = 3
+    "max_pods"     = 110
+    "node_taints"  = ["workload.sas.com/class=stateful:NoSchedule"]
     "node_labels" = {
       "workload.sas.com/class" = "stateful"
     }
@@ -118,9 +118,9 @@ create_nfs_public_ip = false
 nfs_vm_admin         = "nfsuser"
 nfs_vm_zone          = 1
 
-nfs_raid_disk_size   = 128
-nfs_raid_disk_type   = "Standard_LRS"
-nfs_raid_disk_zones  = ["1"]
+nfs_raid_disk_size  = 128
+nfs_raid_disk_type  = "Standard_LRS"
+nfs_raid_disk_zones = ["1"]
 
 # Azure Monitor
 create_aks_azure_monitor = false
