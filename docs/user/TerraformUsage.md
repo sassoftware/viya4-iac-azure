@@ -7,24 +7,24 @@ When using the Terraform CLI, make sure you have all the necessary tools [instal
 
 ### Set Azure Authentication
 
-Follow either one of the authentication methods described in [Authenticating Terraform to access Azure](./TerraformAzureAuthentication.md) and set all TF_VAR_name environment variables using `export TF_VAR_*=<value>` command.
+Follow either one of the authentication methods described in [Authenticating Terraform to access Azure](./TerraformAzureAuthentication.md) and set all TF_VAR_name environment variables using `export TF_VAR_*=<value>` command.  If you are unsure which TF environment variables are required, you could review the commands that are provided in the optional bash script provided in *Althernative TIP Option 2*.
 
-*TIP:* These environment variables can be re-loaded using the bash script referenced in the Authenticating Terraform link above, 
-
-Once authenticated to the `az cli`, the following [bash (code) script](../../files/TerraformEnvVariableAssignment.sh) can be used to (re)assign the TF Environment Variables:
-
-```bash
-# source the bash script, presuming the file path
-source {path-to-file}TerraformEnvVariableAssignment.sh
-```
-
-*Althernative TIP:* These commands can be stored in a file outside of this repo in a secure file, for example `$HOME/.azure_creds.sh.` Protect that file so only you have read access to it.
+*Althernative TIP Option 1:*  The commands to set the TF_VAR_name environment variables can be securely stored in a file outside of this repository, for example `$HOME/.azure_creds.sh.` Remeber to protect that file so only you have read access to it.
 
 Then source your credentials into your shell environment:
 
 ```bash
 . $HOME/.azure_creds.sh
 ```
+
+*Althernative TIP Option 2:*  Once authenticated to the `az cli`, you could source the following [bash (code) script](../../files/TerraformEnvVariableAssignment.sh) which can be used to (re)assign the TF Environment Variables:
+
+```bash
+# source the bash script, presuming the file path
+source {path-to-file}TerraformEnvVariableAssignment.sh
+```
+
+
 
 ### Customize TF Input Variables (tfvars)
 
