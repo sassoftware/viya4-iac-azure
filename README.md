@@ -15,6 +15,8 @@ This project contains Terraform scripts to provision Microsoft Azure Cloud infra
 
 [<img src="./docs/images/viya4-iac-azure-diag.png" alt="Architecture Diagram" width="750"/>](./docs/images/viya4-iac-azure-diag.png?raw=true)
 
+Once the cloud resources are provisioned, see https://github.com/sassoftware/viya4-deployment to deploy SAS Viya 4 products. You may also refer to the official [SAS&reg; Viya&reg; 4 Operations](https://go.documentation.sas.com/?cdcId=itopscdc&cdcVersion=v_001LTS&docsetId=itopswlcm&docsetTarget=home.htm&locale=en) for more details.
+
 ## Prerequisites
 
 Operational knowledge of:
