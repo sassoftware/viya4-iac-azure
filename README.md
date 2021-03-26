@@ -56,12 +56,22 @@ git clone https://github.com/sassoftware/viya4-iac-azure
 cd viya4-iac-azure
 ```
 
-## Run -- Creating and Managaging the Cloud Resources
+### Authenticating Terraform to access Azure
 
-Create and manage the cloud resources by either 
+See [Terraform Azure Authentication](./docs/user/TerraformAzureAuthentication.md) for details.
 
-- run using [Terraform](docs/user/TerraformUsage.md) directly on your workstation, or
-- run using a [Docker container](docs/user/DockerUsage.md). 
+### Customize Input Values
+
+Create a file named `terraform.tfvars` to customize any input variable value. For starters, you can copy one of the provided example variable definition files in `./examples` folder. For more details on the variables declared in [variables.tf](variables.tf) refer to [CONFIG-VARS.md](docs/CONFIG-VARS.md).
+
+When using a variable definition file other than `terraform.tfvars`, see [Advanced Terraform Usage](docs/user/AdvancedTerraformUsage.md) for additional command options.
+
+## Creating and Managing the Cloud Resources
+
+Create and manage the cloud resources by either: 
+
+- running [Terraform](docs/user/TerraformUsage.md) directly on your workstation, or
+- running [Docker container](docs/user/DockerUsage.md). 
 
 ### Troubleshooting
 
