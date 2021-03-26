@@ -32,15 +32,14 @@ Once the cloud resources are provisioned, see the [viya4-deployment](https://git
 This project supports running **either** via terraform installed on your local machine **or** via a docker container. 
 
 - Access to an **Azure Subscription** and [**Identity**](./docs/user/TerraformAzureAuthentication.md) with '*Contributor*' role
-  - #### Terraform
+  - #### Terraform (4 dependencies)
     - [Terraform](https://www.terraform.io/downloads.html) - v0.13.6
     - [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl) - v1.18.8
     - [jq](https://stedolan.github.io/jq/) - v1.6
     - [Azure CLI](https://docs.microsoft.com/en-us/cli/azure) - v2.19.1 (optional -useful as an alternative to the Azure Portal)
-  - #### Docker
+  - #### Docker (1 dependency)
     - [Docker](https://docs.docker.com/get-docker/)
 
-Note, this project has been tested and verified with these versions.
 
 ## Getting Started
 
