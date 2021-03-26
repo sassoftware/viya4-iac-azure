@@ -15,7 +15,9 @@ This project contains Terraform scripts to provision Microsoft Azure Cloud infra
 
 [<img src="./docs/images/viya4-iac-azure-diag.png" alt="Architecture Diagram" width="750"/>](./docs/images/viya4-iac-azure-diag.png?raw=true)
 
-## Prerequisite Information
+Once the cloud resources are provisioned, see the [viya4-deployment](https://github.com/sassoftware/viya4-deployment) repo to deploy SAS Viya 4 products. If you need more information on the SAS Viya 4 products refer to the official [SAS&reg; Viya&reg; 4 Operations](https://go.documentation.sas.com/?cdcId=itopscdc&cdcVersion=v_001LTS&docsetId=itopswlcm&docsetTarget=home.htm&locale=en) documentation for more details.
+
+## Prerequisites
 
 ### Operational knowledge of:
 
@@ -34,7 +36,7 @@ This project supports running **either** via terraform installed on your local m
     - [Terraform](https://www.terraform.io/downloads.html) - v0.13.6
     - [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl) - v1.18.8
     - [jq](https://stedolan.github.io/jq/) - v1.6
-    - [Azure CLI](https://docs.microsoft.com/en-us/cli/azure) - v2.19.1 (optional -useful as an alternative to the AWS Web Console)
+    - [Azure CLI](https://docs.microsoft.com/en-us/cli/azure) - v2.19.1 (optional -useful as an alternative to the Azure Portal)
   - #### Docker
     - [Docker](https://docs.docker.com/get-docker/)
 
@@ -56,7 +58,7 @@ cd viya4-iac-azure
 
 ## Run -- Creating and Managaging the Cloud Resources
 
-Create and manage the Azure cloud resources by either:
+Create and manage the cloud resources by either 
 
 - run using [Terraform](docs/user/TerraformUsage.md) directly on your workstation, or
 - run using a [Docker container](docs/user/DockerUsage.md). 
