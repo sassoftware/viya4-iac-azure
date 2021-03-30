@@ -9,6 +9,16 @@ location       = "<azure-location-value>" # e.g., "eastus2"
 ssh_public_key = "~/.ssh/id_rsa.pub"
 # ****************  REQUIRED VARIABLES  ****************
 
+# Bring your own existing resources
+resource_group_name = "<existing-resource-group-name>" # only needed if using pre-existing
+vnet_name           = "<existing-vnet-name>"           # only needed if using pre-existing
+nsg_name            = "<existing-nsg-name>"            # only needed if using pre-existing
+subnet_names        = {
+  "aks": "<existing-subnet-name-1>", 
+  "misc": "<existing-subnet-name-2>", 
+  "netapp": "<existing-subnet-name-3>" # only needed if using ha storage (aka netapp)
+}
+
 # !NOTE! - Without specifying your CIDR block access rules, ingress traffic
 #          to your cluster will be blocked by default.
 
@@ -112,13 +122,3 @@ nfs_raid_disk_type   = "Standard_LRS"
 
 # Azure Monitor
 create_aks_azure_monitor = false
-
-# Bring your own existing resources
-resource_group_name = "<existing-resource-group-name>" # only needed if using pre-existing
-vnet_name           = "<existing-vnet-name>"           # only needed if using pre-existing
-nsg_name            = "<existing-nsg-name>"            # only needed if using pre-existing
-subnet_names        = {
-  "aks": "<existing-subnet-name-1>", 
-  "misc": "<existing-subnet-name-2>", 
-  "netapp": "<existing-subnet-name-3>" # only needed if using ha storage (aka netapp)
-}
