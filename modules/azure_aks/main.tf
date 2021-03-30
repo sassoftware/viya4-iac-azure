@@ -13,8 +13,8 @@ resource "azurerm_kubernetes_cluster" "aks" {
     network_plugin = var.aks_network_plugin
     network_policy = var.aks_network_plugin == "azure" ? var.aks_network_policy : null
     # Docs on AKS Advanced Networking config
-    # https://docs.microsoft.com/en-gb/azure/architecture/aws-professional/networking
-    # https://docs.microsoft.com/en-gb/azure/virtual-network/virtual-network-vnet-plan-design-arm
+    # https://docs.microsoft.com/en-us/azure/architecture/aws-professional/networking
+    # https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-vnet-plan-design-arm
     # https://github.com/terraform-providers/terraform-provider-azurerm/issues/4322
     # https://docs.microsoft.com/en-us/azure/aks/internal-lb
     # https://docs.microsoft.com/en-us/azure/aks/load-balancer-standard
