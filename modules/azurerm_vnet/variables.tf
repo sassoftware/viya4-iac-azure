@@ -43,7 +43,7 @@ variable "subnets" {
 
 variable "existing_subnets" {
   type    = map(string)
-  default = null
+  default = {}
 }
 
 variable "tags" {

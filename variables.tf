@@ -4,10 +4,10 @@ variable client_id {
 variable client_secret {
   default = ""
 }
-variable subscription_id {}
-variable tenant_id {
 
-}
+variable subscription_id {}
+variable tenant_id {}
+
 variable use_msi {
   description = "Use Managed Identity for Authentication (Azure VMs only)"
   type        = bool
@@ -525,7 +525,7 @@ variable "nsg_name" {
 
 variable "subnet_names" {
   type        = map(string)
-  default     = null
+  default     = {}
   description = "Map subnet usage roles to existing subnet names"
   # Example:
   # subnet_names = {
@@ -560,18 +560,6 @@ variable "subnets" {
       "enforce_private_link_endpoint_network_policies": false,
       "enforce_private_link_service_network_policies": false,
       "service_delegations": {},
-    }
-    netapp = {
-      "prefixes": ["192.168.3.0/24"],
-      "service_endpoints": [],
-      "enforce_private_link_endpoint_network_policies": false,
-      "enforce_private_link_service_network_policies": false,
-      "service_delegations": {
-        netapp = {
-          "name"    : "Microsoft.Netapp/volumes"
-          "actions" : ["Microsoft.Network/networkinterfaces/*", "Microsoft.Network/virtualNetworks/subnets/join/action"]
-        }
-      }
     }
   }
 }

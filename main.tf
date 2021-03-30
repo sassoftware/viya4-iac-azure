@@ -38,6 +38,7 @@ locals {
   kubeconfig_filename = "${var.prefix}-aks-kubeconfig.conf"
   kubeconfig_path     = var.iac_tooling == "docker" ? "/workspace/${local.kubeconfig_filename}" : local.kubeconfig_filename
 
+  subnets = { for k, v in var.subnets : k => v if ! ( k == "netapp" && var.storage_type == "standard")}
 }
 
 module "resource_group" {
@@ -75,7 +76,7 @@ module "vnet" {
   prefix              = var.prefix
   resource_group_name = module.resource_group.name
   location            = var.location
-  subnets             = var.subnets
+  subnets             = local.subnets
   existing_subnets    = var.subnet_names
   address_space       = [var.vnet_address_space]
   tags                = module.resource_group.tags
