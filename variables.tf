@@ -4,10 +4,10 @@ variable client_id {
 variable client_secret {
   default = ""
 }
-variable subscription_id {}
-variable tenant_id {
 
-}
+variable subscription_id {}
+variable tenant_id {}
+
 variable use_msi {
   description = "Use Managed Identity for Authentication (Azure VMs only)"
   type        = bool
@@ -496,4 +496,70 @@ variable "log_analytics_solution_promotion_code" {
   type        = string
   description = "A promotion code to be used with the solution"
   default     = ""
+}
+
+# Networking
+variable "resource_group_name" {
+  type    = string
+  default = null
+  description = "Name of pre-exising resource group. Leave blank to have one created"
+}
+
+variable "vnet_name" {
+  type    = string
+  default = null
+  description = "Name of pre-exising vnet. Leave blank to have one created"
+}
+
+variable "vnet_address_space" {
+  type        = string
+  default     = "192.168.0.0/16"
+  description = "Address space for created vnet"
+}
+
+variable "nsg_name" {
+  type    = string
+  default = null
+  description = "Name of pre-exising NSG. Leave blank to have one created"
+}
+
+variable "subnet_names" {
+  type        = map(string)
+  default     = {}
+  description = "Map subnet usage roles to existing subnet names"
+  # Example:
+  # subnet_names = {
+  #   'aks': 'my_aks_subnet', 
+  #   'misc': 'my_misc_subnet', 
+  #   'netapp': 'my_netapp_subnet'
+  # }
+}
+
+variable "subnets" {
+  type = map(object({
+    prefixes                                       = list(string)
+    service_endpoints                              = list(string)
+    enforce_private_link_endpoint_network_policies = bool
+    enforce_private_link_service_network_policies  = bool
+    service_delegations                            = map(object({
+      name    = string
+      actions = list(string)
+    }))
+  }))
+  default = {
+    aks = {
+      "prefixes": ["192.168.0.0/23"],
+      "service_endpoints": ["Microsoft.Sql"],
+      "enforce_private_link_endpoint_network_policies": false,
+      "enforce_private_link_service_network_policies": false,
+      "service_delegations": {},
+    }
+    misc = {
+      "prefixes": ["192.168.2.0/24"],
+      "service_endpoints": ["Microsoft.Sql"],
+      "enforce_private_link_endpoint_network_policies": false,
+      "enforce_private_link_service_network_policies": false,
+      "service_delegations": {},
+    }
+  }
 }

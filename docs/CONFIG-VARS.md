@@ -9,6 +9,8 @@ Supported configuration variables are listed in the table below.  All variables 
   - [Required Variables](#required-variables)
     - [Azure Authentication](#azure-authentication)
   - [Admin Access](#admin-access)
+  - [Networking](#networking)
+    - [Use Existing](#use-existing)
   - [General](#general)
   - [Nodepools](#nodepools)
     - [Default Nodepool](#default-nodepool)
@@ -67,6 +69,69 @@ You can use `default_public_access_cidrs` to set a default range for all created
 | vm_public_access_cidrs | IP Ranges allowed to access the VMs | list of strings | | opens port 22 for SSH access to the jump and/or nfs VM |
 | postgres_access_cidrs | IP Ranges allowed to access the Azure PostgreSQL Server | list of strings |||
 | acr_access_cidrs | IP Ranges allowed to access the ACR instance | list of strings |||
+
+## Networking
+| Name | Description | Type | Default | Notes |
+| :--- | ---: | ---: | ---: | ---: |
+| vnet_address_space | Address space for created vnet | string | "192.168.0.0/16" | This variable is ignored when vnet_name is set (aka bring your own vnet) |
+| subnets | Subnets to be created and their settings | map(object) | *check below* | This variable is ignored when subnet_names is set (aka bring your own subnets). All defined subnets must exist within the vnet address space. |
+
+The default values for the subnets variable are:
+
+```yaml
+{
+  aks = {
+    "prefixes": ["192.168.0.0/23"],
+    "service_endpoints": ["Microsoft.Sql"],
+    "enforce_private_link_endpoint_network_policies": false,
+    "enforce_private_link_service_network_policies": false,
+    "service_delegations": {},
+  }
+  misc = {
+    "prefixes": ["192.168.2.0/24"],
+    "service_endpoints": ["Microsoft.Sql"],
+    "enforce_private_link_endpoint_network_policies": false,
+    "enforce_private_link_service_network_policies": false,
+    "service_delegations": {},
+  }
+  ## If using ha storage then the following is also added
+  netapp = {
+    "prefixes": ["192.168.3.0/24"],
+    "service_endpoints": [],
+    "enforce_private_link_endpoint_network_policies": false,
+    "enforce_private_link_service_network_policies": false,
+    "service_delegations": {
+      netapp = {
+        "name"    : "Microsoft.Netapp/volumes"
+        "actions" : ["Microsoft.Network/networkinterfaces/*", "Microsoft.Network/virtualNetworks/subnets/join/action"]
+      }
+    }
+  }
+}
+```
+
+### Use Exisiting
+When desiring to deploy into exising resource group, vnet, subnets, or network security group the varaiables below can be used to define the exsting resources
+
+| Name | Description | Type | Default | Notes |
+| :--- | ---: | ---: | ---: | ---: |
+| resource_group_name | Name of pre-existing resource group | string | null | Only required if deploying into existing resource group|
+| vnet_name | Name of pre-existing vnet | string | null | Only required if deploying into existing vnet |
+| nsg_name | Name of pre-existing network security group | string | null | Only required if deploying into existing nsg |
+| subnet_names | Existing subnets mapped to desired usage | map(string) | null | Only required if deploying into existing subnets. See example below |
+
+Example subnet_names variable:
+
+```yaml
+subnet_names = {
+  ## Required subnets
+  'aks': '<my_aks_subnet_name>', 
+  'misc': '<my_misc_subnet_name>',
+
+  ## If using ha storage then the following is also required
+  'netapp': '<my_netapp_subnet_name>'
+}
+```
 
 ## General
 
