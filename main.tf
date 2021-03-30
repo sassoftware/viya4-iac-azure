@@ -322,7 +322,6 @@ module "netapp" {
   protocols             = var.netapp_protocols
   volume_path           = "${var.prefix}-${var.netapp_volume_path}"
   tags                  = module.resource_group.tags
-  # TODO: lockdown to aks and misc subnets
   allowed_clients       = concat(module.vnet.subnets["aks"].address_prefixes, module.vnet.subnets["misc"].address_prefixes)
 }
 
