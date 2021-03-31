@@ -9,22 +9,6 @@
 #   name = var.resource_group_name
 # }
 
-resource "azurerm_subnet" "anf" {
-  name                 = "${var.prefix}-netapp"
-  resource_group_name  = var.resource_group_name
-  virtual_network_name = var.vnet_name
-  address_prefixes     = var.subnet_address_prefix
-
-  delegation {
-    name = "netapp"
-
-    service_delegation {
-      name    = "Microsoft.Netapp/volumes"
-      actions = ["Microsoft.Network/networkinterfaces/*", "Microsoft.Network/virtualNetworks/subnets/join/action"]
-    }
-  }
-}
-
 resource "azurerm_netapp_account" "anf" {
   name                = "${var.prefix}-netappaccount"
   location            = var.location
@@ -50,7 +34,7 @@ resource "azurerm_netapp_volume" "anf" {
   service_level       = var.service_level
   pool_name           = "${var.prefix}-netapppool"
   volume_path         = var.volume_path
-  subnet_id           = azurerm_subnet.anf.id
+  subnet_id           = var.subnet_id
   protocols           = var.protocols
   storage_quota_in_gb = var.size_in_tb * 1024
   tags                = var.tags

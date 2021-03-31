@@ -18,8 +18,9 @@ variable "location" {
 variable "vnet_name" {
   description = "Azure Virtual Network"
 }
-variable "subnet_address_prefix" {
-  description = "Azure subnet to create Azure NetApp Files"
+
+variable "subnet_id" {
+  description = "Azure subnet id for Azure NetApp Files"
 }
 
 # https://docs.microsoft.com/en-us/azure/azure-netapp-files/azure-netapp-files-service-levels

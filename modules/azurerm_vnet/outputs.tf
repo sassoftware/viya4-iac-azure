@@ -1,24 +1,24 @@
-output "vnet_id" {
-  description = "The id of the newly created vNet"
-  value       = azurerm_virtual_network.vnet.id
+output "id" {
+  description = "The id of the vNet"
+  value       = var.name == null ? azurerm_virtual_network.vnet.0.id : data.azurerm_virtual_network.vnet.0.id
 }
 
-output "vnet_name" {
-  description = "The Name of the newly created vNet"
-  value       = azurerm_virtual_network.vnet.name
+output "name" {
+  description = "The Name of the vNet"
+  value       = local.vnet_name
 }
 
-output "vnet_location" {
-  description = "The location of the newly created vNet"
-  value       = azurerm_virtual_network.vnet.location
+output "location" {
+  description = "The location of the vNet"
+  value       = var.name == null ? azurerm_virtual_network.vnet.0.location : data.azurerm_virtual_network.vnet.0.location
 }
 
-output "vnet_address_space" {
-  description = "The address space of the newly created vNet"
-  value       = azurerm_virtual_network.vnet.address_space
+output "address_space" {
+  description = "The address space of the vNet"
+  value       = var.name == null ? azurerm_virtual_network.vnet.0.address_space : data.azurerm_virtual_network.vnet.0.address_space
 }
 
-output "vnet_subnets" {
-  description = "The ids of subnets created inside the newl vNet"
-  value       = azurerm_subnet.subnet.*.id
+output "subnets" {
+  description = "The ids of subnets inside the vNet"
+  value = length(var.existing_subnets) == 0 ? [for k, v in azurerm_subnet.subnet[*] :{for kk, vv in v: kk => {"id": vv.id, "address_prefixes": vv.address_prefixes }}][0] : [for k, v in data.azurerm_subnet.subnet[*] :{for kk, vv in v: kk => {"id": vv.id, "address_prefixes": vv.address_prefixes }}][0]
 }
