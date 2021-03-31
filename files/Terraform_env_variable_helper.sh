@@ -1,3 +1,6 @@
+#!/usr/bin/env bash
+set -e
+
 # usage: source <path-to-file>TerraformEnvVariableAssignment.sh
 # usage: you must comment / uncomment one of rows 3-4
 export YourSP="MTES_Customer_Advisory_SP"
