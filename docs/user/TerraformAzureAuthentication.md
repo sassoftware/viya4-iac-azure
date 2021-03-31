@@ -21,7 +21,14 @@ To authenticate Terraform to access Azure, you will need to set the following fo
 | client_id | your app_id when using a Service Principal | string | "" |
 | client_secret | your client secret when using a Service Principal| string | ""|
 
-There are several options for setting these [TF variables | Set Azure Authentication](TerraformUsage.md)
+The following TF variables will be required; there are several options for [setting the TF variables:](TerraformUsage.md)
+
+```
+TF_VAR_tenant_id=00000000-0000-0000-0000-000000000000
+TF_VAR_subscription_id=00000000-0000-0000-0000-000000000000
+TF_VAR_client_id=00000000-0000-0000-0000-000000000000
+TF_VAR_client_secret=00000000-0000-0000-0000-000000000000
+```
 
 ## Using an User-assigned Managed Identity
 
