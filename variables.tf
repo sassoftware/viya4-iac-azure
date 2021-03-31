@@ -561,5 +561,17 @@ variable "subnets" {
       "enforce_private_link_service_network_policies": false,
       "service_delegations": {},
     }
+    netapp = {
+      "prefixes": ["192.168.3.0/24"],
+      "service_endpoints": [],
+      "enforce_private_link_endpoint_network_policies": false,
+      "enforce_private_link_service_network_policies": false,
+      "service_delegations": {
+        netapp = {
+          "name"    : "Microsoft.Netapp/volumes"
+          "actions" : ["Microsoft.Network/networkinterfaces/*", "Microsoft.Network/virtualNetworks/subnets/join/action"]
+        }
+      }
+    }
   }
 }
