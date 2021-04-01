@@ -59,8 +59,7 @@ To preview the cloud resources before creating, run
 
 ```bash
 terraform plan
-# alternative to store your plan for later
-terraform plan -out=tf-plan.out 
+# alternative to store your plan for later: terraform plan -out=~/tf-plan.out 
 ```
 ### Create Cloud Resources
 
