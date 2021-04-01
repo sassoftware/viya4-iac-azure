@@ -14,9 +14,9 @@ resource_group_name = "<existing-resource-group-name>" # only needed if using pr
 vnet_name           = "<existing-vnet-name>"           # only needed if using pre-existing
 nsg_name            = "<existing-nsg-name>"            # only needed if using pre-existing
 subnet_names        = {
-  "aks": "<existing-subnet-name-1>", 
-  "misc": "<existing-subnet-name-2>", 
-  "netapp": "<existing-subnet-name-3>" # only needed if using ha storage (aka netapp)
+  "aks": "<existing-subnet-name-for-aks>", 
+  "misc": "<existing-subnet-name-for-misc>", 
+  "netapp": "<existing-subnet-name-for-netapp>" # only needed if using ha storage (aka netapp)
 }
 
 # !NOTE! - Without specifying your CIDR block access rules, ingress traffic
