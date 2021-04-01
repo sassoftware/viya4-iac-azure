@@ -11,12 +11,14 @@ variable "prefix" {
 
 variable "location" {
   description = "The Azure Region in which to provision resources"
-  default     = "East US"
+  type        = string
+  default     = null
 }
 
 variable "resource_group_name" {
   description = "The resource group in which to provision resources"
-  default     = "East US"
+  type        = string
+  default     = null
 }
 
 variable "tags" {
