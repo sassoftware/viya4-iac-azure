@@ -7,9 +7,9 @@ When using the Terraform CLI, make sure you have all the necessary tools [instal
 
 ### Set Azure Authentication
 
-Follow either one of the authentication methods described in [Authenticating Terraform to access Azure](./TerraformAzureAuthentication.md) and set all TF_VAR_name environment variables using `export TF_VAR_*=<value>` command.
+Follow either one of the authentication methods described in [Authenticating Terraform to access Azure](./TerraformAzureAuthentication.md) and set all TF_VAR_name environment variables using `export TF_VAR_*=<value>` command.  If you are unsure which TF environment variables are required, you could review the commands that are provided in the optional bash script provided in *Althernative TIP Option 2*.
 
-*TIP:* These commands can be stored in a file outside of this repo in a secure file, for example `$HOME/.azure_creds.sh.` Protect that file so only you have read access to it.
+*Althernative TIP Option 1:*  The commands to set the TF_VAR_name environment variables can be securely stored in a file outside of this repository, for example `$HOME/.azure_creds.sh.` Remeber to protect that file so only you have read access to it.
 
 Then source your credentials into your shell environment:
 
@@ -17,9 +17,27 @@ Then source your credentials into your shell environment:
 . $HOME/.azure_creds.sh
 ```
 
-### Pepare Variable Definitions (.tfvars) File
+*Althernative TIP Option 2:*  Once authenticated to the `az cli`, you could source the following [bash (code) script](../../files/terraform_env_variable_helper.sh) which can be used to (re)assign the TF Environment Variables:
 
-Prepare your `terraform.tfvars` file, as described in [Customize Input Values](../../README.md#customize-input-values).
+```bash
+# source the bash script, presuming the file path
+source files/terraform_env_variable_helper.sh
+```
+
+
+
+### Customize TF Input Variables (tfvars)
+
+Create a file named `terraform.tfvars` to customize any input variable value. For starters, you can copy one of the provided example variable definition files in `./examples` folder. 
+
+```bash
+# Example copy command
+cp examples/sample-input.tfvars terraform.tfvars
+```
+
+For more details on the variables declared in [variables.tf](variables.tf) refer to [CONFIG-VARS.md](docs/CONFIG-VARS.md).
+
+When using a variable definition file other than `terraform.tfvars`, see [Advanced Terraform Usage](docs/user/AdvancedTerraformUsage.md) for additional command options.
 
 ## Running Terraform Commands
 
@@ -41,6 +59,7 @@ To preview the cloud resources before creating, run
 
 ```bash
 terraform plan
+# alternative to store your plan for later: terraform plan -out=~/tf-plan.out 
 ```
 ### Create Cloud Resources
 

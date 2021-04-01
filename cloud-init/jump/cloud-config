@@ -4,16 +4,28 @@ system_info:
     name: ${vm_admin}
 
 #
-# First we'll update the repo and then update the OS.
+# Update the repo and then update the OS
 #
 package_update: true
 package_upgrade: true
 
 #
-# Install packages
+# Install Docker Pre-Reqs
+# Verify Docker Hash / Key: $curl -sL https://download.docker.com/linux/ubuntu/gpg | gpg
+#
+apt:
+  sources:
+    docker.list:
+      source: deb [arch=amd64] https://download.docker.com/linux/ubuntu $RELEASE stable
+      keyid: 9DC858229FC7DD38854AE2D88D81803C0EBFCD88
+
+#
+# Install packages: nfs, docker
 #
 packages:
   - nfs-common
+  - docker-ce
+  - docker-ce-cli
 
 #
 # Update /etc/fstab
@@ -35,3 +47,7 @@ runcmd:
   - mkdir -p ${jump_rwx_filestore_path}/pvs
   - $(chmod -fR 777 ${jump_rwx_filestore_path} ; echo)
   - $(chown -R nobody:nogroup ${jump_rwx_filestore_path} ; echo)
+  #
+  # Update user for Docker, user=${vm_admin}
+  #
+  - usermod -aG docker ${vm_admin}

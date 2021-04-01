@@ -4,7 +4,7 @@
 
 This project contains Terraform scripts to provision Microsoft Azure Cloud infrastructure resources required to deploy SAS Viya 4 products. Here is a list of resources this project can create -
 
-  >- Azure Resource Group
+  >- Azure Resource Group(s): Primary Resource Group and AKS Resource Group
   >- Virtual Network, Network Security Groups and Network Security Rules
   >- Managed Azure Kubernetes Service (AKS) cluster
   >- System and User AKS Node pools with required Labels and Taints
@@ -19,17 +19,19 @@ Once the cloud resources are provisioned, see the [viya4-deployment](https://git
 
 ## Prerequisites
 
-Operational knowledge of:
+### Operational knowledge of:
 
 - [Terraform](https://www.terraform.io/intro/index.html)
 - [Docker](https://www.docker.com/)
 - [Microsoft Azure Cloud](https://azure.microsoft.com/)
 - [Kubernetes](https://kubernetes.io/docs/concepts/)
  
-### Required
+
+### Technical Prerequisites:
+
+This project supports running **either** via terraform installed on your local machine **or** via a docker container. 
 
 - Access to an **Azure Subscription** and [**Identity**](./docs/user/TerraformAzureAuthentication.md) with '*Contributor*' role
-- Terraform or Docker
   - #### Terraform
     - [Terraform](https://www.terraform.io/downloads.html) - v0.13.6
     - [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl) - v1.18.8
@@ -63,12 +65,12 @@ Create a file named `terraform.tfvars` to customize any input variable value. Fo
 
 When using a variable definition file other than `terraform.tfvars`, see [Advanced Terraform Usage](docs/user/AdvancedTerraformUsage.md) for additional command options.
 
-## Creating and Managaging the Cloud Resources
+## Creating and Managing the Cloud Resources
 
-Create and manage the cloud resources by either 
+Create and manage the cloud resources by either: 
 
-- using [Terraform](docs/user/TerraformUsage.md) directly on your workstation, or
-- using a [Docker container](docs/user/DockerUsage.md). 
+- running [Terraform](docs/user/TerraformUsage.md) directly on your workstation, or
+- running [Docker container](docs/user/DockerUsage.md). 
 
 ### Troubleshooting
 
