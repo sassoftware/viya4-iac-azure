@@ -2,8 +2,8 @@
 set -e
 
 # usage: source <path-to-file>TerraformEnvVariableAssignment.sh
-# usage: you must comment / uncomment one of rows 3-4
-export YourSP="MTES_Customer_Advisory_SP"
+# note: select one of the following options for your Service Principal
+export YourSP="<yourSP>"
 #export YourSP=$USER
 
 echo -e "You must have an active az cli login 'az login' before this script will work"
