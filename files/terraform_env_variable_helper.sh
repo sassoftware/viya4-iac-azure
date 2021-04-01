@@ -8,7 +8,7 @@ export YourSP="<yourSP>"
 
 echo -e "You must have an active az cli login 'az login' before this script will work"
 echo -e "We will use the Service Principal for >>>>> $YourSP <<<<<"
-echo -e "Otherwise comment line 23, uncomment 24, and edit 6 to use the following"
+echo -e "Otherwise edit the export YourSP earlier in this script "
 echo -e "\nPausing for 5 seconds; use ctrl-c to exit and login"
 sleep 5s
 
