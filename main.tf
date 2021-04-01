@@ -181,6 +181,7 @@ resource "azurerm_network_security_rule" "vm-ssh" {
   destination_address_prefix  = "*"
   resource_group_name         = module.resource_group.name
   network_security_group_name = module.nsg.name
+  depends_on                  = [module.nsg]
 }
 
 resource "azurerm_container_registry" "acr" {
@@ -306,6 +307,7 @@ module "postgresql" {
     { name = "aks", subnet_id = module.vnet.subnets["aks"].id },
     { name = "misc", subnet_id = module.vnet.subnets["misc"].id }
   ]
+  depends_on = [module.resource_group]
 }
 
 module "netapp" {
@@ -323,6 +325,7 @@ module "netapp" {
   volume_path           = "${var.prefix}-${var.netapp_volume_path}"
   tags                  = module.resource_group.tags
   allowed_clients       = concat(module.vnet.subnets["aks"].address_prefixes, module.vnet.subnets["misc"].address_prefixes)
+  depends_on            = [module.resource_group]
 }
 
 resource "local_file" "kubeconfig" {
