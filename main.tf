@@ -344,13 +344,6 @@ module "netapp" {
   depends_on            = [module.resource_group]
 }
 
-# resource "local_file" "kubeconfig" {
-#   content  = module.aks.kube_config
-#   filename = local.kubeconfig_path
-
-#   depends_on = [module.aks]
-# }
-
 data "external" "git_hash" {
   program = ["files/tools/iac_git_info.sh"]
 }
