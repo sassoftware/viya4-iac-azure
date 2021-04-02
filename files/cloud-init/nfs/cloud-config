@@ -35,7 +35,7 @@ runcmd:
   # Update systemctl services
   #
   - systemctl enable nfs-kernel-server
-  - systemctl start nfs-kerneel-server
+  - systemctl start nfs-kernel-server
   - systemctl enable rpc-statd
   - systemctl start rpc-statd
   #

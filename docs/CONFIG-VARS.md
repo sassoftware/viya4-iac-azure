@@ -110,8 +110,9 @@ The default values for the subnets variable are:
 }
 ```
 
-### Use Exisiting
-When desiring to deploy into exising resource group, vnet, subnets, or network security group the varaiables below can be used to define the exsting resources
+### Use Existing
+
+When desiring to deploy into existing resource group, vnet, subnets, or network security group the variables below can be used to define the exiting resources
 
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
@@ -140,6 +141,7 @@ Ubuntu 18.04 LTS is the operating system used on the Jump/NFS servers. Ubuntu cr
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
 | partner_id | A GUID that is registered with Microsoft to facilitate partner resource usage attribution | string | "5d27f3ae-e49c-4dea-9aa3-b44e4750cd8c" | Defaults to SAS partner GUID, when you deploy this Terraform configurations, Microsoft can identify the installation of SAS software with the deployed Azure resources. Microsoft can correlate these resources used to support the software. Microsoft collects this information to provide the best experiences with their products and to operate their business. The data is collected and governed by Microsoft's privacy policies, located at https://www.microsoft.com/trustcenter. |
+| create_static_kubeconfig | Allows the user to create a provider / service account based kube config file | bool | false | A value of `false` will default to using the cloud providers mechanism for generating the kubeconfig file. A value of `true` will create a static kubeconfig which utilizes a `Service Account` and `Cluster Role Binding` to provide credentials. |
 | kubernetes_version | The AKS cluster K8S version | string | "1.18.14" | |
 | create_jump_vm | Create bastion host | bool | true | |
 | create_jump_public_ip | Add public ip to jump VM | bool | true | |
