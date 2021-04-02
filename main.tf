@@ -84,7 +84,7 @@ module "vnet" {
 }
 
 data "template_file" "jump-cloudconfig" {
-  template = file("${path.module}/cloud-init/jump/cloud-config")
+  template = file("${path.module}/files/cloud-init/jump/cloud-config")
   vars = {
     nfs_rwx_filestore_endpoint = var.storage_type == "ha" ? module.netapp.0.netapp_endpoint : module.nfs.0.private_ip_address
     nfs_rwx_filestore_path     = var.storage_type == "ha" ? module.netapp.0.netapp_path : "/export"
@@ -125,7 +125,7 @@ module "jump" {
 }
 
 data "template_file" "nfs-cloudconfig" {
-  template = file("${path.module}/cloud-init/nfs/cloud-config")
+  template = file("${path.module}/files/cloud-init/nfs/cloud-config")
   vars = {
     base_cidr_block = element(module.vnet.address_space, 0)
     vm_admin        = var.nfs_vm_admin
@@ -245,13 +245,29 @@ module "aks" {
   depends_on = [module.vnet]
 }
 
+module "kubeconfig" {
+  source                   = "./modules/kubeconfig"
+  prefix                   = var.prefix
+  create_static_kubeconfig = var.create_static_kubeconfig
+  path                     = local.kubeconfig_path
+  namespace                = "kube-system"
+
+  cluster_name             = module.aks.name
+  endpoint                 = module.aks.host
+  ca_crt                   = module.aks.cluster_ca_certificate
+  client_crt               = module.aks.client_certificate
+  client_key               = module.aks.client_key
+  token                    = module.aks.cluster_password
+
+  depends_on = [ module.aks ]
+}
+
 data "azurerm_public_ip" "aks_public_ip" {
   name                = split("/", module.aks.cluster_slb_ip_id)[8]
   resource_group_name = "MC_${module.resource_group.name}_${module.aks.name}_${module.resource_group.location}"
 
   depends_on = [module.aks, module.node_pools]
 }
-
 
 module "node_pools" {
   source = "./modules/aks_node_pool"
@@ -328,19 +344,19 @@ module "netapp" {
   depends_on            = [module.resource_group]
 }
 
-resource "local_file" "kubeconfig" {
-  content  = module.aks.kube_config
-  filename = local.kubeconfig_path
+# resource "local_file" "kubeconfig" {
+#   content  = module.aks.kube_config
+#   filename = local.kubeconfig_path
 
-  depends_on = [module.aks]
-}
+#   depends_on = [module.aks]
+# }
 
 data "external" "git_hash" {
-  program = ["files/iac_git_info.sh"]
+  program = ["files/tools/iac_git_info.sh"]
 }
 
 data "external" "iac_tooling_version" {
-  program = ["files/iac_tooling_version.sh"]
+  program = ["files/tools/iac_tooling_version.sh"]
 }
 
 resource "kubernetes_config_map" "sas_iac_buildinfo" {

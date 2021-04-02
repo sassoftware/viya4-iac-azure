@@ -8,7 +8,7 @@ output "nat_ip" {
 }
 
 output "kube_config" {
-  value = module.aks.kube_config
+  value = module.kubeconfig.kube_config
 }
 
 output "aks_cluster_node_username" {
