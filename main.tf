@@ -55,8 +55,8 @@ resource "azurerm_proximity_placement_group" "proximity" {
   name                = "${var.prefix}-ProximityPlacementGroup"
   location            = var.location
   resource_group_name = module.resource_group.name
-
-  tags = module.resource_group.tags
+  tags                = module.resource_group.tags
+  depends_on          = [module.resource_group]
 }
 
 module "nsg" {
@@ -163,8 +163,7 @@ module "nfs" {
   data_disk_size                 = var.nfs_raid_disk_size
   data_disk_storage_account_type = var.nfs_raid_disk_type
   data_disk_zones                = var.nfs_raid_disk_zones
-
-  depends_on = [module.vnet]
+  depends_on                     = [module.vnet]
 }
 
 resource "azurerm_network_security_rule" "vm-ssh" {
@@ -193,6 +192,7 @@ resource "azurerm_container_registry" "acr" {
   admin_enabled            = var.container_registry_admin_enabled
   georeplication_locations = var.container_registry_geo_replica_locs
   tags                     = module.resource_group.tags
+  depends_on               = [module.resource_group]
 }
 
 resource "azurerm_network_security_rule" "acr" {
@@ -209,6 +209,7 @@ resource "azurerm_network_security_rule" "acr" {
   destination_address_prefix  = "*"
   resource_group_name         = module.resource_group.name
   network_security_group_name = module.nsg.name
+  depends_on                  = [module.nsg]
 }
 
 module "aks" {
@@ -241,8 +242,7 @@ module "aks" {
   aks_pod_cidr                             = var.aks_pod_cidr
   aks_service_cidr                         = var.aks_service_cidr
   aks_cluster_tags                         = module.resource_group.tags
-
-  depends_on = [module.vnet]
+  depends_on                               = [module.vnet]
 }
 
 module "kubeconfig" {
@@ -251,22 +251,19 @@ module "kubeconfig" {
   create_static_kubeconfig = var.create_static_kubeconfig
   path                     = local.kubeconfig_path
   namespace                = "kube-system"
-
   cluster_name             = module.aks.name
   endpoint                 = module.aks.host
   ca_crt                   = module.aks.cluster_ca_certificate
   client_crt               = module.aks.client_certificate
   client_key               = module.aks.client_key
   token                    = module.aks.cluster_password
-
-  depends_on = [ module.aks ]
+  depends_on               = [ module.aks ]
 }
 
 data "azurerm_public_ip" "aks_public_ip" {
   name                = split("/", module.aks.cluster_slb_ip_id)[8]
   resource_group_name = "MC_${module.resource_group.name}_${module.aks.name}_${module.resource_group.location}"
-
-  depends_on = [module.aks, module.node_pools]
+  depends_on          = [module.aks, module.node_pools]
 }
 
 module "node_pools" {
@@ -320,10 +317,10 @@ module "postgresql" {
   postgresql_configurations    = var.postgres_configurations
   tags                         = module.resource_group.tags
   vnet_rules = [
-    { name = "aks", subnet_id = module.vnet.subnets["aks"].id },
+    { name = "aks", subnet_id  = module.vnet.subnets["aks"].id },
     { name = "misc", subnet_id = module.vnet.subnets["misc"].id }
   ]
-  depends_on = [module.resource_group]
+  depends_on                   = [module.vnet]
 }
 
 module "netapp" {
@@ -341,7 +338,7 @@ module "netapp" {
   volume_path           = "${var.prefix}-${var.netapp_volume_path}"
   tags                  = module.resource_group.tags
   allowed_clients       = concat(module.vnet.subnets["aks"].address_prefixes, module.vnet.subnets["misc"].address_prefixes)
-  depends_on            = [module.resource_group]
+  depends_on            = [module.vnet]
 }
 
 data "external" "git_hash" {
