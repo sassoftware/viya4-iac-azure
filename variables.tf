@@ -76,6 +76,10 @@ variable "postgres_public_access_cidrs" {
 }
 
 # AKS config
+variable "create_aks_public_ip" {
+  default = true
+}
+
 variable "default_nodepool_vm_type" {
   default = "Standard_D8s_v4"
 }
@@ -550,14 +554,14 @@ variable "subnets" {
     aks = {
       "prefixes": ["192.168.0.0/23"],
       "service_endpoints": ["Microsoft.Sql"],
-      "enforce_private_link_endpoint_network_policies": false,
+      "enforce_private_link_endpoint_network_policies": true,
       "enforce_private_link_service_network_policies": false,
       "service_delegations": {},
     }
     misc = {
       "prefixes": ["192.168.2.0/24"],
       "service_endpoints": ["Microsoft.Sql"],
-      "enforce_private_link_endpoint_network_policies": false,
+      "enforce_private_link_endpoint_network_policies": true,
       "enforce_private_link_service_network_policies": false,
       "service_delegations": {},
     }
