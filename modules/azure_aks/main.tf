@@ -8,6 +8,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   # az aks get-versions --location eastus -o table
   kubernetes_version              = var.kubernetes_version
   api_server_authorized_ip_ranges = var.aks_cluster_endpoint_public_access_cidrs
+  private_cluster_enabled         = length(var.aks_cluster_endpoint_public_access_cidrs) == 0 ? true : false
 
   network_profile {
     network_plugin = var.aks_network_plugin
