@@ -17,7 +17,7 @@ Then source your credentials into your shell environment:
 . $HOME/.azure_creds.sh
 ```
 
-*Althernative TIP Option 2:*  Once authenticated to the `az cli`, you could source the following [bash (code) script](../../files/terraform_env_variable_helper.sh) which can be used to (re)assign the TF Environment Variables:
+*Althernative TIP Option 2:*  Once authenticated to the `az cli`, you could source the following [bash (code) script](../../files/tools/terraform_env_variable_helper.sh) which can be used to (re)assign the TF Environment Variables:
 
 ```bash
 # source the bash script, presuming the file path
