@@ -135,3 +135,7 @@ output "rwx_filestore_config" {
     }
   }) : null
 }
+
+output "test" {
+  value = module.aks
+}

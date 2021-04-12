@@ -25,7 +25,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
     dns_service_ip     = var.aks_network_plugin == "kubenet" ? "10.0.0.10" : var.aks_dns_service_ip
     pod_cidr           = var.aks_network_plugin == "kubenet" ? "10.244.0.0/16" : null
     docker_bridge_cidr = var.aks_network_plugin == "kubenet" ? "172.17.0.1/16" : var.aks_docker_bridge_cidr
-
+    outbound_type = "userDefinedRouting"
     # load_balancer_sku = "Standard"
   }
 
