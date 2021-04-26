@@ -19,7 +19,6 @@ TERRAFORM_VERSION=$(echo "$TERRAFORM_INFO" | jq .terraform_version )
 TERRAFORM_REVISION=$(echo "$TERRAFORM_INFO" | jq .terraform_revision )
 PROVIDER_SELECTIONS=$(echo "$TERRAFORM_INFO" | jq -c .provider_selections )
 TERRAFORM_OUTDATED=$(echo "$TERRAFORM_INFO" | jq .terraform_outdated )
-# echo "${TERRAFORM_INFO | jq "
 
 jq -n \
   --arg terraform_version "$TERRAFORM_VERSION" \
