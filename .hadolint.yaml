@@ -1,0 +1,2 @@
+ignored:
+  - DL3018 # https://github.com/hadolint/hadolint/wiki/DL3018
