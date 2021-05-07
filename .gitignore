@@ -7,3 +7,4 @@ terraform.tfvars
 .terraform.tfstate.lock.info
 .DS_Store
 sas_iac_buildinfo.yaml
+*terraform_env_variable_helper.sh

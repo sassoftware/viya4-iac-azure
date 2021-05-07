@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# `set -e` is used below to ensure that all of the assignments in the script are made / that it runs in entirety
 set -e
 
 # usage: source <path-to-file>TerraformEnvVariableAssignment.sh
@@ -7,7 +8,7 @@ export YourSP="<yourSP>"
 #export YourSP=$USER
 
 echo -e "You must have an active az cli login 'az login' before this script will work"
-echo -e "We will use the Service Principal for >>>>> $YourSP <<<<<"
+echo -e "We will use the Service Principal: >>>>> $YourSP <<<<<"
 echo -e "Otherwise edit the export YourSP earlier in this script "
 echo -e "\nPausing for 5 seconds; use ctrl-c to exit and login"
 sleep 5s
@@ -37,7 +38,13 @@ export TF_VAR_client_secret=$(az ad sp create-for-rbac --skip-assignment --name 
 echo -e "\nTF_VAR_client_secret:"
 echo -e $TF_VAR_client_secret
 
+# `set +e` reverses the `set -e`
+set +e
+
 echo -e "\nAll done"
 echo -e "\nIf the wrong subscription was selected, then suggest:"
 echo -e "   \$az account list --output table"
 echo -e "   \$az account set --subscription <YourSubscription>"
+
+echo -e "\nIf the azurerm module is returning an http/401 error, then you might want to reset your SP credential:"
+echo -e "   \$az ad sp credential reset --name $YourSP"
