@@ -1,13 +1,19 @@
 #!/usr/bin/env bash
-# `set -e` is used below to ensure that all of the assignments in the script are made / that it runs in entirety
-set -e
 
 echo -e "\nUsage: You must have an active az cli login 'az login' before this script will work"
 echo -e "\nUsage: Run an export referenced in line 8 or 9 before this script before continuing"
 echo "    For example: export YOURSP=your-SP-name or export YOURSP=\$USER"
 echo -e "\nUsage: source ./<path-to-file>TerraformEnvVariableAssignment.sh; e.g. source ./files/tools/terraform_env_variable_helper.sh"
 echo -e "\nUsage: The variable \$YOURSP needs to be set and currently has a value of Service Principal: >>>>> $YOURSP <<<<<"
-echo -e "\nPausing for 7 seconds so you can review; use ctrl-c to exit and login"
+
+if [[ -z "${YOURSP}" ]]; then
+  echo -e "***\nThe variable \$YOURSP needs to be set before this script can continue, see usage notes\n***" 1>&2
+  exit
+fi
+
+# `set -e` is used below to ensure that all of the assignments in the script are made / that it runs in entirety
+set -e
+echo -e "***\nPausing for 7 seconds so you can review; use ctrl-c to exit and resolve\n***"
 sleep 7s
 
 # set the tenant ID from a query; validate
