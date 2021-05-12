@@ -29,13 +29,13 @@ echo -e "\nTF_VAR_subscription_id:"
 echo -e "$TF_VAR_subscription_id"
 
 # obtain the client ID
-TF_VAR_client_id=$(az ad sp show --id http://$YOURSP --query appId --output tsv)
+TF_VAR_client_id=$(az ad sp show --id http://"$YOURSP" --query appId --output tsv)
 export TF_VAR_client_id
 echo -e "\nTF_VAR_client_id for this Service Principal $YOURSP:"
 echo -e "$TF_VAR_client_id"
 
 # obtain a client secret
-TF_VAR_client_secret=$(az ad sp create-for-rbac --skip-assignment --name http://$YOURSP --query password --output tsv)
+TF_VAR_client_secret=$(az ad sp create-for-rbac --skip-assignment --name http://"$YOURSP" --query password --output tsv)
 export TF_VAR_client_secret
 echo -e "\nTF_VAR_client_secret:"
 echo -e "$TF_VAR_client_secret"
