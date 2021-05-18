@@ -190,7 +190,8 @@ resource "azurerm_container_registry" "acr" {
   location                 = var.location
   sku                      = var.container_registry_sku
   admin_enabled            = var.container_registry_admin_enabled
-  georeplication_locations = var.container_registry_geo_replica_locs
+  # TODO - Needs addressing with new version
+  # georeplications          = var.container_registry_geo_replica_locs
   tags                     = module.resource_group.tags
   depends_on               = [module.resource_group]
 }
