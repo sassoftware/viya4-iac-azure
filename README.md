@@ -1,5 +1,7 @@
 # SAS Viya 4 Infrastructure as Code (IaC) for Microsoft Azure
 
+BRANCH EDIT
+
 ## Overview
 
 This project contains Terraform scripts to provision Microsoft Azure Cloud infrastructure resources required to deploy SAS Viya 4 products. Here is a list of resources this project can create -
@@ -25,11 +27,11 @@ Once the cloud resources are provisioned, see the [viya4-deployment](https://git
 - [Docker](https://www.docker.com/)
 - [Microsoft Azure Cloud](https://azure.microsoft.com/)
 - [Kubernetes](https://kubernetes.io/docs/concepts/)
- 
+
 
 ### Technical Prerequisites:
 
-This project supports running **either** via terraform installed on your local machine **or** via a docker container. 
+This project supports running **either** via terraform installed on your local machine **or** via a docker container.
 
 - Access to an **Azure Subscription** and [**Identity**](./docs/user/TerraformAzureAuthentication.md) with '*Contributor*' role
   - #### Terraform
@@ -67,10 +69,10 @@ When using a variable definition file other than `terraform.tfvars`, see [Advanc
 
 ## Creating and Managing the Cloud Resources
 
-Create and manage the cloud resources by either: 
+Create and manage the cloud resources by either:
 
 - running [Terraform](docs/user/TerraformUsage.md) directly on your workstation, or
-- running [Docker container](docs/user/DockerUsage.md). 
+- running [Docker container](docs/user/DockerUsage.md).
 
 ### Troubleshooting
 
