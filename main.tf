@@ -167,22 +167,22 @@ module "nfs" {
   depends_on = [module.vnet]
 }
 
-# resource "azurerm_network_security_rule" "vm-ssh" {
-#   name                        = "${var.prefix}-ssh"
-#   description                 = "Allow SSH from source"
-#   count                       = (((var.create_jump_public_ip && var.create_jump_vm && (length(local.vm_public_access_cidrs) > 0)) || (var.create_nfs_public_ip && var.storage_type == "standard" && (length(local.vm_public_access_cidrs) > 0))) != 0) ? 1 : 0
-#   priority                    = 120
-#   direction                   = "Inbound"
-#   access                      = "Allow"
-#   protocol                    = "Tcp"
-#   source_port_range           = "*"
-#   destination_port_range      = "22"
-#   source_address_prefixes     = local.vm_public_access_cidrs
-#   destination_address_prefix  = "*"
-#   resource_group_name         = module.resource_group.name
-#   network_security_group_name = module.nsg.name
-#   depends_on                  = [module.nsg]
-# }
+ resource "azurerm_network_security_rule" "vm-ssh" {
+   name                        = "${var.prefix}-ssh"
+   description                 = "Allow SSH from source"
+   count                       = ((var.create_jump_public_ip && var.create_jump_vm && (length(local.vm_public_access_cidrs) > 0))) || (var.create_nfs_public_ip && var.storage_type == "standard" && (length(local.vm_public_access_cidrs) > 0)) ? 1 : 0
+   priority                    = 120
+   direction                   = "Inbound"
+   access                      = "Allow"
+   protocol                    = "Tcp"
+   source_port_range           = "*"
+   destination_port_range      = "22"
+   source_address_prefixes     = local.vm_public_access_cidrs
+   destination_address_prefix  = "*"
+   resource_group_name         = module.resource_group.name
+   network_security_group_name = module.nsg.name
+   depends_on                  = [module.nsg]
+ }
 
 resource "azurerm_container_registry" "acr" {
   count                    = var.create_container_registry ? 1 : 0
@@ -195,21 +195,21 @@ resource "azurerm_container_registry" "acr" {
   tags                     = module.resource_group.tags
 }
 
-# resource "azurerm_network_security_rule" "acr" {
-#   name                        = "SAS-ACR"
-#   description                 = "Allow ACR from source"
-#   count                       = (length(local.acr_public_access_cidrs) != 0 && var.create_container_registry) ? 1 : 0
-#   priority                    = 180
-#   direction                   = "Inbound"
-#   access                      = "Allow"
-#   protocol                    = "Tcp"
-#   source_port_range           = "*"
-#   destination_port_range      = "5000"
-#   source_address_prefixes     = local.acr_public_access_cidrs
-#   destination_address_prefix  = "*"
-#   resource_group_name         = module.resource_group.name
-#   network_security_group_name = module.nsg.name
-# }
+ resource "azurerm_network_security_rule" "acr" {
+   name                        = "SAS-ACR"
+   description                 = "Allow ACR from source"
+   count                       = (length(local.acr_public_access_cidrs) != 0 && var.create_container_registry) ? 1 : 0
+   priority                    = 180
+   direction                   = "Inbound"
+   access                      = "Allow"
+   protocol                    = "Tcp"
+   source_port_range           = "*"
+   destination_port_range      = "5000"
+   source_address_prefixes     = local.acr_public_access_cidrs
+   destination_address_prefix  = "*"
+   resource_group_name         = module.resource_group.name
+   network_security_group_name = module.nsg.name
+ }
 
 module "aks" {
   source = "./modules/azure_aks"
@@ -299,11 +299,11 @@ module "postgresql" {
   db_charset                   = var.postgres_db_charset
   db_collation                 = var.postgres_db_collation
   firewall_rule_prefix         = "${var.prefix}-postgres-firewall-"
-  firewall_rules               = []#local.postgres_firewall_rules
+  firewall_rules               = local.postgres_firewall_rules
   vnet_rule_name_prefix        = "${var.prefix}-postgresql-vnet-rule-"
   postgresql_configurations    = var.postgres_configurations
   tags                         = module.resource_group.tags
-  vnet_rules = []
+  #vnet_rules = [{ name = "secure", subnet_id = "/subscriptions/3abb8faf-7dcc-47bc-aaf6-12293005d97c/resourceGroups/azuse-RD_CLT_Testing-vpn-rg/providers/Microsoft.Network/virtualNetworks/azuse-RD_CLT_Testing-vpn-vnet/subnets/azuse-RD_CLT_Testing-subnet" }]
   #   { name = "aks", subnet_id = module.vnet.subnets["aks"].id },
   #   { name = "misc", subnet_id = module.vnet.subnets["misc"].id }
   # ]

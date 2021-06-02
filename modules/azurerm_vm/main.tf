@@ -26,10 +26,10 @@ resource "azurerm_network_interface" "vm_nic" {
   tags = var.tags
 }
 
-resource "azurerm_network_interface_security_group_association" "vm_nic_sg" {
-  network_interface_id      = azurerm_network_interface.vm_nic.id
-  network_security_group_id = var.azure_nsg_id
-}
+#resource "azurerm_network_interface_security_group_association" "vm_nic_sg" {
+#  network_interface_id      = azurerm_network_interface.vm_nic.id
+#  network_security_group_id = var.azure_nsg_id
+#}
 
 # https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/managed_disk
 resource "azurerm_managed_disk" "vm_data_disk" {
