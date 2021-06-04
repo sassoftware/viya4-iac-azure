@@ -42,7 +42,7 @@ runcmd:
   #
   - while [ `df -h | grep "${nfs_rwx_filestore_endpoint}:${nfs_rwx_filestore_path}" | wc -l` -eq 0 ]; do sleep 5 && mount -a ; done
   #
-  # Change permissions and owener
+  # Change permissions and owner
   #
   - mkdir -p ${jump_rwx_filestore_path}/pvs
   - $(chmod -fR 777 ${jump_rwx_filestore_path} ; echo)
