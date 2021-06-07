@@ -39,6 +39,8 @@ locals {
   kubeconfig_path     = var.iac_tooling == "docker" ? "/workspace/${local.kubeconfig_filename}" : local.kubeconfig_filename
 
   subnets = { for k, v in var.subnets : k => v if ! ( k == "netapp" && var.storage_type == "standard")}
+
+  container_registry_sku = title(var.container_registry_sku)
 }
 
 module "resource_group" {
@@ -188,10 +190,21 @@ resource "azurerm_container_registry" "acr" {
   name                     = join("", regexall("[a-zA-Z0-9]+", "${var.prefix}acr")) # alpha numeric characters only are allowed
   resource_group_name      = module.resource_group.name
   location                 = var.location
-  sku                      = var.container_registry_sku
+  sku                      = local.container_registry_sku
   admin_enabled            = var.container_registry_admin_enabled
-  # TODO - Needs addressing with new version
-  # georeplications          = var.container_registry_geo_replica_locs
+  
+  #
+  # Moving from deprecated argument, georeplication_locations, but keeping container_registry_geo_replica_locs
+  # for backwards compatability.
+  #
+  georeplications = (local.container_registry_sku == "Premium" && var.container_registry_geo_replica_locs != null) ? [
+    for location_item in var.container_registry_geo_replica_locs:
+      {
+        location = location_item
+        tags     = var.tags
+      }
+  ] : local.container_registry_sku == "Premium" ? [] : null
+
   tags                     = module.resource_group.tags
   depends_on               = [module.resource_group]
 }
