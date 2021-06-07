@@ -60,8 +60,6 @@ TF_VAR_client_id=$(az ad sp show --id http://$USER --query appId --output tsv)
 
 echo $TF_VAR_client_id
 echo $TF_VAR_client_secret
-
-az role assignment create --assignee $TF_VAR_client_id --role Contributor
 ```
 
 You can use this command to list only your Service Principals in the Azure Subscription:
