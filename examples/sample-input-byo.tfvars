@@ -38,7 +38,6 @@ postgres_administrator_password  = "mySup3rS3cretPassw0rd"
 create_container_registry           = false
 container_registry_sku              = "Standard"
 container_registry_admin_enabled    = false
-container_registry_geo_replica_locs = null
 
 # AKS config
 kubernetes_version         = "1.19.9"
