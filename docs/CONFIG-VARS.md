@@ -136,7 +136,7 @@ subnet_names = {
 
 ## General
 
-Ubuntu 18.04 LTS is the operating system used on the Jump/NFS servers. Ubuntu creates the `/mnt` location as an ephemeral drive and cannot be used as the root location of the `jump_rwx_filestore_path` variable.
+Ubuntu 20.04 LTS is the operating system used on the Jump/NFS servers. Ubuntu creates the `/mnt` location as an ephemeral drive and cannot be used as the root location of the `jump_rwx_filestore_path` variable.
 
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
@@ -291,7 +291,7 @@ When `storage_type=ha` (high availability), [Microsoft Azure NetApp Files](https
 | create_container_registry| Create container registry instance | bool | false | |
 | container_registry_sku | Service tier for the registry | string | "Standard" | Possible values: "Basic", "Standard", "Premium" |
 | container_registry_admin_enabled | Enables the admin user | bool | false | |
-| container_registry_geo_replica_locs |   list of Azure locations where the container registry should be geo-replicated.| list of strings | [] | |
+| container_registry_geo_replica_locs | list of Azure locations where the container registry should be geo-replicated. | list of strings | null | This is only supported when `container_registry_sku` is set to `"Premium"` |
 
 ## Postgres
 

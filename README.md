@@ -33,10 +33,10 @@ This project supports running **either** via terraform installed on your local m
 
 - Access to an **Azure Subscription** and [**Identity**](./docs/user/TerraformAzureAuthentication.md) with '*Contributor*' role
   - #### Terraform
-    - [Terraform](https://www.terraform.io/downloads.html) - v0.13.6
-    - [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl) - v1.18.8
+    - [Terraform](https://www.terraform.io/downloads.html) - v1.0.0
+    - [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl) - v1.19.9
     - [jq](https://stedolan.github.io/jq/) - v1.6
-    - [Azure CLI](https://docs.microsoft.com/en-us/cli/azure) - v2.19.1 (optional -useful as an alternative to the Azure Portal)
+    - [Azure CLI](https://docs.microsoft.com/en-us/cli/azure) - (optional - useful as an alternative to the Azure Portal) - v2.24.2
   - #### Docker
     - [Docker](https://docs.docker.com/get-docker/)
 
@@ -61,7 +61,7 @@ See [Terraform Azure Authentication](./docs/user/TerraformAzureAuthentication.md
 
 ### Customize Input Values
 
-Create a file named `terraform.tfvars` to customize any input variable value. For starters, you can copy one of the provided example variable definition files in `./examples` folder. For more details on the variables declared in [variables.tf](variables.tf) refer to [CONFIG-VARS.md](docs/CONFIG-VARS.md).
+Create a file named `terraform.tfvars` to customize any input variable value documented in the [CONFIG-VARS.md](docs/CONFIG-VARS.md) file. For starters, you can copy one of the provided example variable definition files in `./examples` folder. For more details on the variables declared refer to the [CONFIG-VARS.md](docs/CONFIG-VARS.md) file.
 
 When using a variable definition file other than `terraform.tfvars`, see [Advanced Terraform Usage](docs/user/AdvancedTerraformUsage.md) for additional command options.
 

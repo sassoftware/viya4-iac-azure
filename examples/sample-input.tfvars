@@ -1,7 +1,6 @@
-# !NOTE! - These are only a subset of variables.tf provided for sample usage.
-# Customize this file to add any variables from 'variables.tf' that you want
-# to change (override) their default values .
-# Reference `viya4-iac-azure/docs/CONFIG-VARS.md` for more information
+# !NOTE! - These are only a subset of CONFIG-VARS.md provided for sample.
+# Customize this file to add any variables from 'CONFIG-VARS.md' that you want 
+# to change their default values.
 
 # ****************  REQUIRED VARIABLES  ****************
 # These required variables' values MUST be provided by the User
@@ -29,10 +28,9 @@ postgres_administrator_password  = "mySup3rS3cretPassw0rd"
 create_container_registry           = false
 container_registry_sku              = "Standard"
 container_registry_admin_enabled    = false
-container_registry_geo_replica_locs = null
 
 # AKS config
-kubernetes_version         = "1.18.14"
+kubernetes_version         = "1.19.9"
 default_nodepool_min_nodes = 2
 default_nodepool_vm_type   = "Standard_D8s_v4"
 
