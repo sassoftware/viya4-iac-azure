@@ -33,7 +33,7 @@ This project supports running **either** via terraform installed on your local m
 
 - Access to an **Azure Subscription** and [**Identity**](./docs/user/TerraformAzureAuthentication.md) with '*Contributor*' role
   - #### Terraform
-    - [Terraform](https://www.terraform.io/downloads.html) - v0.15.5
+    - [Terraform](https://www.terraform.io/downloads.html) - v1.0.0
     - [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl) - v1.19.9
     - [jq](https://stedolan.github.io/jq/) - v1.6
     - [Azure CLI](https://docs.microsoft.com/en-us/cli/azure) - (optional - useful as an alternative to the Azure Portal) - v2.24.2
