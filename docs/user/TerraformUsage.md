@@ -21,7 +21,7 @@ Then source your credentials into your shell environment:
 
 ```bash
 # source the bash script, presuming the file path
-source files/terraform_env_variable_helper.sh
+source files/tools/terraform_env_variable_helper.sh
 ```
 
 
