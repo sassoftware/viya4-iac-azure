@@ -581,3 +581,9 @@ variable "create_static_kubeconfig" {
   type        = bool
   default     = true
 }
+
+variable "cluster_node_pool_mode" {
+  description = "Flag for predefined cluster node configurations - Values : default, minimal"
+  type        = string
+  default     = "default"
+}

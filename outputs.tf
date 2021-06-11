@@ -136,3 +136,7 @@ output "rwx_filestore_config" {
     }
   }) : null
 }
+
+output "cluster_node_pool_mode" {
+  value = var.cluster_node_pool_mode
+}
