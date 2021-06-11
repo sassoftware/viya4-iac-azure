@@ -165,6 +165,12 @@ variable "create_postgres" {
   default     = false
 }
 
+variable "create_postgresql_flexible_server" {
+  description = "Create an Azure PostgresSQL flexible server instance"
+  type        = bool
+  default     = false
+}
+
 variable "postgres_sku_name" {
   description = "SKU Name for the PostgreSQL Server. The name of the SKU, follows the tier + family + cores pattern (e.g. B_Gen4_1, GP_Gen5_4)."
   default     = "GP_Gen5_32"
@@ -262,7 +268,7 @@ variable "jump_vm_zone" {
 }
 
 variable "jump_vm_machine_type" {
-  default = "Standard_B2s"
+  default     = "Standard_B2s"
   description = "SKU which should be used for this Virtual Machine"
 }
 
@@ -500,14 +506,14 @@ variable "log_analytics_solution_promotion_code" {
 
 # Networking
 variable "resource_group_name" {
-  type    = string
-  default = null
+  type        = string
+  default     = null
   description = "Name of pre-exising resource group. Leave blank to have one created"
 }
 
 variable "vnet_name" {
-  type    = string
-  default = null
+  type        = string
+  default     = null
   description = "Name of pre-exising vnet. Leave blank to have one created"
 }
 
@@ -518,8 +524,8 @@ variable "vnet_address_space" {
 }
 
 variable "nsg_name" {
-  type    = string
-  default = null
+  type        = string
+  default     = null
   description = "Name of pre-exising NSG. Leave blank to have one created"
 }
 
@@ -541,34 +547,34 @@ variable "subnets" {
     service_endpoints                              = list(string)
     enforce_private_link_endpoint_network_policies = bool
     enforce_private_link_service_network_policies  = bool
-    service_delegations                            = map(object({
+    service_delegations = map(object({
       name    = string
       actions = list(string)
     }))
   }))
   default = {
     aks = {
-      "prefixes": ["192.168.0.0/23"],
-      "service_endpoints": ["Microsoft.Sql"],
-      "enforce_private_link_endpoint_network_policies": false,
-      "enforce_private_link_service_network_policies": false,
-      "service_delegations": {},
+      "prefixes" : ["192.168.0.0/23"],
+      "service_endpoints" : ["Microsoft.Sql"],
+      "enforce_private_link_endpoint_network_policies" : false,
+      "enforce_private_link_service_network_policies" : false,
+      "service_delegations" : {},
     }
     misc = {
-      "prefixes": ["192.168.2.0/24"],
-      "service_endpoints": ["Microsoft.Sql"],
-      "enforce_private_link_endpoint_network_policies": false,
-      "enforce_private_link_service_network_policies": false,
-      "service_delegations": {},
+      "prefixes" : ["192.168.2.0/24"],
+      "service_endpoints" : ["Microsoft.Sql"],
+      "enforce_private_link_endpoint_network_policies" : false,
+      "enforce_private_link_service_network_policies" : false,
+      "service_delegations" : {},
     }
     netapp = {
-      "prefixes": ["192.168.3.0/24"],
-      "service_endpoints": [],
-      "enforce_private_link_endpoint_network_policies": false,
-      "enforce_private_link_service_network_policies": false,
-      "service_delegations": {
+      "prefixes" : ["192.168.3.0/24"],
+      "service_endpoints" : [],
+      "enforce_private_link_endpoint_network_policies" : false,
+      "enforce_private_link_service_network_policies" : false,
+      "service_delegations" : {
         netapp = {
-          "name"    : "Microsoft.Netapp/volumes"
+          "name" : "Microsoft.Netapp/volumes"
           "actions" : ["Microsoft.Network/networkinterfaces/*", "Microsoft.Network/virtualNetworks/subnets/join/action"]
         }
       }
