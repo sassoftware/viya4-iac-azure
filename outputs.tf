@@ -17,6 +17,7 @@ output "aks_cluster_node_username" {
 
 output "aks_cluster_password" {
   value = module.aks.cluster_password
+  sensitive = true
 }
 
 #postgres
@@ -89,6 +90,7 @@ output "cr_admin_user" {
 
 output "cr_admin_password" {
   value = (var.create_container_registry && var.container_registry_admin_enabled) ? element(coalescelist(azurerm_container_registry.acr.*.admin_password, [" "]), 0) : null
+  sensitive = true
 }
 
 output "location" {
