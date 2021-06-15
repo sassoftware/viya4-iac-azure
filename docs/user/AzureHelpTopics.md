@@ -35,11 +35,11 @@ You can use the following commands, or alter them as needed to establish the env
 # for example, az account show --query '[environmentName, name, tenantId, user.name]'
 
 # set the tenant ID from a query; validate
-TF_VAR_tenant_id=$(sed -e 's/^"//' -e 's/"$//' <<< $(az account show --query 'tenantId'))
+TF_VAR_tenant_id=$(az account show --query 'tenantId' --output tsv)
 echo $TF_VAR_tenant_id
 
 # set the subscription ID from a query; validate
-TF_VAR_subscription_id=$(sed -e 's/^"//' -e 's/"$//' <<< $(az account show --query 'id'))
+TF_VAR_subscription_id=$(az account show --query 'id' --output tsv)
 echo $TF_VAR_subscription_id
 ```
 
