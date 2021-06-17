@@ -22,20 +22,20 @@ output "aks_cluster_password" {
 
 #postgres
 output "postgres_server_name" {
-  value = var.create_postgres ? element(coalescelist(module.postgresql.*.server_name, [" "]), 0) : var.create_postgres && var.create_postgresql_flexible_server ? azurerm_postgresql_flexible_server.flexpsql[0].name : null
+  value = var.create_postgres && var.create_postgresql_flexible_server ? azurerm_postgresql_flexible_server.flexpsql[0].name : var.create_postgres ? element(coalescelist(module.postgresql.*.server_name, [" "]), 0) : null
 }
 output "postgres_fqdn" {
-  value = var.create_postgres ? element(coalescelist(module.postgresql.*.server_fqdn, [" "]), 0) : var.create_postgres && var.create_postgresql_flexible_server ? azurerm_postgresql_flexible_server.flexpsql[0].fqdn : null
+  value = var.create_postgres && var.create_postgresql_flexible_server ? azurerm_postgresql_flexible_server.flexpsql[0].fqdn : var.create_postgres ? element(coalescelist(module.postgresql.*.server_fqdn, [" "]), 0) : null
 }
 output "postgres_admin" {
-  value = var.create_postgres ? "${element(coalescelist(module.postgresql.*.administrator_login, [" "]), 0)}@${element(coalescelist(module.postgresql.*.server_name, [" "]), 0)}" : null
+  value = var.create_postgres && var.create_postgresql_flexible_server ? "${element(coalescelist(azurerm_postgresql_flexible_server.flexpsql.*.administrator_login, [" "]), 0)}" : var.create_postgres ? "${element(coalescelist(module.postgresql.*.administrator_login, [" "]), 0)}@${element(coalescelist(module.postgresql.*.server_name, [" "]), 0)}" : null
 }
 output "postgres_password" {
-  value     = var.create_postgres ? element(coalescelist(module.postgresql.*.administrator_password, [" "]), 0) : null
+  value     = var.create_postgres && var.create_postgresql_flexible_server ? element(coalescelist(azurerm_postgresql_flexible_server.flexpsql.*.administrator_password, [" "]), 0) : var.create_postgres ? element(coalescelist(module.postgresql.*.administrator_password, [" "]), 0) : null
   sensitive = true
 }
 output "postgres_server_id" {
-  value = var.create_postgres ? element(coalescelist(module.postgresql.*.server_id, [" "]), 0) : null
+  value = var.create_postgres && var.create_postgresql_flexible_server ? azurerm_postgresql_flexible_server.flexpsql[0].id : var.create_postgres ? element(coalescelist(module.postgresql.*.server_id, [" "]), 0) : null
 }
 output "postgres_server_port" {
   value = var.create_postgres ? "5432" : null

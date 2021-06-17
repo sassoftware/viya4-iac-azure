@@ -70,7 +70,7 @@ variable "vm_public_access_cidrs" {
 }
 
 variable "postgres_public_access_cidrs" {
-  description = "LList of CIDRs to access PostgreSQL server"
+  description = "List of CIDRs to access PostgreSQL server"
   type        = list(string)
   default     = null
 }
@@ -165,8 +165,10 @@ variable "create_postgres" {
   default     = false
 }
 
+## When create_postgres` is set to true you've the option to create Azure Postgresql Flexible Server
+## https://docs.microsoft.com/en-us/azure/postgresql/flexible-server/
 variable "create_postgresql_flexible_server" {
-  description = "Create an Azure PostgresSQL flexible server instance"
+  description = "Create an Azure PostgreSQL Flexible server instance"
   type        = bool
   default     = false
 }
@@ -568,7 +570,7 @@ variable "subnets" {
       "service_delegations" : {},
     }
     netapp = {
-      "prefixes" : ["192.168.3.0/24"],
+      "prefixes" : ["192.168.4.0/24"],
       "service_endpoints" : [],
       "enforce_private_link_endpoint_network_policies" : false,
       "enforce_private_link_service_network_policies" : false,
@@ -578,6 +580,18 @@ variable "subnets" {
           "actions" : ["Microsoft.Network/networkinterfaces/*", "Microsoft.Network/virtualNetworks/subnets/join/action"]
         }
       }
+    }
+    db = {
+      "prefixes" : ["192.168.3.0/24"],
+      "service_endpoints" : ["Microsoft.Sql"],
+      "enforce_private_link_endpoint_network_policies" : false,
+      "enforce_private_link_service_network_policies" : false,
+      "service_delegations" : {
+        pgflex = {
+          "name" : "Microsoft.DBforPostgreSQL/flexibleServers"
+          "actions" : ["Microsoft.Network/virtualNetworks/subnets/join/action"]
+        }
+      },
     }
   }
 }

@@ -337,8 +337,8 @@ module "postgresql" {
   depends_on = [module.vnet]
 }
 
+# https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/postgresql_flexible_server
 resource "azurerm_postgresql_flexible_server" "flexpsql" {
-
   count                  = var.create_postgres && var.create_postgresql_flexible_server ? 1 : 0
   name                   = lower("${var.prefix}-flexpsql")
   resource_group_name    = module.resource_group.name
@@ -346,10 +346,12 @@ resource "azurerm_postgresql_flexible_server" "flexpsql" {
   sku_name               = var.postgres_sku_name
   storage_mb             = var.postgres_storage_mb
   backup_retention_days  = var.postgres_backup_retention_days
-  delegated_subnet_id    = module.vnet.subnets["misc"].id
   administrator_login    = var.postgres_administrator_login
   administrator_password = var.postgres_administrator_password
-  # version                = var.postgres_server_version
+  version                = var.postgres_server_version
+  tags                   = module.resource_group.tags
+  delegated_subnet_id    = module.vnet.subnets["db"].id
+  depends_on = [module.vnet]
 }
 
 module "netapp" {
