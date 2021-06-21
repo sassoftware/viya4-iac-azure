@@ -165,18 +165,18 @@ variable "create_postgres" {
   default     = false
 }
 
-## When create_postgres` is set to true you've the option to create Azure Postgresql Flexible Server
-## https://docs.microsoft.com/en-us/azure/postgresql/flexible-server/
-variable "create_postgresql_flexible_server" {
-  description = "Create an Azure PostgreSQL Flexible server instance"
-  type        = bool
-  default     = false
+# https://docs.microsoft.com/en-us/azure/postgresql/overview#deployment-models
+variable "postgres_type" {
+  description = "Supported Azure PostgreSQL deployment modes are `single` and `flexible`"
+  type        = string
+  default     = "single"
 }
 
 variable "postgres_sku_name" {
   description = "SKU Name for the PostgreSQL Server. The name of the SKU, follows the tier + family + cores pattern (e.g. B_Gen4_1, GP_Gen5_4)."
   default     = "GP_Gen5_32"
 }
+
 variable "postgres_storage_mb" {
   description = "Max storage allowed for the PostgreSQL server. Possible values are between 5120 MB(5GB) and 1048576 MB(1TB) for the Basic SKU and between 5120 MB(5GB) and 4194304 MB(4TB) for General Purpose/Memory Optimized SKUs."
   default     = 51200

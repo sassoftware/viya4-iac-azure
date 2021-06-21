@@ -310,7 +310,7 @@ module "postgresql" {
   source  = "Azure/postgresql/azurerm"
   version = "2.1.0"
 
-  count                        = var.create_postgres && ! var.create_postgresql_flexible_server ? 1 : 0
+  count                        = var.create_postgres && var.postgres_type == "single" ? 1 : 0
   resource_group_name          = module.resource_group.name
   location                     = var.location
   server_name                  = lower("${var.prefix}-pgsql")
@@ -339,7 +339,7 @@ module "postgresql" {
 
 # https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/postgresql_flexible_server
 resource "azurerm_postgresql_flexible_server" "flexpsql" {
-  count                  = var.create_postgres && var.create_postgresql_flexible_server ? 1 : 0
+  count                  = var.create_postgres && var.postgres_type == "flexible" ? 1 : 0
   name                   = lower("${var.prefix}-flexpsql")
   resource_group_name    = module.resource_group.name
   location               = var.location
@@ -351,7 +351,7 @@ resource "azurerm_postgresql_flexible_server" "flexpsql" {
   version                = var.postgres_server_version
   tags                   = module.resource_group.tags
   delegated_subnet_id    = module.vnet.subnets["db"].id
-  depends_on = [module.vnet]
+  depends_on             = [module.vnet]
 }
 
 module "netapp" {
