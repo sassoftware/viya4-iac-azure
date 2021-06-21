@@ -89,8 +89,8 @@ output "cr_admin_user" {
 }
 
 output "cr_admin_password" {
-  sensitive = true
   value = (var.create_container_registry && var.container_registry_admin_enabled) ? element(coalescelist(azurerm_container_registry.acr.*.admin_password, [" "]), 0) : null
+  sensitive = true
 }
 
 output "location" {
