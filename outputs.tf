@@ -22,20 +22,20 @@ output "aks_cluster_password" {
 
 #postgres
 output "postgres_server_name" {
-  value = var.create_postgres ? element(coalescelist(module.postgresql.*.server_name, [" "]), 0) : null
+  value = var.create_postgres && var.postgres_type == "flexible" ? azurerm_postgresql_flexible_server.flexpsql[0].name : var.create_postgres ? element(coalescelist(module.postgresql.*.server_name, [" "]), 0) : null
 }
 output "postgres_fqdn" {
-  value = var.create_postgres ? element(coalescelist(module.postgresql.*.server_fqdn, [" "]), 0) : null
+  value = var.create_postgres && var.postgres_type == "flexible" ? azurerm_postgresql_flexible_server.flexpsql[0].fqdn : var.create_postgres ? element(coalescelist(module.postgresql.*.server_fqdn, [" "]), 0) : null
 }
 output "postgres_admin" {
-  value = var.create_postgres ? "${element(coalescelist(module.postgresql.*.administrator_login, [" "]), 0)}@${element(coalescelist(module.postgresql.*.server_name, [" "]), 0)}" : null
+  value = var.create_postgres && var.postgres_type == "flexible" ? "${element(coalescelist(azurerm_postgresql_flexible_server.flexpsql.*.administrator_login, [" "]), 0)}" : var.create_postgres ? "${element(coalescelist(module.postgresql.*.administrator_login, [" "]), 0)}@${element(coalescelist(module.postgresql.*.server_name, [" "]), 0)}" : null
 }
 output "postgres_password" {
-  value = var.create_postgres ? element(coalescelist(module.postgresql.*.administrator_password, [" "]), 0) : null
+  value     = var.create_postgres && var.postgres_type == "flexible" ? element(coalescelist(azurerm_postgresql_flexible_server.flexpsql.*.administrator_password, [" "]), 0) : var.create_postgres ? element(coalescelist(module.postgresql.*.administrator_password, [" "]), 0) : null
   sensitive = true
 }
 output "postgres_server_id" {
-  value = var.create_postgres ? element(coalescelist(module.postgresql.*.server_id, [" "]), 0) : null
+  value = var.create_postgres && var.postgres_type == "flexible" ? azurerm_postgresql_flexible_server.flexpsql[0].id : var.create_postgres ? element(coalescelist(module.postgresql.*.server_id, [" "]), 0) : null
 }
 output "postgres_server_port" {
   value = var.create_postgres ? "5432" : null
@@ -43,15 +43,15 @@ output "postgres_server_port" {
 
 # jump server
 output jump_private_ip {
-  value = var.create_jump_vm ? element(coalescelist(module.jump.*.private_ip_address, [""] ),0) : null
+  value = var.create_jump_vm ? element(coalescelist(module.jump.*.private_ip_address, [""]), 0) : null
 }
 
 output jump_public_ip {
-  value = var.create_jump_vm && var.create_jump_public_ip ? element(coalescelist(module.jump.*.public_ip_address, [""] ),0) : null
+  value = var.create_jump_vm && var.create_jump_public_ip ? element(coalescelist(module.jump.*.public_ip_address, [""]), 0) : null
 }
 
 output jump_admin_username {
-  value = var.create_jump_vm ? element(coalescelist(module.jump.*.admin_username, [""] ),0): null
+  value = var.create_jump_vm ? element(coalescelist(module.jump.*.admin_username, [""]), 0) : null
 }
 
 output jump_rwx_filestore_path {
@@ -60,15 +60,15 @@ output jump_rwx_filestore_path {
 
 # nfs server
 output nfs_private_ip {
-  value = var.storage_type == "standard" ? element(coalescelist(module.nfs.*.private_ip_address, [""] ),0) : null
+  value = var.storage_type == "standard" ? element(coalescelist(module.nfs.*.private_ip_address, [""]), 0) : null
 }
 
 output nfs_public_ip {
-  value = var.storage_type == "standard" && var.create_nfs_public_ip ? element(coalescelist(module.nfs.*.public_ip_address, [""] ),0) : null
+  value = var.storage_type == "standard" && var.create_nfs_public_ip ? element(coalescelist(module.nfs.*.public_ip_address, [""]), 0) : null
 }
 
 output nfs_admin_username {
-  value = var.storage_type == "standard" ? element(coalescelist(module.nfs.*.admin_username, [""] ),0) : null
+  value = var.storage_type == "standard" ? element(coalescelist(module.nfs.*.admin_username, [""]), 0) : null
 }
 
 # acr
@@ -114,11 +114,11 @@ output "provider" {
 }
 
 output "rwx_filestore_endpoint" {
-  value = var.storage_type == "ha" ? element(coalescelist(module.netapp.*.netapp_endpoint, [""] ),0) : element(coalescelist(module.nfs.*.private_ip_address, [""] ),0)
+  value = var.storage_type == "ha" ? element(coalescelist(module.netapp.*.netapp_endpoint, [""]), 0) : element(coalescelist(module.nfs.*.private_ip_address, [""]), 0)
 }
 
 output "rwx_filestore_path" {
-  value = var.storage_type == "ha" ? element(coalescelist(module.netapp.*.netapp_path, [""] ),0) : "/export"
+  value = var.storage_type == "ha" ? element(coalescelist(module.netapp.*.netapp_path, [""]), 0) : "/export"
 }
 
 output "rwx_filestore_config" {
