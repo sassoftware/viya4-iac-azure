@@ -17,6 +17,7 @@ output "aks_cluster_node_username" {
 
 output "aks_cluster_password" {
   value = module.aks.cluster_password
+  sensitive = true
 }
 
 #postgres
@@ -31,6 +32,7 @@ output "postgres_admin" {
 }
 output "postgres_password" {
   value = var.create_postgres ? element(coalescelist(module.postgresql.*.administrator_password, [" "]), 0) : null
+  sensitive = true
 }
 output "postgres_server_id" {
   value = var.create_postgres ? element(coalescelist(module.postgresql.*.server_id, [" "]), 0) : null
@@ -88,6 +90,7 @@ output "cr_admin_user" {
 
 output "cr_admin_password" {
   value = (var.create_container_registry && var.container_registry_admin_enabled) ? element(coalescelist(azurerm_container_registry.acr.*.admin_password, [" "]), 0) : null
+  sensitive = true
 }
 
 output "location" {
@@ -134,4 +137,8 @@ output "rwx_filestore_config" {
       "exportRule" : element(module.vnet.address_space, 0),
     }
   }) : null
+}
+
+output "cluster_node_pool_mode" {
+  value = var.cluster_node_pool_mode
 }

@@ -1,0 +1,5 @@
+# Review 'man shellcheck' section 'RC FILES' for instructions on adding directives.
+
+# Allow using `which` since it gives full paths and is common enough
+# https://github.com/koalaman/shellcheck/wiki/SC2230
+disable=SC2230

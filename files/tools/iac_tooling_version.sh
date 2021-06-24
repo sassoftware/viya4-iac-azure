@@ -9,17 +9,16 @@ function error_exit() {
 }
 
 function check_deps() {
-  test -f $(which jq) || error_exit "jq command not detected in path, please install it"
+  test -f "$(which jq)" || error_exit "jq command not detected in path, please install it"
 }
 
 check_deps
 
 TERRAFORM_INFO="$(terraform version -json)"
-TERRAFORM_VERSION=$(echo $TERRAFORM_INFO | jq .terraform_version )
-TERRAFORM_REVISION=$(echo $TERRAFORM_INFO | jq .terraform_revision )
-PROVIDER_SELECTIONS=$(echo $TERRAFORM_INFO | jq -c .provider_selections )
-TERRAFORM_OUTDATED=$(echo $TERRAFORM_INFO | jq .terraform_outdated )
-# echo "${TERRAFORM_INFO | jq "
+TERRAFORM_VERSION=$(echo "$TERRAFORM_INFO" | jq .terraform_version )
+TERRAFORM_REVISION=$(echo "$TERRAFORM_INFO" | jq .terraform_revision )
+PROVIDER_SELECTIONS=$(echo "$TERRAFORM_INFO" | jq -c .provider_selections )
+TERRAFORM_OUTDATED=$(echo "$TERRAFORM_INFO" | jq .terraform_outdated )
 
 jq -n \
   --arg terraform_version "$TERRAFORM_VERSION" \

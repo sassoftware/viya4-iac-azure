@@ -35,11 +35,11 @@ You can use the following commands, or alter them as needed to establish the env
 # for example, az account show --query '[environmentName, name, tenantId, user.name]'
 
 # set the tenant ID from a query; validate
-TF_VAR_tenant_id=$(az account show --query 'tenantId')
+TF_VAR_tenant_id=$(az account show --query 'tenantId' --output tsv)
 echo $TF_VAR_tenant_id
 
 # set the subscription ID from a query; validate
-TF_VAR_subscription_id=$(az account show --query 'name')
+TF_VAR_subscription_id=$(az account show --query 'id' --output tsv)
 echo $TF_VAR_subscription_id
 ```
 
@@ -55,13 +55,11 @@ You can create a Service Principal to use with Terraform with the following step
 ```bash
 az login # follow the instructions given by this command
 
-TF_VAR_client_secret=$(az ad sp create-for-rbac --skip-assignment --name http://$USER --query password --output tsv)
+TF_VAR_client_secret=$(az ad sp create-for-rbac --role "Contributor" --scopes="/subscriptions/$TF_VAR_subscription_id" --name http://$USER --query password --output tsv)
 TF_VAR_client_id=$(az ad sp show --id http://$USER --query appId --output tsv)
 
 echo $TF_VAR_client_id
 echo $TF_VAR_client_secret
-
-az role assignment create --assignee $TF_VAR_client_id --role Contributor
 ```
 
 You can use this command to list only your Service Principals in the Azure Subscription:
