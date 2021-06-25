@@ -1,5 +1,5 @@
 ---
-name: 'Issue: Bug report'
+name: 'Bug report'
 about: Let us know about an unexpected error or incorrect behavior
 labels: bug, new
 
