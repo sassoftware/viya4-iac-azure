@@ -78,7 +78,7 @@ When using a variable definition file other than `terraform.tfvars`, see [Advanc
 Create and manage the required cloud resources. Take one of the following steps: 
 
 - run [Terraform](docs/user/TerraformUsage.md) directly on your workstation
-- run [Docker container](docs/user/DockerUsage.md) 
+- run the [Docker container](docs/user/DockerUsage.md) 
 
 ### Troubleshooting
 
