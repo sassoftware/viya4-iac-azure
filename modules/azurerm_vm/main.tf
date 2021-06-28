@@ -91,5 +91,9 @@ resource "azurerm_linux_virtual_machine" "vm" {
     ultra_ssd_enabled = var.data_disk_storage_account_type == "UltraSSD_LRS" ? true : false
   }
 
+  depends_on = [
+    azurerm_network_interface_security_group_association.vm_nic_sg
+  ]
+
   tags = var.tags
 }
