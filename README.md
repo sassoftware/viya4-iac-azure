@@ -69,7 +69,7 @@ See [Terraform Azure Authentication](./docs/user/TerraformAzureAuthentication.md
 
 ### Customize Input Values
 
-Create a file named `terraform.tfvars` to customize any input variable value documented in the [CONFIG-VARS.md](docs/CONFIG-VARS.md) file. To get started, you can copy one of the example variable definition files provided in `./examples` folder. For more information about the variables that are declared in that file, refer to the [CONFIG-VARS.md](docs/CONFIG-VARS.md) file.
+Create a file named `terraform.tfvars` to customize any input variable value documented in the [CONFIG-VARS.md](docs/CONFIG-VARS.md) file. To get started, you can copy one of the example variable definition files provided in the `./examples` folder. For more information about the variables that are declared in that file, refer to the [CONFIG-VARS.md](docs/CONFIG-VARS.md) file.
 
 When using a variable definition file other than `terraform.tfvars`, see [Advanced Terraform Usage](docs/user/AdvancedTerraformUsage.md) for additional command options.
 
