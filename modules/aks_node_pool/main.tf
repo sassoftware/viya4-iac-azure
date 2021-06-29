@@ -12,6 +12,9 @@ resource "azurerm_kubernetes_cluster_node_pool" "autoscale_node_pool" {
   # TODO: enable after azurerm v2.37.0
   # os_disk_type                 = var.os_disk_type
   os_type             = var.os_type
+  priority            = var.priority
+  eviction_policy     = var.eviction_policy
+  spot_max_price      = var.spot_max_price
   enable_auto_scaling = var.enable_auto_scaling
   # Still in preview, revisit if needed later - https://docs.microsoft.com/en-us/azure/aks/use-multiple-node-pools#assign-a-public-ip-per-node-for-your-node-pools-preview
   # enable_node_public_ip        = var.enable_node_public_ip

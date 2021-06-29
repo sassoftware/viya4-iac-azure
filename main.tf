@@ -292,6 +292,9 @@ module "node_pools" {
   os_disk_size   = each.value.os_disk_size
   # TODO: enable with azurerm v2.37.0
   #  os_disk_type                 = each.value.os_disk_type
+  priority                     = each.value.priority
+  eviction_policy              = lower(each.value.priority) == "spot" ? each.value.eviction_policy : null
+  spot_max_price               = lower(each.value.priority) == "spot" ? each.value.spot_max_price : null
   enable_auto_scaling          = each.value.min_nodes == each.value.max_nodes ? false : true
   node_count                   = each.value.min_nodes
   min_nodes                    = each.value.min_nodes == each.value.max_nodes ? null : each.value.min_nodes
