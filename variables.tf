@@ -381,6 +381,9 @@ variable node_pools {
   type = map(object({
     machine_type = string
     os_disk_size = number
+    priority     = string
+    eviction_policy = string
+    spot_max_price = number
     min_nodes    = string
     max_nodes    = string
     max_pods     = string
@@ -392,6 +395,9 @@ variable node_pools {
     cas = {
       "machine_type" = "Standard_E16s_v3"
       "os_disk_size" = 200
+      "priority"     = "Regular"
+      "eviction_policy" = "Deallocate"
+      "spot_max_price" = -1
       "min_nodes"    = 0
       "max_nodes"    = 5
       "max_pods"     = 110
@@ -403,6 +409,9 @@ variable node_pools {
     compute = {
       "machine_type" = "Standard_E16s_v3"
       "os_disk_size" = 200
+      "priority"     = "Regular"
+      "eviction_policy" = "Deallocate"
+      "spot_max_price" = -1
       "min_nodes"    = 0
       "max_nodes"    = 5
       "max_pods"     = 110
@@ -415,6 +424,9 @@ variable node_pools {
     connect = {
       "machine_type" = "Standard_E16s_v3"
       "os_disk_size" = 200
+      "priority"     = "Regular"
+      "eviction_policy" = "Deallocate"
+      "spot_max_price" = -1
       "min_nodes"    = 0
       "max_nodes"    = 5
       "max_pods"     = 110
@@ -427,6 +439,9 @@ variable node_pools {
     stateless = {
       "machine_type" = "Standard_D16s_v3"
       "os_disk_size" = 200
+      "priority"     = "Regular"
+      "eviction_policy" = "Deallocate"
+      "spot_max_price" = -1
       "min_nodes"    = 0
       "max_nodes"    = 5
       "max_pods"     = 110
@@ -438,6 +453,9 @@ variable node_pools {
     stateful = {
       "machine_type" = "Standard_D8s_v3"
       "os_disk_size" = 200
+      "priority"     = "Regular"
+      "eviction_policy" = "Deallocate"
+      "spot_max_price" = -1
       "min_nodes"    = 0
       "max_nodes"    = 3
       "max_pods"     = 110
