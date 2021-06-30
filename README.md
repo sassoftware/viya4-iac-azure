@@ -53,7 +53,7 @@ Access to an **Azure Subscription** and an [**Identity**](./docs/user/TerraformA
 
 SAS recommends that you complete a workflow similar to the following in order to create and configure your cluster and deploy SAS Viya:
 1. Prepare to run viya4-iac-azure by fulfilling the prerequisites.
-1. Customize and use the scripts in this project to set up your cluster.
+1. Customize and run the Terraform scripts in this project to set up your cluster.
 1. Verify that all requirements have been met by checking the [product documentation](
 1. Retrieve the deployment assets.
 1. Retrieve the cloud configuration from tfstate.
