@@ -65,7 +65,7 @@ terraform plan
 ```
 ### Create Cloud Resources
 
-To create cloud resources, run the following command:
+To create cloud resources, run:
 
 ```bash
 terraform apply -auto-approve
@@ -99,7 +99,7 @@ _**NOTE**_: The "destroy" action is irreversible.
 
 The command to [create the cloud resources](#create-cloud-resources) writes the `kube_config` output value to a file, `./[prefix]-aks-kubeconfig.conf.` When the Kubernetes cluster is ready, use `kubectl` to interact with the cluster and perform the SAS Viya deployment.
 
-_**IMPORTANT**_ The [`cluster_endpoint_public_access_cidrs`](../CONFIG-VARS.md#admin-access) value must be set to your local IP address or CIDR range.
+_**IMPORTANT**_ The value for [`cluster_endpoint_public_access_cidrs`](../CONFIG-VARS.md#admin-access) must be set to your local IP address or CIDR range.
 
 ### Example Using `kubectl` 
 
