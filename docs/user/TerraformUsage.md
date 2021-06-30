@@ -1,15 +1,17 @@
-# Using the Terraform CLI
+# Using the Terraform Command-Line Interface
 
-## Prereqs
-When using the Terraform CLI, make sure you have all the necessary tools [installed on your workstation](../../README.md#terraform).
+Use Terraform and the SAS IaC tools to create a Kubernetes cluster for your SAS Viya deployment.
 
-## Preparation
+## Prepare the Environment
 
-### Set Azure Authentication
+### Prerequisites
+When using the Terraform CLI, make sure you have all the necessary tools [installed on your workstation](../../README.md#terraform-requirements).
 
-Follow either one of the authentication methods described in [Authenticating Terraform to access Azure](./TerraformAzureAuthentication.md) and set all TF_VAR_name environment variables using `export TF_VAR_*=<value>` command.  If you are unsure which TF environment variables are required, you could review the commands that are provided in the optional bash script provided in *Althernative TIP Option 2*.
+### Set Up Microsoft Azure Authentication
 
-*Althernative TIP Option 1:*  The commands to set the TF_VAR_name environment variables can be securely stored in a file outside of this repository, for example `$HOME/.azure_creds.sh.` Remeber to protect that file so only you have read access to it.
+Follow either one of the authentication methods described in [Authenticating Terraform to Access Azure](./TerraformAzureAuthentication.md) and set all TF_VAR_name environment variables using `export TF_VAR_*=<value>` command.  If you are unsure which Terraform environment variables are required, review the commands that are included in the optional bash script that is described in *Tip: Alternative Option 2*.
+
+> *Tip: Alternative Option 1:*  The commands to set the TF_VAR_name environment variables can be securely stored in a file outside of this repository, for example `$HOME/.azure_creds.sh.` Remember to protect that file so that only you have Read access to it.
 
 Then source your credentials into your shell environment:
 
@@ -17,45 +19,45 @@ Then source your credentials into your shell environment:
 . $HOME/.azure_creds.sh
 ```
 
-*Althernative TIP Option 2:*  Once authenticated to the `az cli`, you could source the following [bash (code) script](../../files/tools/terraform_env_variable_helper.sh) which can be used to (re)assign the TF Environment Variables:
+> *Tip: Alternative Option 2:*  Once you have authenticated to the `az cli`, you can source the following
+[bash (code) script](../../files/tools/terraform_env_variable_helper.sh), which can be used to assign or reassign the Terraform environment variables:
 
 ```bash
 # source the bash script, presuming the file path
 source files/tools/terraform_env_variable_helper.sh
 ```
 
+### Customize Terraform Input Variables (tfvars)
 
-
-### Customize TF Input Variables (tfvars)
-
-Create a file named `terraform.tfvars` to customize any input variable value. For starters, you can copy one of the provided example variable definition files in `./examples` folder. 
+Create a file named `terraform.tfvars` to customize any input variable value. To get started, copy one of the example variable definition files that are provided
+in the `./examples` folder: 
 
 ```bash
 # Example copy command
 cp examples/sample-input.tfvars terraform.tfvars
 ```
 
-For more details on the variables declared in [variables.tf](variables.tf) refer to [CONFIG-VARS.md](docs/CONFIG-VARS.md).
+For more information about the variables that are declared in [variables.tf](variables.tf), refer to [CONFIG-VARS.md](docs/CONFIG-VARS.md).
 
 When using a variable definition file other than `terraform.tfvars`, see [Advanced Terraform Usage](docs/user/AdvancedTerraformUsage.md) for additional command options.
 
-## Running Terraform Commands
+## Run Terraform Commands
 
 ### Initialize Terraform Environment
 
-Initialize the Terraform environment for this project by running
+Initialize the Terraform environment for this project by running the following command:
 
 ```bash
 terraform init
 ```
 
-This creates a `.terraform` directory locally and initializes Terraform plugins and modules used in this project.
+This creates a `.terraform` directory locally and initializes the Terraform plug-ins and modules that are used in this project.
 
-**Note:** `terraform init` only needs to be run once unless new Terraform plugins/modules were added.
+**Note:** The `terraform init` command only needs to be run once unless new Terraform plug-ins or modules are added.
 
-### Preview Cloud Resources (optional)
+### (Optional) Preview Cloud Resources
 
-To preview the cloud resources before creating, run
+To preview the cloud resources before creating them, run:
 
 ```bash
 terraform plan
@@ -63,7 +65,7 @@ terraform plan
 ```
 ### Create Cloud Resources
 
-To create cloud resources, run
+To create cloud resources, run the following command:
 
 ```bash
 terraform apply -auto-approve
@@ -71,9 +73,9 @@ terraform apply -auto-approve
 
 This command can take a few minutes to complete. Once complete, Terraform output values are written to the console. The 'KUBECONFIG' file for the cluster is written to `[prefix]-aks-kubeconfig.conf` in the current directory `$(pwd)`.
 
-### Display Outputs
+### Display Output Values
 
-Once the cloud resources have been created with `apply` command, to display Terraform output values, run 
+Once the cloud resources have been created with the `apply` command, run the following command to display Terraform output values: 
 
 ```bash
 terraform output
@@ -81,23 +83,23 @@ terraform output
 
 ### Modify Cloud Resources
 
-After provisioning the infrastructure, if further changes were to be made then add the variable and desired value to `terraform.tfvars` and run `terrafom apply` again.
+After provisioning the infrastructure, if further changes are required, add the variable and desired value to `terraform.tfvars` and run `terrafom apply` again.
 
 
 ### Tear Down Cloud Resources
 
-To destroy all the cloud resources created with the previous commands, run
+To destroy all the cloud resources created with the previous commands, run:
 
 ```bash
 terraform destroy
 ```
-NOTE: The "destroy" action is irreversible.
+_**NOTE**_: The "destroy" action is irreversible.
 
 ## Interacting With The Kubernetes Cluster
 
-[Creating the cloud resources](#create-cloud-resources) writes the `kube_config` output value to a file `./[prefix]-aks-kubeconfig.conf.` When the Kubernetes cluster is ready, use `kubectl` to interact with the cluster.
+The command to [create the cloud resources](#create-cloud-resources) writes the `kube_config` output value to a file, `./[prefix]-aks-kubeconfig.conf.` When the Kubernetes cluster is ready, use `kubectl` to interact with the cluster and perform the SAS Viya deployment.
 
-**Note** this requires [`cluster_endpoint_public_access_cidrs`](../CONFIG-VARS.md#admin-access) value to be set to your local ip or CIDR range.
+_**IMPORTANT**_ The [`cluster_endpoint_public_access_cidrs`](../CONFIG-VARS.md#admin-access) value must be set to your local IP address or CIDR range.
 
 ### Example Using `kubectl` 
 
