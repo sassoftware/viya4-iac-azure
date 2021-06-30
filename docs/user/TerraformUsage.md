@@ -9,7 +9,7 @@ When using the Terraform CLI, make sure you have all the necessary tools [instal
 
 ### Set Up Microsoft Azure Authentication
 
-Follow either one of the authentication methods described in [Authenticating Terraform to Access Azure](./TerraformAzureAuthentication.md) and set all TF_VAR_name environment variables using `export TF_VAR_*=<value>` command.  If you are unsure which Terraform environment variables are required, review the commands that are included in the optional bash script that is described in *Tip: Alternative Option 2*.
+Follow either one of the authentication methods described in [Authenticating Terraform to Access Azure](./TerraformAzureAuthentication.md) and set all TF_VAR_name environment variables using the `export TF_VAR_*=<value>` command.  If you are unsure which Terraform environment variables are required, review the commands that are included in the optional bash script that is described in *Tip: Alternative Option 2*.
 
 > *Tip: Alternative Option 1:*  The commands to set the TF_VAR_name environment variables can be securely stored in a file outside of this repository, for example `$HOME/.azure_creds.sh.` Remember to protect that file so that only you have Read access to it.
 
