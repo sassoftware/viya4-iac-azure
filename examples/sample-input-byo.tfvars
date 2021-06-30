@@ -1,4 +1,4 @@
-# !NOTE! - These are only a subset of CONFIG-VARS.md provided for an example.
+# !NOTE! - These are only a subset of CONFIG-VARS.md provided as examples.
 # Customize this file to add any variables from 'CONFIG-VARS.md' whose default values
 # you want to change.
 
