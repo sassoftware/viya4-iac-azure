@@ -16,7 +16,7 @@ This project contains Terraform scripts to provision the Microsoft Azure Cloud i
 [<img src="./docs/images/viya4-iac-azure-diag.png" alt="Architecture Diagram" width="750"/>](./docs/images/viya4-iac-azure-diag.png?raw=true)
 
 Once the cloud resources are provisioned, use the SAS Viya Deployment Operator to deploy SAS Viya in your cloud environment. For more information
-about SAS Viya requirements and the deployment process, refer to the official 
+about SAS Viya requirements and documentation for the deployment process, refer to the 
 [SAS&reg; Viya&reg; IT Operations Guide](https://go.documentation.sas.com/doc/en/itopscdc/v_015/itopswlcm/home.htm).
 
 You can also use the tools in the [viya4-deployment](https://github.com/sassoftware/viya4-deployment) repository to deploy SAS Viya and the SAS 
@@ -36,24 +36,38 @@ Use of these tools requires operational knowledge of the following technologies:
 
 This project supports two options for running Terraform scripts:
 - Terraform installed on your local machine
-- Using a Docker container 
+- Using a Docker container to run Terraform. For more information, see [Docker Usage](./docs/user/DockerUsage.md).
 
 Access to an **Azure Subscription** and an [**Identity**](./docs/user/TerraformAzureAuthentication.md) with the *Contributor* role are required.
 
-  - #### Terraform Requirements:
-    - [Terraform](https://www.terraform.io/downloads.html) - v1.0.0
-    - [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl) - v1.19.9
-    - [jq](https://stedolan.github.io/jq/) - v1.6
-    - [Azure CLI](https://docs.microsoft.com/en-us/cli/azure) - (optional - useful as an alternative to the Azure Portal) - v2.24.2
-  - #### Docker Requirements:
-    - [Docker](https://docs.docker.com/get-docker/)
+#### Terraform Requirements:
+- [Terraform](https://www.terraform.io/downloads.html) - v1.0.0
+- [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl) - v1.19.9
+- [jq](https://stedolan.github.io/jq/) - v1.6
+- [Azure CLI](https://docs.microsoft.com/en-us/cli/azure) - (optional - useful as an alternative to the Azure Portal) - v2.24.2
 
+#### Docker Requirements:
+- [Docker](https://docs.docker.com/get-docker/)
+
+## IaC Deployment Overview
+
+SAS recommends that you complete a workflow similar to the following in order to create and configure your cluster and deploy SAS Viya:
+1. Prepare to run viya4-iac-azure by fulfilling the prerequisites.
+1. Customize and use the scripts in this project to set up your cluster.
+1. Verify that all requirements have been met by checking the [product documentation](
+1. Retrieve the deployment assets.
+1. Retrieve the cloud configuration from tfstate.
+1. Run the kustomize process and deploy SAS Viya.
+1. Create affinity rules such that processes are targeted to appropriately labeled nodes.
+1. Create pod disruption budgets for each service such that cluster maintenance will not let the last instance of a service go down during a node maintenance operation for example.
+1. Customize the deployment, making sure that data directories and user private directories are mounted on CAS nodes and on compute server instances.
+1. Deploy SAS Viya monitoring for Kubernetes.
 
 ## Getting Started
 
 ### Clone this Project
 
-Run the following commands in a terminal session:
+Run the following commands from a terminal session:
 
 ```bash
 # clone this repo
@@ -63,13 +77,17 @@ git clone https://github.com/sassoftware/viya4-iac-azure
 cd viya4-iac-azure
 ```
 
-### Authenticating Terraform to Access Azure
+### Authenticating Terraform to Access Microsoft Azure
 
-See [Terraform Azure Authentication](./docs/user/TerraformAzureAuthentication.md) for details.
+The Terraform process manages Microsoft Azure resources on your behalf. In order to do so, it needs to know your Azure account information, and a user
+identity with the required permissions. See [Terraform Azure Authentication](./docs/user/TerraformAzureAuthentication.md) for details.
 
 ### Customize Input Values
 
-Create a file named `terraform.tfvars` to customize any input variable value documented in the [CONFIG-VARS.md](docs/CONFIG-VARS.md) file. To get started, you can copy one of the example variable definition files provided in the `./examples` folder. For more information about the variables that are declared in that file, refer to the [CONFIG-VARS.md](docs/CONFIG-VARS.md) file.
+Running the Terraform script requires modifications variable definitions as input. Many variables do not have default values. Create a file named
+`terraform.tfvars` to customize any input variable value documented in the [CONFIG-VARS.md](docs/CONFIG-VARS.md) file. To get started, you can copy one of
+the example variable definition files provided in the `./examples` folder. For more information about the variables that are declared in that file,
+refer to the [CONFIG-VARS.md](docs/CONFIG-VARS.md) file.
 
 When using a variable definition file other than `terraform.tfvars`, see [Advanced Terraform Usage](docs/user/AdvancedTerraformUsage.md) for additional command options.
 
