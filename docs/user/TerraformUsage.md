@@ -37,9 +37,9 @@ in the `./examples` folder:
 cp examples/sample-input.tfvars terraform.tfvars
 ```
 
-For more information about the variables that are declared in [variables.tf](variables.tf), refer to [CONFIG-VARS.md](docs/CONFIG-VARS.md).
+For more information about the variables that are declared in [variables.tf](../../variables.tf), refer to [CONFIG-VARS.md](../CONFIG-VARS.md).
 
-When using a variable definition file other than `terraform.tfvars`, see [Advanced Terraform Usage](docs/user/AdvancedTerraformUsage.md) for additional command options.
+When using a variable definition file other than `terraform.tfvars`, see [Advanced Terraform Usage](./AdvancedTerraformUsage.md) for additional command options.
 
 ## Run Terraform Commands
 
@@ -71,11 +71,11 @@ To create cloud resources, run:
 terraform apply -auto-approve
 ```
 
-This command can take a few minutes to complete. Once complete, Terraform output values are written to the console. The 'KUBECONFIG' file for the cluster is written to `[prefix]-aks-kubeconfig.conf` in the current directory `$(pwd)`.
+This command can take a few minutes to complete. Once it has completed, Terraform output values are written to the console. The 'KUBECONFIG' file for the cluster is written to `[prefix]-aks-kubeconfig.conf` in the current directory, `$(pwd)`.
 
 ### Display Output Values
 
-Once the cloud resources have been created with the `apply` command, run the following command to display Terraform output values: 
+When the cloud resources have been created with the `apply` command, run the following command to display Terraform output values: 
 
 ```bash
 terraform output
@@ -83,7 +83,7 @@ terraform output
 
 ### Modify Cloud Resources
 
-After provisioning the infrastructure, if further changes are required, add the variable and desired value to `terraform.tfvars` and run `terrafom apply` again.
+After provisioning the infrastructure, you might find that additional changes are required. Update `terraform.tfvars` with the desired modifications and run `terrafom apply` again.
 
 
 ### Tear Down Cloud Resources
