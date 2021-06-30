@@ -95,7 +95,7 @@ terraform destroy
 ```
 _**NOTE**_: The "destroy" action is irreversible.
 
-## Interacting With The Kubernetes Cluster
+## Interact with the Kubernetes Cluster
 
 The command to [create the cloud resources](#create-cloud-resources) writes the `kube_config` output value to a file, `./[prefix]-aks-kubeconfig.conf.` When the Kubernetes cluster is ready, use `kubectl` to interact with the cluster and perform the SAS Viya deployment.
 
