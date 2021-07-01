@@ -54,12 +54,15 @@ Access to an **Azure Subscription** and an [**Identity**](./docs/user/TerraformA
 SAS recommends that you complete a workflow similar to the following in order to create and configure your cluster and deploy SAS Viya:
 1. Prepare to run viya4-iac-azure by fulfilling the prerequisites.
 1. Customize and run the Terraform scripts in this project to set up your cluster.
-1. Verify that all requirements have been met by checking the [product documentation](
-1. Retrieve the deployment assets.
+1. Verify that all requirements have been met by checking the [product documentation](https://documentation.sas.com/doc/en/itopssr/v_012/p1pp4c3tx9dxlvn1u3s3keokcz5l.htm).
 1. Retrieve the cloud configuration from tfstate.
+1. Follow the instructions in the [documentation](https://go.documentation.sas.com/doc/en/itopscdc/v_015/dplyml0phy0dkr/n137b56hwogd7in1onzys95awxqe.htm) to deploy the software.
+Start by deploying the SAS Deployment Operator.
+1. Obtain the deployment assets.
+1. Customize your deployment manifest.
 1. Run the kustomize process and deploy SAS Viya.
 1. Create affinity rules such that processes are targeted to appropriately labeled nodes.
-1. Create pod disruption budgets for each service such that cluster maintenance will not let the last instance of a service go down during a node maintenance operation for example.
+1. Create pod disruption budgets for each service. These budgets ensure that the last instance of a service cannot go down during a node maintenance operation, for example.
 1. Customize the deployment, making sure that data directories and user private directories are mounted on CAS nodes and on compute server instances.
 1. Deploy SAS Viya monitoring for Kubernetes.
 
