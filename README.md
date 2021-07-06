@@ -19,9 +19,6 @@ Once the cloud resources are provisioned, use the SAS Viya Deployment Operator t
 about SAS Viya requirements and documentation for the deployment process, refer to the 
 [SAS&reg; Viya&reg; IT Operations Guide](https://go.documentation.sas.com/doc/en/itopscdc/v_015/itopswlcm/home.htm).
 
-You can also use the tools in the [viya4-deployment](https://github.com/sassoftware/viya4-deployment) repository to deploy SAS Viya and the SAS 
-product offerings in your software order. 
-
 ## Prerequisites
 
 Use of these tools requires operational knowledge of the following technologies:
@@ -60,8 +57,8 @@ SAS recommends that you complete a workflow similar to the following in order to
 1. Follow the instructions in the [documentation](https://go.documentation.sas.com/doc/en/itopscdc/v_015/itopswlcm/home.htm) to deploy the software.
 Start by [obtaining the deployment assets](https://go.documentation.sas.com/doc/en/itopscdc/v_015/dplyml0phy0dkr/n1wwpl7qzfdb5rn1gwfx84tfgj5d.htm).
 1. [Deploy the SAS Deployment Operator](https://go.documentation.sas.com/doc/en/itopscdc/v_015/dplyml0phy0dkr/n137b56hwogd7in1onzys95awxqe.htm).
-1. [Create and customize the base YAML file for the deployment](https://go.documentation.sas.com/doc/en/itopscdc/v_015/dplyml0phy0dkr/n0g237aqo6pz1in1t19wjb94j9bi.htm).
-1. Run the kustomize process and deploy SAS Viya.
+1. [Create the SASDeployment custom resource](https://go.documentation.sas.com/doc/en/itopscdc/v_015/dplyml0phy0dkr/p0nid9gu3x2cvln1pzpcxa68tpom.htm).
+1. [Deploy SAS Viya](https://go.documentation.sas.com/doc/en/itopscdc/v_015/dplyml0phy0dkr/p127f6y30iimr6n17x2xe9vlt54q.htm#p0lhaw04t8hfhjn1cn1gadt5gbph).
 1. Complete the deployment by making sure that data directories and user private directories are mounted on CAS nodes and on compute server instances.
 
 ## Getting Started
