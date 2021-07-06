@@ -49,22 +49,20 @@ Access to an **Azure Subscription** and an [**Identity**](./docs/user/TerraformA
 #### Docker Requirements:
 - [Docker](https://docs.docker.com/get-docker/)
 
-## IaC Deployment Overview
+## Deployment Overview
 
 SAS recommends that you complete a workflow similar to the following in order to create and configure your cluster and deploy SAS Viya:
-1. Prepare to run viya4-iac-azure by fulfilling the prerequisites.
+1. Prepare to run viya4-iac-azure by fulfilling the [prerequisites](#prerequisites).
 1. Customize and run the Terraform scripts in this project to set up your cluster.
 1. Verify that all requirements have been met by checking the [product documentation](https://documentation.sas.com/doc/en/itopssr/v_012/p1pp4c3tx9dxlvn1u3s3keokcz5l.htm).
-1. Retrieve the cloud configuration from tfstate.
-1. Follow the instructions in the [documentation](https://go.documentation.sas.com/doc/en/itopscdc/v_015/dplyml0phy0dkr/n137b56hwogd7in1onzys95awxqe.htm) to deploy the software.
-Start by deploying the SAS Deployment Operator.
-1. Obtain the deployment assets.
-1. Customize your deployment manifest.
+1. Retrieve the cloud configuration from the [Terraform state file](/docs/user/AdvancedTerraformUsage.md#terraform---state).
+1. Complete cluster setup using the tools in the [viya4-deployment](https://github.com/sassoftware/viya4-deployment) project. Use the tfstate file as input for these tools.  
+1. Follow the instructions in the [documentation](https://go.documentation.sas.com/doc/en/itopscdc/v_015/itopswlcm/home.htm) to deploy the software.
+Start by [obtaining the deployment assets](https://go.documentation.sas.com/doc/en/itopscdc/v_015/dplyml0phy0dkr/n1wwpl7qzfdb5rn1gwfx84tfgj5d.htm).
+1. [Deploy the SAS Deployment Operator](https://go.documentation.sas.com/doc/en/itopscdc/v_015/dplyml0phy0dkr/n137b56hwogd7in1onzys95awxqe.htm).
+1. [Create and customize the base YAML file for the deployment](https://go.documentation.sas.com/doc/en/itopscdc/v_015/dplyml0phy0dkr/n0g237aqo6pz1in1t19wjb94j9bi.htm).
 1. Run the kustomize process and deploy SAS Viya.
-1. Create affinity rules such that processes are targeted to appropriately labeled nodes.
-1. Create pod disruption budgets for each service. These budgets ensure that the last instance of a service cannot go down during a node maintenance operation, for example.
-1. Customize the deployment, making sure that data directories and user private directories are mounted on CAS nodes and on compute server instances.
-1. Deploy SAS Viya monitoring for Kubernetes.
+1. Complete the deployment by making sure that data directories and user private directories are mounted on CAS nodes and on compute server instances.
 
 ## Getting Started
 
@@ -82,7 +80,7 @@ cd viya4-iac-azure
 
 ### Authenticating Terraform to Access Microsoft Azure
 
-The Terraform process manages Microsoft Azure resources on your behalf. In order to do so, it needs to know your Azure account information, and a user
+The Terraform process manages Microsoft Azure resources on your behalf. In order to do so, it needs your Azure account information and a user
 identity with the required permissions. See [Terraform Azure Authentication](./docs/user/TerraformAzureAuthentication.md) for details.
 
 ### Customize Input Values
