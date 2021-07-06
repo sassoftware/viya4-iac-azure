@@ -17,7 +17,7 @@ This project contains Terraform scripts to provision the Microsoft Azure Cloud i
 
 Once the cloud resources are provisioned, use the SAS Viya Deployment Operator to deploy SAS Viya in your cloud environment. For more information
 about SAS Viya requirements and documentation for the deployment process, refer to the 
-[SAS&reg; Viya&reg; IT Operations Guide](https://go.documentation.sas.com/doc/en/itopscdc/v_015/itopswlcm/home.htm).
+[SAS&reg; Viya&reg; IT Operations Guide](https://go.documentation.sas.com/doc/en/itopscdc/default/itopswlcm/home.htm).
 
 ## Prerequisites
 
