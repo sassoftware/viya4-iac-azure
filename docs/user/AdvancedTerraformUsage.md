@@ -9,7 +9,7 @@ Once the Terraform project has been initialized, you can run the ```terraform pl
 - review the cloud resources and dependencies before creating them
 - find any disparities between local definitions and the actual infrastructure. To find these differences, run the command after the infrastructure has been created with `terraform apply`.
 
-Terraform accepts inputs and will prompt you for them. However, you can also pass them in from the command line using the options ```-var``` or ```-var-file```.
+Terraform accepts inputs and will prompt you for them. However, you can also pass them in from the command line using the ```-var``` or ```-var-file``` options.
 Passing them in this way overrides any default values in ```variables.tf```.
 
 ```bash
@@ -41,10 +41,10 @@ After the resources have been created, use ```terraform state list``` to list al
 
 ```bash
 terraform state list
-# to get more details on a partictular resource
+# to get more details on a particular resource
 terraform state show <resource-name-from-state-list>
 ```
-If you decide to use the viya4-deployment project, you can provide the tfstate file to have the kubeconfig and other settings auto-discovered.
+If you decide to use the [viya4-deployment project](https://github.com/sassoftware/viya4-deployment), which uses Ansible to complete the configuration of your cluster to meet SAS Viya requirements, you can provide the tfstate file to enable auto-discovery of the kubeconfig file and other settings.
 
 ## Terraform - Output
 
