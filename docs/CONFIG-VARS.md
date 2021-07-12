@@ -1,10 +1,10 @@
-# List of valid configuration variables
+# Valid Configuration Variables
 
-Supported configuration variables are listed in the table below.  All variables can also be specified on the command line.  Values specified on the command line will override all values in configuration defaults files.
+Supported configuration variables are listed in the tables below.  All variables can also be specified on the command line.  Values specified on the command line will override values in configuration defaults files.
 
 ## Table of Contents
 
-- [List of valid configuration variables](#list-of-valid-configuration-variables)
+- [Valid Configuration Variables](#valid-configuration-variables)
   - [Table of Contents](#table-of-contents)
   - [Required Variables](#required-variables)
     - [Azure Authentication](#azure-authentication)
@@ -19,7 +19,7 @@ Supported configuration variables are listed in the table below.  All variables 
     - [NFS Server VM (only when `storage_type=standard`)](#nfs-server-vm-only-when-storage_typestandard)
     - [Azure NetApp Files (only when `storage_type=ha`)](#azure-netapp-files-only-when-storage_typeha)
   - [Azure Container Registry (ACR)](#azure-container-registry-acr)
-  - [Postgres](#postgres)
+  - [PostgreSQL](#postgresql)
 
 Terraform input variables can be set in the following ways:
 
@@ -31,15 +31,15 @@ Terraform input variables can be set in the following ways:
 
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
-| prefix | A prefix used in the name of all the Azure resources created by this script. | string | | The prefix string must start with a lowercase letter and contain only lowercase alphanumeric characters and dashes (-), but cannot end with a dash. |
+| prefix | A prefix used in the name of all the Azure resources created by this script. | string | | The prefix string must start with a lowercase letter and contain only lowercase alphanumeric characters and dashes (-), but it cannot end with a dash. |
 | location | The Azure Region to provision all resources in this script | string | "East US" | |
 | ssh_public_key | Name of file with public ssh key for VMs | string | "~/.ssh/id_rsa.pub" | Value is required in order to access your VMs |
 
 ### Azure Authentication
 
-The Terraform process manages Azure resources on your behalf. In order to do so, it needs to know your Azure account information, and a user identity with the required permissions.
+The Terraform process manages Microsoft Azure resources on your behalf. In order to do so, it needs your Azure account information and a user identity with the required permissions.
 
-Find details on how to retrieve that information under [Azure Help Topics](./user/AzureHelpTopics.md).
+For details on how to retrieve that information, see [Azure Help Topics](./user/AzureHelpTopics.md).
 
 | Name | Description | Type | Default |
 | :--- | ---: | ---: | ---: |
@@ -49,15 +49,17 @@ Find details on how to retrieve that information under [Azure Help Topics](./use
 | client_secret | your client secret when using a Service Principal| string | "" |
 | use_msi | use the Managed Identity of your Azure VM | bool | false |
 
-NOTE: `subscription_id` and `tenant_id` are always required. `client_id` and `client_secret` are required when using a Service Principal. `use_msi=true` is required when using an Azure VM Managed Identitty.
+**NOTE:** Values for `subscription_id` and `tenant_id` are always required. `client_id` and `client_secret` are required when using a Service Principal. `use_msi=true` is required when using an Azure VM Managed Identitty.
 
-For recommendation on how to set these variables in your environment, see [Authenticating Terraform to access Azure](./user/TerraformAzureAuthentication.md).
+For recommendations on how to set these variables in your environment, see [Authenticating Terraform to Access Azure](./user/TerraformAzureAuthentication.md).
 
 ## Admin Access
 
-By default, the API of the Azure resources that are being created are only accessible through authenticated Azure clients (e.g. the Azure Portal, the `az` CLI, the Azure Shell, etc.)
-To allow access for other administrative client applications (for example `kubectl`, `psql`, etc.), you want to open up the Azure firewall to allow access from your source IPs.
-To do this, specify ranges of IP in [CIDR notation](https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing).
+By default, the API of the Azure resources that are being created is only accessible through authenticated Azure clients (such as the Azure Portal,
+the `az` CLI, the Azure Shell, etc.).
+To allow access for other administrative client applications (for example `kubectl`, `psql`, etc.), you must open the Azure firewall to allow access from your source
+IP addresses.
+To do this, specify ranges of IP addresses in [CIDR notation](https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing).
 Contact your Network System Administrator to find the public CIDR range of your network.
 
 You can use `default_public_access_cidrs` to set a default range for all created resources. To set different ranges for other resources, define the appropriate variable. Use and empty list `[]` to disallow access explicitly.
@@ -70,13 +72,15 @@ You can use `default_public_access_cidrs` to set a default range for all created
 | postgres_public_access_cidrs | IP Ranges allowed to access the Azure PostgreSQL Server | list of strings |||
 | acr_public_access_cidrs | IP Ranges allowed to access the ACR instance | list of strings |||
 
+**NOTE:** In a SCIM environment, the AzureActiveDirectory service tag must be granted access to port 443/HTTPS for the Ingress IP address. 
+
 ## Networking
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
 | vnet_address_space | Address space for created vnet | string | "192.168.0.0/16" | This variable is ignored when vnet_name is set (aka bring your own vnet) |
 | subnets | Subnets to be created and their settings | map(object) | *check below* | This variable is ignored when subnet_names is set (aka bring your own subnets). All defined subnets must exist within the vnet address space. |
 
-The default values for the subnets variable are:
+The default values for the `subnets` variable are as follows:
 
 ```yaml
 {
@@ -112,7 +116,8 @@ The default values for the subnets variable are:
 
 ### Use Existing
 
-When desiring to deploy into existing resource group, vnet, subnets, or network security group the variables below can be used to define the exiting resources
+If you want to deploy into an existing resource group, vnet, subnets, or network security group, the variables shown in the following table can be used to define
+the existing resources:
 
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
@@ -121,7 +126,7 @@ When desiring to deploy into existing resource group, vnet, subnets, or network 
 | nsg_name | Name of pre-existing network security group | string | null | Only required if deploying into existing nsg |
 | subnet_names | Existing subnets mapped to desired usage | map(string) | null | Only required if deploying into existing subnets. See example below |
 
-Example subnet_names variable:
+Example for the `subnet_names` variable:
 
 ```yaml
 subnet_names = {
@@ -136,7 +141,7 @@ subnet_names = {
 
 ## General
 
-Ubuntu 20.04 LTS is the operating system used on the Jump/NFS servers. Ubuntu creates the `/mnt` location as an ephemeral drive and cannot be used as the root location of the `jump_rwx_filestore_path` variable.
+Ubuntu 20.04 LTS is the operating system used on the Jump/NFS servers. Ubuntu creates the `/mnt` location as an ephemeral drive that cannot be used as the root location of the `jump_rwx_filestore_path` variable.
 
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
@@ -150,9 +155,9 @@ Ubuntu 20.04 LTS is the operating system used on the Jump/NFS servers. Ubuntu cr
 | jump_rwx_filestore_path | File store mount point on Jump server | string | "/viya-share" | This location cannot include "/mnt" as it's root location. This disk is ephemeral on Ubuntu which is the operating system being used for the Jump/NFS servers. |
 | tags | Map of common tags to be placed on all Azure resources created by this script | map | { project_name = "sasviya4", environment = "dev" } | |
 
-## Nodepools
+## Node Pools
 
-### Default Nodepool
+### Default Node Pool
 
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
@@ -164,9 +169,10 @@ Ubuntu 20.04 LTS is the operating system used on the Jump/NFS servers. Ubuntu cr
 | default_nodepool_max_nodes | Maximum number of nodes for the default nodepoo| number | 5 | Value must be between 0 and 100. Setting min and max node counts the same disables autoscaling |
 | default_nodepool_availability_zones | Availability Zones for the cluster default nodepool | list of strings | ["1"]  | Note: This value depends on the "location". For example, not all regions have numbered availability zones|
 
-### Additional Nodepools
+### Additional Node Pools
 
-Additional node pools can be created separate from the default nodepool. This is done with the `node_pools` variable which is a map of objects. Each nodepool requires the following variables
+Additional node pools can be created separate from the default nodepool. This is done with the `node_pools` variable, which is a map of objects. Each node pool requires the following variables:
+
 | Name | Description | Type | Notes |
 | :--- | ---: | ---: | ---: |
 | machine_type | Type of the nodepool VMs | string | |
@@ -177,7 +183,7 @@ Additional node pools can be created separate from the default nodepool. This is
 | node_taints | Taints for the nodepool VMs | list of strings | |
 | node_labels | Labels to add to the nodepool VMs | map | |
 
-The default values for the `node_pools` variable are:
+The default values for the `node_pools` variable are as follows:
 
 ```yaml
 {
@@ -241,7 +247,7 @@ The default values for the `node_pools` variable are:
 }
 ```
 
-In addition, you can control the placement for the additional nodepools using
+In addition, you can control the placement for the additional node pools using the following values:
 
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
@@ -292,7 +298,7 @@ When `storage_type=ha` (high availability), [Microsoft Azure NetApp Files](https
 | container_registry_admin_enabled | Enables the admin user | bool | false | |
 | container_registry_geo_replica_locs | list of Azure locations where the container registry should be geo-replicated. | list of strings | null | This is only supported when `container_registry_sku` is set to `"Premium"` |
 
-## Postgres
+## PostgreSQL
 
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
