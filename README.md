@@ -15,9 +15,12 @@ This project contains Terraform scripts to provision the Microsoft Azure Cloud i
 
 [<img src="./docs/images/viya4-iac-azure-diag.png" alt="Architecture Diagram" width="750"/>](./docs/images/viya4-iac-azure-diag.png?raw=true)
 
-Once the cloud resources are provisioned, use the SAS Viya Deployment Operator to deploy SAS Viya in your cloud environment. For more information
-about SAS Viya requirements and documentation for the deployment process, refer to the 
-[SAS&reg; Viya&reg; IT Operations Guide](https://go.documentation.sas.com/doc/en/itopscdc/default/itopswlcm/home.htm).
+This project helps you to automate the cluster-provisioning phase of SAS Viya deployment. To learn about all phases and options of the
+SAS Viya deployment process, see [Getting Started with SAS Viya and Azure Kubernetes Service](https://go.documentation.sas.com/doc/en/itopscdc/v_015/itopscon/n1d7qc4nfr3s5zn103a1qy0kj4l1.htm) in _SAS Viya Operations_.
+
+Once the cloud resources are provisioned, you can use the tools in [viya4-deployment](https://github.com/sassoftware/viya4-deployment) or the SAS Viya
+Deployment Operator to deploy SAS Viya in your cloud environment. For more information about SAS Viya requirements and documentation for the deployment
+process, refer to the [SAS&reg; Viya&reg; IT Operations Guide](https://go.documentation.sas.com/doc/en/itopscdc/default/itopswlcm/home.htm).
 
 ## Prerequisites
 
@@ -33,7 +36,9 @@ Use of these tools requires operational knowledge of the following technologies:
 
 This project supports two options for running Terraform scripts:
 - Terraform installed on your local machine
-- Using a Docker container to run Terraform. For more information, see [Docker Usage](./docs/user/DockerUsage.md).
+- Using a Docker container to run Terraform
+  
+  For more information, see [Docker Usage](./docs/user/DockerUsage.md).
 
 Access to an **Azure Subscription** and an [**Identity**](./docs/user/TerraformAzureAuthentication.md) with the *Contributor* role are required.
 
@@ -46,22 +51,10 @@ Access to an **Azure Subscription** and an [**Identity**](./docs/user/TerraformA
 #### Docker Requirements:
 - [Docker](https://docs.docker.com/get-docker/)
 
-## Deployment Overview
-
-SAS recommends that you complete a workflow similar to the following in order to create and configure your cluster and deploy SAS Viya:
-1. Prepare to run viya4-iac-azure by fulfilling the [prerequisites](#prerequisites).
-1. Customize and run the Terraform scripts in this project to set up your cluster.
-1. Verify that all requirements have been met by checking the [product documentation](https://documentation.sas.com/doc/en/itopssr/default/p1pp4c3tx9dxlvn1u3s3keokcz5l.htm).
-1. Retrieve the cloud configuration from the [Terraform state file](/docs/user/AdvancedTerraformUsage.md#terraform---state).
-1. Complete cluster setup using the tools in the [viya4-deployment](https://github.com/sassoftware/viya4-deployment) project. Use the tfstate file as input for these tools.  
-1. Follow the instructions in the [documentation](https://go.documentation.sas.com/doc/en/itopscdc/default/itopswlcm/home.htm) to deploy the software.
-Start by [obtaining the deployment assets](https://go.documentation.sas.com/doc/en/itopscdc/default/dplyml0phy0dkr/n1wwpl7qzfdb5rn1gwfx84tfgj5d.htm).
-1. [Deploy the SAS Deployment Operator](https://go.documentation.sas.com/doc/en/itopscdc/default/dplyml0phy0dkr/n137b56hwogd7in1onzys95awxqe.htm).
-1. [Create the SASDeployment custom resource](https://go.documentation.sas.com/doc/en/itopscdc/default/dplyml0phy0dkr/p0nid9gu3x2cvln1pzpcxa68tpom.htm).
-1. [Deploy SAS Viya](https://go.documentation.sas.com/doc/en/itopscdc/default/dplyml0phy0dkr/p127f6y30iimr6n17x2xe9vlt54q.htm#p0lhaw04t8hfhjn1cn1gadt5gbph).
-1. Complete the deployment by making sure that data directories and user private directories are mounted on CAS nodes and on compute server instances.
-
 ## Getting Started
+
+When you have prepared your environment with the prerequisites, you are ready to obtain and customize the Terraform scripts that
+will set up your Kubernetes cluster.
 
 ### Clone this Project
 
@@ -80,14 +73,16 @@ cd viya4-iac-azure
 The Terraform process manages Microsoft Azure resources on your behalf. In order to do so, it needs your Azure account information and a user
 identity with the required permissions. See [Terraform Azure Authentication](./docs/user/TerraformAzureAuthentication.md) for details.
 
-### Customize Input Values
+### Customizing Input Values
 
-Running the Terraform script requires modifications variable definitions as input. Many variables do not have default values. Create a file named
-`terraform.tfvars` to customize any input variable value documented in the [CONFIG-VARS.md](docs/CONFIG-VARS.md) file. To get started, you can copy one of
-the example variable definition files provided in the `./examples` folder. For more information about the variables that are declared in that file,
-refer to the [CONFIG-VARS.md](docs/CONFIG-VARS.md) file.
+Terraform scripts require variable definitions as input. Many variables do not have default values. Create a file named
+`terraform.tfvars` to customize any input variable value documented in the [CONFIG-VARS.md](docs/CONFIG-VARS.md) file. 
 
-When using a variable definition file other than `terraform.tfvars`, see [Advanced Terraform Usage](docs/user/AdvancedTerraformUsage.md) for additional command options.
+To get started, you can copy one of the example variable definition files provided in the `./examples` folder. For more information about the
+variables that are declared in each file, refer to the [CONFIG-VARS.md](docs/CONFIG-VARS.md) file.
+
+You have the option to specify variable definitions that are not included in `terraform.tfvars` or to use a variable definition file other than
+`terraform.tfvars`. See [Advanced Terraform Usage](docs/user/AdvancedTerraformUsage.md) for more information.
 
 ## Creating and Managing the Cloud Resources
 
@@ -102,7 +97,7 @@ See the [Troubleshooting](./docs/Troubleshooting.md) page for information about 
 
 ## Contributing
 
-> We welcome your contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for details on how to submit contributions to this project.
+> We welcome your contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for information about how to submit contributions to this project.
 
 ## License
 
