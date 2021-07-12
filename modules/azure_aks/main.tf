@@ -1,3 +1,8 @@
+data "azurerm_user_assigned_identity" "uai" {
+  name                = "nojohn-test-tf"
+  resource_group_name = "azuse-RD_CLT_Testing-vpn-rg"
+}
+
 # Reference: https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster
 resource "azurerm_kubernetes_cluster" "aks" {
   name                = var.aks_cluster_name
@@ -57,8 +62,13 @@ resource "azurerm_kubernetes_cluster" "aks" {
     tags                  = var.aks_cluster_tags
   }
 
+  # identity {
+  #   type = "SystemAssigned"
+  # }
+
   identity {
-    type = "SystemAssigned"
+    type = "UserAssigned"
+    user_assigned_identity_id = data.azurerm_user_assigned_identity.uai.id
   }
 
   addon_profile {

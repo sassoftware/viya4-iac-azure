@@ -3,6 +3,7 @@
 *.tfstate
 .terraform/
 *.tfstate.backup
+.terraform.lock.hcl
 terraform.tfvars
 .terraform.tfstate.lock.info
 .DS_Store

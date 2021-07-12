@@ -3,12 +3,13 @@ output "aks_host" {
   value = module.aks.host
 }
 
-output "nat_ip" {
-  value = data.azurerm_public_ip.aks_public_ip.ip_address
-}
+# output "nat_ip" {
+#   value = data.azurerm_public_ip.aks_public_ip.ip_address
+# }
 
 output "kube_config" {
   value = module.aks.kube_config
+  sensitive = true
 }
 
 output "aks_cluster_node_username" {
@@ -138,4 +139,5 @@ output "rwx_filestore_config" {
 
 output "test" {
   value = module.aks
+  sensitive = true
 }

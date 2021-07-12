@@ -245,12 +245,12 @@ module "aks" {
   depends_on = [module.vnet]
 }
 
-data "azurerm_public_ip" "aks_public_ip" {
-  name                = split("/", module.aks.cluster_slb_ip_id)[8]
-  resource_group_name = "MC_${module.resource_group.name}_${module.aks.name}_${module.resource_group.location}"
+# data "azurerm_public_ip" "aks_public_ip" {
+#   name                = split("/", module.aks.cluster_slb_ip_id)[8]
+#   resource_group_name = "MC_${module.resource_group.name}_${module.aks.name}_${module.resource_group.location}"
 
-  depends_on = [module.aks, module.node_pools]
-}
+#   depends_on = [module.aks, module.node_pools]
+# }
 
 
 module "node_pools" {
