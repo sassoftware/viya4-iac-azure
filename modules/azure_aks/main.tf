@@ -9,11 +9,13 @@ resource "azurerm_kubernetes_cluster" "aks" {
   location            = var.aks_cluster_location
   resource_group_name = var.aks_cluster_rg
   dns_prefix          = var.aks_cluster_dns_prefix
+  
   # https://docs.microsoft.com/en-us/azure/aks/supported-kubernetes-versions
   # az aks get-versions --location eastus -o table
   kubernetes_version              = var.kubernetes_version
   api_server_authorized_ip_ranges = var.aks_cluster_endpoint_public_access_cidrs[0] == "0.0.0.0/32" ? [] : var.aks_cluster_endpoint_public_access_cidrs
   private_cluster_enabled         = var.aks_cluster_endpoint_public_access_cidrs[0] == "0.0.0.0/32" ? true : false
+  private_dns_zone_id = "System"
 
   network_profile {
     network_plugin = var.aks_network_plugin

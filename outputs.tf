@@ -32,6 +32,7 @@ output "postgres_admin" {
 }
 output "postgres_password" {
   value = var.create_postgres ? element(coalescelist(module.postgresql.*.administrator_password, [" "]), 0) : null
+  sensitive = true
 }
 output "postgres_server_id" {
   value = var.create_postgres ? element(coalescelist(module.postgresql.*.server_id, [" "]), 0) : null
