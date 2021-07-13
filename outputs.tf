@@ -4,7 +4,7 @@ output "aks_host" {
 }
 
 output "nat_ip" {
-  value = data.azurerm_public_ip.aks_public_ip.ip_address
+  value = module.aks.public_ip
 }
 
 output "kube_config" {
