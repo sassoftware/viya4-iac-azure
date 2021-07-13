@@ -9,7 +9,7 @@ resource "azurerm_user_assigned_identity" "uai" {
 }
 
 resource "azurerm_role_assignment" "uai_role" {
-  scope                = data.azurerm_resource_group.vpnrg.id
+  scope                = var.aks_cluster_rg_id
   role_definition_name = "Contributor"
   principal_id         = azurerm_user_assigned_identity.uai.principal_id
 }
@@ -113,7 +113,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
 
  data "azurerm_public_ip" "cluster_public_ip" {
   count               = private_cluster_enabled ? 0 : 1
-  
+
   # effective_outbound_ips is a set of strings, that needs to be converted to a list type
   name                = split("/", tolist(azurerm_kubernetes_cluster.aks.network_profile[0].load_balancer_profile[0].effective_outbound_ips)[0])[8]
   resource_group_name = "MC_${var.aks_cluster_rg}_${var.cluster_name}_${var.cluster_location}"
