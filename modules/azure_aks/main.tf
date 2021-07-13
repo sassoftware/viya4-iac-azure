@@ -13,7 +13,7 @@ resource "azurerm_role_assignment" "uai_role" {
   count                = local.private_cluster_enabled ? 0 : 1
   scope                = var.aks_cluster_rg_id
   role_definition_name = "Contributor"
-  principal_id         = azurerm_user_assigned_identity.uai.principal_id
+  principal_id         = azurerm_user_assigned_identity.uai.0.principal_id
 }
 
 # Reference: https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster
