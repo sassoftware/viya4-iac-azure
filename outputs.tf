@@ -4,7 +4,7 @@ output "aks_host" {
 }
 
 output "nat_ip" {
-  value = module.aks.public_ip
+  value = module.aks.cluster_public_ip
 }
 
 output "kube_config" {
@@ -141,9 +141,4 @@ output "rwx_filestore_config" {
 
 output "cluster_node_pool_mode" {
   value = var.cluster_node_pool_mode
-}
-
-output "test" {
-  value = module.aks.cluster_slb_ip_id
-  sensitive = true
 }
