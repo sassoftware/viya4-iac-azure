@@ -1,6 +1,6 @@
-# !NOTE! - These are only a subset of CONFIG-VARS.md provided for sample.
-# Customize this file to add any variables from 'CONFIG-VARS.md' that you want 
-# to change their default values.
+# !NOTE! - These are only a subset of CONFIG-VARS.md provided as examples.
+# Customize this file to add any variables from 'CONFIG-VARS.md' whose default
+# values you want to change.
 
 # ****************  REQUIRED VARIABLES  ****************
 # These required variables' values MUST be provided by the User
@@ -95,7 +95,7 @@ node_pools = {
   }
 }
 
-# Jump Box
+# Jump Server
 create_jump_public_ip = true
 jump_vm_admin         = "jumpuser"
 
