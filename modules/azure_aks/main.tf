@@ -112,11 +112,11 @@ resource "azurerm_kubernetes_cluster" "aks" {
 }
 
  data "azurerm_public_ip" "cluster_public_ip" {
-  count               = private_cluster_enabled ? 0 : 1
+  count               = local.private_cluster_enabled ? 0 : 1
 
   # effective_outbound_ips is a set of strings, that needs to be converted to a list type
   name                = split("/", tolist(azurerm_kubernetes_cluster.aks.network_profile[0].load_balancer_profile[0].effective_outbound_ips)[0])[8]
-  resource_group_name = "MC_${var.aks_cluster_rg}_${var.cluster_name}_${var.cluster_location}"
+  resource_group_name = "MC_${var.aks_cluster_rg}_${var.aks_cluster_name}_${var.aks_cluster_location}"
 
   depends_on = [azurerm_kubernetes_cluster.aks]
 }
