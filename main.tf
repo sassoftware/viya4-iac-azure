@@ -330,7 +330,6 @@ module "postgresql" {
   ## TODO : requires specific permissions
   vnet_rules = [{ name = "aks", subnet_id = module.vnet.subnets["aks"].id }, { name = "misc", subnet_id = module.vnet.subnets["misc"].id }]
   depends_on = [module.resource_group]
-
 }
 
 module "netapp" {

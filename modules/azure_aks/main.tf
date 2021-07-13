@@ -3,12 +3,14 @@ locals {
 }
 
 resource "azurerm_user_assigned_identity" "uai" {
+  count               = local.private_cluster_enabled ? 0 : 1
   name                = "${var.aks_cluster_name}-node-identity"
   resource_group_name = var.aks_cluster_rg
   location            = var.aks_cluster_location
 }
 
 resource "azurerm_role_assignment" "uai_role" {
+  count                = local.private_cluster_enabled ? 0 : 1
   scope                = var.aks_cluster_rg_id
   role_definition_name = "Contributor"
   principal_id         = azurerm_user_assigned_identity.uai.principal_id
@@ -77,8 +79,8 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   identity {
-    type = "UserAssigned"
-    user_assigned_identity_id = azurerm_user_assigned_identity.uai.id
+    type = local.private_cluster_enabled ? "UserAssigned" : "SystemAssigned"
+    user_assigned_identity_id = local.private_cluster_enabled ? azurerm_user_assigned_identity.uai.id : null
   }
 
   addon_profile {
