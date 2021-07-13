@@ -168,24 +168,6 @@ module "nfs" {
   depends_on                     = [module.vnet]
 }
 
-<<<<<<< HEAD
- resource "azurerm_network_security_rule" "vm-ssh" {
-   name                        = "${var.prefix}-ssh"
-   description                 = "Allow SSH from source"
-   count                       = ((var.create_jump_public_ip && var.create_jump_vm && (length(local.vm_public_access_cidrs) > 0))) || (var.create_nfs_public_ip && var.storage_type == "standard" && (length(local.vm_public_access_cidrs) > 0)) ? 1 : 0
-   priority                    = 120
-   direction                   = "Inbound"
-   access                      = "Allow"
-   protocol                    = "Tcp"
-   source_port_range           = "*"
-   destination_port_range      = "22"
-   source_address_prefixes     = local.vm_public_access_cidrs
-   destination_address_prefix  = "*"
-   resource_group_name         = module.resource_group.name
-   network_security_group_name = module.nsg.name
-   depends_on                  = [module.nsg]
- }
-=======
 resource "azurerm_network_security_rule" "vm-ssh" {
   name                        = "${var.prefix}-ssh"
   description                 = "Allow SSH from source"
@@ -202,7 +184,6 @@ resource "azurerm_network_security_rule" "vm-ssh" {
   network_security_group_name = module.nsg.name
   depends_on                  = [module.nsg]
 }
->>>>>>> main
 
 resource "azurerm_container_registry" "acr" {
   count                    = var.create_container_registry ? 1 : 0
@@ -251,6 +232,7 @@ module "aks" {
 
   aks_cluster_name                         = "${var.prefix}-aks"
   aks_cluster_rg                           = module.resource_group.name
+  aks_cluster_rg_id                        = module.resource_group.id
   aks_cluster_dns_prefix                   = "${var.prefix}-aks"
   aks_cluster_location                     = var.location
   aks_cluster_node_auto_scaling            = var.default_nodepool_min_nodes == var.default_nodepool_max_nodes ? false : true
@@ -293,15 +275,6 @@ module "kubeconfig" {
   token                    = module.aks.cluster_password
   depends_on               = [ module.aks ]
 }
-
-## TODO
-# data "azurerm_public_ip" "aks_public_ip" {
-#   name                = split("/", module.aks.cluster_slb_ip_id)[8]
-#   resource_group_name = "MC_${module.resource_group.name}_${module.aks.name}_${module.resource_group.location}"
-
-#   depends_on = [module.aks, module.node_pools]
-# }
-
 
 module "node_pools" {
   source = "./modules/aks_node_pool"
@@ -354,11 +327,8 @@ module "postgresql" {
   postgresql_configurations    = var.postgres_configurations
   tags                         = module.resource_group.tags
 
-  ## TODO
-  #vnet_rules = [{ name = "secure", subnet_id = "/subscriptions/3abb8faf-7dcc-47bc-aaf6-12293005d97c/resourceGroups/azuse-RD_CLT_Testing-vpn-rg/providers/Microsoft.Network/virtualNetworks/azuse-RD_CLT_Testing-vpn-vnet/subnets/azuse-RD_CLT_Testing-subnet" }]
-  #   { name = "aks", subnet_id = module.vnet.subnets["aks"].id },
-  #   { name = "misc", subnet_id = module.vnet.subnets["misc"].id }
-  # ]
+  ## TODO : requires specific permissions
+  vnet_rules = [{ name = "aks", subnet_id = module.vnet.subnets["aks"].id }, { name = "misc", subnet_id = module.vnet.subnets["misc"].id }]
   depends_on = [module.resource_group]
 
 }

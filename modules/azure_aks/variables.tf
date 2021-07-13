@@ -1,6 +1,7 @@
 variable aks_cluster_name {}
 
 variable aks_cluster_rg {}
+variable aks_cluster_rg_id {}
 variable aks_cluster_dns_prefix {}
 
 variable "aks_cluster_location" {

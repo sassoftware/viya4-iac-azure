@@ -1,6 +1,17 @@
-data "azurerm_user_assigned_identity" "uai" {
-  name                = "nojohn-test-tf"
-  resource_group_name = "azuse-RD_CLT_Testing-vpn-rg"
+locals {
+  private_cluster_enabled = var.aks_cluster_endpoint_public_access_cidrs[0] == "0.0.0.0/32" ? true : false
+}
+
+resource "azurerm_user_assigned_identity" "uai" {
+  name                = "${var.aks_cluster_name}-node-identity"
+  resource_group_name = var.aks_cluster_rg
+  location            = var.aks_cluster_location
+}
+
+resource "azurerm_role_assignment" "uai_role" {
+  scope                = data.azurerm_resource_group.vpnrg.id
+  role_definition_name = "Contributor"
+  principal_id         = azurerm_user_assigned_identity.uai.principal_id
 }
 
 # Reference: https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster
@@ -13,9 +24,9 @@ resource "azurerm_kubernetes_cluster" "aks" {
   # https://docs.microsoft.com/en-us/azure/aks/supported-kubernetes-versions
   # az aks get-versions --location eastus -o table
   kubernetes_version              = var.kubernetes_version
-  api_server_authorized_ip_ranges = var.aks_cluster_endpoint_public_access_cidrs[0] == "0.0.0.0/32" ? [] : var.aks_cluster_endpoint_public_access_cidrs
-  private_cluster_enabled         = var.aks_cluster_endpoint_public_access_cidrs[0] == "0.0.0.0/32" ? true : false
-  private_dns_zone_id = "System"
+  api_server_authorized_ip_ranges = local.private_cluster_enabled ? [] : var.aks_cluster_endpoint_public_access_cidrs
+  private_cluster_enabled         = local.private_cluster_enabled ? true : false
+  private_dns_zone_id             = local.private_cluster_enabled ? "System" : ""
 
   network_profile {
     network_plugin = var.aks_network_plugin
@@ -32,8 +43,8 @@ resource "azurerm_kubernetes_cluster" "aks" {
     dns_service_ip     = var.aks_network_plugin == "kubenet" ? "10.0.0.10" : var.aks_dns_service_ip
     pod_cidr           = var.aks_network_plugin == "kubenet" ? "10.244.0.0/16" : null
     docker_bridge_cidr = var.aks_network_plugin == "kubenet" ? "172.17.0.1/16" : var.aks_docker_bridge_cidr
-    outbound_type = "userDefinedRouting"
-    # load_balancer_sku = "Standard"
+    outbound_type      = local.private_cluster_enabled ? "userDefinedRouting" : "loadBalancer"
+    load_balancer_sku  = "Standard"
   }
 
   role_based_access_control {
@@ -65,10 +76,6 @@ resource "azurerm_kubernetes_cluster" "aks" {
     orchestrator_version  = var.kubernetes_version
   }
 
-  # identity {
-  #   type = "SystemAssigned"
-  # }
-
   identity {
     type = "UserAssigned"
     user_assigned_identity_id = data.azurerm_user_assigned_identity.uai.id
@@ -99,6 +106,17 @@ resource "azurerm_kubernetes_cluster" "aks" {
     ignore_changes = [default_node_pool.0.node_count]
   }
 
-
   tags = var.aks_cluster_tags
+
+  depends_on = [azurerm_role_assignment.uai_role]
+}
+
+ data "azurerm_public_ip" "cluster_public_ip" {
+  count               = private_cluster_enabled ? 0 : 1
+  
+  # effective_outbound_ips is a set of strings, that needs to be converted to a list type
+  name                = split("/", tolist(azurerm_kubernetes_cluster.aks.network_profile[0].load_balancer_profile[0].effective_outbound_ips)[0])[8]
+  resource_group_name = "MC_${var.aks_cluster_rg}_${var.cluster_name}_${var.cluster_location}"
+
+  depends_on = [azurerm_kubernetes_cluster.aks]
 }

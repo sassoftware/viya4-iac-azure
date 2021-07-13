@@ -3,9 +3,9 @@ output "aks_host" {
   value = module.aks.host
 }
 
-# output "nat_ip" {
-#   value = data.azurerm_public_ip.aks_public_ip.ip_address
-# }
+output "nat_ip" {
+  value = data.azurerm_public_ip.aks_public_ip.ip_address
+}
 
 output "kube_config" {
   value = module.kubeconfig.kube_config
@@ -141,4 +141,9 @@ output "rwx_filestore_config" {
 
 output "cluster_node_pool_mode" {
   value = var.cluster_node_pool_mode
+}
+
+output "test" {
+  value = module.aks.cluster_slb_ip_id
+  sensitive = true
 }
