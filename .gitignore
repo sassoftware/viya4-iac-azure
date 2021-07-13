@@ -6,5 +6,6 @@
 .terraform.lock.hcl
 terraform.tfvars
 .terraform.tfstate.lock.info
+.terraform.lock.hcl
 .DS_Store
 sas_iac_buildinfo.yaml

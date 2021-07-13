@@ -62,6 +62,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
     node_count            = var.aks_cluster_node_count
     vnet_subnet_id        = var.aks_vnet_subnet_id
     tags                  = var.aks_cluster_tags
+    orchestrator_version  = var.kubernetes_version
   }
 
   # identity {

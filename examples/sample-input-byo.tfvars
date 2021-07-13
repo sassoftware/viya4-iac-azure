@@ -1,5 +1,5 @@
-# !NOTE! - These are only a subset of variables.tf provided for sample.
-# Customize this file to add any variables from 'variables.tf' that you want
+# !NOTE! - These are only a subset of CONFIG-VARS.md provided for sample.
+# Customize this file to add any variables from 'CONFIG-VARS.md' that you want 
 # to change their default values.
 
 # ****************  REQUIRED VARIABLES  ****************
@@ -14,9 +14,9 @@ resource_group_name = "<existing-resource-group-name>" # only needed if using pr
 vnet_name           = "<existing-vnet-name>"           # only needed if using pre-existing
 nsg_name            = "<existing-nsg-name>"            # only needed if using pre-existing
 subnet_names        = {
-  "aks": "<existing-subnet-name-1>", 
-  "misc": "<existing-subnet-name-2>", 
-  "netapp": "<existing-subnet-name-3>" # only needed if using ha storage (aka netapp)
+  "aks": "<existing-subnet-name-for-aks>", 
+  "misc": "<existing-subnet-name-for-misc>", 
+  "netapp": "<existing-subnet-name-for-netapp>" # only needed if using ha storage (aka netapp)
 }
 
 # !NOTE! - Without specifying your CIDR block access rules, ingress traffic
@@ -38,10 +38,9 @@ postgres_administrator_password  = "mySup3rS3cretPassw0rd"
 create_container_registry           = false
 container_registry_sku              = "Standard"
 container_registry_admin_enabled    = false
-container_registry_geo_replica_locs = null
 
 # AKS config
-kubernetes_version         = "1.18.14"
+kubernetes_version         = "1.19.9"
 default_nodepool_min_nodes = 2
 default_nodepool_vm_type   = "Standard_D8s_v4"
 
