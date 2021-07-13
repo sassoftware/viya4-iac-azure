@@ -258,6 +258,7 @@ module "aks" {
   aks_pod_cidr                             = var.aks_pod_cidr
   aks_service_cidr                         = var.aks_service_cidr
   aks_cluster_tags                         = module.resource_group.tags
+  aks_uai_name                             = var.aks_uai_name
   depends_on                               = [module.vnet]
 }
 

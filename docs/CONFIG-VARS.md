@@ -119,6 +119,7 @@ When desiring to deploy into existing resource group, vnet, subnets, or network 
 | resource_group_name | Name of pre-existing resource group | string | null | Only required if deploying into existing resource group|
 | vnet_name | Name of pre-existing vnet | string | null | Only required if deploying into existing vnet |
 | nsg_name | Name of pre-existing network security group | string | null | Only required if deploying into existing nsg |
+| aks_uai_name | Name of pre-existing user assigned identity, that has Contributor role on resource group, to assign to aks | Required if service principal/managed identity running terraform does not have Owner role on the resource group |
 | subnet_names | Existing subnets mapped to desired usage | map(string) | null | Only required if deploying into existing subnets. See example below |
 
 Example subnet_names variable:

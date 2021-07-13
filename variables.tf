@@ -151,6 +151,11 @@ variable "aks_service_cidr" {
   default     = "10.0.0.0/16"
 }
 
+variable "aks_uai_name"{
+  description = "User assigned identity name"
+  default = null
+} 
+
 variable "node_vm_admin" {
   description = "OS Admin User for VMs of AKS Cluster nodes"
   default     = "azureuser"
@@ -502,7 +507,7 @@ variable "log_analytics_solution_promotion_code" {
   default     = ""
 }
 
-# Networking
+# BYO
 variable "resource_group_name" {
   type    = string
   default = null

@@ -1,16 +1,24 @@
 locals {
   private_cluster_enabled = var.aks_cluster_endpoint_public_access_cidrs[0] == "0.0.0.0/32" ? true : false
+  private_create_uai = var.aks_uai_name == null ? true : false
+  uai_id = (local.private_cluster_enabled && local.private_create_uai) ? : azurerm_user_assigned_identity.uai.0.id : data.azurerm_user_assigned_identity.uai.0.id
+}
+
+data "azurerm_user_assigned_identity" "uai" {
+  count               = (local.private_cluster_enabled && local.private_create_uai) ? 0 : 1
+  name                = var.aks_uai_name
+  resource_group_name = var.aks_cluster_rg
 }
 
 resource "azurerm_user_assigned_identity" "uai" {
-  count               = local.private_cluster_enabled ? 1 : 0
+  count               = (local.private_cluster_enabled && local.private_create_uai)  ? 1 : 0
   name                = "${var.aks_cluster_name}-node-identity"
   resource_group_name = var.aks_cluster_rg
   location            = var.aks_cluster_location
 }
 
 resource "azurerm_role_assignment" "uai_role" {
-  count                = local.private_cluster_enabled ? 1 : 0
+  count                = (local.private_cluster_enabled && local.private_create_uai) ? 1 : 0
   scope                = var.aks_cluster_rg_id
   role_definition_name = "Contributor"
   principal_id         = azurerm_user_assigned_identity.uai.0.principal_id
@@ -80,7 +88,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
 
   identity {
     type = local.private_cluster_enabled ? "UserAssigned" : "SystemAssigned"
-    user_assigned_identity_id = local.private_cluster_enabled ? azurerm_user_assigned_identity.uai.0.id : null
+    user_assigned_identity_id = ((local.private_cluster_enabled ? local.uai_id : null)  )
   }
 
   addon_profile {

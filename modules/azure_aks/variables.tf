@@ -115,3 +115,8 @@ variable "aks_oms_enabled" {
 variable "aks_log_analytics_workspace_id" {
   description = "The ID of the Log Analytics Workspace which the OMS Agent should send data to. Must be present if aks_oms_enabled is true"
 }
+
+variable "aks_uai_name"{
+  description = "User assigned identity name"
+  default = null
+} 
