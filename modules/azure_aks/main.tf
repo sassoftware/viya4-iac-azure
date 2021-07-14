@@ -1,17 +1,17 @@
 locals {
   private_cluster_enabled = var.aks_cluster_endpoint_public_access_cidrs[0] == "0.0.0.0/32" ? true : false
   private_create_uai = var.aks_uai_name == null ? true : false
-  uai_id = (local.private_cluster_enabled && local.private_create_uai) ? azurerm_user_assigned_identity.uai.0.id : data.azurerm_user_assigned_identity.uai.0.id
+  uai_id = local.private_cluster_enabled ? local.private_create_uai ? azurerm_user_assigned_identity.uai.0.id : data.azurerm_user_assigned_identity.uai.0.id : null
 }
 
 data "azurerm_user_assigned_identity" "uai" {
-  count               = (local.private_cluster_enabled && local.private_create_uai) ? 0 : 1
+  count               = local.private_cluster_enabled ? local.private_create_uai ? 0 : 1 : 0
   name                = var.aks_uai_name
   resource_group_name = var.aks_cluster_rg
 }
 
 resource "azurerm_user_assigned_identity" "uai" {
-  count               = (local.private_cluster_enabled && local.private_create_uai)  ? 1 : 0
+  count               = local.private_cluster_enabled ? local.private_create_uai ? 1 : 0 : 0
   name                = "${var.aks_cluster_name}-node-identity"
   resource_group_name = var.aks_cluster_rg
   location            = var.aks_cluster_location
