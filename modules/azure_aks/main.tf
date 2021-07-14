@@ -18,7 +18,7 @@ resource "azurerm_user_assigned_identity" "uai" {
 }
 
 resource "azurerm_role_assignment" "uai_role" {
-  count                = (local.private_cluster_enabled && local.private_create_uai) ? 1 : 0
+  count                = local.private_cluster_enabled ? local.private_create_uai ? 1 : 0 : 0
   scope                = var.aks_cluster_rg_id
   role_definition_name = "Contributor"
   principal_id         = azurerm_user_assigned_identity.uai.0.principal_id
