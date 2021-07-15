@@ -25,9 +25,9 @@ az login
 ]
 ```
 
-## How to Establish the TF Environment Variables:
+## How to Set the TF Environment Variables
 
-You can use the following commands, or alter them as needed to establish the environment variables with your `Tenant ID` and `Subscription`:
+You can use the following commands, or alter them as needed to set the environment variables with your `Tenant ID` and `Subscription`:
 
 ```bash
 # the following commands should work and should establish `TF_VAR_subscription_id` and `TF_VAR_tenant_id`
@@ -43,7 +43,7 @@ TF_VAR_subscription_id=$(az account show --query 'id' --output tsv)
 echo $TF_VAR_subscription_id
 ```
 
-## How to Create Service Principal Using the Azure CLI
+## How to Create a Service Principal Using the Azure CLI
 
 A Service Principal is effectively a "user" that you create in order to enable automated tools, like Terraform, to access Azure services on your behalf. You give it a role with only the permissions needed to execute the tasks that the Service Principal performs on your behalf.
  
@@ -82,7 +82,7 @@ To learn more about how Azure Role-Based Access Control works, refer to the foll
 * [Add or remove roles](https://docs.microsoft.com/en-us/azure/role-based-access-control/role-assignments-cli#user-at-a-subscription-scope)
 
 
-## How to grant a Service Principal Access to the Azure Container Registry
+## How to Grant a Service Principal Access to the Azure Container Registry
 
 When creating a private Azure Container Registry, assign 'acrpull' role to the Service Principal:
 
