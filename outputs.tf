@@ -143,3 +143,7 @@ output "rwx_filestore_config" {
 output "cluster_node_pool_mode" {
   value = var.cluster_node_pool_mode
 }
+
+output "infra_mode" {
+  value = var.infra_mode
+}
