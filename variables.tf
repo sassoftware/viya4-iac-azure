@@ -77,7 +77,8 @@ variable "postgres_public_access_cidrs" {
 
 # AKS config
 variable "create_aks_public_ip" {
-  default = true
+  default = null
+  type = bool
 }
 
 variable "default_nodepool_vm_type" {
@@ -257,7 +258,8 @@ variable "create_jump_vm" {
 }
 
 variable "create_jump_public_ip" {
-  default = true
+  default = null
+  type = bool
 }
 
 variable "jump_vm_admin" {
@@ -595,4 +597,15 @@ variable "cluster_node_pool_mode" {
   description = "Flag for predefined cluster node configurations - Values : default, minimal"
   type        = string
   default     = "default"
+}
+
+variable "infra_mode" {
+  description = "Use Private IP address for cluster API endpoint"
+  type        = string
+  default     = "standard"
+
+  validation {
+    condition     = contains(["standard", "private"], lower(var.infra_mode))
+    error_message = "ERROR: Supported values for `infra_mode` are - standard, private."
+  }
 }

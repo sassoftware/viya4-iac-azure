@@ -9,6 +9,7 @@ output "nat_ip" {
 
 output "kube_config" {
   value = module.kubeconfig.kube_config
+  sensitive = true
 }
 
 output "aks_cluster_node_username" {
@@ -47,7 +48,7 @@ output jump_private_ip {
 }
 
 output jump_public_ip {
-  value = var.create_jump_vm && var.create_jump_public_ip ? element(coalescelist(module.jump.*.public_ip_address, [""] ),0) : null
+  value = var.create_jump_vm && local.create_jump_public_ip ? element(coalescelist(module.jump.*.public_ip_address, [""] ),0) : null
 }
 
 output jump_admin_username {
@@ -64,7 +65,7 @@ output nfs_private_ip {
 }
 
 output nfs_public_ip {
-  value = var.storage_type == "standard" && var.create_nfs_public_ip ? element(coalescelist(module.nfs.*.public_ip_address, [""] ),0) : null
+  value = var.storage_type == "standard" && local.create_nfs_public_ip ? element(coalescelist(module.nfs.*.public_ip_address, [""] ),0) : null
 }
 
 output nfs_admin_username {

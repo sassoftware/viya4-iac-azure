@@ -9,6 +9,10 @@ variable "aks_cluster_location" {
   default     = "East US"
 }
 
+variable "aks_private_cluster" {
+  default = false
+}
+
 variable "aks_cluster_node_count" {
   default = 4
 }

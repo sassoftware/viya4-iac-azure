@@ -1,24 +1,23 @@
 locals {
-  private_cluster_enabled = var.aks_cluster_endpoint_public_access_cidrs[0] == "0.0.0.0/32" ? true : false
   private_create_uai = var.aks_uai_name == null ? true : false
-  uai_id = local.private_cluster_enabled ? local.private_create_uai ? azurerm_user_assigned_identity.uai.0.id : data.azurerm_user_assigned_identity.uai.0.id : null
+  uai_id = var.aks_private_cluster ? local.private_create_uai ? azurerm_user_assigned_identity.uai.0.id : data.azurerm_user_assigned_identity.uai.0.id : null
 }
 
 data "azurerm_user_assigned_identity" "uai" {
-  count               = local.private_cluster_enabled ? local.private_create_uai ? 0 : 1 : 0
+  count               = var.aks_private_cluster ? local.private_create_uai ? 0 : 1 : 0
   name                = var.aks_uai_name
   resource_group_name = var.aks_cluster_rg
 }
 
 resource "azurerm_user_assigned_identity" "uai" {
-  count               = local.private_cluster_enabled ? local.private_create_uai ? 1 : 0 : 0
+  count               = var.aks_private_cluster ? local.private_create_uai ? 1 : 0 : 0
   name                = "${var.aks_cluster_name}-node-identity"
   resource_group_name = var.aks_cluster_rg
   location            = var.aks_cluster_location
 }
 
 resource "azurerm_role_assignment" "uai_role" {
-  count                = local.private_cluster_enabled ? local.private_create_uai ? 1 : 0 : 0
+  count                = var.aks_private_cluster ? local.private_create_uai ? 1 : 0 : 0
   scope                = var.aks_cluster_rg_id
   role_definition_name = "Contributor"
   principal_id         = azurerm_user_assigned_identity.uai.0.principal_id
@@ -34,9 +33,9 @@ resource "azurerm_kubernetes_cluster" "aks" {
   # https://docs.microsoft.com/en-us/azure/aks/supported-kubernetes-versions
   # az aks get-versions --location eastus -o table
   kubernetes_version              = var.kubernetes_version
-  api_server_authorized_ip_ranges = local.private_cluster_enabled ? [] : var.aks_cluster_endpoint_public_access_cidrs
-  private_cluster_enabled         = local.private_cluster_enabled ? true : false
-  private_dns_zone_id             = local.private_cluster_enabled ? "System" : null
+  api_server_authorized_ip_ranges = var.aks_private_cluster ? [] : var.aks_cluster_endpoint_public_access_cidrs
+  private_cluster_enabled         = var.aks_private_cluster ? true : false
+  private_dns_zone_id             = var.aks_private_cluster ? "System" : null
 
   network_profile {
     network_plugin = var.aks_network_plugin
@@ -53,7 +52,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
     dns_service_ip     = var.aks_network_plugin == "kubenet" ? "10.0.0.10" : var.aks_dns_service_ip
     pod_cidr           = var.aks_network_plugin == "kubenet" ? "10.244.0.0/16" : null
     docker_bridge_cidr = var.aks_network_plugin == "kubenet" ? "172.17.0.1/16" : var.aks_docker_bridge_cidr
-    outbound_type      = local.private_cluster_enabled ? "userDefinedRouting" : "loadBalancer"
+    outbound_type      = var.aks_private_cluster ? "userDefinedRouting" : "loadBalancer"
     load_balancer_sku  = "Standard"
   }
 
@@ -87,8 +86,8 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   identity {
-    type = local.private_cluster_enabled ? "UserAssigned" : "SystemAssigned"
-    user_assigned_identity_id = ((local.private_cluster_enabled ? local.uai_id : null)  )
+    type = var.aks_private_cluster ? "UserAssigned" : "SystemAssigned"
+    user_assigned_identity_id = ((var.aks_private_cluster ? local.uai_id : null)  )
   }
 
   addon_profile {
@@ -122,7 +121,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
 }
 
  data "azurerm_public_ip" "cluster_public_ip" {
-  count               = local.private_cluster_enabled ? 0 : 1
+  count               = var.aks_private_cluster ? 0 : 1
 
   # effective_outbound_ips is a set of strings, that needs to be converted to a list type
   name                = split("/", tolist(azurerm_kubernetes_cluster.aks.network_profile[0].load_balancer_profile[0].effective_outbound_ips)[0])[8]
