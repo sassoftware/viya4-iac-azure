@@ -2,7 +2,7 @@
 
 ## How to Authenticate Using the Azure CLI
 
-You can **either** ask your Azure Cloud administrator for your subscription and tenant IDs, **or** you can find the information from hhe Azure CLI at login (see below):
+You can **either** ask your Azure Cloud administrator for your subscription and tenant IDs, **or** you can find the information from the Azure CLI at login (see below):
 
 ```yaml
 # example of an Azure CLI login command
