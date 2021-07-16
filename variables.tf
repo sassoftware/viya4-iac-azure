@@ -75,12 +75,6 @@ variable "postgres_public_access_cidrs" {
   default     = null
 }
 
-# AKS config
-variable "create_aks_public_ip" {
-  default = null
-  type = bool
-}
-
 variable "default_nodepool_vm_type" {
   default = "Standard_D8s_v4"
 }
@@ -293,7 +287,8 @@ variable "storage_type" {
 }
 
 variable "create_nfs_public_ip" {
-  default = false
+  default = null
+  type = bool
 }
 
 variable "nfs_vm_machine_type" {
