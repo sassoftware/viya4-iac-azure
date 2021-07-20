@@ -222,7 +222,7 @@ variable "postgres_server_version" {
 
 variable "postgres_ssl_enforcement_enabled" {
   description = "Enforce SSL on connections to PostgreSQL server."
-  default     = false
+  default     = true
 }
 
 variable "postgres_db_names" {
