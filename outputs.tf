@@ -42,6 +42,10 @@ output "postgres_server_port" {
   value = var.create_postgres ? "5432" : null
 }
 
+output "postgres_ssl_enforcement_enabled" {
+  value = var.create_postgres ? var.postgres_ssl_enforcement_enabled : null
+}
+
 # jump server
 output jump_private_ip {
   value = var.create_jump_vm ? element(coalescelist(module.jump.*.private_ip_address, [""] ),0) : null
