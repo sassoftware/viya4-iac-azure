@@ -105,7 +105,7 @@ node_pools = {
   }
 }
 
-# Jump Server
+# Jump Box
 create_jump_public_ip = true
 jump_vm_admin         = "jumpuser"
 
