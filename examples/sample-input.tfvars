@@ -97,7 +97,7 @@ node_pools = {
   }
 }
 
-# Jump Server
+# Jump Box
 create_jump_public_ip = true
 jump_vm_admin        = "jumpuser"
 jump_vm_machine_type = "Standard_B2s"
