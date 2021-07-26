@@ -9,7 +9,7 @@ This project contains Terraform scripts to provision the Microsoft Azure Cloud i
   >- Managed Azure Kubernetes Service (AKS) cluster
   >- System and user AKS node pools with required labels and taints
   >- Infrastructure to deploy the SAS Viya CAS server in SMP or MPP mode
-  >- Storage options for SAS Viya:  Azure Premium Managed Disks (standard deployments); NFS Server or Azure NetApp Files (HA deployments)
+  >- Storage options for SAS Viya:  Azure Premium Managed Disks (standard); NFS Server or Azure NetApp Files (HA)
   >- Azure Database for PostgreSQL (optional)
   >- Azure Container Registry (optional)
 
@@ -18,8 +18,8 @@ This project contains Terraform scripts to provision the Microsoft Azure Cloud i
 This project helps you to automate the cluster-provisioning phase of SAS Viya deployment. To learn about all phases and options of the
 SAS Viya deployment process, see [Getting Started with SAS Viya and Azure Kubernetes Service](https://go.documentation.sas.com/doc/en/itopscdc/v_015/itopscon/n1d7qc4nfr3s5zn103a1qy0kj4l1.htm) in _SAS Viya Operations_.
 
-Once the cloud resources are provisioned, you can use the tools in [viya4-deployment](https://github.com/sassoftware/viya4-deployment) or the SAS Viya
-Deployment Operator to deploy SAS Viya in your cloud environment. For more information about SAS Viya requirements and documentation for the deployment
+Once the cloud resources are provisioned, use the [viya4-deployment](https://github.com/sassoftware/viya4-deployment) project to deploy 
+SAS Viya in your cloud environment. For more information about SAS Viya requirements and documentation for the deployment
 process, refer to the [SAS&reg; Viya&reg; IT Operations Guide](https://go.documentation.sas.com/doc/en/itopscdc/default/itopswlcm/home.htm).
 
 ## Prerequisites
@@ -38,7 +38,7 @@ This project supports two options for running Terraform scripts:
 - Terraform installed on your local machine
 - Using a Docker container to run Terraform
   
-  For more information, see [Docker Usage](./docs/user/DockerUsage.md).
+  For more information, see [Docker Usage](./docs/user/DockerUsage.md). Using Docker to run the Terraform scripts is recommended.
 
 Access to an **Azure Subscription** and an [**Identity**](./docs/user/TerraformAzureAuthentication.md) with the *Contributor* role are required.
 
@@ -75,7 +75,7 @@ identity with the required permissions. See [Terraform Azure Authentication](./d
 
 ### Customizing Input Values
 
-Terraform scripts require variable definitions as input. Many variables do not have default values. Create a file named
+Terraform scripts require variable definitions as input. Review and modify default values to meet your requirements. Create a file named
 `terraform.tfvars` to customize any input variable value documented in the [CONFIG-VARS.md](docs/CONFIG-VARS.md) file. 
 
 To get started, you can copy one of the example variable definition files provided in the `./examples` folder. For more information about the
@@ -86,10 +86,10 @@ You have the option to specify variable definitions that are not included in `te
 
 ## Creating and Managing the Cloud Resources
 
-Create and manage the required cloud resources. Take one of the following steps: 
+Create and manage the required cloud resources. Perform one of the following steps, based on whether you are using Docker: 
 
 - run [Terraform](docs/user/TerraformUsage.md) directly on your workstation
-- run the [Docker container](docs/user/DockerUsage.md) 
+- run the [Docker container](docs/user/DockerUsage.md) (recommended)
 
 ### Troubleshooting
 
