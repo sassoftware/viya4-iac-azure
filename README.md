@@ -19,8 +19,8 @@ This project helps you to automate the cluster-provisioning phase of SAS Viya de
 SAS Viya deployment process, see [Getting Started with SAS Viya and Azure Kubernetes Service](https://go.documentation.sas.com/doc/en/itopscdc/v_015/itopscon/n1d7qc4nfr3s5zn103a1qy0kj4l1.htm) in _SAS Viya Operations_.
 
 Once the cloud resources are provisioned, use the [viya4-deployment](https://github.com/sassoftware/viya4-deployment) project to deploy 
-SAS Viya in your cloud environment. For more information about SAS Viya requirements and documentation for the deployment
-process, refer to the [SAS&reg; Viya&reg; IT Operations Guide](https://go.documentation.sas.com/doc/en/itopscdc/default/itopswlcm/home.htm).
+SAS Viya 4 in your cloud environment. For more information about SAS Viya 4 requirements and documentation for the deployment
+process, refer to the [SAS&reg; Viya&reg; 4 IT Operations Guide](https://go.documentation.sas.com/doc/en/itopscdc/default/itopswlcm/home.htm).
 
 ## Prerequisites
 
