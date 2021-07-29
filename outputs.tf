@@ -148,7 +148,6 @@ output "cluster_node_pool_mode" {
   value = var.cluster_node_pool_mode
 }
 
-# TODO - Add back in after DBO code push
-# output "infra_mode" {
-#   value = var.infra_mode
-# }
+output "infra_mode" {
+  value = var.infra_mode
+}
