@@ -30,9 +30,8 @@ output "cluster_id" {
   value = azurerm_kubernetes_cluster.aks.id
 }
 
-output "cluster_slb_ip_id" {
-  # effective_outbound_ips is a set of strings, that needs to be converted to a list type
-  value = tolist(azurerm_kubernetes_cluster.aks.network_profile[0].load_balancer_profile[0].effective_outbound_ips)[0]
+output "cluster_public_ip" {
+  value = azurerm_kubernetes_cluster.aks.private_cluster_enabled ? null : data.azurerm_public_ip.cluster_public_ip.0.ip_address
 }
 
 output "name" {
