@@ -25,24 +25,6 @@ provider "kubernetes" {
 
 data "azurerm_subscription" "current" {}
 
-locals {
-  # CIDRs 
-  default_public_access_cidrs          = var.default_public_access_cidrs == null ? [] : var.default_public_access_cidrs
-  vm_public_access_cidrs               = var.vm_public_access_cidrs == null ? local.default_public_access_cidrs : var.vm_public_access_cidrs
-  acr_public_access_cidrs              = var.acr_public_access_cidrs == null ? local.default_public_access_cidrs : var.acr_public_access_cidrs
-  cluster_endpoint_cidrs               = var.cluster_endpoint_public_access_cidrs == null ? local.default_public_access_cidrs : var.cluster_endpoint_public_access_cidrs
-  cluster_endpoint_public_access_cidrs = length(local.cluster_endpoint_cidrs) == 0 ? ["0.0.0.0/32"] : local.cluster_endpoint_cidrs
-  postgres_public_access_cidrs         = var.postgres_public_access_cidrs == null ? local.default_public_access_cidrs : var.postgres_public_access_cidrs
-  postgres_firewall_rules              = [for addr in local.postgres_public_access_cidrs : { "name" : replace(replace(addr, "/", "_"), ".", "_"), "start_ip" : cidrhost(addr, 0), "end_ip" : cidrhost(addr, abs(pow(2, 32 - split("/", addr)[1]) - 1)) }]
-
-  kubeconfig_filename = "${var.prefix}-aks-kubeconfig.conf"
-  kubeconfig_path     = var.iac_tooling == "docker" ? "/workspace/${local.kubeconfig_filename}" : local.kubeconfig_filename
-
-  subnets = { for k, v in var.subnets : k => v if ! ( k == "netapp" && var.storage_type == "standard")}
-
-  container_registry_sku = title(var.container_registry_sku)
-}
-
 module "resource_group" {
   source   = "./modules/azurerm_resource_group"
   prefix   = var.prefix
@@ -310,25 +292,23 @@ module "postgresql" {
   source  = "Azure/postgresql/azurerm"
   version = "2.1.0"
 
-  count                        = var.create_postgres ? 1 : 0
+  for_each                     = local.postgres_servers != null ? length(local.postgres_servers) != 0 ? local.postgres_servers : {} : {}
+
   resource_group_name          = module.resource_group.name
   location                     = var.location
-  server_name                  = lower("${var.prefix}-pgsql")
-  sku_name                     = var.postgres_sku_name
-  storage_mb                   = var.postgres_storage_mb
-  backup_retention_days        = var.postgres_backup_retention_days
-  geo_redundant_backup_enabled = var.postgres_geo_redundant_backup_enabled
-  administrator_login          = var.postgres_administrator_login
-  administrator_password       = var.postgres_administrator_password
-  server_version               = var.postgres_server_version
-  ssl_enforcement_enabled      = var.postgres_ssl_enforcement_enabled
-  db_names                     = var.postgres_db_names
-  db_charset                   = var.postgres_db_charset
-  db_collation                 = var.postgres_db_collation
-  firewall_rule_prefix         = "${var.prefix}-postgres-firewall-"
+  server_name                  = lower("${var.prefix}-${each.key}-pgsql")
+  sku_name                     = each.value.sku_name
+  storage_mb                   = each.value.storage_mb
+  backup_retention_days        = each.value.backup_retention_days
+  geo_redundant_backup_enabled = each.value.geo_redundant_backup_enabled
+  administrator_login          = each.value.administrator_login
+  administrator_password       = each.value.administrator_password
+  server_version               = each.value.server_version
+  ssl_enforcement_enabled      = each.value.ssl_enforcement_enabled
+  firewall_rule_prefix         = "${var.prefix}-${each.key}-postgres-firewall-"
   firewall_rules               = local.postgres_firewall_rules
-  vnet_rule_name_prefix        = "${var.prefix}-postgresql-vnet-rule-"
-  postgresql_configurations    = var.postgres_configurations
+  vnet_rule_name_prefix        = "${var.prefix}-${each.key}-postgresql-vnet-rule-"
+  postgresql_configurations    = each.value.postgresql_configurations
   tags                         = module.resource_group.tags
   vnet_rules = [
     { name = "aks", subnet_id  = module.vnet.subnets["aks"].id },

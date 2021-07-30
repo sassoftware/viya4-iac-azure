@@ -158,7 +158,57 @@ variable "tags" {
   default     = {}
 }
 
-## PostgresSQL inputs
+## PostgresSQL - defaults
+# variable "postgres_servers_default" {
+#   description = "Map of PostgreSQL server objects defaults"
+#   type        = any
+#   defaut = {
+#       sku_name                     = "GP_Gen5_32"
+#       storage_mb                   = var.postgres_storage_mb
+#       backup_retention_days        = var.postgres_backup_retention_days
+#       geo_redundant_backup_enabled = var.postgres_geo_redundant_backup_enabled
+#       administrator_login          = var.postgres_administrator_login
+#       administrator_password       = var.postgres_administrator_password
+#       server_version               = var.postgres_server_version
+#       ssl_enforcement_enabled      = var.postgres_ssl_enforcement_enabled
+#       postgresql_configurations    = var.postgres_configurations
+#   }
+# }
+
+# PostgreSQL
+variable "postgres_server_defaults" {
+  description = ""
+  type        = any
+  default = {
+    sku_name                     = "GP_Gen5_32"
+    storage_mb                   = 51200
+    backup_retention_days        = 7
+    geo_redundant_backup_enabled = false
+    administrator_login          = "pgadmin"
+    administrator_password       = "my$up3rS3cretPassw0rd"
+    server_version               = "11"
+    ssl_enforcement_enabled      = true
+    postgresql_configurations    = {}
+  }
+}
+
+# User inputs
+variable "postgres_servers" {
+  description = "Map of PostgreSQL server objects"
+  type        = any
+  default     = null
+
+  # Checking for user provided "default" server
+  validation {
+    condition = var.postgres_servers != null ? length(var.postgres_servers) != 0 ? contains(keys(var.postgres_servers), "default") : false : true
+    error_message = "The provided map of PostgreSQL server objects does not contain the required 'default' key."
+  }
+
+  # Checking user provided login
+
+  # Checking user provided password
+}
+
 variable "create_postgres" {
   description = "Create an Azure PostgresSQL database server instance"
   type        = bool
