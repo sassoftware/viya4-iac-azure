@@ -75,7 +75,6 @@ variable "postgres_public_access_cidrs" {
   default     = null
 }
 
-# AKS config
 variable "default_nodepool_vm_type" {
   default = "Standard_D8s_v4"
 }
@@ -146,6 +145,11 @@ variable "aks_service_cidr" {
   description = "The Network Range used by the Kubernetes service. Changing this forces a new resource to be created."
   default     = "10.0.0.0/16"
 }
+
+variable "aks_uai_name"{
+  description = "User assigned identity name"
+  default = null
+} 
 
 variable "node_vm_admin" {
   description = "OS Admin User for VMs of AKS Cluster nodes"
@@ -218,7 +222,7 @@ variable "postgres_server_version" {
 
 variable "postgres_ssl_enforcement_enabled" {
   description = "Enforce SSL on connections to PostgreSQL server."
-  default     = false
+  default     = true
 }
 
 variable "postgres_db_names" {
@@ -248,7 +252,8 @@ variable "create_jump_vm" {
 }
 
 variable "create_jump_public_ip" {
-  default = true
+  default = null
+  type = bool
 }
 
 variable "jump_vm_admin" {
@@ -282,7 +287,8 @@ variable "storage_type" {
 }
 
 variable "create_nfs_public_ip" {
-  default = false
+  default = null
+  type = bool
 }
 
 variable "nfs_vm_machine_type" {
@@ -498,7 +504,7 @@ variable "log_analytics_solution_promotion_code" {
   default     = ""
 }
 
-# Networking
+# BYO
 variable "resource_group_name" {
   type    = string
   default = null
@@ -550,14 +556,14 @@ variable "subnets" {
     aks = {
       "prefixes": ["192.168.0.0/23"],
       "service_endpoints": ["Microsoft.Sql"],
-      "enforce_private_link_endpoint_network_policies": false,
+      "enforce_private_link_endpoint_network_policies": true,
       "enforce_private_link_service_network_policies": false,
       "service_delegations": {},
     }
     misc = {
       "prefixes": ["192.168.2.0/24"],
       "service_endpoints": ["Microsoft.Sql"],
-      "enforce_private_link_endpoint_network_policies": false,
+      "enforce_private_link_endpoint_network_policies": true,
       "enforce_private_link_service_network_policies": false,
       "service_delegations": {},
     }
@@ -586,4 +592,15 @@ variable "cluster_node_pool_mode" {
   description = "Flag for predefined cluster node configurations - Values : default, minimal"
   type        = string
   default     = "default"
+}
+
+variable "infra_mode" {
+  description = "Use Private IP address for cluster API endpoint"
+  type        = string
+  default     = "standard"
+
+  validation {
+    condition     = contains(["standard", "private"], lower(var.infra_mode))
+    error_message = "ERROR: Supported values for `infra_mode` are - standard, private."
+  }
 }

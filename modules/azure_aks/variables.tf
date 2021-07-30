@@ -1,11 +1,16 @@
 variable aks_cluster_name {}
 
 variable aks_cluster_rg {}
+variable aks_cluster_rg_id {}
 variable aks_cluster_dns_prefix {}
 
 variable "aks_cluster_location" {
   description = "The Azure Region in which all resources in this example should be provisioned"
   default     = "East US"
+}
+
+variable "aks_private_cluster" {
+  default = false
 }
 
 variable "aks_cluster_node_count" {
@@ -114,3 +119,8 @@ variable "aks_oms_enabled" {
 variable "aks_log_analytics_workspace_id" {
   description = "The ID of the Log Analytics Workspace which the OMS Agent should send data to. Must be present if aks_oms_enabled is true"
 }
+
+variable "aks_uai_name"{
+  description = "User assigned identity name"
+  default = null
+} 
