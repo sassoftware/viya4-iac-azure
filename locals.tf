@@ -2,7 +2,7 @@ locals {
   
   # Usefull flags
   is_private            = var.infra_mode == "private" ? true : false
-  is_standard.          = var.infra_mode == "standard" ? true : false
+  is_standard          = var.infra_mode == "standard" ? true : false
   create_jump_public_ip = var.create_jump_public_ip == null ? local.is_standard : var.create_jump_public_ip
   create_nfs_public_ip  = var.create_nfs_public_ip == null ? local.is_standard : var.create_nfs_public_ip
 
