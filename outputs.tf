@@ -4,11 +4,12 @@ output "aks_host" {
 }
 
 output "nat_ip" {
-  value = data.azurerm_public_ip.aks_public_ip.ip_address
+  value = module.aks.cluster_public_ip
 }
 
 output "kube_config" {
   value = module.kubeconfig.kube_config
+  sensitive = true
 }
 
 output "aks_cluster_node_username" {
@@ -47,13 +48,17 @@ output "postgres_servers" {
 #   value = var.create_postgres ? "5432" : null
 # }
 
+output "postgres_ssl_enforcement_enabled" {
+  value = var.create_postgres ? var.postgres_ssl_enforcement_enabled : null
+}
+
 # jump server
 output jump_private_ip {
   value = var.create_jump_vm ? element(coalescelist(module.jump.*.private_ip_address, [""] ),0) : null
 }
 
 output jump_public_ip {
-  value = var.create_jump_vm && var.create_jump_public_ip ? element(coalescelist(module.jump.*.public_ip_address, [""] ),0) : null
+  value = var.create_jump_vm && local.create_jump_public_ip ? element(coalescelist(module.jump.*.public_ip_address, [""] ),0) : null
 }
 
 output jump_admin_username {
@@ -70,7 +75,7 @@ output nfs_private_ip {
 }
 
 output nfs_public_ip {
-  value = var.storage_type == "standard" && var.create_nfs_public_ip ? element(coalescelist(module.nfs.*.public_ip_address, [""] ),0) : null
+  value = var.storage_type == "standard" && local.create_nfs_public_ip ? element(coalescelist(module.nfs.*.public_ip_address, [""] ),0) : null
 }
 
 output nfs_admin_username {
@@ -147,4 +152,8 @@ output "rwx_filestore_config" {
 
 output "cluster_node_pool_mode" {
   value = var.cluster_node_pool_mode
+}
+
+output "infra_mode" {
+  value = var.infra_mode
 }
