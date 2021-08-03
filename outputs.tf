@@ -24,7 +24,7 @@ output "aks_cluster_password" {
 #postgres
 
 output "postgres_servers" {
-  value = length(module.postgresql) != 0 ? module.postgresql : null # Do we want {} or no value. Ask norm
+  value = length(module.postgresql) != 0 ? local.postgres_outputs : null
   sensitive = true
 }
 
@@ -48,9 +48,9 @@ output "postgres_servers" {
 #   value = var.create_postgres ? "5432" : null
 # }
 
-output "postgres_ssl_enforcement_enabled" {
-  value = var.create_postgres ? var.postgres_ssl_enforcement_enabled : null
-}
+# output "postgres_ssl_enforcement_enabled" {
+#   value = var.create_postgres ? var.postgres_ssl_enforcement_enabled : null
+# }
 
 # jump server
 output jump_private_ip {
