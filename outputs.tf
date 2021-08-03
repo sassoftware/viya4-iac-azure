@@ -28,30 +28,6 @@ output "postgres_servers" {
   sensitive = true
 }
 
-# output "postgres_server_name" {
-#   value = var.create_postgres ? element(coalescelist(module.postgresql.*.server_name, [" "]), 0) : null
-# }
-# output "postgres_fqdn" {
-#   value = var.create_postgres ? element(coalescelist(module.postgresql.*.server_fqdn, [" "]), 0) : null
-# }
-# output "postgres_admin" {
-#   value = var.create_postgres ? "${element(coalescelist(module.postgresql.*.administrator_login, [" "]), 0)}@${element(coalescelist(module.postgresql.*.server_name, [" "]), 0)}" : null
-# }
-# output "postgres_password" {
-#   value = var.create_postgres ? element(coalescelist(module.postgresql.*.administrator_password, [" "]), 0) : null
-#   sensitive = true
-# }
-# output "postgres_server_id" {
-#   value = var.create_postgres ? element(coalescelist(module.postgresql.*.server_id, [" "]), 0) : null
-# }
-# output "postgres_server_port" {
-#   value = var.create_postgres ? "5432" : null
-# }
-
-# output "postgres_ssl_enforcement_enabled" {
-#   value = var.create_postgres ? var.postgres_ssl_enforcement_enabled : null
-# }
-
 # jump server
 output jump_private_ip {
   value = var.create_jump_vm ? element(coalescelist(module.jump.*.private_ip_address, [""] ),0) : null
