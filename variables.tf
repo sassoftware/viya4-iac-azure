@@ -1,3 +1,4 @@
+## Global
 variable client_id {
   default = ""
 }
@@ -193,15 +194,15 @@ variable "postgres_servers" {
   
   # Checking user provided login
   validation {
-    condition = alltrue([
+    condition = var.postgres_servers != null ? length(var.postgres_servers) != 0 ? alltrue([
       for k,v in var.postgres_servers : contains(keys(v),"adminstrator_login") ? ! contains(["azure_superuser", "azure_pg_admin", "admin", "administrator", "root", "guest", "public"], v.administrator_login) && ! can(regex("^pg_", v.administrator_login)) : true
-    ])
+    ]) : false : true
     error_message = "ERROR: The admin login name can't be azure_superuser, azure_pg_admin, admin, administrator, root, guest, or public. It can't start with pg_."
   }
 
   # Checking user provided password
   validation {
-    condition = alltrue([
+    condition = var.postgres_servers != null ? length(var.postgres_servers) != 0 ? alltrue([
       for k,v in var.postgres_servers : contains(keys(v),"administrator_password") ? alltrue([
         length(v.administrator_password) > 7,
         length(v.administrator_login) < 129,
@@ -211,7 +212,7 @@ variable "postgres_servers" {
           (can(regex("[!@#$%^&*(){}[]|<>~`,./_-+=]+", v.administrator_password)) && can(regex("[0-9]+", v.administrator_password)) && can(regex("[A-Z]+", v.administrator_password))),
           (can(regex("[!@#$%^&*(){}[]|<>~`,./_-+=]+", v.administrator_password)) && can(regex("[0-9]+", v.administrator_password)) && can(regex("[a-z]+", v.administrator_password)))
         ])]) : true 
-    ])
+    ]) : false : true
     error_message = "ERROR: Password is not complex enough. It must contain between 8 and 128 characters. Your password must contain characters from three of the following categories:\n * English uppercase letters,\n * English lowercase letters,\n * numbers (0 through 9), and\n * non-alphanumeric characters (!, $, #, %, etc.)."
   }
 }
@@ -296,7 +297,7 @@ variable nfs_raid_disk_zones {
   default     = []
 }
 
-# Azure Container Registry (ACR)
+## Azure Container Registry (ACR)
 variable "create_container_registry" {
   type        = bool
   description = "Boolean flag to create container registry"
