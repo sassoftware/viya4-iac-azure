@@ -30,6 +30,7 @@ locals {
       "password" : module.postgresql[k].administrator_password,
       "server_port" : "5432", # TODO - Create a var when supported
       "ssl_enforcement_enabled" : local.postgres_servers[k].ssl_enforcement_enabled,
+      "internal" : false
     }
   } : {}
 
