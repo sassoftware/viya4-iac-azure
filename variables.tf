@@ -164,6 +164,8 @@ variable "tags" {
 }
 
 # PostgreSQL
+
+# Defaults
 variable "postgres_server_defaults" {
   description = ""
   type        = any
