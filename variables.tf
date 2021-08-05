@@ -195,7 +195,7 @@ variable "postgres_servers" {
   # Checking user provided login
   validation {
     condition = var.postgres_servers != null ? length(var.postgres_servers) != 0 ? alltrue([
-      for k,v in var.postgres_servers : contains(keys(v),"adminstrator_login") ? ! contains(["azure_superuser", "azure_pg_admin", "admin", "administrator", "root", "guest", "public"], v.administrator_login) && ! can(regex("^pg_", v.administrator_login)) : true
+      for k,v in var.postgres_servers : contains(keys(v),"administrator_login") ? ! contains(["azure_superuser", "azure_pg_admin", "admin", "administrator", "root", "guest", "public"], v.administrator_login) && ! can(regex("^pg_", v.administrator_login)) : true
     ]) : false : true
     error_message = "ERROR: The admin login name can't be azure_superuser, azure_pg_admin, admin, administrator, root, guest, or public. It can't start with pg_."
   }
