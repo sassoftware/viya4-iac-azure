@@ -25,24 +25,6 @@ provider "kubernetes" {
 
 data "azurerm_subscription" "current" {}
 
-locals {
-  # CIDRs 
-  default_public_access_cidrs          = var.default_public_access_cidrs == null ? [] : var.default_public_access_cidrs
-  vm_public_access_cidrs               = var.vm_public_access_cidrs == null ? local.default_public_access_cidrs : var.vm_public_access_cidrs
-  acr_public_access_cidrs              = var.acr_public_access_cidrs == null ? local.default_public_access_cidrs : var.acr_public_access_cidrs
-  cluster_endpoint_cidrs               = var.cluster_endpoint_public_access_cidrs == null ? local.default_public_access_cidrs : var.cluster_endpoint_public_access_cidrs
-  cluster_endpoint_public_access_cidrs = length(local.cluster_endpoint_cidrs) == 0 ? ["0.0.0.0/32"] : local.cluster_endpoint_cidrs
-  postgres_public_access_cidrs         = var.postgres_public_access_cidrs == null ? local.default_public_access_cidrs : var.postgres_public_access_cidrs
-  postgres_firewall_rules              = [for addr in local.postgres_public_access_cidrs : { "name" : replace(replace(addr, "/", "_"), ".", "_"), "start_ip" : cidrhost(addr, 0), "end_ip" : cidrhost(addr, abs(pow(2, 32 - split("/", addr)[1]) - 1)) }]
-
-  kubeconfig_filename = "${var.prefix}-aks-kubeconfig.conf"
-  kubeconfig_path     = var.iac_tooling == "docker" ? "/workspace/${local.kubeconfig_filename}" : local.kubeconfig_filename
-
-  subnets = { for k, v in var.subnets : k => v if ! ( k == "netapp" && var.storage_type == "standard")}
-
-  container_registry_sku = title(var.container_registry_sku)
-}
-
 module "resource_group" {
   source   = "./modules/azurerm_resource_group"
   prefix   = var.prefix
@@ -120,7 +102,7 @@ module "jump" {
   vm_zone           = var.jump_vm_zone
   ssh_public_key    = file(var.ssh_public_key)
   cloud_init        = data.template_cloudinit_config.jump.rendered
-  create_public_ip  = var.create_jump_public_ip
+  create_public_ip  = local.create_jump_public_ip
 
   # Jump VM mounts NFS path hence dependency on 'module.nfs'
   depends_on = [module.vnet, module.nfs]
@@ -129,7 +111,8 @@ module "jump" {
 data "template_file" "nfs-cloudconfig" {
   template = file("${path.module}/files/cloud-init/nfs/cloud-config")
   vars = {
-    base_cidr_block = element(module.vnet.address_space, 0)
+    aks_cidr_block  = module.vnet.subnets["aks"].address_prefixes.0
+    misc_cidr_block = module.vnet.subnets["misc"].address_prefixes.0
     vm_admin        = var.nfs_vm_admin
   }
 }
@@ -160,7 +143,7 @@ module "nfs" {
   vm_zone                        = var.nfs_vm_zone
   ssh_public_key                 = file(var.ssh_public_key)
   cloud_init                     = data.template_cloudinit_config.nfs.rendered
-  create_public_ip               = var.create_nfs_public_ip
+  create_public_ip               = local.create_nfs_public_ip
   data_disk_count                = 4
   data_disk_size                 = var.nfs_raid_disk_size
   data_disk_storage_account_type = var.nfs_raid_disk_type
@@ -171,7 +154,7 @@ module "nfs" {
 resource "azurerm_network_security_rule" "vm-ssh" {
   name                        = "${var.prefix}-ssh"
   description                 = "Allow SSH from source"
-  count                       = (((var.create_jump_public_ip && var.create_jump_vm && (length(local.vm_public_access_cidrs) > 0)) || (var.create_nfs_public_ip && var.storage_type == "standard" && (length(local.vm_public_access_cidrs) > 0))) != false) ? 1 : 0
+  count                       = (((local.create_jump_public_ip && var.create_jump_vm && (length(local.vm_public_access_cidrs) > 0)) || (local.create_nfs_public_ip && var.storage_type == "standard" && (length(local.vm_public_access_cidrs) > 0))) != false) ? 1 : 0
   priority                    = 120
   direction                   = "Inbound"
   access                      = "Allow"
@@ -209,6 +192,7 @@ resource "azurerm_container_registry" "acr" {
   depends_on               = [module.resource_group]
 }
 
+
 resource "azurerm_network_security_rule" "acr" {
   name                        = "SAS-ACR"
   description                 = "Allow ACR from source"
@@ -231,6 +215,7 @@ module "aks" {
 
   aks_cluster_name                         = "${var.prefix}-aks"
   aks_cluster_rg                           = module.resource_group.name
+  aks_cluster_rg_id                        = module.resource_group.id
   aks_cluster_dns_prefix                   = "${var.prefix}-aks"
   aks_cluster_location                     = var.location
   aks_cluster_node_auto_scaling            = var.default_nodepool_min_nodes == var.default_nodepool_max_nodes ? false : true
@@ -256,6 +241,8 @@ module "aks" {
   aks_pod_cidr                             = var.aks_pod_cidr
   aks_service_cidr                         = var.aks_service_cidr
   aks_cluster_tags                         = module.resource_group.tags
+  aks_uai_name                             = var.aks_uai_name
+  aks_private_cluster                      = local.is_private
   depends_on                               = [module.vnet]
 }
 
@@ -272,12 +259,6 @@ module "kubeconfig" {
   client_key               = module.aks.client_key
   token                    = module.aks.cluster_password
   depends_on               = [ module.aks ]
-}
-
-data "azurerm_public_ip" "aks_public_ip" {
-  name                = split("/", module.aks.cluster_slb_ip_id)[8]
-  resource_group_name = "MC_${module.resource_group.name}_${module.aks.name}_${module.resource_group.location}"
-  depends_on          = [module.aks, module.node_pools]
 }
 
 module "node_pools" {
@@ -330,11 +311,10 @@ module "postgresql" {
   vnet_rule_name_prefix        = "${var.prefix}-postgresql-vnet-rule-"
   postgresql_configurations    = var.postgres_configurations
   tags                         = module.resource_group.tags
-  vnet_rules = [
-    { name = "aks", subnet_id  = module.vnet.subnets["aks"].id },
-    { name = "misc", subnet_id = module.vnet.subnets["misc"].id }
-  ]
-  depends_on                   = [module.vnet]
+
+  ## TODO : requires specific permissions
+  vnet_rules = [{ name = "aks", subnet_id = module.vnet.subnets["aks"].id }, { name = "misc", subnet_id = module.vnet.subnets["misc"].id }]
+  depends_on = [module.resource_group]
 }
 
 module "netapp" {
@@ -365,14 +345,14 @@ data "external" "iac_tooling_version" {
 
 resource "kubernetes_config_map" "sas_iac_buildinfo" {
   metadata {
-    name      = "sas-iac-buildinfo"
-    namespace = "kube-system"
+     name      = "sas-iac-buildinfo"
+     namespace = "kube-system"
   }
 
   data = {
-    git-hash    = lookup(data.external.git_hash.result, "git-hash")
-    iac-tooling = var.iac_tooling
-    terraform   = <<EOT
+     git-hash    = lookup(data.external.git_hash.result, "git-hash")
+     iac-tooling = var.iac_tooling
+     terraform   = <<EOT
 version: ${lookup(data.external.iac_tooling_version.result, "terraform_version")}
 revision: ${lookup(data.external.iac_tooling_version.result, "terraform_revision")}
 provider-selections: ${lookup(data.external.iac_tooling_version.result, "provider_selections")}

@@ -26,6 +26,7 @@ resource "azurerm_network_interface" "vm_nic" {
   tags = var.tags
 }
 
+# TODO : requires specific permissions
 resource "azurerm_network_interface_security_group_association" "vm_nic_sg" {
   network_interface_id      = azurerm_network_interface.vm_nic.id
   network_security_group_id = var.azure_nsg_id
@@ -92,4 +93,6 @@ resource "azurerm_linux_virtual_machine" "vm" {
   }
 
   tags = var.tags
+
+  depends_on = [azurerm_network_interface_security_group_association.vm_nic_sg]
 }
