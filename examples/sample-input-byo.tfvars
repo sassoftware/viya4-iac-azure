@@ -29,9 +29,9 @@ default_public_access_cidrs = [] # e.g., ["123.45.6.89/32"]
 # Tags for all taggable items in your cluster.
 tags = {} # e.g., { "key1" = "value1", "key2" = "value2" }
 
-# Azure Postgres config - By having this entry a database server is created. If you do not
-#                         need an external database server remove the 'postgres_servers'
-#                         block below.
+# Postgres config - By having this entry a database server is created. If you do not
+#                   need an external database server remove the 'postgres_servers'
+#                   block below.
 postgres_servers = {
   default = {},
 }
