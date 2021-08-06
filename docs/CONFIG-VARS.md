@@ -326,7 +326,7 @@ Each server element, like `foo = {}`, can contain none, some, or all of the para
 Here is a sample of the `postgres_servers` variable with the `default` entry only overriding the `administrator_password` parameter and the `cps` entry overriding all of the parameters:
 
 ```terraform
-database_servers = {
+postgres_servers = {
   default = {
     administrator_password       = "D0ntL00kTh1sWay"
   },
