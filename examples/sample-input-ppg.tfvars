@@ -1,9 +1,9 @@
-# !NOTE! - These are only a subset of CONFIG-VARS.md provided for sample.
-# Customize this file to add any variables from 'CONFIG-VARS.md' that you want 
-# to change their default values.
+# !NOTE! - These are only a subset of CONFIG-VARS.md provided as examples.
+# Customize this file to add any variables from 'CONFIG-VARS.md' whose default
+# values you want to change.
 
 # ****************  REQUIRED VARIABLES  ****************
-# These required variables' values MUST be provided by the User
+# Values for these required variables MUST be provided
 prefix   = "<prefix-value>" # this is a prefix that you assign for the resources to be created
 location = "<azure-location-value>" # e.g., "eastus2"
 ssh_public_key = "<path-to-public-key-on-host-running-iac>" # Name of file with public ssh key for connecting to the VMs
