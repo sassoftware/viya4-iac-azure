@@ -111,7 +111,8 @@ module "jump" {
 data "template_file" "nfs-cloudconfig" {
   template = file("${path.module}/files/cloud-init/nfs/cloud-config")
   vars = {
-    base_cidr_block = element(module.vnet.address_space, 0)
+    aks_cidr_block  = module.vnet.subnets["aks"].address_prefixes.0
+    misc_cidr_block = module.vnet.subnets["misc"].address_prefixes.0
     vm_admin        = var.nfs_vm_admin
   }
 }

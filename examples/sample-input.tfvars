@@ -1,6 +1,6 @@
-# !NOTE! - These are only a subset of CONFIG-VARS.md provided for sample.
-# Customize this file to add any variables from 'CONFIG-VARS.md' that you want 
-# to change their default values.
+# !NOTE! - These are only a subset of CONFIG-VARS.md provided as examples.
+# Customize this file to add any variables from 'CONFIG-VARS.md' whose default values you
+# want to change.
 
 # ****************  REQUIRED VARIABLES  ****************
 # These required variables' values MUST be provided by the User
@@ -10,7 +10,9 @@ ssh_public_key = "<path-to-public-key-on-host-running-iac>" # Name of file with 
 # ****************  REQUIRED VARIABLES  ****************
 
 # !NOTE! - Without specifying your CIDR block access rules, ingress traffic
-#          to your cluster will be blocked by default.
+#          to your cluster will be blocked by default. In a SCIM environment,
+#          the AzureActiveDirectory service tag must be granted access to port
+#          443/HTTPS for the ingress IP address. 
 
 # **************  RECOMMENDED  VARIABLES  ***************
 default_public_access_cidrs = [] # e.g., ["123.45.6.89/32"]
@@ -97,7 +99,7 @@ node_pools = {
   }
 }
 
-# Jump Box
+# Jump Server
 create_jump_public_ip = true
 jump_vm_admin        = "jumpuser"
 jump_vm_machine_type = "Standard_B2s"
