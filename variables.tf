@@ -191,7 +191,7 @@ variable "postgres_servers" {
   # Checking for user provided "default" server
   validation {
     condition = var.postgres_servers != null ? length(var.postgres_servers) != 0 ? contains(keys(var.postgres_servers), "default") : false : true
-    error_message = "The provided map of PostgreSQL server objects does not contain the required 'default' key."
+    error_message = "ERROR: The provided map of PostgreSQL server objects does not contain the required 'default' key."
   }
   
   # Checking user provided login
