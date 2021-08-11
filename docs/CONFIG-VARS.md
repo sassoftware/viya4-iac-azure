@@ -345,7 +345,7 @@ postgres_servers = {
     administrator_password       = "1tsAB3aut1fulDay"
     server_version               = "11"
     ssl_enforcement_enabled      = true
-    configurations    = {}
+    postgres_configurations    = {}
   }
 }
 ```
