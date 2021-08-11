@@ -327,7 +327,7 @@ Each server element, like `foo = {}`, can contain none, some, or all of the para
 | administrator_password | The Password associated with the administrator_login for the PostgreSQL Server | string | "my$up3rS3cretPassw0rd" | The password must contain between 8 and 128 characters and must contain characters from three of the following categories: English uppercase letters, English lowercase letters, numbers (0 through 9), and non-alphanumeric characters (!, $, #, %, etc.). |
 | server_version | The version of the Azure Database for PostgreSQL server instance. Changing this forces a new resource to be created.| string | "11" | |
 | ssl_enforcement_enabled | Enforce SSL on connection to the Azure Database for PostgreSQL server instance | bool | true | |
-| postgres_configurations | Configurations to enable on the PostgreSQL Database server instance | map | {} | More details can be found [here](https://docs.microsoft.com/en-us/azure/postgresql/howto-configure-server-parameters-using-cli) |
+| postgresql_configurations | Configurations to enable on the PostgreSQL Database server instance | map | {} | More details can be found [here](https://docs.microsoft.com/en-us/azure/postgresql/howto-configure-server-parameters-using-cli) |
 
 Here is a sample of the `postgres_servers` variable with the `default` entry only overriding the `administrator_password` parameter and the `cps` entry overriding all of the parameters:
 
@@ -345,7 +345,7 @@ postgres_servers = {
     administrator_password       = "1tsAB3aut1fulDay"
     server_version               = "11"
     ssl_enforcement_enabled      = true
-    configurations    = {}
+    postgresql_configurations    = {}
   }
 }
 ```
