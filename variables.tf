@@ -511,6 +511,12 @@ variable "resource_group_name" {
   description = "Name of pre-exising resource group. Leave blank to have one created"
 }
 
+variable "vnet_resource_group_name" {
+  type    = string
+  default = null
+  description = "Name of pre-exising vnet resource group. Leave blank to have one created"
+}
+
 variable "vnet_name" {
   type    = string
   default = null
