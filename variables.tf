@@ -514,7 +514,7 @@ variable "resource_group_name" {
 variable "vnet_resource_group_name" {
   type    = string
   default = null
-  description = "Name of pre-exising vnet resource group. Leave blank to have one created"
+  description = "Name of a pre-exising resource group containing the BYO vnet resource. Leave blank if you are not using a BYO vnet or if the BYO vnet is co-located with the SAS Viya4 AKS cluster."
 }
 
 variable "vnet_name" {
