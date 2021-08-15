@@ -281,14 +281,20 @@ variable "storage_type" {
   default = "standard"
 
   validation {
-    condition     = contains(["standard", "ha"], lower(var.storage_type))
-    error_message = "ERROR: Supported value for `storage_type` are - standard, ha."
+    condition     = contains(["custom", "standard", "ha"], lower(var.storage_type))
+    error_message = "ERROR: Supported value for `storage_type` are - custom, standard, ha."
   }
 }
 
 variable "create_nfs_public_ip" {
   default = null
   type = bool
+}
+
+variable "custom_nfs_server_ip" {
+  default = null
+  type = string
+  description = "(Optional) IP address of the pre-exising NFS server to use as part of the deployment."
 }
 
 variable "nfs_vm_machine_type" {

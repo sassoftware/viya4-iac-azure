@@ -16,6 +16,7 @@ Supported configuration variables are listed in the tables below.  All variables
     - [Default Node Pool](#default-node-pool)
     - [Additional Node Pools](#additional-node-pools)
   - [Storage](#storage)
+    - [NFS Server Custom IP (only when `storage_type=custom`)](#nfs-server-custom-ip-only-when-storage_typecustom)
     - [NFS Server VM (only when `storage_type=standard`)](#nfs-server-vm-only-when-storage_typestandard)
     - [Azure NetApp Files (only when `storage_type=ha`)](#azure-netapp-files-only-when-storage_typeha)
   - [Azure Container Registry (ACR)](#azure-container-registry-acr)
@@ -259,6 +260,14 @@ In addition, you can control the placement for the additional node pools using t
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
 | storage_type | Type of Storage. Valid Values: "standard", "ha"  | string | "standard" | "standard" creates NFS server VM, "ha" creates Azure Netapp Files|
+
+### NFS Server Custom IP (only when `storage_type=custom`)
+
+When `storage_type=custom`, the IP address of a pre-existing NFS server is required.
+
+| Name | Description | Type | Default | Notes |
+| :--- | ---: | ---: | ---: | ---: |
+| custom_nfs_server_ip | (Optional) IP address of the pre-exising NFS server to use as part of the deployment | string | null | Only needed when `storage_type` is set to `custom` |
 
 ### NFS Server VM (only when `storage_type=standard`)
 
