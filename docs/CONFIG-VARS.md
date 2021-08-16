@@ -10,7 +10,7 @@ Supported configuration variables are listed in the tables below.  All variables
     - [Azure Authentication](#azure-authentication)
   - [Admin Access](#admin-access)
   - [Networking](#networking)
-    - [Use Existing](#use-existing)
+    - [Use Existing (BYO)](#use-existing-byo)
   - [General](#general)
   - [Node Pools](#node-pools)
     - [Default Node Pool](#default-node-pool)
@@ -114,14 +114,15 @@ The default values for the `subnets` variable are as follows:
 }
 ```
 
-### Use Existing
+### Use Existing (BYO)
 
-If you want to deploy into an existing resource group, vnet, subnets, or network security group, the variables shown in the following table can be used to define
-the existing resources:
+If you want to deploy into an existing resource group, vnet, subnets, or network security group, log_analytics_workspace the variables shown in the following table can be used to define the existing resources:
 
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
 | resource_group_name | Name of pre-existing resource group | string | null | Only required if deploying into existing resource group. |
+| log_analytics_workspace_name | Name of pre-existing log analytics workspace | string | null | Only required if deploying into existing log analytics workspace. Setting this variable will enable AKS monitoring. |
+| log_analytics_workspace_resource_group_name | Name of pre-existing log analytics workspace resource group | string | null | Only required if deploying into existing log analytics workspace that is not located in the `resource_group_name`. |
 | vnet_name | Name of pre-existing vnet | string | null | Only required if deploying into existing vnet. |
 | nsg_name | Name of pre-existing network security group | string | null | Only required if deploying into existing NSG. |
 | subnet_names | Existing subnets mapped to desired usage | map(string) | null | Only required if deploying into existing subnets. See the example that follows. |

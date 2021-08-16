@@ -511,6 +511,18 @@ variable "resource_group_name" {
   description = "Name of pre-exising resource group. Leave blank to have one created"
 }
 
+variable "log_analytics_workspace_name" {
+  type    = string
+  default = null
+  description = "{Optional) ID of pre-exising log analytics workspace"
+}
+
+variable "log_analytics_workspace_resource_group_name" {
+  type    = string
+  default = null
+  description = "{Optional) name of pre-exising log analytics workspace resource group if different than resource_group_name"
+}
+
 variable "vnet_name" {
   type    = string
   default = null

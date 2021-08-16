@@ -210,6 +210,12 @@ resource "azurerm_network_security_rule" "acr" {
   depends_on                  = [module.nsg]
 }
 
+data "azurerm_log_analytics_workspace" "byo" {
+  count = var.log_analytics_workspace_name != null ? 1 : 0
+  name                = var.log_analytics_workspace_name
+  resource_group_name = var.log_analytics_workspace_resource_group_name
+}
+
 module "aks" {
   source = "./modules/azure_aks"
 
@@ -231,8 +237,8 @@ module "aks" {
   kubernetes_version                       = var.kubernetes_version
   aks_cluster_endpoint_public_access_cidrs = local.cluster_endpoint_public_access_cidrs
   aks_availability_zones                   = var.default_nodepool_availability_zones
-  aks_oms_enabled                          = var.create_aks_azure_monitor
-  aks_log_analytics_workspace_id           = var.create_aks_azure_monitor ? azurerm_log_analytics_workspace.viya4[0].id : null
+  aks_oms_enabled                          = var.create_aks_azure_monitor || var.log_analytics_workspace_name != null
+  aks_log_analytics_workspace_id           = var.log_analytics_workspace_name != null ? data.azurerm_log_analytics_workspace.byo[0].id : ( var.create_aks_azure_monitor ? azurerm_log_analytics_workspace.viya4[0].id : null )
   aks_network_plugin                       = var.aks_network_plugin
   aks_network_policy                       = var.aks_network_policy
   aks_dns_service_ip                       = var.aks_dns_service_ip
