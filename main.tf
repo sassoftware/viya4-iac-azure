@@ -1,3 +1,8 @@
+## Azure-AKS
+#
+# Terraform Registry : https://registry.terraform.io/namespaces/Azure
+# GitHub Repository  : https://github.com/terraform-azurerm-modules
+#
 provider "azurerm" {
 
   subscription_id = var.subscription_id
