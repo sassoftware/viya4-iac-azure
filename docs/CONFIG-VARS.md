@@ -19,7 +19,7 @@ Supported configuration variables are listed in the tables below.  All variables
     - [NFS Server VM (only when `storage_type=standard`)](#nfs-server-vm-only-when-storage_typestandard)
     - [Azure NetApp Files (only when `storage_type=ha`)](#azure-netapp-files-only-when-storage_typeha)
   - [Azure Container Registry (ACR)](#azure-container-registry-acr)
-  - [PostgreSQL](#postgresql)
+  - [Postgres Servers](#postgres-servers)
 
 Terraform input variables can be set in the following ways:
 
@@ -298,20 +298,54 @@ When `storage_type=ha` (high availability), [Microsoft Azure NetApp Files](https
 | container_registry_admin_enabled | Enables the admin user | bool | false | |
 | container_registry_geo_replica_locs | List of Azure locations where the container registry should be geo-replicated. | list of strings | null | This is only supported when `container_registry_sku` is set to `"Premium"`. |
 
-## PostgreSQL
+## Postgres Servers
+
+When setting up ***external database servers***, you must provide information about those servers in the `postgres_servers` variable block. Each entry in the variable block represents a ***single database server***.
+
+This code only configures database servers. No databases are created during the infrastructure setup.
+
+The variable has the following format:
+
+```terraform
+postgres_servers = {
+  default = {},
+  ...
+}
+```
+
+**NOTE**: The `default = {}` elements is always required when creating external databases. This is the systems default database server.
+
+Each server element, like `foo = {}`, can contain none, some, or all of the parameters listed below:
 
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
-| create_postgres | Create an Azure Database for PostgreSQL server instance | bool | false | |
-| postgres_sku_name| The SKU Name for the PostgreSQL Server | string | "GP_Gen5_32" | The name pattern is the SKU, followed by the tier + family + cores (e.g. B_Gen4_1, GP_Gen5_4).|
-| postgres_storage_mb | Max storage allowed for the PostgreSQL server. | number | 51200 | Possible values are between 5120 MB(5GB) and 1048576 MB(1TB) for the Basic SKU and between 5120 MB(5GB) and 4194304 MB(4TB) for General Purpose/Memory Optimized SKUs |
-| postgres_backup_retention_days | Backup retention days for the PostgreSQL server. | number | 7 | Supported values are between 7 and 35 days. |
-| postgres_geo_redundant_backup_enabled | Whether to enable Geo-redundant for server backup. | bool | false | Not supported for the basic tier. |
-| postgres_administrator_login | The Administrator Login for the PostgreSQL server. Changing this forces a new resource to be created. | string | "pgadmin" | The admin login name cannot be azure_superuser, azure_pg_admin, admin, administrator, root, guest, or public. It cannot start with pg_. See: [Microsoft Quickstart Server Database](https://docs.microsoft.com/en-us/azure/postgresql/quickstart-create-server-database-portal) |
-| postgres_administrator_password | The password associated with the postgres_administrator_login for the PostgreSQL Server. | string | | The password must contain between 8 and 128 characters and must contain characters from three of the following categories: English uppercase letters, English lowercase letters, numbers (0 through 9), and non-alphanumeric characters (!, $, #, %, etc.). |
-| postgres_server_version | The version of the Azure Database for PostgreSQL server instance. Valid values are "9.5", "9.6", "10.0", and "11". Changing this forces a new resource to be created.| string | "11" | |
-| postgres_ssl_enforcement_enabled | Enforce SSL on connection to the Azure Database for PostgreSQL server instance | bool | true | |
-| postgres_db_names | List of names for databases to create for the Azure Database for PostgreSQL server instance. Each name needs to be a valid PostgreSQL identified. Changes this forces a new resource to be created. | list of strings | [] | |
-| postgres_db_charset | The Charset for the PostgreSQL Database. Must be a valid PostgreSQL Charset. Changing this forces a new resource to be created. | string | "UTF8" | |
-| postgres_db_collation | The Collation for the PostgreSQL Database. Needs to be a valid PostgreSQL Collation. Changing this forces a new resource to be created. |string| "English_United States.1252" | |
-| postgres_configurations | Configurations to enable on the PostgreSQL Database server instance. | map | {} | |
+| sku_name| The SKU Name for the PostgreSQL Server | string | "GP_Gen5_32" | The name pattern is the SKU, followed by the tier + family + cores (e.g. B_Gen4_1, GP_Gen5_4).|
+| storage_mb | Max storage allowed for the PostgreSQL server | number | 51200 | Possible values are between 5120 MB(5GB) and 1048576 MB(1TB) for the Basic SKU and between 5120 MB(5GB) and 4194304 MB(4TB) for General Purpose/Memory Optimized SKUs |
+| backup_retention_days | Backup retention days for the PostgreSQL server | number | 7 | Supported values are between 7 and 35 days. |
+| geo_redundant_backup_enabled | Enable Geo-redundant or not for server backup | bool | false | Not supported for the basic tier. |
+| administrator_login | The Administrator Login for the PostgreSQL Server. Changing this forces a new resource to be created. | string | "pgadmin" | The admin login name cannot be azure_superuser, azure_pg_admin, admin, administrator, root, guest, or public. It cannot start with pg_. See: [Microsoft Quickstart Server Database](https://docs.microsoft.com/en-us/azure/postgresql/quickstart-create-server-database-portal) |
+| administrator_password | The Password associated with the administrator_login for the PostgreSQL Server | string | "my$up3rS3cretPassw0rd" | The password must contain between 8 and 128 characters and must contain characters from three of the following categories: English uppercase letters, English lowercase letters, numbers (0 through 9), and non-alphanumeric characters (!, $, #, %, etc.). |
+| server_version | The version of the Azure Database for PostgreSQL server instance. Changing this forces a new resource to be created.| string | "11" | |
+| ssl_enforcement_enabled | Enforce SSL on connection to the Azure Database for PostgreSQL server instance | bool | true | |
+| postgresql_configurations | Configurations to enable on the PostgreSQL Database server instance | map(string) | {} | More details can be found [here](https://docs.microsoft.com/en-us/azure/postgresql/howto-configure-server-parameters-using-cli) |
+
+Here is a sample of the `postgres_servers` variable with the `default` entry only overriding the `administrator_password` parameter and the `cps` entry overriding all of the parameters:
+
+```terraform
+postgres_servers = {
+  default = {
+    administrator_password       = "D0ntL00kTh1sWay"
+  },
+  another_server = {
+    sku_name                     = "GP_Gen5_32"
+    storage_mb                   = 51200
+    backup_retention_days        = 7
+    geo_redundant_backup_enabled = false
+    administrator_login          = "pgadmin"
+    administrator_password       = "1tsAB3aut1fulDay"
+    server_version               = "11"
+    ssl_enforcement_enabled      = true
+    postgresql_configurations    = { foo = "true", bar = "false" }
+  }
+}
+```
