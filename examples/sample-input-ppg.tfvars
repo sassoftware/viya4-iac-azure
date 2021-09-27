@@ -4,8 +4,8 @@
 
 # ****************  REQUIRED VARIABLES  ****************
 # Values for these required variables MUST be provided
-prefix   = "<prefix-value>" # this is a prefix that you assign for the resources to be created
-location = "<azure-location-value>" # e.g., "eastus2"
+prefix         = "<prefix-value>"                           # this is a prefix that you assign for the resources to be created
+location       = "<azure-location-value>"                   # e.g., "eastus2"
 ssh_public_key = "<path-to-public-key-on-host-running-iac>" # Name of file with public ssh key for connecting to the VMs
 # ****************  REQUIRED VARIABLES  ****************
 
@@ -27,9 +27,9 @@ postgres_servers = {
 }
 
 # Azure Container Registry config
-create_container_registry           = false
-container_registry_sku              = "Standard"
-container_registry_admin_enabled    = false
+create_container_registry        = false
+container_registry_sku           = "Standard"
+container_registry_admin_enabled = false
 
 # AKS config
 kubernetes_version         = "1.19.9"

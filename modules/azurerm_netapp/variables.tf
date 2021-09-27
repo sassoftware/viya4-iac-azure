@@ -1,5 +1,5 @@
 
-variable create_netapp {
+variable "create_netapp" {
   description = "Boolean flag to create Azure NetApp Files"
   default     = false
 }
@@ -7,7 +7,7 @@ variable "prefix" {
   description = "A prefix used in the name for all the Azure resources created by this script."
 }
 
-variable resource_group_name {
+variable "resource_group_name" {
   description = "The name of the resource group in which to create Azure NetApp Files storage"
 }
 
@@ -47,5 +47,5 @@ variable "allowed_clients" {
 
 variable "tags" {
   description = "Map of tags to be placed on the Resources"
-  type        = map
+  type        = map(any)
 }

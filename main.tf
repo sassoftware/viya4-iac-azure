@@ -93,7 +93,7 @@ data "template_cloudinit_config" "jump" {
 }
 
 module "jump" {
-  source            = "./modules/azurerm_vm"
+  source = "./modules/azurerm_vm"
 
   count             = var.create_jump_vm ? 1 : 0
   name              = "${var.prefix}-jump"
@@ -105,7 +105,7 @@ module "jump" {
   tags              = module.resource_group.tags
   vm_admin          = var.jump_vm_admin
   vm_zone           = var.jump_vm_zone
-  ssh_public_key    = file(var.ssh_public_key)
+  ssh_public_key    = try(file(var.ssh_public_key), var.ssh_public_key)
   cloud_init        = data.template_cloudinit_config.jump.rendered
   create_public_ip  = local.create_jump_public_ip
 
@@ -133,7 +133,7 @@ data "template_cloudinit_config" "nfs" {
 }
 
 module "nfs" {
-  source                         = "./modules/azurerm_vm"
+  source = "./modules/azurerm_vm"
 
   count                          = var.storage_type == "standard" ? 1 : 0
   name                           = "${var.prefix}-nfs"
@@ -146,7 +146,7 @@ module "nfs" {
   tags                           = module.resource_group.tags
   vm_admin                       = var.nfs_vm_admin
   vm_zone                        = var.nfs_vm_zone
-  ssh_public_key                 = file(var.ssh_public_key)
+  ssh_public_key                 = try(file(var.ssh_public_key), var.ssh_public_key)
   cloud_init                     = data.template_cloudinit_config.nfs.rendered
   create_public_ip               = local.create_nfs_public_ip
   data_disk_count                = 4
@@ -174,27 +174,27 @@ resource "azurerm_network_security_rule" "vm-ssh" {
 }
 
 resource "azurerm_container_registry" "acr" {
-  count                    = var.create_container_registry ? 1 : 0
-  name                     = join("", regexall("[a-zA-Z0-9]+", "${var.prefix}acr")) # alpha numeric characters only are allowed
-  resource_group_name      = module.resource_group.name
-  location                 = var.location
-  sku                      = local.container_registry_sku
-  admin_enabled            = var.container_registry_admin_enabled
-  
+  count               = var.create_container_registry ? 1 : 0
+  name                = join("", regexall("[a-zA-Z0-9]+", "${var.prefix}acr")) # alpha numeric characters only are allowed
+  resource_group_name = module.resource_group.name
+  location            = var.location
+  sku                 = local.container_registry_sku
+  admin_enabled       = var.container_registry_admin_enabled
+
   #
   # Moving from deprecated argument, georeplication_locations, but keeping container_registry_geo_replica_locs
   # for backwards compatability.
   #
   georeplications = (local.container_registry_sku == "Premium" && var.container_registry_geo_replica_locs != null) ? [
-    for location_item in var.container_registry_geo_replica_locs:
-      {
-        location = location_item
-        tags     = var.tags
-      }
+    for location_item in var.container_registry_geo_replica_locs :
+    {
+      location = location_item
+      tags     = var.tags
+    }
   ] : local.container_registry_sku == "Premium" ? [] : null
 
-  tags                     = module.resource_group.tags
-  depends_on               = [module.resource_group]
+  tags       = module.resource_group.tags
+  depends_on = [module.resource_group]
 }
 
 
@@ -231,7 +231,7 @@ module "aks" {
   aks_cluster_os_disk_size                 = var.default_nodepool_os_disk_size
   aks_cluster_node_vm_size                 = var.default_nodepool_vm_type
   aks_cluster_node_admin                   = var.node_vm_admin
-  aks_cluster_ssh_public_key               = file(var.ssh_public_key)
+  aks_cluster_ssh_public_key               = try(file(var.ssh_public_key), var.ssh_public_key)
   aks_vnet_subnet_id                       = module.vnet.subnets["aks"].id
   kubernetes_version                       = var.kubernetes_version
   aks_cluster_endpoint_public_access_cidrs = local.cluster_endpoint_public_access_cidrs
@@ -263,7 +263,7 @@ module "kubeconfig" {
   client_crt               = module.aks.client_certificate
   client_key               = module.aks.client_key
   token                    = module.aks.cluster_password
-  depends_on               = [ module.aks ]
+  depends_on               = [module.aks]
 }
 
 module "node_pools" {
@@ -296,7 +296,7 @@ module "postgresql" {
   source  = "Azure/postgresql/azurerm"
   version = "2.1.0"
 
-  for_each                     = local.postgres_servers != null ? length(local.postgres_servers) != 0 ? local.postgres_servers : {} : {}
+  for_each = local.postgres_servers != null ? length(local.postgres_servers) != 0 ? local.postgres_servers : {} : {}
 
   resource_group_name          = module.resource_group.name
   location                     = var.location
@@ -321,21 +321,21 @@ module "postgresql" {
 }
 
 module "netapp" {
-  source        = "./modules/azurerm_netapp"
-  count                = var.storage_type == "ha" ? 1 : 0
+  source = "./modules/azurerm_netapp"
+  count  = var.storage_type == "ha" ? 1 : 0
 
-  prefix                = var.prefix
-  resource_group_name   = module.resource_group.name
-  location              = module.resource_group.location
-  vnet_name             = module.vnet.name
-  subnet_id             = module.vnet.subnets["netapp"].id
-  service_level         = var.netapp_service_level
-  size_in_tb            = var.netapp_size_in_tb
-  protocols             = var.netapp_protocols
-  volume_path           = "${var.prefix}-${var.netapp_volume_path}"
-  tags                  = module.resource_group.tags
-  allowed_clients       = concat(module.vnet.subnets["aks"].address_prefixes, module.vnet.subnets["misc"].address_prefixes)
-  depends_on            = [module.vnet]
+  prefix              = var.prefix
+  resource_group_name = module.resource_group.name
+  location            = module.resource_group.location
+  vnet_name           = module.vnet.name
+  subnet_id           = module.vnet.subnets["netapp"].id
+  service_level       = var.netapp_service_level
+  size_in_tb          = var.netapp_size_in_tb
+  protocols           = var.netapp_protocols
+  volume_path         = "${var.prefix}-${var.netapp_volume_path}"
+  tags                = module.resource_group.tags
+  allowed_clients     = concat(module.vnet.subnets["aks"].address_prefixes, module.vnet.subnets["misc"].address_prefixes)
+  depends_on          = [module.vnet]
 }
 
 data "external" "git_hash" {
@@ -348,14 +348,14 @@ data "external" "iac_tooling_version" {
 
 resource "kubernetes_config_map" "sas_iac_buildinfo" {
   metadata {
-     name      = "sas-iac-buildinfo"
-     namespace = "kube-system"
+    name      = "sas-iac-buildinfo"
+    namespace = "kube-system"
   }
 
   data = {
-     git-hash    = lookup(data.external.git_hash.result, "git-hash")
-     iac-tooling = var.iac_tooling
-     terraform   = <<EOT
+    git-hash    = lookup(data.external.git_hash.result, "git-hash")
+    iac-tooling = var.iac_tooling
+    terraform   = <<EOT
 version: ${lookup(data.external.iac_tooling_version.result, "terraform_version")}
 revision: ${lookup(data.external.iac_tooling_version.result, "terraform_revision")}
 provider-selections: ${lookup(data.external.iac_tooling_version.result, "provider_selections")}
@@ -363,5 +363,5 @@ outdated: ${lookup(data.external.iac_tooling_version.result, "terraform_outdated
 EOT
   }
 
-  depends_on = [ module.aks ]
+  depends_on = [module.aks]
 }

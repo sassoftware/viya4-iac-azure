@@ -5,8 +5,8 @@ variable "name" {
 }
 
 variable "prefix" {
-  type        = string
-  default     = null
+  type    = string
+  default = null
 }
 
 variable "location" {
@@ -16,6 +16,6 @@ variable "location" {
 
 variable "tags" {
   description = "Map of common tags to be placed on the Resources"
-  type        = map
+  type        = map(any)
   default     = {}
 }

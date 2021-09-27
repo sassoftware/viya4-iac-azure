@@ -6,6 +6,6 @@ resource "azurerm_resource_group" "azure_rg" {
 }
 
 data "azurerm_resource_group" "azure_rg" {
-  count    = var.name == null ? 0 : 1
-  name     = var.name
+  count = var.name == null ? 0 : 1
+  name  = var.name
 }

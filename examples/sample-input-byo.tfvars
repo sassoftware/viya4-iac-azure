@@ -13,10 +13,10 @@ ssh_public_key = "~/.ssh/id_rsa.pub"
 resource_group_name = "<existing-resource-group-name>" # only needed if using pre-existing
 vnet_name           = "<existing-vnet-name>"           # only needed if using pre-existing
 nsg_name            = "<existing-nsg-name>"            # only needed if using pre-existing
-subnet_names        = {
-  "aks": "<existing-subnet-name-for-aks>", 
-  "misc": "<existing-subnet-name-for-misc>", 
-  "netapp": "<existing-subnet-name-for-netapp>" # only needed if using ha storage (aka netapp)
+subnet_names = {
+  "aks" : "<existing-subnet-name-for-aks>",
+  "misc" : "<existing-subnet-name-for-misc>",
+  "netapp" : "<existing-subnet-name-for-netapp>" # only needed if using ha storage (aka netapp)
 }
 
 # !NOTE! - Without specifying your CIDR block access rules, ingress traffic
@@ -37,9 +37,9 @@ postgres_servers = {
 }
 
 # Azure Container Registry config
-create_container_registry           = false
-container_registry_sku              = "Standard"
-container_registry_admin_enabled    = false
+create_container_registry        = false
+container_registry_sku           = "Standard"
+container_registry_admin_enabled = false
 
 # AKS config
 kubernetes_version         = "1.19.9"
@@ -109,8 +109,8 @@ node_pools = {
 
 # Jump Box
 create_jump_public_ip = true
-jump_vm_admin        = "jumpuser"
-jump_vm_machine_type = "Standard_B2s"
+jump_vm_admin         = "jumpuser"
+jump_vm_machine_type  = "Standard_B2s"
 
 # Storage for SAS Viya CAS/Compute
 storage_type = "standard"

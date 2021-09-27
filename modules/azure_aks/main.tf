@@ -1,6 +1,6 @@
 locals {
   private_create_uai = var.aks_uai_name == null ? true : false
-  uai_id = var.aks_private_cluster ? local.private_create_uai ? azurerm_user_assigned_identity.uai.0.id : data.azurerm_user_assigned_identity.uai.0.id : null
+  uai_id             = var.aks_private_cluster ? local.private_create_uai ? azurerm_user_assigned_identity.uai.0.id : data.azurerm_user_assigned_identity.uai.0.id : null
 }
 
 data "azurerm_user_assigned_identity" "uai" {
@@ -29,7 +29,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   location            = var.aks_cluster_location
   resource_group_name = var.aks_cluster_rg
   dns_prefix          = var.aks_cluster_dns_prefix
-  
+
   # https://docs.microsoft.com/en-us/azure/aks/supported-kubernetes-versions
   # az aks get-versions --location eastus -o table
   kubernetes_version              = var.kubernetes_version
@@ -52,7 +52,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
     dns_service_ip     = var.aks_network_plugin == "kubenet" ? "10.0.0.10" : var.aks_dns_service_ip
     pod_cidr           = var.aks_network_plugin == "kubenet" ? "10.244.0.0/16" : null
     docker_bridge_cidr = var.aks_network_plugin == "kubenet" ? "172.17.0.1/16" : var.aks_docker_bridge_cidr
-    outbound_type      = var.aks_private_cluster ? "userDefinedRouting" : "loadBalancer"
+    outbound_type      = var.aks_outbound_type != null ? var.aks_outbound_type : (var.aks_private_cluster ? "userDefinedRouting" : "loadBalancer")
     load_balancer_sku  = "Standard"
   }
 
@@ -86,8 +86,8 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   identity {
-    type = var.aks_private_cluster ? "UserAssigned" : "SystemAssigned"
-    user_assigned_identity_id = ((var.aks_private_cluster ? local.uai_id : null)  )
+    type                      = var.aks_private_cluster ? "UserAssigned" : "SystemAssigned"
+    user_assigned_identity_id = ((var.aks_private_cluster ? local.uai_id : null))
   }
 
   addon_profile {
@@ -120,8 +120,8 @@ resource "azurerm_kubernetes_cluster" "aks" {
   depends_on = [azurerm_role_assignment.uai_role]
 }
 
- data "azurerm_public_ip" "cluster_public_ip" {
-  count               = var.aks_private_cluster ? 0 : 1
+data "azurerm_public_ip" "cluster_public_ip" {
+  count = var.aks_outbound_type == "userDefinedRouting" ? 0 : (var.aks_private_cluster ? 0 : 1)
 
   # effective_outbound_ips is a set of strings, that needs to be converted to a list type
   name                = split("/", tolist(azurerm_kubernetes_cluster.aks.network_profile[0].load_balancer_profile[0].effective_outbound_ips)[0])[8]

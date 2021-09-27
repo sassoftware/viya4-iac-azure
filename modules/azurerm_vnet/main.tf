@@ -48,5 +48,5 @@ resource "azurerm_subnet" "subnet" {
     }
   }
 
-  depends_on                                     = [data.azurerm_virtual_network.vnet, azurerm_virtual_network.vnet]  
+  depends_on = [data.azurerm_virtual_network.vnet, azurerm_virtual_network.vnet]
 }

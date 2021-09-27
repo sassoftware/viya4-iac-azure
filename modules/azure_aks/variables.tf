@@ -1,8 +1,16 @@
-variable aks_cluster_name {}
+variable "client_id" {
+  default = ""
+}
 
-variable aks_cluster_rg {}
-variable aks_cluster_rg_id {}
-variable aks_cluster_dns_prefix {}
+variable "client_secret" {
+  default = ""
+}
+
+variable "aks_cluster_name" {}
+
+variable "aks_cluster_rg" {}
+variable "aks_cluster_rg_id" {}
+variable "aks_cluster_dns_prefix" {}
 
 variable "aks_cluster_location" {
   description = "The Azure Region in which all resources in this example should be provisioned"
@@ -55,13 +63,13 @@ variable "aks_cluster_max_pods" {
   default     = 110
 }
 
-variable kubernetes_version {
+variable "kubernetes_version" {
   description = "The AKS cluster K8s version"
   default     = "1.19.9"
 }
 variable "aks_cluster_endpoint_public_access_cidrs" {
   description = "Kubernetes cluster access IP ranges"
-  type        = list
+  type        = list(any)
 }
 
 variable "aks_vnet_subnet_id" {
@@ -108,7 +116,7 @@ variable "aks_service_cidr" {
 
 variable "aks_cluster_tags" {
   description = "Map of tags to be placed on the Resources"
-  type        = map
+  type        = map(any)
 }
 
 variable "aks_oms_enabled" {
@@ -120,7 +128,7 @@ variable "aks_log_analytics_workspace_id" {
   description = "The ID of the Log Analytics Workspace which the OMS Agent should send data to. Must be present if aks_oms_enabled is true"
 }
 
-variable "aks_uai_name"{
+variable "aks_uai_name" {
   description = "User assigned identity name"
-  default = null
-} 
+  default     = null
+}
