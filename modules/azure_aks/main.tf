@@ -1,6 +1,7 @@
 locals {
   private_create_uai = var.aks_uai_name == null ? true : false
   uai_id             = var.aks_private_cluster ? local.private_create_uai ? azurerm_user_assigned_identity.uai.0.id : data.azurerm_user_assigned_identity.uai.0.id : null
+  use_spi            = (var.client_id != null) ? (var.client_secret != null) ? true : false : false
 }
 
 data "azurerm_user_assigned_identity" "uai" {
@@ -85,7 +86,16 @@ resource "azurerm_kubernetes_cluster" "aks" {
     orchestrator_version  = var.kubernetes_version
   }
 
+  service_principal {
+    count         = local.use_spi ? 1 : 0
+
+    client_id     = var.client_id
+    client_secret = var.client_secret
+  }
+
   identity {
+    count                     = local.use_spi ? 0 : 1
+
     type                      = var.aks_private_cluster ? "UserAssigned" : "SystemAssigned"
     user_assigned_identity_id = ((var.aks_private_cluster ? local.uai_id : null))
   }
