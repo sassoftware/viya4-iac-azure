@@ -86,18 +86,22 @@ resource "azurerm_kubernetes_cluster" "aks" {
     orchestrator_version  = var.kubernetes_version
   }
 
-  service_principal {
-    count         = local.use_spi ? 1 : 0
+  dynamic "service_principal" {
+    for_each = local.use_spi ? [1] : []
 
-    client_id     = var.client_id
-    client_secret = var.client_secret
+    content {
+      client_id     = var.client_id
+      client_secret = var.client_secret
+    }
   }
 
-  identity {
-    count                     = local.use_spi ? 0 : 1
+  dynamic "identity" {
+    for_each = local.use_spi ? [] : [1]
 
-    type                      = var.aks_private_cluster ? "UserAssigned" : "SystemAssigned"
-    user_assigned_identity_id = ((var.aks_private_cluster ? local.uai_id : null))
+    content {
+      type                      = var.aks_private_cluster ? "UserAssigned" : "SystemAssigned"
+      user_assigned_identity_id = ((var.aks_private_cluster ? local.uai_id : null))
+    }
   }
 
   addon_profile {
