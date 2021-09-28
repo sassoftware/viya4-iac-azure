@@ -22,28 +22,10 @@ output "aks_cluster_password" {
 }
 
 #postgres
-output "postgres_server_name" {
-  value = var.create_postgres ? element(coalescelist(module.postgresql.*.server_name, [" "]), 0) : null
-}
-output "postgres_fqdn" {
-  value = var.create_postgres ? element(coalescelist(module.postgresql.*.server_fqdn, [" "]), 0) : null
-}
-output "postgres_admin" {
-  value = var.create_postgres ? "${element(coalescelist(module.postgresql.*.administrator_login, [" "]), 0)}@${element(coalescelist(module.postgresql.*.server_name, [" "]), 0)}" : null
-}
-output "postgres_password" {
-  value = var.create_postgres ? element(coalescelist(module.postgresql.*.administrator_password, [" "]), 0) : null
-  sensitive = true
-}
-output "postgres_server_id" {
-  value = var.create_postgres ? element(coalescelist(module.postgresql.*.server_id, [" "]), 0) : null
-}
-output "postgres_server_port" {
-  value = var.create_postgres ? "5432" : null
-}
 
-output "postgres_ssl_enforcement_enabled" {
-  value = var.create_postgres ? var.postgres_ssl_enforcement_enabled : null
+output "postgres_servers" {
+  value = length(module.postgresql) != 0 ? local.postgres_outputs : null
+  sensitive = true
 }
 
 # jump server

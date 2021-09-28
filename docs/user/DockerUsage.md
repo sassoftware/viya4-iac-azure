@@ -32,7 +32,7 @@ Add volume mounts to the `docker run` command for all files and directories that
 
 ### Variable Definitions (.tfvars) File
 
-Prepare your `terraform.tfvars` file, as described in [Customize Input Values](../../README.md#customize-input-values).
+Prepare your `terraform.tfvars` file, as described in [Customizing Input Values](../../README.md#customizing-input-values).
 
 ## Running Terraform Commands
 

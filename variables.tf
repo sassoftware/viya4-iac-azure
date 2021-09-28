@@ -1,3 +1,4 @@
+## Global
 variable client_id {
   default = ""
 }
@@ -162,88 +163,60 @@ variable "tags" {
   default     = {}
 }
 
-## PostgresSQL inputs
-variable "create_postgres" {
-  description = "Create an Azure PostgresSQL database server instance"
-  type        = bool
-  default     = false
-}
+# PostgreSQL
 
-variable "postgres_sku_name" {
-  description = "SKU Name for the PostgreSQL Server. The name of the SKU, follows the tier + family + cores pattern (e.g. B_Gen4_1, GP_Gen5_4)."
-  default     = "GP_Gen5_32"
-}
-variable "postgres_storage_mb" {
-  description = "Max storage allowed for the PostgreSQL server. Possible values are between 5120 MB(5GB) and 1048576 MB(1TB) for the Basic SKU and between 5120 MB(5GB) and 4194304 MB(4TB) for General Purpose/Memory Optimized SKUs."
-  default     = 51200
-}
-
-variable "postgres_backup_retention_days" {
-  description = "Backup retention days for the PostgreSQL server, supported values are between 7 and 35 days."
-  default     = 7
-}
-
-variable "postgres_geo_redundant_backup_enabled" {
-  description = "Enable Geo-redundant backup for PostgreSQL server. Not supported for the basic tier."
-  default     = false
-}
-
-# https://docs.microsoft.com/en-us/azure/postgresql/quickstart-create-server-database-portal
-# The admin login name can't be azure_superuser, azure_pg_admin, admin, administrator, root, guest, or public. It can't start with pg_.
-variable "postgres_administrator_login" {
-  description = "The Administrator Login for the PostgreSQL Server. Changing this forces a new resource to be created."
-  default     = "pgadmin"
-
-  validation {
-    condition     = ! contains(["azure_superuser", "azure_pg_admin", "admin", "administrator", "root", "guest", "public"], var.postgres_administrator_login) && ! can(regex("^pg_", var.postgres_administrator_login))
-    error_message = "ERROR: The admin login name can't be azure_superuser, azure_pg_admin, admin, administrator, root, guest, or public. It can't start with pg_."
+# Defaults
+variable "postgres_server_defaults" {
+  description = ""
+  type        = any
+  default = {
+    sku_name                     = "GP_Gen5_32"
+    storage_mb                   = 51200
+    backup_retention_days        = 7
+    geo_redundant_backup_enabled = false
+    administrator_login          = "pgadmin"
+    administrator_password       = "my$up3rS3cretPassw0rd"
+    server_version               = "11"
+    ssl_enforcement_enabled      = true
+    postgresql_configurations    = {}
   }
 }
-# A new password for the server admin account. It must contain between 8 and 128 characters. Your password must contain characters from three of the following categories: 
-# English uppercase letters, English lowercase letters, numbers (0 through 9), and non-alphanumeric characters (!, $, #, %, etc.).
-variable "postgres_administrator_password" {
-  description = "The Password associated with the postgres_administrator_login for the PostgreSQL Server."
+
+# User inputs
+variable "postgres_servers" {
+  description = "Map of PostgreSQL server objects"
+  type        = any
   default     = null
 
+  # Checking for user provided "default" server
   validation {
-    condition     = var.postgres_administrator_password != null ? length(var.postgres_administrator_password) > 7 && length(var.postgres_administrator_password) < 127 : true
-    error_message = "ERROR: 'postgres_administrator_password' must contain between 8 and 128 characters."
+    condition = var.postgres_servers != null ? length(var.postgres_servers) != 0 ? contains(keys(var.postgres_servers), "default") : false : true
+    error_message = "ERROR: The provided map of PostgreSQL server objects does not contain the required 'default' key."
   }
+  
+  # Checking user provided login
   validation {
-    condition     = var.postgres_administrator_password != null ? (can(regex("[0-9]+", var.postgres_administrator_password)) && can(regex("[a-z]+", var.postgres_administrator_password)) && can(regex("[A-Z]+", var.postgres_administrator_password))) || (can(regex("[!@#$%^&*(){}[]|<>~`,./_-+=]+", var.postgres_administrator_password)) && can(regex("[a-z]+", var.postgres_administrator_password)) && can(regex("[A-Z]+", var.postgres_administrator_password))) || (can(regex("[!@#$%^&*(){}[]|<>~`,./_-+=]+", var.postgres_administrator_password)) && can(regex("[0-9]+", var.postgres_administrator_password)) && can(regex("[A-Z]+", var.postgres_administrator_password))) || (can(regex("[!@#$%^&*(){}[]|<>~`,./_-+=]+", var.postgres_administrator_password)) && can(regex("[0-9]+", var.postgres_administrator_password)) && can(regex("[a-z]+", var.postgres_administrator_password))) : true
+    condition = var.postgres_servers != null ? length(var.postgres_servers) != 0 ? alltrue([
+      for k,v in var.postgres_servers : contains(keys(v),"administrator_login") ? ! contains(["azure_superuser", "azure_pg_admin", "admin", "administrator", "root", "guest", "public"], v.administrator_login) && ! can(regex("^pg_", v.administrator_login)) : true
+    ]) : false : true
+    error_message = "ERROR: The admin login name can't be azure_superuser, azure_pg_admin, admin, administrator, root, guest, or public. It can't start with pg_."
+  }
+
+  # Checking user provided password
+  validation {
+    condition = var.postgres_servers != null ? length(var.postgres_servers) != 0 ? alltrue([
+      for k,v in var.postgres_servers : contains(keys(v),"administrator_password") ? alltrue([
+        length(v.administrator_password) > 7,
+        length(v.administrator_login) < 129,
+        anytrue([
+          (can(regex("[0-9]+", v.administrator_password)) && can(regex("[a-z]+", v.administrator_password)) && can(regex("[A-Z]+", v.administrator_password))),
+          (can(regex("[!@#$%^&*(){}[]|<>~`,./_-+=]+", v.administrator_password)) && can(regex("[a-z]+", v.administrator_password)) && can(regex("[A-Z]+", v.administrator_password))),
+          (can(regex("[!@#$%^&*(){}[]|<>~`,./_-+=]+", v.administrator_password)) && can(regex("[0-9]+", v.administrator_password)) && can(regex("[A-Z]+", v.administrator_password))),
+          (can(regex("[!@#$%^&*(){}[]|<>~`,./_-+=]+", v.administrator_password)) && can(regex("[0-9]+", v.administrator_password)) && can(regex("[a-z]+", v.administrator_password)))
+        ])]) : true 
+    ]) : false : true
     error_message = "ERROR: Password is not complex enough. It must contain between 8 and 128 characters. Your password must contain characters from three of the following categories:\n * English uppercase letters,\n * English lowercase letters,\n * numbers (0 through 9), and\n * non-alphanumeric characters (!, $, #, %, etc.)."
   }
-}
-
-variable "postgres_server_version" {
-  description = "Version of PostgreSQL to use. Valid values are 9.5, 9.6, and 10.0. Changing this forces a new resource to be created."
-  default     = "11"
-}
-
-variable "postgres_ssl_enforcement_enabled" {
-  description = "Enforce SSL on connections to PostgreSQL server."
-  default     = true
-}
-
-variable "postgres_db_names" {
-  description = "The list of names of PostgreSQL database to create. Needs to be a valid PostgreSQL identifier. Changing this forces a new resource to be created."
-  default     = []
-}
-
-variable "postgres_db_charset" {
-  description = "Charset for the PostgreSQL Database. Needs to be a valid PostgreSQL Charset. Changing this forces a new resource to be created."
-  default     = "UTF8"
-}
-
-variable "postgres_db_collation" {
-  description = "Collation for the PostgreSQL Database. Needs to be a valid PostgreSQL Collation. Note that Microsoft uses different notation - en-US instead of en_US. Changing this forces a new resource to be created."
-  default     = "English_United States.1252"
-}
-
-variable "postgres_configurations" {
-  description = "A map with PostgreSQL configurations to enable."
-  type        = map
-  default     = {}
 }
 
 variable "create_jump_vm" {
@@ -326,7 +299,7 @@ variable nfs_raid_disk_zones {
   default     = []
 }
 
-# Azure Container Registry (ACR)
+## Azure Container Registry (ACR)
 variable "create_container_registry" {
   type        = bool
   description = "Boolean flag to create container registry"

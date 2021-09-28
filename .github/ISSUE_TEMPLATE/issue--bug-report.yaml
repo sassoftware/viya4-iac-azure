@@ -1,0 +1,78 @@
+name: Bug report
+description: |
+  Welcome, Thanks for opening an issue. The more information you provide, the easier it is for us to assess the problem, prioritize, assign, develop, then release a fix. The SAS Viya 4 IaC team.
+labels: [bug, new]
+body:
+  - type: textarea
+    id: tf_version
+    attributes:
+      label: Terraform Version Details
+      description: |
+        We ask this to be sure you are currently running a supported terraform version from your work environment.
+
+        Run `./files/tools/iac_tooling_version.sh` to show the version
+
+        If you are not running the latest version of Terraform we support, please try upgrading because your issue may have already been fixed.
+
+        If you're not sure which versions are supported, here's a link : https://github.com/sassoftware/viya4-iac-aws#terraform to help.
+    validations:
+      required: false
+  - type: textarea
+    id: tf_vars
+    attributes:
+      label: Terraform Variable File Details
+      description: |
+        Paste the relevant parts of your Terraform variables here.
+        
+        The relevant parts should come from your `terraform.tfvars` file or equivalent and small snippets of the `*.tf` file/files that seem to be causing the error.
+        
+        security reasons, do not copy and paste any sensitive information in this issue, like account information and passwords etc.
+    validations:
+      required: false
+  - type: textarea
+    id: tf_steps_to_reproduce
+    attributes:
+      label: Steps to Reproduce
+      description: Please list the full steps required to reproduce the issue
+    validations:
+      required: true
+  - type: textarea
+    id: tf_expected_behavior
+    attributes:
+      label: Expected Behavior
+      description: What should have happened?
+    validations:
+      required: true
+  - type: textarea
+    id: tf_actual_behavior
+    attributes:
+      label: Actual Behavior
+      description: |
+        What actually happened? Here you can include output and information from your terraform run.
+    validations:
+      required: true
+  - type: textarea
+    id: tf_additional_context
+    attributes:
+      label: Additional Context
+      description: |
+        Is there anything atypical about your situation that we should know? For example: Are you passing any unusual command line options or environment variables to opt-in to non-default behavior?
+    validations:
+      required: false
+  - type: input
+    id: tf_references
+    attributes:
+      label: References
+      description: |
+        Are there any other GitHub issues (open or closed) or Pull Requests that should be linked here?
+    validations:
+      required: false
+  - type: checkboxes
+    id: tf_terms
+    attributes:
+      label: Code of Conduct
+      description: By submitting this issue, you agree to follow our [Code of Conduct](https://github.com/sassoftware/viya4-iac-azure/blob/main/CODE_OF_CONDUCT.md)
+      options:
+        - label: I agree to follow this project's Code of Conduct
+          required: true
+          
