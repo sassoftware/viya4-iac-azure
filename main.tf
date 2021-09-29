@@ -48,14 +48,19 @@ resource "azurerm_proximity_placement_group" "proximity" {
   depends_on          = [module.resource_group]
 }
 
-module "nsg" {
-  source              = "./modules/azurerm_network_security_group"
-  prefix              = var.prefix
-  name                = var.nsg_name
+resource "azurerm_network_security_group" "nsg" {
+  count               = var.nsg_name == null ? 1 : 0
+  name                = "${var.prefix}-nsg"
   location            = var.location
   resource_group_name = module.resource_group.name
-  tags                = module.resource_group.tags
+  tags                = var.tags
   depends_on          = [module.resource_group]
+}
+
+data "azurerm_network_security_group" "nsg" {
+  count               = var.nsg_name == null ? 0 : 1
+  name                = var.nsg_name
+  resource_group_name = local.byo_resource_group_name
 }
 
 module "vnet" {
@@ -63,7 +68,7 @@ module "vnet" {
 
   name                = var.vnet_name
   prefix              = var.prefix
-  resource_group_name = var.vnet_resource_group_name == null ? module.resource_group.name : var.vnet_resource_group_name
+  resource_group_name = local.byo_resource_group_name
   location            = var.location
   subnets             = local.subnets
   existing_subnets    = var.subnet_names
@@ -101,7 +106,7 @@ module "jump" {
   azure_rg_location = var.location
   vnet_subnet_id    = module.vnet.subnets["misc"].id
   machine_type      = var.jump_vm_machine_type
-  azure_nsg_id      = module.nsg.id
+  azure_nsg_id      = local.nsg.id
   tags              = module.resource_group.tags
   vm_admin          = var.jump_vm_admin
   vm_zone           = var.jump_vm_zone
@@ -142,7 +147,7 @@ module "nfs" {
   proximity_placement_group_id   = element(coalescelist(azurerm_proximity_placement_group.proximity.*.id, [""]), 0)
   vnet_subnet_id                 = module.vnet.subnets["misc"].id
   machine_type                   = var.nfs_vm_machine_type
-  azure_nsg_id                   = module.nsg.id
+  azure_nsg_id                   = local.nsg.id
   tags                           = module.resource_group.tags
   vm_admin                       = var.nfs_vm_admin
   vm_zone                        = var.nfs_vm_zone
@@ -168,9 +173,8 @@ resource "azurerm_network_security_rule" "vm-ssh" {
   destination_port_range      = "22"
   source_address_prefixes     = local.vm_public_access_cidrs
   destination_address_prefix  = "*"
-  resource_group_name         = module.resource_group.name
-  network_security_group_name = module.nsg.name
-  depends_on                  = [module.nsg]
+  resource_group_name         = local.nsg_rg_name
+  network_security_group_name = local.nsg.name
 }
 
 resource "azurerm_container_registry" "acr" {
@@ -210,9 +214,8 @@ resource "azurerm_network_security_rule" "acr" {
   destination_port_range      = "5000"
   source_address_prefixes     = local.acr_public_access_cidrs
   destination_address_prefix  = "*"
-  resource_group_name         = module.resource_group.name
-  network_security_group_name = module.nsg.name
-  depends_on                  = [module.nsg]
+  resource_group_name         = local.nsg_rg_name
+  network_security_group_name = local.nsg.name
 }
 
 module "aks" {
@@ -246,7 +249,7 @@ module "aks" {
   aks_pod_cidr                             = var.aks_pod_cidr
   aks_service_cidr                         = var.aks_service_cidr
   aks_cluster_tags                         = module.resource_group.tags
-  aks_uai_name                             = var.aks_uai_name
+  aks_uai_id                               = local.aks_uai_id
   aks_private_cluster                      = local.is_private
   depends_on                               = [module.vnet]
 }

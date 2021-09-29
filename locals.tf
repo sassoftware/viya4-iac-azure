@@ -37,4 +37,18 @@ locals {
   # Container Registry
   container_registry_sku = title(var.container_registry_sku)
 
+  # Use BYO UAI if given, else create a UAI
+  aks_uai_id = ( var.aks_uai_name == null
+                 ? azurerm_user_assigned_identity.uai.0.id
+                 : data.azurerm_user_assigned_identity.uai.0.id
+               )
+
+  byo_resource_group_name = ( var.vnet_resource_group_name == null 
+                              ? module.resource_group.name 
+                              : var.vnet_resource_group_name
+                            )
+
+  nsg         = var.nsg_name == null ? azurerm_network_security_group.nsg.0 : data.azurerm_network_security_group.nsg.0
+  nsg_rg_name = var.nsg_name == null ? module.resource_group.name : local.byo_resource_group_name
 }
+

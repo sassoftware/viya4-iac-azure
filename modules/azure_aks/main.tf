@@ -1,27 +1,3 @@
-locals {
-  uai_id = var.aks_uai_name == null ? azurerm_user_assigned_identity.uai.0.id : data.azurerm_user_assigned_identity.uai.0.id : null
-}
-
-data "azurerm_user_assigned_identity" "uai" {
-  count               = var.aks_uai_name |= null ? 1 : 0
-  name                = var.aks_uai_name
-  resource_group_name = var.aks_cluster_rg
-}
-
-resource "azurerm_user_assigned_identity" "uai" {
-  count               = var.aks_uai_name == null ? 1 : 0
-  name                = "${var.aks_cluster_name}-node-identity"
-  resource_group_name = var.aks_cluster_rg
-  location            = var.aks_cluster_location
-}
-
-resource "azurerm_role_assignment" "uai_role" {
-  count                = var.aks_uai_name == null ? 1 : 0 : 0
-  scope                = var.aks_cluster_rg_id
-  role_definition_name = "Contributor"
-  principal_id         = azurerm_user_assigned_identity.uai.0.principal_id
-}
-
 # Reference: https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster
 resource "azurerm_kubernetes_cluster" "aks" {
   name                = var.aks_cluster_name
@@ -86,7 +62,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
 
   identity {
     type = "UserAssigned"
-    user_assigned_identity_id = local.uai_id
+    user_assigned_identity_id = var.aks_uai_id
   }
 
   addon_profile {
@@ -116,7 +92,6 @@ resource "azurerm_kubernetes_cluster" "aks" {
 
   tags = var.aks_cluster_tags
 
-  depends_on = [azurerm_role_assignment.uai_role]
 }
 
  data "azurerm_public_ip" "cluster_public_ip" {
