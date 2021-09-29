@@ -1,23 +1,22 @@
 locals {
-  private_create_uai = var.aks_uai_name == null ? true : false
-  uai_id = var.aks_private_cluster ? local.private_create_uai ? azurerm_user_assigned_identity.uai.0.id : data.azurerm_user_assigned_identity.uai.0.id : null
+  uai_id = var.aks_uai_name == null ? azurerm_user_assigned_identity.uai.0.id : data.azurerm_user_assigned_identity.uai.0.id : null
 }
 
 data "azurerm_user_assigned_identity" "uai" {
-  count               = var.aks_private_cluster ? local.private_create_uai ? 0 : 1 : 0
+  count               = var.aks_uai_name |= null ? 1 : 0
   name                = var.aks_uai_name
   resource_group_name = var.aks_cluster_rg
 }
 
 resource "azurerm_user_assigned_identity" "uai" {
-  count               = var.aks_private_cluster ? local.private_create_uai ? 1 : 0 : 0
+  count               = var.aks_uai_name == null ? 1 : 0
   name                = "${var.aks_cluster_name}-node-identity"
   resource_group_name = var.aks_cluster_rg
   location            = var.aks_cluster_location
 }
 
 resource "azurerm_role_assignment" "uai_role" {
-  count                = var.aks_private_cluster ? local.private_create_uai ? 1 : 0 : 0
+  count                = var.aks_uai_name == null ? 1 : 0 : 0
   scope                = var.aks_cluster_rg_id
   role_definition_name = "Contributor"
   principal_id         = azurerm_user_assigned_identity.uai.0.principal_id
@@ -86,8 +85,8 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   identity {
-    type = var.aks_private_cluster ? "UserAssigned" : "SystemAssigned"
-    user_assigned_identity_id = ((var.aks_private_cluster ? local.uai_id : null)  )
+    type = "UserAssigned"
+    user_assigned_identity_id = local.uai_id
   }
 
   addon_profile {
