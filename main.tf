@@ -63,7 +63,7 @@ module "vnet" {
 
   name                = var.vnet_name
   prefix              = var.prefix
-  resource_group_name = module.resource_group.name
+  resource_group_name = var.vnet_resource_group_name != null ? var.vnet_resource_group_name : module.resource_group.name
   location            = var.location
   subnets             = local.subnets
   existing_subnets    = var.subnet_names
@@ -105,7 +105,7 @@ module "jump" {
   tags              = module.resource_group.tags
   vm_admin          = var.jump_vm_admin
   vm_zone           = var.jump_vm_zone
-  ssh_public_key    = file(var.ssh_public_key)
+  ssh_public_key    = try(file(var.ssh_public_key), var.ssh_public_key)
   cloud_init        = data.template_cloudinit_config.jump.rendered
   create_public_ip  = local.create_jump_public_ip
 
@@ -146,7 +146,7 @@ module "nfs" {
   tags                           = module.resource_group.tags
   vm_admin                       = var.nfs_vm_admin
   vm_zone                        = var.nfs_vm_zone
-  ssh_public_key                 = file(var.ssh_public_key)
+  ssh_public_key                 = try(file(var.ssh_public_key), var.ssh_public_key)
   cloud_init                     = data.template_cloudinit_config.nfs.rendered
   create_public_ip               = local.create_nfs_public_ip
   data_disk_count                = 4
@@ -231,10 +231,10 @@ module "aks" {
   aks_cluster_os_disk_size                 = var.default_nodepool_os_disk_size
   aks_cluster_node_vm_size                 = var.default_nodepool_vm_type
   aks_cluster_node_admin                   = var.node_vm_admin
-  aks_cluster_ssh_public_key               = file(var.ssh_public_key)
+  aks_cluster_ssh_public_key               = try(file(var.ssh_public_key), var.ssh_public_key)
   aks_vnet_subnet_id                       = module.vnet.subnets["aks"].id
   kubernetes_version                       = var.kubernetes_version
-  aks_cluster_endpoint_public_access_cidrs = local.cluster_endpoint_public_access_cidrs
+  aks_cluster_endpoint_public_access_cidrs = flatten([local.cluster_endpoint_public_access_cidrs, try(module.jump.*.private_ip_address, [])])
   aks_availability_zones                   = var.default_nodepool_availability_zones
   aks_oms_enabled                          = var.create_aks_azure_monitor
   aks_log_analytics_workspace_id           = var.create_aks_azure_monitor ? azurerm_log_analytics_workspace.viya4[0].id : null
@@ -248,7 +248,8 @@ module "aks" {
   aks_cluster_tags                         = module.resource_group.tags
   aks_uai_name                             = var.aks_uai_name
   aks_private_cluster                      = local.is_private
-  depends_on                               = [module.vnet]
+
+  depends_on                               = [module.vnet, module.jump]
 }
 
 module "kubeconfig" {

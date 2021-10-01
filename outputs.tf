@@ -29,32 +29,32 @@ output "postgres_servers" {
 }
 
 # jump server
-output jump_private_ip {
+output "jump_private_ip" {
   value = var.create_jump_vm ? element(coalescelist(module.jump.*.private_ip_address, [""] ),0) : null
 }
 
-output jump_public_ip {
+output "jump_public_ip" {
   value = var.create_jump_vm && local.create_jump_public_ip ? element(coalescelist(module.jump.*.public_ip_address, [""] ),0) : null
 }
 
-output jump_admin_username {
+output "jump_admin_username" {
   value = var.create_jump_vm ? element(coalescelist(module.jump.*.admin_username, [""] ),0): null
 }
 
-output jump_rwx_filestore_path {
+output "jump_rwx_filestore_path" {
   value = var.create_jump_vm ? var.jump_rwx_filestore_path : null
 }
 
 # nfs server
-output nfs_private_ip {
+output "nfs_private_ip" {
   value = var.storage_type == "standard" ? element(coalescelist(module.nfs.*.private_ip_address, [""] ),0) : null
 }
 
-output nfs_public_ip {
+output "nfs_public_ip" {
   value = var.storage_type == "standard" && local.create_nfs_public_ip ? element(coalescelist(module.nfs.*.public_ip_address, [""] ),0) : null
 }
 
-output nfs_admin_username {
+output "nfs_admin_username" {
   value = var.storage_type == "standard" ? element(coalescelist(module.nfs.*.admin_username, [""] ),0) : null
 }
 

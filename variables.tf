@@ -1,15 +1,15 @@
 ## Global
-variable client_id {
+variable "client_id" {
   default = ""
 }
-variable client_secret {
+variable "client_secret" {
   default = ""
 }
 
-variable subscription_id {}
-variable tenant_id {}
+variable "subscription_id" {}
+variable "tenant_id" {}
 
-variable use_msi {
+variable "use_msi" {
   description = "Use Managed Identity for Authentication (Azure VMs only)"
   type        = bool
   default     = false
@@ -284,7 +284,7 @@ variable "nfs_raid_disk_size" {
   default     = 128
 }
 
-variable nfs_raid_disk_type {
+variable "nfs_raid_disk_type" {
   default     = "Standard_LRS"
   description = "The type of storage to use for the managed disk. Possible values are Standard_LRS, Premium_LRS, StandardSSD_LRS or UltraSSD_LRS."
 
@@ -294,7 +294,7 @@ variable nfs_raid_disk_type {
   }
 }
 
-variable nfs_raid_disk_zones {
+variable "nfs_raid_disk_zones" {
   description = "A collection containing the availability zones to allocate the Managed Disk in."
   default     = []
 }
@@ -317,7 +317,7 @@ variable "container_registry_geo_replica_locs" {
 }
 
 # Azure NetApp Files
-variable netapp_service_level {
+variable "netapp_service_level" {
   description = "When storage_type=ha, The target performance of the file system. Valid values include Premium, Standard, or Ultra"
   default     = "Premium"
 
@@ -326,7 +326,7 @@ variable netapp_service_level {
     error_message = "ERROR: netapp_service_level - Valid values include - Premium, Standard, or Ultra."
   }
 }
-variable netapp_size_in_tb {
+variable "netapp_size_in_tb" {
   description = "When storage_type=ha, Provisioned size of the pool in TB. Value must be between 4 and 500"
   default     = 4
 
@@ -336,26 +336,26 @@ variable netapp_size_in_tb {
   }
 }
 
-variable netapp_protocols {
+variable "netapp_protocols" {
   description = "The target volume protocol expressed as a list. Supported single value include CIFS, NFSv3, or NFSv4.1. If argument is not defined it will default to NFSv3. Changing this forces a new resource to be created and data will be lost."
   default     = ["NFSv3"]
 }
-variable netapp_volume_path {
+variable "netapp_volume_path" {
   description = "A unique file path for the volume. Used when creating mount targets. Changing this forces a new resource to be created"
   default     = "export"
 }
 
-variable node_pools_availability_zone {
+variable "node_pools_availability_zone" {
   type    = string
   default = "1"
 }
 
-variable node_pools_proximity_placement {
+variable "node_pools_proximity_placement" {
   type    = bool
   default = false
 }
 
-variable node_pools {
+variable "node_pools" {
   description = "Node pool definitions"
   type = map(object({
     machine_type = string
@@ -576,4 +576,9 @@ variable "infra_mode" {
     condition     = contains(["standard", "private"], lower(var.infra_mode))
     error_message = "ERROR: Supported values for `infra_mode` are - standard, private."
   }
+}
+
+variable "vnet_resource_group_name" {
+  description = "Resource group name of the networking components."
+  type        = string
 }
