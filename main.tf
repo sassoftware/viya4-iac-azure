@@ -30,37 +30,43 @@ provider "kubernetes" {
 
 data "azurerm_subscription" "current" {}
 
-module "resource_group" {
-  source   = "./modules/azurerm_resource_group"
-  prefix   = var.prefix
-  name     = var.resource_group_name
+data "azurerm_resource_group" "network_rg" {
+  count    = var.vnet_resource_group_name == null ? 0 : 1
+  name     = var.vnet_resource_group_name
+}
+
+resource "azurerm_resource_group" "aks_rg" {
+  count    = var.resource_group_name == null ? 1 : 0
+  name     = "${var.prefix}-rg"
   location = var.location
   tags     = var.tags
 }
 
+data "azurerm_resource_group" "aks_rg" {
+  count    = var.resource_group_name == null ? 0 : 1
+  name     = var.resource_group_name
+}
 resource "azurerm_proximity_placement_group" "proximity" {
   count = var.node_pools_proximity_placement ? 1 : 0
 
   name                = "${var.prefix}-ProximityPlacementGroup"
   location            = var.location
-  resource_group_name = module.resource_group.name
-  tags                = module.resource_group.tags
-  depends_on          = [module.resource_group]
+  resource_group_name = local.aks_rg.name
+  tags                = var.tags
 }
 
 resource "azurerm_network_security_group" "nsg" {
   count               = var.nsg_name == null ? 1 : 0
   name                = "${var.prefix}-nsg"
   location            = var.location
-  resource_group_name = module.resource_group.name
+  resource_group_name = local.aks_rg.name
   tags                = var.tags
-  depends_on          = [module.resource_group]
 }
 
 data "azurerm_network_security_group" "nsg" {
   count               = var.nsg_name == null ? 0 : 1
   name                = var.nsg_name
-  resource_group_name = local.byo_resource_group_name
+  resource_group_name = local.network_rg.name
 }
 
 module "vnet" {
@@ -68,13 +74,12 @@ module "vnet" {
 
   name                = var.vnet_name
   prefix              = var.prefix
-  resource_group_name = local.byo_resource_group_name
+  resource_group_name = local.network_rg.name
   location            = var.location
   subnets             = local.subnets
   existing_subnets    = var.subnet_names
   address_space       = [var.vnet_address_space]
-  tags                = module.resource_group.tags
-  depends_on          = [module.resource_group]
+  tags                = var.tags
 }
 
 data "template_file" "jump-cloudconfig" {
@@ -102,12 +107,12 @@ module "jump" {
 
   count             = var.create_jump_vm ? 1 : 0
   name              = "${var.prefix}-jump"
-  azure_rg_name     = module.resource_group.name
+  azure_rg_name     = local.aks_rg.name
   azure_rg_location = var.location
   vnet_subnet_id    = module.vnet.subnets["misc"].id
   machine_type      = var.jump_vm_machine_type
   azure_nsg_id      = local.nsg.id
-  tags              = module.resource_group.tags
+  tags              = var.tags
   vm_admin          = var.jump_vm_admin
   vm_zone           = var.jump_vm_zone
   ssh_public_key    = file(var.ssh_public_key)
@@ -142,13 +147,13 @@ module "nfs" {
 
   count                          = var.storage_type == "standard" ? 1 : 0
   name                           = "${var.prefix}-nfs"
-  azure_rg_name                  = module.resource_group.name
+  azure_rg_name                  = local.aks_rg.name
   azure_rg_location              = var.location
   proximity_placement_group_id   = element(coalescelist(azurerm_proximity_placement_group.proximity.*.id, [""]), 0)
   vnet_subnet_id                 = module.vnet.subnets["misc"].id
   machine_type                   = var.nfs_vm_machine_type
   azure_nsg_id                   = local.nsg.id
-  tags                           = module.resource_group.tags
+  tags                           = var.tags
   vm_admin                       = var.nfs_vm_admin
   vm_zone                        = var.nfs_vm_zone
   ssh_public_key                 = file(var.ssh_public_key)
@@ -180,7 +185,7 @@ resource "azurerm_network_security_rule" "vm-ssh" {
 resource "azurerm_container_registry" "acr" {
   count                    = var.create_container_registry ? 1 : 0
   name                     = join("", regexall("[a-zA-Z0-9]+", "${var.prefix}acr")) # alpha numeric characters only are allowed
-  resource_group_name      = module.resource_group.name
+  resource_group_name      = local.aks_rg.name
   location                 = var.location
   sku                      = local.container_registry_sku
   admin_enabled            = var.container_registry_admin_enabled
@@ -197,8 +202,7 @@ resource "azurerm_container_registry" "acr" {
       }
   ] : local.container_registry_sku == "Premium" ? [] : null
 
-  tags                     = module.resource_group.tags
-  depends_on               = [module.resource_group]
+  tags                     = var.tags
 }
 
 
@@ -222,8 +226,8 @@ module "aks" {
   source = "./modules/azure_aks"
 
   aks_cluster_name                         = "${var.prefix}-aks"
-  aks_cluster_rg                           = module.resource_group.name
-  aks_cluster_rg_id                        = module.resource_group.id
+  aks_cluster_rg                           = local.aks_rg.name
+  aks_cluster_rg_id                        = local.aks_rg.id
   aks_cluster_dns_prefix                   = "${var.prefix}-aks"
   aks_cluster_location                     = var.location
   aks_cluster_node_auto_scaling            = var.default_nodepool_min_nodes == var.default_nodepool_max_nodes ? false : true
@@ -248,7 +252,7 @@ module "aks" {
   aks_outbound_type                        = var.aks_outbound_type
   aks_pod_cidr                             = var.aks_pod_cidr
   aks_service_cidr                         = var.aks_service_cidr
-  aks_cluster_tags                         = module.resource_group.tags
+  aks_cluster_tags                         = var.tags
   aks_uai_id                               = local.aks_uai_id
   aks_private_cluster                      = local.is_private
   depends_on                               = [module.vnet]
@@ -291,7 +295,7 @@ module "node_pools" {
   availability_zones           = (var.node_pools_availability_zone == "" || var.node_pools_proximity_placement == true) ? [] : [var.node_pools_availability_zone]
   proximity_placement_group_id = element(coalescelist(azurerm_proximity_placement_group.proximity.*.id, [""]), 0)
   orchestrator_version         = var.kubernetes_version
-  tags                         = module.resource_group.tags
+  tags                         = var.tags
 }
 
 # Module Registry - https://registry.terraform.io/modules/Azure/postgresql/azurerm/2.1.0
@@ -301,7 +305,7 @@ module "postgresql" {
 
   for_each                     = local.postgres_servers != null ? length(local.postgres_servers) != 0 ? local.postgres_servers : {} : {}
 
-  resource_group_name          = module.resource_group.name
+  resource_group_name          = local.aks_rg.name
   location                     = var.location
   server_name                  = lower("${var.prefix}-${each.key}-pgsql")
   sku_name                     = each.value.sku_name
@@ -316,11 +320,10 @@ module "postgresql" {
   firewall_rules               = local.postgres_firewall_rules
   vnet_rule_name_prefix        = "${var.prefix}-${each.key}-postgresql-vnet-rule-"
   postgresql_configurations    = each.value.postgresql_configurations
-  tags                         = module.resource_group.tags
+  tags                         = var.tags
 
   ## TODO : requires specific permissions
   vnet_rules = [{ name = "aks", subnet_id = module.vnet.subnets["aks"].id }, { name = "misc", subnet_id = module.vnet.subnets["misc"].id }]
-  depends_on = [module.resource_group]
 }
 
 module "netapp" {
@@ -328,15 +331,15 @@ module "netapp" {
   count                = var.storage_type == "ha" ? 1 : 0
 
   prefix                = var.prefix
-  resource_group_name   = module.resource_group.name
-  location              = module.resource_group.location
+  resource_group_name   = local.aks_rg.name
+  location              = var.location
   vnet_name             = module.vnet.name
   subnet_id             = module.vnet.subnets["netapp"].id
   service_level         = var.netapp_service_level
   size_in_tb            = var.netapp_size_in_tb
   protocols             = var.netapp_protocols
   volume_path           = "${var.prefix}-${var.netapp_volume_path}"
-  tags                  = module.resource_group.tags
+  tags                  = var.tags
   allowed_clients       = concat(module.vnet.subnets["aks"].address_prefixes, module.vnet.subnets["misc"].address_prefixes)
   depends_on            = [module.vnet]
 }

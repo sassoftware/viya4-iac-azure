@@ -119,13 +119,21 @@ The default values for the `subnets` variable are as follows:
 If you want to deploy into an existing resource group, vnet, subnets, or network security group, the variables shown in the following table can be used to define
 the existing resources:
 
+Resource Location:
+
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
-| resource_group_name | Name of pre-existing resource group | string | null | Only required if deploying into existing resource group. |
-| vnet_resource_group_name | Name of a pre-exising resource group containing the BYO vnet resource | string | null | Only required if deploying into existing vnet that is not located in the resource_group_name specified above |
+| resource_group_name | Name of pre-existing resource group to use for all resources created by this utility.   | string | null | If not set, a resource group with the name "<prefix>-rg" will be created. |
+
+| vnet_resource_group_name | Name of a pre-exising resource group that contains any pre-existing resources | string | value of <resource_group_name> | Only required if you use any of `vnet_name`, `subnet_names`, `nsg_name`, or `aks_uai_name`, and if those pre-existing resources are not located in `resource_group_name`. |
+
+Existing Resources:
+
+| Name | Description | Type | Default | Notes |
+| :--- | ---: | ---: | ---: | ---: |
 | vnet_name | Name of pre-existing vnet | string | null | Only required if deploying into existing vnet. |
-| nsg_name | Name of pre-existing network security group | string | null | Only required if deploying into existing NSG. |
 | subnet_names | Existing subnets mapped to desired usage | map(string) | null | Only required if deploying into existing subnets. See the example that follows. |
+| nsg_name | Name of pre-existing network security group | string | null | Only required if deploying into existing NSG. |
 | aks_uai_name | Name of existing User Assigned Identity to use for the cluster | string | null |  |
 
 Example for the `subnet_names` variable:
