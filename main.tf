@@ -272,7 +272,7 @@ module "kubeconfig" {
   client_crt               = module.aks.client_certificate
   client_key               = module.aks.client_key
   token                    = module.aks.cluster_password
-  depends_on               = [ module.aks ]
+  depends_on               = [ module.aks, azurerm_role_assignment.uai_byo_rg_role ]
 }
 
 module "node_pools" {
