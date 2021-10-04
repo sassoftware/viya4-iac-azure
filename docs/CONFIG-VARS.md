@@ -167,6 +167,7 @@ Ubuntu 20.04 LTS is the operating system used on the Jump/NFS servers. Ubuntu cr
 | jump_vm_machine_type | SKU to use for the jump VM | string | "Standard_B2s" | To check for valid types for your subscription, run: `az vm list-skus --resource-type virtualMachines --subscription $subscription --location $location -o table`|
 | jump_rwx_filestore_path | File store mount point on jump server | string | "/viya-share" | This location cannot include `/mnt` as its root location. This disk is ephemeral on Ubuntu, which is the operating system being used for the jump/NFS servers. |
 | tags | Map of common tags to be placed on all Azure resources created by this script | map | { project_name = "sasviya4", environment = "dev" } | |
+| aks_identity | Use UserAssignedIdentity or Service Principal as  [AKS identity](https://docs.microsoft.com/en-us/azure/aks/concepts-identity) | string | "uai" | A value of `uai` wil create a Managed Identity based on the permissions of the authenticated user or use [`AKS_UAI_NAME`](#use-existing), if set. A value of `sp` will use values from [`CLIENT_ID`/`CLIENT_SECRET`](#azure-authentication), if set. |
 
 ## Node Pools
 

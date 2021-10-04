@@ -51,10 +51,12 @@ locals {
   nsg_rg_name = var.nsg_name == null ? local.aks_rg.name : local.network_rg.name
 
   # Use BYO UAI if given, else create a UAI
-  aks_uai_id = ( var.aks_uai_name == null
-                 ? azurerm_user_assigned_identity.uai.0.id
-                 : data.azurerm_user_assigned_identity.uai.0.id
+  aks_uai_id = ( var.aks_identity == "uai" 
+                 ? ( var.aks_uai_name == null
+                     ? azurerm_user_assigned_identity.uai.0.id
+                     : data.azurerm_user_assigned_identity.uai.0.id
+                   )
+                 : null
                )
-
 }
 

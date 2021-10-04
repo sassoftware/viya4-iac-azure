@@ -583,3 +583,13 @@ variable "infra_mode" {
     error_message = "ERROR: Supported values for `infra_mode` are - standard, private."
   }
 }
+
+variable "aks_identity" {
+  description = "Use Service Principal or create a UserAssignedIdentity as AKS Identity."
+  type        = string
+  default     = "uai"
+  validation {
+    condition     = contains(["sp", "uai"], var.aks_identity)
+    error_message = "ERROR: Supported values for `aks_identity` are: uai, sp."
+  }
+}

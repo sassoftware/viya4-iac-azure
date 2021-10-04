@@ -254,6 +254,8 @@ module "aks" {
   aks_service_cidr                         = var.aks_service_cidr
   aks_cluster_tags                         = var.tags
   aks_uai_id                               = local.aks_uai_id
+  client_id                                = var.client_id
+  client_secret                            = var.client_secret
   aks_private_cluster                      = local.is_private
   depends_on                               = [module.vnet]
 }

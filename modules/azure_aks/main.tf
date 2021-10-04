@@ -60,9 +60,20 @@ resource "azurerm_kubernetes_cluster" "aks" {
     orchestrator_version  = var.kubernetes_version
   }
 
-  identity {
-    type = "UserAssigned"
-    user_assigned_identity_id = var.aks_uai_id
+  dynamic "service_principal" {
+    for_each = var.aks_uai_id == null ? [1] : []
+    content {
+      client_id     = var.client_id
+      client_secret = var.client_secret
+    }
+  }
+
+  dynamic "identity" {
+    for_each = var.aks_uai_id == null ? [] : [1]
+    content {
+      type = "UserAssigned"
+      user_assigned_identity_id = var.aks_uai_id
+    }
   }
 
   addon_profile {

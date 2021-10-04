@@ -124,3 +124,10 @@ variable "aks_uai_id"{
   description = "User assigned identity ID"
   default = null
 } 
+
+variable client_id {
+  default = ""
+}
+variable client_secret {
+  default = ""
+}
