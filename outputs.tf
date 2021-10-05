@@ -3,21 +3,17 @@ output "aks_host" {
   value = module.aks.host
 }
 
-output "nat_ip" {
-  value = module.aks.cluster_public_ip
-}
-
 output "kube_config" {
   value = module.kubeconfig.kube_config
   sensitive = true
 }
 
 output "aks_cluster_node_username" {
-  value = module.aks.cluster_username
+  value = module.aks.username
 }
 
 output "aks_cluster_password" {
-  value = module.aks.cluster_password
+  value = module.aks.password
   sensitive = true
 }
 
@@ -89,7 +85,7 @@ output "prefix" {
 }
 
 output "cluster_name" {
-  value = module.aks.name
+  value = "${var.prefix}-aks"
 }
 
 output "provider_account" {

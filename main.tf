@@ -216,39 +216,38 @@ resource "azurerm_network_security_rule" "acr" {
 }
 
 module "aks" {
-  source = "./modules/azure_aks"
+  source  = "Azure/aks/azurerm"
+  version = "4.13.0"
 
-  aks_cluster_name                         = "${var.prefix}-aks"
-  aks_cluster_rg                           = module.resource_group.name
-  aks_cluster_rg_id                        = module.resource_group.id
-  aks_cluster_dns_prefix                   = "${var.prefix}-aks"
-  aks_cluster_location                     = var.location
-  aks_cluster_node_auto_scaling            = var.default_nodepool_min_nodes == var.default_nodepool_max_nodes ? false : true
-  aks_cluster_node_count                   = var.default_nodepool_min_nodes
-  aks_cluster_min_nodes                    = var.default_nodepool_min_nodes == var.default_nodepool_max_nodes ? null : var.default_nodepool_min_nodes
-  aks_cluster_max_nodes                    = var.default_nodepool_min_nodes == var.default_nodepool_max_nodes ? null : var.default_nodepool_max_nodes
-  aks_cluster_max_pods                     = var.default_nodepool_max_pods
-  aks_cluster_os_disk_size                 = var.default_nodepool_os_disk_size
-  aks_cluster_node_vm_size                 = var.default_nodepool_vm_type
-  aks_cluster_node_admin                   = var.node_vm_admin
-  aks_cluster_ssh_public_key               = file(var.ssh_public_key)
-  aks_vnet_subnet_id                       = module.vnet.subnets["aks"].id
-  kubernetes_version                       = var.kubernetes_version
-  aks_cluster_endpoint_public_access_cidrs = local.cluster_endpoint_public_access_cidrs
-  aks_availability_zones                   = var.default_nodepool_availability_zones
-  aks_oms_enabled                          = var.create_aks_azure_monitor
-  aks_log_analytics_workspace_id           = var.create_aks_azure_monitor ? azurerm_log_analytics_workspace.viya4[0].id : null
-  aks_network_plugin                       = var.aks_network_plugin
-  aks_network_policy                       = var.aks_network_policy
-  aks_dns_service_ip                       = var.aks_dns_service_ip
-  aks_docker_bridge_cidr                   = var.aks_docker_bridge_cidr
-  aks_outbound_type                        = var.aks_outbound_type
-  aks_pod_cidr                             = var.aks_pod_cidr
-  aks_service_cidr                         = var.aks_service_cidr
-  aks_cluster_tags                         = module.resource_group.tags
-  aks_uai_name                             = var.aks_uai_name
-  aks_private_cluster                      = local.is_private
-  depends_on                               = [module.vnet]
+  cluster_name                    = "${var.prefix}-aks"
+  resource_group_name             = module.resource_group.name
+  prefix                          = var.prefix
+  enable_auto_scaling             = var.default_nodepool_min_nodes == var.default_nodepool_max_nodes ? false : true
+  agents_count                    = var.default_nodepool_min_nodes
+  agents_min_count                = var.default_nodepool_min_nodes == var.default_nodepool_max_nodes ? null : var.default_nodepool_min_nodes
+  agents_max_count                = var.default_nodepool_min_nodes == var.default_nodepool_max_nodes ? null : var.default_nodepool_max_nodes
+  agents_max_pods                 = var.default_nodepool_max_pods
+  os_disk_size_gb                 = var.default_nodepool_os_disk_size
+  agents_size                     = var.default_nodepool_vm_type
+  admin_username                  = var.node_vm_admin
+  public_ssh_key                  = file(var.ssh_public_key)
+  vnet_subnet_id                  = module.vnet.subnets["aks"].id
+  kubernetes_version              = var.kubernetes_version
+  orchestrator_version            = var.kubernetes_version
+  agents_availability_zones       = var.default_nodepool_availability_zones
+  enable_log_analytics_workspace  = var.create_aks_azure_monitor
+  network_plugin                  = var.aks_network_plugin
+  network_policy                  = var.aks_network_policy
+  net_profile_dns_service_ip      = var.aks_dns_service_ip
+  net_profile_docker_bridge_cidr  = var.aks_docker_bridge_cidr
+  net_profile_outbound_type       = var.aks_outbound_type
+  net_profile_pod_cidr            = var.aks_pod_cidr
+  net_profile_service_cidr        = var.aks_service_cidr
+  tags                            = module.resource_group.tags
+  user_assigned_identity_id       = var.aks_uai_name
+  private_cluster_enabled         = local.is_private
+  depends_on                      = [module.vnet]
+
 }
 
 module "kubeconfig" {
@@ -257,12 +256,12 @@ module "kubeconfig" {
   create_static_kubeconfig = var.create_static_kubeconfig
   path                     = local.kubeconfig_path
   namespace                = "kube-system"
-  cluster_name             = module.aks.name
+  cluster_name             = "${var.prefix}-aks"
   endpoint                 = module.aks.host
   ca_crt                   = module.aks.cluster_ca_certificate
   client_crt               = module.aks.client_certificate
   client_key               = module.aks.client_key
-  token                    = module.aks.cluster_password
+  token                    = module.aks.password
   depends_on               = [ module.aks ]
 }
 
@@ -272,7 +271,7 @@ module "node_pools" {
   for_each = var.node_pools
 
   node_pool_name = each.key
-  aks_cluster_id = module.aks.cluster_id
+  aks_cluster_id = module.aks.aks_id
   vnet_subnet_id = module.vnet.subnets["aks"].id
   machine_type   = each.value.machine_type
   os_disk_size   = each.value.os_disk_size
