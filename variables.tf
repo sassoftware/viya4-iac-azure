@@ -147,10 +147,17 @@ variable "aks_service_cidr" {
   default     = "10.0.0.0/16"
 }
 
-variable "aks_uai_name"{
-  description = "User assigned identity name"
-  default = null
-} 
+variable "aks_identity_type" {
+  description = "(Optional) The type of identity used for the managed cluster. Conflict with `client_id` and `client_secret`. Possible values are `SystemAssigned` and `UserAssigned`. If `UserAssigned` is set, a `user_assigned_identity_id` must be set as well."
+  type        = string
+  default     = "SystemAssigned"
+}
+
+variable "aks_user_assigned_identity_id" {
+  description = "(Optional) The ID of a user assigned identity."
+  type        = string
+  default     = null
+}
 
 variable "node_vm_admin" {
   description = "OS Admin User for VMs of AKS Cluster nodes"

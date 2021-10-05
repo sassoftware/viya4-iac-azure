@@ -244,8 +244,10 @@ module "aks" {
   net_profile_pod_cidr            = var.aks_pod_cidr
   net_profile_service_cidr        = var.aks_service_cidr
   tags                            = module.resource_group.tags
-  user_assigned_identity_id       = var.aks_uai_name
+  user_assigned_identity_id       = var.aks_user_assigned_identity_id
   private_cluster_enabled         = local.is_private
+  identity_type                   = var.aks_identity_type
+ 
   depends_on                      = [module.vnet]
 
 }
