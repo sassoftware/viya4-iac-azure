@@ -68,8 +68,8 @@ You can use `default_public_access_cidrs` to set a default range for all created
 | :--- | ---: | ---: | ---: | ---: |
 | default_public_access_cidrs | IP address ranges allowed to access all created cloud resources | list of strings | | Sets a default for all resources. |
 | cluster_endpoint_public_access_cidrs | IP address ranges allowed to access the AKS cluster API | list of strings | | For client admin access to the cluster (by `kubectl`, for example). |
-| vm_public_access_cidrs | IP address ranges allowed to access the VMs | list of strings | | Opens port 22 for SSH access to the jump server and/or NFS VM. |
-| postgres_public_access_cidrs | IP address ranges allowed to access the Azure PostgreSQL Server | list of strings |||
+| vm_public_access_cidrs | IP address ranges allowed to access the VMs | list of strings | | Opens port 22 for SSH access to the jump server and/or NFS VM by adding Ingress Rule on the NSG |
+| postgres_public_access_cidrs | IP address ranges allowed to access the Azure PostgreSQL Server | list of strings || Opens port 5432 by adding Ingress Rule on the NSG |
 | acr_public_access_cidrs | IP address ranges allowed to access the ACR instance | list of strings |||
 
 **NOTE:** In a SCIM environment, the AzureActiveDirectory service tag must be granted access to port 443/HTTPS for the Ingress IP address. 
@@ -133,8 +133,9 @@ Note: All of the following resources are expected to be in the Resource Group se
 
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
-| vnet_name | Name of pre-existing vnet | string | null | Only required if deploying into existing vnet. |
-| subnet_names | Existing subnets mapped to desired usage. | map(string) | null | Only required if deploying into existing subnets. See the example that follows. |
+| vnet_name | Name of pre-existing vnet | string | null | Only needed if deploying into existing vnet. |
+| subnet_names | Existing subnets mapped to desired usage. | map(string) | null | Only possible if deploying into existing vnet. See the example that follows. |
+| nat_gateway_name | Name of existing NAT Gateway | string | null | Only possible if deploying into existing vnet. |
 | nsg_name | Name of pre-existing network security group. | string | null | Only required if deploying into existing NSG. |
 | aks_uai_name | Name of existing User Assigned Identity for the cluster | string | null | This Identity will need permissions as listed in [AKS Cluster Identity Permissions](https://docs.microsoft.com/en-us/azure/aks/concepts-identity#aks-cluster-identity-permissions) and [Additional Cluster Identity Permissions](https://docs.microsoft.com/en-us/azure/aks/concepts-identity#additional-cluster-identity-permissions). Alternatively, use can use the [Contributor](https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#contributor) role for this Identity. |
 

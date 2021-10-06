@@ -20,5 +20,10 @@ output "address_space" {
 
 output "subnets" {
   description = "The ids of subnets inside the vNet"
-  value = length(var.existing_subnets) == 0 ? [for k, v in azurerm_subnet.subnet[*] :{for kk, vv in v: kk => {"id": vv.id, "address_prefixes": vv.address_prefixes }}][0] : [for k, v in data.azurerm_subnet.subnet[*] :{for kk, vv in v: kk => {"id": vv.id, "address_prefixes": vv.address_prefixes }}][0]
+  value       = local.subnets
 }
+
+# output "nat_ip" {
+#   description = "The primary public IP of the NAT Gateway"
+#   value       = local.nat_ip
+# }

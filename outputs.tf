@@ -4,7 +4,7 @@ output "aks_host" {
 }
 
 output "nat_ip" {
-  value = module.aks.cluster_public_ip
+  value = var.egress_public_ip_name == "" ? module.aks.cluster_public_ip : data.azurerm_public_ip.nat-ip.0.ip_address
 }
 
 output "kube_config" {

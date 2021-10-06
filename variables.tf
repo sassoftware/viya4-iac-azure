@@ -508,6 +508,12 @@ variable "nsg_name" {
   description = "Name of pre-exising NSG. Leave blank to have one created"
 }
 
+variable "egress_public_ip_name" {
+  type        = string
+  default     = ""
+  description = "Name of pre-existing Public IP for the Network egress."
+}
+
 variable "subnet_names" {
   type        = map(string)
   default     = {}

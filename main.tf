@@ -79,8 +79,16 @@ module "vnet" {
   subnets             = local.subnets
   existing_subnets    = var.subnet_names
   address_space       = [var.vnet_address_space]
+  nat_gateway_name    = "dummy"
   tags                = var.tags
 }
+
+data "azurerm_public_ip" "nat-ip" {
+  count               = var.egress_public_ip_name == "" ? 0 : 1
+  name                = var.egress_public_ip_name
+  resource_group_name = local.network_rg.name
+}
+
 
 data "template_file" "jump-cloudconfig" {
   template = file("${path.module}/files/cloud-init/jump/cloud-config")
@@ -257,6 +265,7 @@ module "aks" {
   client_id                                = var.client_id
   client_secret                            = var.client_secret
   aks_private_cluster                      = local.is_private
+  cluster_egress_type                      = var.egress_public_ip_name == "" ? "loadBalancer" : "userDefinedRouting"
   depends_on                               = [module.vnet]
 }
 

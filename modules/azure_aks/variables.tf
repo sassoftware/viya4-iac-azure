@@ -131,3 +131,7 @@ variable client_id {
 variable client_secret {
   default = ""
 }
+
+variable "cluster_egress_type" {
+  default = "loadBalancer"
+}

@@ -46,6 +46,10 @@ variable "existing_subnets" {
   default = {}
 }
 
+variable "nat_gateway_name" {
+  type    = string
+  default = ""
+}
 variable "tags" {
   description = "The tags to associate with your network and subnets."
   type        = map(string)
