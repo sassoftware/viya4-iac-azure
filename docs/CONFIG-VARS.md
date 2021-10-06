@@ -125,7 +125,6 @@ Resource Location:
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
 | resource_group_name | Name of pre-existing resource group to use for all resources created by this utility.   | string | null | If not set, a resource group with the name `<prefix>-rg` will be created. |
-
 | vnet_resource_group_name | Name of a pre-exising resource group that contains any pre-existing resources | string | value of `resource_group_name` | Only required if you use any of `vnet_name`, `subnet_names`, `nsg_name`, or `aks_uai_name`, and if those pre-existing resources are not located in `resource_group_name`. |
 
 Existing Resources:
