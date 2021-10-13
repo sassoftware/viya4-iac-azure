@@ -63,7 +63,7 @@ module "vnet" {
 
   name                = var.vnet_name
   prefix              = var.prefix
-  resource_group_name = var.vnet_resource_group_name != null ? var.vnet_resource_group_name : module.resource_group.name
+  resource_group_name = var.vnet_resource_group_name == null ? module.resource_group.name : var.vnet_resource_group_name
   location            = var.location
   subnets             = local.subnets
   existing_subnets    = var.subnet_names
