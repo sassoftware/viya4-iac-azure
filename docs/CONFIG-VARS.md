@@ -122,6 +122,7 @@ the existing resources:
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
 | resource_group_name | Name of pre-existing resource group | string | null | Only required if deploying into existing resource group. |
+| vnet_resource_group_name | Name of a pre-exising resource group containing the BYO vnet resource | string | null | Only required if deploying into existing vnet that is not located in the resource_group_name specified above |
 | vnet_name | Name of pre-existing vnet | string | null | Only required if deploying into existing vnet. |
 | nsg_name | Name of pre-existing network security group | string | null | Only required if deploying into existing NSG. |
 | subnet_names | Existing subnets mapped to desired usage | map(string) | null | Only required if deploying into existing subnets. See the example that follows. |
