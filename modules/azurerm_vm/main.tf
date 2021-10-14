@@ -34,8 +34,9 @@ resource "azurerm_network_interface_security_group_association" "vm_nic_sg" {
 
 # https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/managed_disk
 resource "azurerm_managed_disk" "vm_data_disk" {
-  count                = var.data_disk_count
-  name                 = format("%s-disk%02d", var.name, count.index + 1)
+  for_each = local.disk_map
+
+  name                 = each.value.name
   location             = var.azure_rg_location
   resource_group_name  = var.azure_rg_name
   storage_account_type = var.data_disk_storage_account_type
@@ -46,10 +47,11 @@ resource "azurerm_managed_disk" "vm_data_disk" {
 }
 
 resource "azurerm_virtual_machine_data_disk_attachment" "vm_data_disk_attach" {
-  count              = var.data_disk_count
-  managed_disk_id    = azurerm_managed_disk.vm_data_disk[count.index].id
+  for_each = azurerm_managed_disk.vm_data_disk
+
+  managed_disk_id    = each.value.id
   virtual_machine_id = azurerm_linux_virtual_machine.vm.id
-  lun                = count.index + 10
+  lun                = (each.key + 10)
   caching            = var.data_disk_storage_account_type == "UltraSSD_LRS" ? "None" : var.data_disk_caching
 }
 

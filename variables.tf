@@ -583,8 +583,3 @@ variable "infra_mode" {
     error_message = "ERROR: Supported values for `infra_mode` are - standard, private."
   }
 }
-
-variable "vnet_resource_group_name" {
-  description = "Resource group name of the networking components."
-  type        = string
-}
