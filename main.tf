@@ -219,11 +219,11 @@ module "aks" {
   source  = "Azure/aks/azurerm"
   version = "4.13.0"
 
-  cluster_name                    = "${var.prefix}-aks"
+  cluster_name                    = local.cluster_name
   resource_group_name             = module.resource_group.name
   prefix                          = var.prefix
   enable_auto_scaling             = var.default_nodepool_min_nodes == var.default_nodepool_max_nodes ? false : true
-  agents_count                    = var.default_nodepool_min_nodes
+  agents_count                    = var.default_nodepool_min_nodes == var.default_nodepool_max_nodes ? var.default_nodepool_min_nodes : null
   agents_min_count                = var.default_nodepool_min_nodes == var.default_nodepool_max_nodes ? null : var.default_nodepool_min_nodes
   agents_max_count                = var.default_nodepool_min_nodes == var.default_nodepool_max_nodes ? null : var.default_nodepool_max_nodes
   agents_max_pods                 = var.default_nodepool_max_pods
@@ -258,7 +258,7 @@ module "kubeconfig" {
   create_static_kubeconfig = var.create_static_kubeconfig
   path                     = local.kubeconfig_path
   namespace                = "kube-system"
-  cluster_name             = "${var.prefix}-aks"
+  cluster_name             = local.cluster_name
   endpoint                 = module.aks.host
   ca_crt                   = module.aks.cluster_ca_certificate
   client_crt               = module.aks.client_certificate

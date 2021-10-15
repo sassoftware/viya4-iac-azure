@@ -15,6 +15,7 @@ locals {
   subnets = { for k, v in var.subnets : k => v if ! ( k == "netapp" && var.storage_type == "standard")}
 
   # Kubernetes
+  cluster_name = "${var.prefix}-aks"
   kubeconfig_filename = "${var.prefix}-aks-kubeconfig.conf"
   kubeconfig_path     = var.iac_tooling == "docker" ? "/workspace/${local.kubeconfig_filename}" : local.kubeconfig_filename
 
