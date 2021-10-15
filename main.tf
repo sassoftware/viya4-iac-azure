@@ -257,7 +257,7 @@ module "aks" {
   client_id                                = var.client_id
   client_secret                            = var.client_secret
   aks_private_cluster                      = local.is_private
-  depends_on                               = [module.vnet, azurerm_role_assignment.uai_byo_rg_role]
+  depends_on                               = [module.vnet]
 }
 
 module "kubeconfig" {
