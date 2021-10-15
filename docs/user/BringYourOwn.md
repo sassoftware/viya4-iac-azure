@@ -23,4 +23,4 @@ The table below shows the supported scenarios when using existing/bring your own
 | Scenario|Required variables|Additional requirements|Resources to be created|
 | :--- | :--- | :--- | :--- |
 | 1. Everything + owner permissions | `resource_group_name`, <br>`vnet_name`, <br>`subnet_names`, <br>`nsg_name` | resource group, vnet, subnets, network security group and route tables must already be setup properly to all direct connection to Azure resources| User Assigned Identity |
-| 2. Everything + Use existing UAI and role assignment  | `resource_group_name`, <br>`vnet_name`, <br>`subnet_names`, <br>`nsg_name`, <br>`aks_uai_name` | resource group, vnet, subnets, network security group and route tables must already be setup properly to all direct connection to Azure resources | |
+| 2. Everything + Use existing UAI and role assignment  | `resource_group_name`, <br>`vnet_name`, <br>`subnet_names`, <br>`nsg_name`, <br>`aks_user_assigned_identity_id` | resource group, vnet, subnets, network security group and route tables must already be setup properly to all direct connection to Azure resources | |
