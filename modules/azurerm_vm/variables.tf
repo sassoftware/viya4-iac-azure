@@ -12,7 +12,7 @@ variable "azure_nsg_id" {
 
 variable "tags" {
   description = "Map of common tags to be placed on the Resources"
-  type        = map()
+  type        = map(any)
 }
 
 variable "vnet_subnet_id" {

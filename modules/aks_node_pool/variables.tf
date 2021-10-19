@@ -81,12 +81,12 @@ variable "min_nodes" {
 }
 
 variable "node_taints" {
-  type    = list()
+  type    = list(any)
   default = []
 }
 
 variable "node_labels" {
-  type    = map()
+  type    = map(any)
   default = {}
 }
 
@@ -97,7 +97,7 @@ variable "orchestrator_version" {
 
 variable "tags" {
   description = "Map of tags to be placed on the Resources"
-  type        = map()
+  type        = map(any)
 }
 
 variable "proximity_placement_group_id" {
