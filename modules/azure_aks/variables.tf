@@ -69,7 +69,7 @@ variable "kubernetes_version" {
 }
 variable "aks_cluster_endpoint_public_access_cidrs" {
   description = "Kubernetes cluster access IP ranges"
-  type        = list(any)
+  type        = list()
 }
 
 variable "aks_vnet_subnet_id" {
@@ -116,7 +116,7 @@ variable "aks_service_cidr" {
 
 variable "aks_cluster_tags" {
   description = "Map of tags to be placed on the Resources"
-  type        = map(any)
+  type        = map()
 }
 
 variable "aks_oms_enabled" {
