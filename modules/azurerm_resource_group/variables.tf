@@ -16,6 +16,6 @@ variable "location" {
 
 variable "tags" {
   description = "Map of common tags to be placed on the Resources"
-  type        = map(any)
+  type        = map
   default     = {}
 }

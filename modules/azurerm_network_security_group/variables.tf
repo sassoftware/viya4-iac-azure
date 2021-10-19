@@ -23,6 +23,6 @@ variable "resource_group_name" {
 
 variable "tags" {
   description = "Map of common tags to be placed on the resources"
-  type        = map(any)
+  type        = map
   default     = {}
 }
