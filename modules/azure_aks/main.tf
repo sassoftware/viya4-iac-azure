@@ -91,7 +91,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
 
   # change these default timeouts if needed
   timeouts {
-    create = "90m"
+    create = "20m"   # TODO reset to 90m
     update = "90m"
     read   = "5m"
     delete = "90m"
