@@ -53,7 +53,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
     dns_service_ip     = var.aks_network_plugin == "kubenet" ? "10.0.0.10" : var.aks_dns_service_ip
     pod_cidr           = var.aks_network_plugin == "kubenet" ? "10.244.0.0/16" : null
     docker_bridge_cidr = var.aks_network_plugin == "kubenet" ? "172.17.0.1/16" : var.aks_docker_bridge_cidr
-    outbound_type = var.aks_outbound_type != null ? var.aks_outbound_type : (var.aks_private_cluster ? "userDefinedRouting" : "loadBalancer")
+    outbound_type      = var.aks_outbound_type != null ? var.aks_outbound_type : (var.aks_private_cluster ? "userDefinedRouting" : "loadBalancer")
     load_balancer_sku  = "Standard"
   }
 
@@ -134,7 +134,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
 }
 
  data "azurerm_public_ip" "cluster_public_ip" {
-  count = var.aks_outbound_type == "userDefinedRouting" ? 0 : (var.aks_private_cluster ? 0 : 1)
+  count               = var.aks_outbound_type == "userDefinedRouting" ? 0 : (var.aks_private_cluster ? 0 : 1)
 
   # effective_outbound_ips is a set of strings, that needs to be converted to a list type
   name                = split("/", tolist(azurerm_kubernetes_cluster.aks.network_profile[0].load_balancer_profile[0].effective_outbound_ips)[0])[8]
