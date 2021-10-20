@@ -252,6 +252,15 @@ module "aks" {
 
 }
 
+data "azurerm_kubernetes_cluster" "aks_cluster" {
+  name                = local.cluster_name
+  resource_group_name = module.resource_group.name
+}
+
+data "dns_a_record_set" "aks_cluster_fqdn" {
+  host = data.azurerm_kubernetes_cluster.aks_cluster.fqdn
+}
+
 module "kubeconfig" {
   source                   = "./modules/kubeconfig"
   prefix                   = var.prefix

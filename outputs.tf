@@ -3,6 +3,10 @@ output "aks_host" {
   value = module.aks.host
 }
 
+output "nat_ip" {
+  value = local.is_private ? null : "${join(",", data.dns_a_record_set.aks_cluster_fqdn.addrs)}"
+}
+
 output "kube_config" {
   value = module.kubeconfig.kube_config
   sensitive = true
