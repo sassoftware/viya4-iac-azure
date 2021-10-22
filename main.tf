@@ -85,10 +85,16 @@ module "vnet" {
 data "template_file" "jump-cloudconfig" {
   template = file("${path.module}/files/cloud-init/jump/cloud-config")
   vars = {
-    nfs_rwx_filestore_endpoint = var.storage_type == "ha" ? module.netapp.0.netapp_endpoint : module.nfs.0.private_ip_address
-    nfs_rwx_filestore_path     = var.storage_type == "ha" ? module.netapp.0.netapp_path : "/export"
-    jump_rwx_filestore_path    = var.jump_rwx_filestore_path
-    vm_admin                   = var.jump_vm_admin
+    rwx_filestore_endpoint  = ( var.storage_type == "none"
+                                ? ""
+                                : var.storage_type == "ha" ? module.netapp.0.netapp_endpoint : module.nfs.0.private_ip_address 
+                              )
+    rwx_filestore_path      = ( var.storage_type == "none"
+                                ? ""
+                                : var.storage_type == "ha" ? module.netapp.0.netapp_path : "/export"
+                              )
+    jump_rwx_filestore_path = var.jump_rwx_filestore_path
+    vm_admin                = var.jump_vm_admin
   }
 }
 
