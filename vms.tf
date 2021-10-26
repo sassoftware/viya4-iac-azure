@@ -54,7 +54,7 @@ module "jump" {
   tags              = var.tags
   vm_admin          = var.jump_vm_admin
   vm_zone           = var.jump_vm_zone
-  ssh_public_key    = file(var.ssh_public_key)
+  ssh_public_key    = local.ssh_public_key
   cloud_init        = data.template_cloudinit_config.jump.rendered
   create_public_ip  = local.create_jump_public_ip
 
@@ -95,7 +95,7 @@ module "nfs" {
   tags                           = var.tags
   vm_admin                       = var.nfs_vm_admin
   vm_zone                        = var.nfs_vm_zone
-  ssh_public_key                 = file(var.ssh_public_key)
+  ssh_public_key                 = local.ssh_public_key
   cloud_init                     = data.template_cloudinit_config.nfs.rendered
   create_public_ip               = local.create_nfs_public_ip
   data_disk_count                = 4

@@ -6,7 +6,6 @@
 # These required variables' values MUST be provided by the User
 prefix   = "<prefix-value>" # this is a prefix that you assign for the resources to be created
 location = "<azure-location-value>" # e.g., "eastus2"
-ssh_public_key = "<path-to-public-key-on-host-running-iac>" # Name of file with public ssh key for connecting to the VMs
 # ****************  REQUIRED VARIABLES  ****************
 
 # !NOTE! - Without specifying your CIDR block access rules, ingress traffic
