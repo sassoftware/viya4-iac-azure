@@ -116,7 +116,7 @@ output "rwx_filestore_config" {
     "tenantID" : data.azurerm_subscription.current.tenant_id,
     "clientID" : var.client_id,
     "clientSecret" : var.client_secret,
-    "location" : module.resource_group.location,
+    "location" : local.aks_rg.location,
     "serviceLevel" : var.netapp_service_level,
     "virtualNetwork" : module.vnet.name,
     "subnet" : module.vnet.subnets["netapp"],
