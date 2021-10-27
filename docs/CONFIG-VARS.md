@@ -116,16 +116,27 @@ The default values for the `subnets` variable are as follows:
 
 ### Use Existing
 
-If you want to deploy into an existing resource group, vnet, subnets, or network security group, the variables shown in the following table can be used to define
+If you want to deploy into an existing resource group, vnet, subnets, or network security group, 
+use the variables shown in the following table to define
 the existing resources:
+
+Resource Location:
 
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
-| resource_group_name | Name of pre-existing resource group | string | null | Only required if deploying into existing resource group. |
-| vnet_resource_group_name | Name of a pre-exising resource group containing the BYO vnet resource | string | null | Only required if deploying into existing vnet that is not located in the resource_group_name specified above |
+| resource_group_name | Name of pre-existing resource group to use for all resources created by this utility.   | string | null | If not set, a resource group with the name `<prefix>-rg` will be created. |
+| vnet_resource_group_name | Name of a pre-exising resource group that contains any pre-existing resources | string | value of `resource_group_name` | Only required if you use any of `vnet_name`, `subnet_names`, `nsg_name`, or `aks_uai_name`, and if those pre-existing resources are not located in `resource_group_name`. |
+
+Existing Resources:
+
+Note: All of the following resources are expected to be in the Resource Group set by `vnet_resource_group_name`.
+
+| Name | Description | Type | Default | Notes |
+| :--- | ---: | ---: | ---: | ---: |
 | vnet_name | Name of pre-existing vnet | string | null | Only required if deploying into existing vnet. |
-| nsg_name | Name of pre-existing network security group | string | null | Only required if deploying into existing NSG. |
-| subnet_names | Existing subnets mapped to desired usage | map(string) | null | Only required if deploying into existing subnets. See the example that follows. |
+| subnet_names | Existing subnets mapped to desired usage. | map(string) | null | Only required if deploying into existing subnets. See the example that follows. |
+| nsg_name | Name of pre-existing network security group. | string | null | Only required if deploying into existing NSG. |
+| aks_uai_name | Name of existing User Assigned Identity for the cluster | string | null | This Identity will need permissions as listed in [AKS Cluster Identity Permissions](https://docs.microsoft.com/en-us/azure/aks/concepts-identity#aks-cluster-identity-permissions) and [Additional Cluster Identity Permissions](https://docs.microsoft.com/en-us/azure/aks/concepts-identity#additional-cluster-identity-permissions). Alternatively, use can use the [Contributor](https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#contributor) role for this Identity. |
 
 Example for the `subnet_names` variable:
 
@@ -155,6 +166,7 @@ Ubuntu 20.04 LTS is the operating system used on the Jump/NFS servers. Ubuntu cr
 | jump_vm_machine_type | SKU to use for the jump VM | string | "Standard_B2s" | To check for valid types for your subscription, run: `az vm list-skus --resource-type virtualMachines --subscription $subscription --location $location -o table`|
 | jump_rwx_filestore_path | File store mount point on jump server | string | "/viya-share" | This location cannot include `/mnt` as its root location. This disk is ephemeral on Ubuntu, which is the operating system being used for the jump/NFS servers. |
 | tags | Map of common tags to be placed on all Azure resources created by this script | map | { project_name = "sasviya4", environment = "dev" } | |
+| aks_identity | Use UserAssignedIdentity or Service Principal as  [AKS identity](https://docs.microsoft.com/en-us/azure/aks/concepts-identity) | string | "uai" | A value of `uai` wil create a Managed Identity based on the permissions of the authenticated user or use [`AKS_UAI_NAME`](#use-existing), if set. A value of `sp` will use values from [`CLIENT_ID`/`CLIENT_SECRET`](#azure-authentication), if set. |
 
 ## Node Pools
 

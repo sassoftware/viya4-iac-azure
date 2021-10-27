@@ -81,7 +81,7 @@ variable "default_nodepool_vm_type" {
 }
 variable "kubernetes_version" {
   description = "The AKS cluster K8s version"
-  default     = "1.19.11"
+  default     = "1.19.13"
 }
 
 variable "default_nodepool_max_nodes" {
@@ -153,10 +153,9 @@ variable "aks_identity_type" {
   default     = "SystemAssigned"
 }
 
-variable "aks_user_assigned_identity_id" {
-  description = "(Optional) The ID of a user assigned identity."
-  type        = string
-  default     = null
+variable "aks_uai_name"{
+  description = "User assigned identity name"
+  default = null
 }
 
 variable "node_vm_admin" {
@@ -588,5 +587,15 @@ variable "infra_mode" {
   validation {
     condition     = contains(["standard", "private"], lower(var.infra_mode))
     error_message = "ERROR: Supported values for `infra_mode` are - standard, private."
+  }
+}
+
+variable "aks_identity" {
+  description = "Use Service Principal or create a UserAssignedIdentity as AKS Identity."
+  type        = string
+  default     = "uai"
+  validation {
+    condition     = contains(["sp", "uai"], var.aks_identity)
+    error_message = "ERROR: Supported values for `aks_identity` are: uai, sp."
   }
 }
