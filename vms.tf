@@ -12,6 +12,8 @@ locals {
 
 data "template_file" "jump-cloudconfig" {
   template = file("${path.module}/files/cloud-init/jump/cloud-config")
+  count    = var.create_jump_vm ? 1 : 0
+
   vars = {
     mounts = ( var.storage_type == "none"
                ? "[]"
@@ -32,12 +34,14 @@ data "template_file" "jump-cloudconfig" {
 }
 
 data "template_cloudinit_config" "jump" {
+  count = var.create_jump_vm ? 1 : 0
+
   gzip          = true
   base64_encode = true
 
   part {
     content_type = "text/cloud-config"
-    content      = data.template_file.jump-cloudconfig.rendered
+    content      = data.template_file.jump-cloudconfig.0.rendered
   }
 }
 
@@ -55,7 +59,7 @@ module "jump" {
   vm_admin          = var.jump_vm_admin
   vm_zone           = var.jump_vm_zone
   ssh_public_key    = file(var.ssh_public_key)
-  cloud_init        = data.template_cloudinit_config.jump.rendered
+  cloud_init        = data.template_cloudinit_config.jump.0.rendered
   create_public_ip  = local.create_jump_public_ip
 
   # Jump VM mounts NFS path hence dependency on 'module.nfs'
@@ -64,6 +68,7 @@ module "jump" {
 
 data "template_file" "nfs-cloudconfig" {
   template = file("${path.module}/files/cloud-init/nfs/cloud-config")
+  count    = var.storage_type == "standard" ? 1 : 0
   vars = {
     aks_cidr_block  = module.vnet.subnets["aks"].address_prefixes.0
     misc_cidr_block = module.vnet.subnets["misc"].address_prefixes.0
@@ -72,12 +77,14 @@ data "template_file" "nfs-cloudconfig" {
 }
 
 data "template_cloudinit_config" "nfs" {
+  count = var.storage_type == "standard" ? 1 : 0
+
   gzip          = true
   base64_encode = true
 
   part {
     content_type = "text/cloud-config"
-    content      = data.template_file.nfs-cloudconfig.rendered
+    content      = data.template_file.nfs-cloudconfig.0.rendered
   }
 }
 
@@ -96,7 +103,7 @@ module "nfs" {
   vm_admin                       = var.nfs_vm_admin
   vm_zone                        = var.nfs_vm_zone
   ssh_public_key                 = file(var.ssh_public_key)
-  cloud_init                     = data.template_cloudinit_config.nfs.rendered
+  cloud_init                     = data.template_cloudinit_config.nfs.0.rendered
   create_public_ip               = local.create_nfs_public_ip
   data_disk_count                = 4
   data_disk_size                 = var.nfs_raid_disk_size
