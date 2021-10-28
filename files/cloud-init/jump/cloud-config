@@ -27,6 +27,11 @@ packages:
   - docker-ce
   - docker-ce-cli
 
+#
+# Update /etc/fstab
+#
+mounts:
+  - ${mounts}
 
 #
 # Add nfs mounts
@@ -35,14 +40,8 @@ runcmd:
   - if ! [ -z "${rwx_filestore_endpoint}" ]
   - then
       #
-      # Update /etc/fstab
-      #
-  -   MOUNT="${rwx_filestore_endpoint}:${rwx_filestore_path} ${jump_rwx_filestore_path} nfs _netdev,auto,x-systemd.automount,x-systemd.mount-timeout=10,timeo=14,x-systemd.idle-timeout=1min,relatime,hard,rsize=1048576,wsize=1048576,vers=3,tcp,namlen=255,retrans=2,sec=sys,local_lock=none 0 0"
-  -   grep -q "$MOUNT" /etc/fstab || echo "$MOUNT" | tee -a /etc/fstab
-      #
       # mount the nfs
       #
-  -   mkdir -p ${jump_rwx_filestore_path}
   -   while [ `df -h | grep "${rwx_filestore_endpoint}:${rwx_filestore_path}" | wc -l` -eq 0 ]; do sleep 5 && mount -a ; done
       #
       # Change permissions and owner
