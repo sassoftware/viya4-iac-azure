@@ -147,12 +147,6 @@ variable "aks_service_cidr" {
   default     = "10.0.0.0/16"
 }
 
-variable "aks_identity_type" {
-  description = "(Optional) The type of identity used for the managed cluster. Conflict with `client_id` and `client_secret`. Possible values are `SystemAssigned` and `UserAssigned`. If `UserAssigned` is set, a `user_assigned_identity_id` must be set as well."
-  type        = string
-  default     = "SystemAssigned"
-}
-
 variable "aks_uai_name"{
   description = "User assigned identity name"
   default = null

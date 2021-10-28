@@ -254,9 +254,9 @@ module "aks" {
   tags                            = var.tags
   user_assigned_identity_id       = local.aks_uai_id
   private_cluster_enabled         = local.is_private
-  identity_type                   = var.aks_identity_type
-  client_id                       = local.aks_uai_id == null ? var.client_id : null
-  client_secret                   = local.aks_uai_id == null ? var.client_secret : null
+  identity_type                   = var.aks_identity == "uai" ? "UserAssigned" : "SystemAssigned"
+  client_id                       = local.aks_uai_id == null ? var.client_id : ""
+  client_secret                   = local.aks_uai_id == null ? var.client_secret : ""
   # enable_role_based_access_control= false
   # rbac_aad_managed                = false
  
