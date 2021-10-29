@@ -47,15 +47,15 @@ output jump_rwx_filestore_path {
 
 # nfs server
 output nfs_private_ip {
-  value = var.storage_type == "standard" ? element(coalescelist(module.nfs.*.private_ip_address, [""] ),0) : null
+  value = var.storage_type == "standard" ? module.nfs.0.private_ip_address : null
 }
 
 output nfs_public_ip {
-  value = var.storage_type == "standard" && local.create_nfs_public_ip ? element(coalescelist(module.nfs.*.public_ip_address, [""] ),0) : null
+  value = var.storage_type == "standard" && local.create_nfs_public_ip ? module.nfs.0.public_ip_address : null
 }
 
 output nfs_admin_username {
-  value = var.storage_type == "standard" ? element(coalescelist(module.nfs.*.admin_username, [""] ),0) : null
+  value = var.storage_type == "standard" ? module.nfs.0.admin_username : null
 }
 
 # acr
@@ -101,11 +101,17 @@ output "provider" {
 }
 
 output "rwx_filestore_endpoint" {
-  value = var.storage_type == "ha" ? element(coalescelist(module.netapp.*.netapp_endpoint, [""] ),0) : element(coalescelist(module.nfs.*.private_ip_address, [""] ),0)
+  value = ( var.storage_type == "none"
+            ? null
+            : var.storage_type == "ha" ? module.netapp.0.netapp_endpoint : module.nfs.0.private_ip_address
+          )
 }
 
 output "rwx_filestore_path" {
-  value = var.storage_type == "ha" ? element(coalescelist(module.netapp.*.netapp_path, [""] ),0) : "/export"
+  value = ( var.storage_type == "none"
+            ? null
+            : var.storage_type == "ha" ? module.netapp.0.netapp_path : "/export"
+          )
 }
 
 output "rwx_filestore_config" {
