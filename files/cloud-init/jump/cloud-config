@@ -31,22 +31,25 @@ packages:
 # Update /etc/fstab
 #
 mounts:
-  - [ "${nfs_rwx_filestore_endpoint}:${nfs_rwx_filestore_path}", "${jump_rwx_filestore_path}", nfs, "_netdev,auto,x-systemd.automount,x-systemd.mount-timeout=10,timeo=14,x-systemd.idle-timeout=1min,relatime,hard,rsize=1048576,wsize=1048576,vers=3,tcp,namlen=255,retrans=2,sec=sys,local_lock=none", "0", "0" ]
+  - ${mounts}
 
 #
 # Add nfs mounts
 #
 runcmd:
-  #
-  # mount the nfs
-  #
-  - while [ `df -h | grep "${nfs_rwx_filestore_endpoint}:${nfs_rwx_filestore_path}" | wc -l` -eq 0 ]; do sleep 5 && mount -a ; done
-  #
-  # Change permissions and owner
-  #
-  - mkdir -p ${jump_rwx_filestore_path}/pvs
-  - $(chmod -fR 777 ${jump_rwx_filestore_path} ; echo)
-  - $(chown -R nobody:nogroup ${jump_rwx_filestore_path} ; echo)
+  - if ! [ -z "${rwx_filestore_endpoint}" ]
+  - then
+      #
+      # mount the nfs
+      #
+  -   while [ `df -h | grep "${rwx_filestore_endpoint}:${rwx_filestore_path}" | wc -l` -eq 0 ]; do sleep 5 && mount -a ; done
+      #
+      # Change permissions and owner
+      #
+  -   mkdir -p ${jump_rwx_filestore_path}/pvs
+  -   $(chmod -fR 777 ${jump_rwx_filestore_path} ; echo)
+  -   $(chown -R nobody:nogroup ${jump_rwx_filestore_path} ; echo)
+  - fi
   #
   # Update user for Docker, user=${vm_admin}
   #
