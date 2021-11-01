@@ -36,7 +36,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   dynamic "linux_profile" {
-    for_each = var.aks_cluster_ssh_public_key == null ? [] : [1]
+    for_each = var.aks_cluster_ssh_public_key == "" ? [] : [1]
     content {
       admin_username = var.aks_cluster_node_admin
       ssh_key {

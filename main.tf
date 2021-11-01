@@ -138,7 +138,7 @@ module "aks" {
   aks_cluster_os_disk_size                 = var.default_nodepool_os_disk_size
   aks_cluster_node_vm_size                 = var.default_nodepool_vm_type
   aks_cluster_node_admin                   = var.node_vm_admin
-  aks_cluster_ssh_public_key               = local.ssh_public_key
+  aks_cluster_ssh_public_key               = try( file(var.ssh_public_key), "")
   aks_vnet_subnet_id                       = module.vnet.subnets["aks"].id
   kubernetes_version                       = var.kubernetes_version
   aks_cluster_endpoint_public_access_cidrs = local.cluster_endpoint_public_access_cidrs
