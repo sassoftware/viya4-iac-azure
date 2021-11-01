@@ -81,7 +81,7 @@ variable "default_nodepool_vm_type" {
 }
 variable "kubernetes_version" {
   description = "The AKS cluster K8s version"
-  default     = "1.19.11"
+  default     = "1.19.13"
 }
 
 variable "default_nodepool_max_nodes" {
@@ -252,10 +252,10 @@ variable "jump_rwx_filestore_path" {
 variable "storage_type" {
   type    = string
   default = "standard"
-
+  # NOTE: storage_type=none is for internal use only
   validation {
-    condition     = contains(["standard", "ha"], lower(var.storage_type))
-    error_message = "ERROR: Supported value for `storage_type` are - standard, ha."
+    condition     = contains(["standard", "ha", "none"], lower(var.storage_type))
+    error_message = "ERROR: Supported values for `storage_type` are - standard, ha, none."
   }
 }
 

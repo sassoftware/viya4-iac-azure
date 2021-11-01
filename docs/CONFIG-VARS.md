@@ -133,9 +133,8 @@ Note: All of the following resources are expected to be in the Resource Group se
 
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
-| vnet_name | Name of pre-existing vnet | string | null | Only needed if deploying into existing vnet. |
-| subnet_names | Existing subnets mapped to desired usage. | map(string) | null | Only possible if deploying into existing vnet. See the example that follows. |
-| nat_gateway_name | Name of existing NAT Gateway | string | null | Only possible if deploying into existing vnet. |
+| vnet_name | Name of pre-existing vnet | string | null | Only required if deploying into existing vnet. |
+| subnet_names | Existing subnets mapped to desired usage. | map(string) | null | Only required if deploying into existing subnets. See the example that follows. |
 | nsg_name | Name of pre-existing network security group. | string | null | Only required if deploying into existing NSG. |
 | aks_uai_name | Name of existing User Assigned Identity for the cluster | string | null | This Identity will need permissions as listed in [AKS Cluster Identity Permissions](https://docs.microsoft.com/en-us/azure/aks/concepts-identity#aks-cluster-identity-permissions) and [Additional Cluster Identity Permissions](https://docs.microsoft.com/en-us/azure/aks/concepts-identity#additional-cluster-identity-permissions). Alternatively, use can use the [Contributor](https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#contributor) role for this Identity. |
 
