@@ -9,15 +9,18 @@ location       = "<azure-location-value>" # e.g., "eastus2"
 ssh_public_key = "~/.ssh/id_rsa.pub"
 # ****************  REQUIRED VARIABLES  ****************
 
-# Bring your own existing resources
-resource_group_name = "<existing-resource-group-name>" # only needed if using pre-existing
-vnet_name           = "<existing-vnet-name>"           # only needed if using pre-existing
-nsg_name            = "<existing-nsg-name>"            # only needed if using pre-existing
-subnet_names        = {
+# Bring your own existing networking resources
+vnet_resource_group_name = "<existing-resource-group-name>" # RG for BYO resources
+vnet_name                = "<existing-vnet-name>"           # only needed if using pre-existing
+subnet_names             = {
   "aks": "<existing-subnet-name-for-aks>", 
   "misc": "<existing-subnet-name-for-misc>", 
   "netapp": "<existing-subnet-name-for-netapp>" # only needed if using ha storage (aka netapp)
 }
+# also available as BYO
+resource_group_name      = "<existing-resource-group-name>" # RG for aks resources
+nsg_name                 = "<existing-nsg-name>"            # 
+aks_uai_name             = "<existing-user-defined-identity-name"
 
 # !NOTE! - Without specifying your CIDR block access rules, ingress traffic
 #          to your cluster will be blocked by default.
