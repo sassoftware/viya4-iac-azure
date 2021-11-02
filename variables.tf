@@ -47,31 +47,61 @@ variable "ssh_public_key" {
 }
 
 variable "default_public_access_cidrs" {
-  description = "List of CIDRs to access created resources"
+  description = "Deprecated. Use  default_access_cidrs instead."
+  type        = list(string)
+  default     = []
+}
+
+variable "default_access_cidrs" {
+  description = "Default list of CIDRs to access created resources."
+  type        = list(string)
+  default     = []
+}
+
+variable "cluster_endpoint_public_access_cidrs" {
+  description = "Deprecated. Use cluster_endpoint_access_cidrs instead."
   type        = list(string)
   default     = null
 }
 
-variable "cluster_endpoint_public_access_cidrs" {
-  description = "List of CIDRs to access Kubernetes cluster"
+variable "cluster_endpoint_access_cidrs" {
+  description = "List of CIDRs to access Kubernetes cluster."
   type        = list(string)
   default     = null
 }
 
 variable "acr_public_access_cidrs" {
-  description = "List of CIDRs to access Azure Container Registry"
+  description = "Deprecated. Use acr_access_cidrs instead."
+  type        = list(string)
+  default     = null
+}
+
+variable "acr_access_cidrs" {
+  description = "List of CIDRs to access Azure Container Registry."
   type        = list(string)
   default     = null
 }
 
 variable "vm_public_access_cidrs" {
-  description = "List of CIDRs to access jump or nfs VM"
+  description = "Deprecated. Use vm_access_cidrs instead."
+  type        = list(string)
+  default     = null
+}
+
+variable "vm_access_cidrs" {
+  description = "List of CIDRs to access jump or nfs VM."
   type        = list(string)
   default     = null
 }
 
 variable "postgres_public_access_cidrs" {
-  description = "LList of CIDRs to access PostgreSQL server"
+  description = "Deprecated. Use postgress_access_cidrs instead."
+  type        = list(string)
+  default     = null
+}
+
+variable "postgres_access_cidrs" {
+  description = "List of CIDRs to access PostgreSQL server."
   type        = list(string)
   default     = null
 }
@@ -579,14 +609,14 @@ variable "cluster_node_pool_mode" {
   default     = "default"
 }
 
-variable "infra_mode" {
-  description = "Use Private IP address for cluster API endpoint"
+variable "cluster_api_mode" {
+  description = "Use Public or Private IP address for the cluster API endpoint"
   type        = string
-  default     = "standard"
+  default     = "public"
 
   validation {
-    condition     = contains(["standard", "private"], lower(var.infra_mode))
-    error_message = "ERROR: Supported values for `infra_mode` are - standard, private."
+    condition     = contains(["public", "private"], lower(var.cluster_api_mode))
+    error_message = "ERROR: Supported values for `cluster_api_mode` are - public, private."
   }
 }
 

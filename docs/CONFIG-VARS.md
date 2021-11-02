@@ -54,22 +54,23 @@ For recommendations on how to set these variables in your environment, see [Auth
 
 ## Admin Access
 
-By default, the API of the Azure resources that are being created is only accessible through authenticated Azure clients (such as the Azure Portal,
+By default, the APIs of the Azure resources that are being created are only accessible through authenticated Azure clients (such as the Azure Portal,
 the `az` CLI, the Azure Shell, etc.).
-To allow access for other administrative client applications (for example `kubectl`, `psql`, etc.), you must open the Azure firewall to allow access from your source
-IP addresses.
-To do this, specify ranges of IP addresses in [CIDR notation](https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing).
-Contact your Network Administrator to find the public CIDR range of your network.
+To allow or restrict access for other administrative client applications (for example `kubectl`, `psql`, etc.), you can set Network Security Group (NSG) rules to control access from your source IP addresses.
+
+To do set these permissions as part of this Terraform script, specify ranges of IP addresses in [CIDR notation](https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing) with the following variables.
+
+NOTE: The script will either create a new NSG, or use an existing NSG, if specified in the [`nsg_name`](#use-existing) variable. 
 
 You can use `default_public_access_cidrs` to set a default range for all created resources. To set different ranges for other resources, define the appropriate variable. Use an empty list `[]` to disallow access explicitly.
 
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
-| default_public_access_cidrs | IP address ranges allowed to access all created cloud resources | list of strings | | Sets a default for all resources. |
-| cluster_endpoint_public_access_cidrs | IP address ranges allowed to access the AKS cluster API | list of strings | | For client admin access to the cluster (by `kubectl`, for example). |
-| vm_public_access_cidrs | IP address ranges allowed to access the VMs | list of strings | | Opens port 22 for SSH access to the jump server and/or NFS VM by adding Ingress Rule on the NSG |
-| postgres_public_access_cidrs | IP address ranges allowed to access the Azure PostgreSQL Server | list of strings || Opens port 5432 by adding Ingress Rule on the NSG |
-| acr_public_access_cidrs | IP address ranges allowed to access the ACR instance | list of strings |||
+| default_access_cidrs | IP address ranges allowed to access all created cloud resources | list of strings | | Sets a default for all resources. |
+| cluster_endpoint_access_cidrs | IP address ranges allowed to access the AKS cluster API | list of strings | | For client admin access to the cluster (by `kubectl`, for example). |
+| vm_access_cidrs | IP address ranges allowed to access the VMs | list of strings | | Opens port 22 for SSH access to the jump server and/or NFS VM by adding Ingress Rule on the NSG |
+| postgres_access_cidrs | IP address ranges allowed to access the Azure PostgreSQL Server | list of strings || Opens port 5432 by adding Ingress Rule on the NSG |
+| acr_access_cidrs | IP address ranges allowed to access the ACR instance | list of strings |||
 
 **NOTE:** In a SCIM environment, the AzureActiveDirectory service tag must be granted access to port 443/HTTPS for the Ingress IP address. 
 
@@ -168,6 +169,7 @@ Ubuntu 20.04 LTS is the operating system used on the Jump/NFS servers. Ubuntu cr
 | tags | Map of common tags to be placed on all Azure resources created by this script | map | { project_name = "sasviya4", environment = "dev" } | |
 | aks_identity | Use UserAssignedIdentity or Service Principal as  [AKS identity](https://docs.microsoft.com/en-us/azure/aks/concepts-identity) | string | "uai" | A value of `uai` wil create a Managed Identity based on the permissions of the authenticated user or use [`AKS_UAI_NAME`](#use-existing), if set. A value of `sp` will use values from [`CLIENT_ID`/`CLIENT_SECRET`](#azure-authentication), if set. |
 | ssh_public_key | File name of public ssh key for jump and nfs VM | string | "~/.ssh/id_rsa.pub" | Required with `create_jump_vm=true` or `storage_type=standard` |
+| cluster_api_mode | Public or private IP for the cluster api | string | "public" | Valid Values: "public", "private" |
 
 ## Node Pools
 

@@ -115,14 +115,14 @@ module "nfs" {
 resource "azurerm_network_security_rule" "vm-ssh" {
   name                        = "${var.prefix}-ssh"
   description                 = "Allow SSH from source"
-  count                       = (((local.create_jump_public_ip && var.create_jump_vm && (length(local.vm_public_access_cidrs) > 0)) || (local.create_nfs_public_ip && var.storage_type == "standard" && (length(local.vm_public_access_cidrs) > 0))) != false) ? 1 : 0
+  count                       = (((local.create_jump_public_ip && var.create_jump_vm && (length(local.vm_access_cidrs) > 0)) || (local.create_nfs_public_ip && var.storage_type == "standard" && (length(local.vm_access_cidrs) > 0))) != false) ? 1 : 0
   priority                    = 120
   direction                   = "Inbound"
   access                      = "Allow"
   protocol                    = "Tcp"
   source_port_range           = "*"
   destination_port_range      = "22"
-  source_address_prefixes     = local.vm_public_access_cidrs
+  source_address_prefixes     = local.vm_access_cidrs
   destination_address_prefix  = "*"
   resource_group_name         = local.nsg_rg_name
   network_security_group_name = local.nsg.name

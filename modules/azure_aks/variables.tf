@@ -59,7 +59,7 @@ variable kubernetes_version {
   description = "The AKS cluster K8s version"
   default     = "1.19.9"
 }
-variable "aks_cluster_endpoint_public_access_cidrs" {
+variable "aks_cluster_endpoint_access_cidrs" {
   description = "Kubernetes cluster access IP ranges"
   type        = list
 }

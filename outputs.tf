@@ -136,6 +136,6 @@ output "cluster_node_pool_mode" {
   value = var.cluster_node_pool_mode
 }
 
-output "infra_mode" {
-  value = var.infra_mode
+output "cluster_api_mode" {
+  value = var.cluster_api_mode
 }
