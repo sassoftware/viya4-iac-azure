@@ -33,7 +33,6 @@ Terraform input variables can be set in the following ways:
 | :--- | ---: | ---: | ---: | ---: |
 | prefix | A prefix used in the name of all the Azure resources created by this script. | string | | The prefix string must start with a lowercase letter and contain only lowercase alphanumeric characters and dashes (-), but it cannot end with a dash. |
 | location | The Azure Region to provision all resources in this script. | string | "East US" | |
-| ssh_public_key | Name of file with public ssh key for VMs. | string | "~/.ssh/id_rsa.pub" | Value is required in order to access your VMs. |
 
 ### Azure Authentication
 
@@ -168,6 +167,7 @@ Ubuntu 20.04 LTS is the operating system used on the Jump/NFS servers. Ubuntu cr
 | jump_rwx_filestore_path | File store mount point on jump server | string | "/viya-share" | This location cannot include `/mnt` as its root location. This disk is ephemeral on Ubuntu, which is the operating system being used for the jump/NFS servers. |
 | tags | Map of common tags to be placed on all Azure resources created by this script | map | { project_name = "sasviya4", environment = "dev" } | |
 | aks_identity | Use UserAssignedIdentity or Service Principal as  [AKS identity](https://docs.microsoft.com/en-us/azure/aks/concepts-identity) | string | "uai" | A value of `uai` wil create a Managed Identity based on the permissions of the authenticated user or use [`AKS_UAI_NAME`](#use-existing), if set. A value of `sp` will use values from [`CLIENT_ID`/`CLIENT_SECRET`](#azure-authentication), if set. |
+| ssh_public_key | File name of public ssh key for jump and nfs VM | string | "~/.ssh/id_rsa.pub" | Required with `create_jump_vm=true` or `storage_type=standard` |
 
 ## Node Pools
 

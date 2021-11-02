@@ -35,10 +35,13 @@ resource "azurerm_kubernetes_cluster" "aks" {
     enabled = true
   }
 
-  linux_profile {
-    admin_username = var.aks_cluster_node_admin
-    ssh_key {
-      key_data = var.aks_cluster_ssh_public_key
+  dynamic "linux_profile" {
+    for_each = var.aks_cluster_ssh_public_key == "" ? [] : [1]
+    content {
+      admin_username = var.aks_cluster_node_admin
+      ssh_key {
+         key_data = var.aks_cluster_ssh_public_key
+      }
     }
   }
 
