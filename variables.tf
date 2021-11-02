@@ -510,7 +510,7 @@ variable "nsg_name" {
 
 variable "egress_public_ip_name" {
   type        = string
-  default     = ""
+  default     = null
   description = "Name of pre-existing Public IP for the Network egress."
 }
 

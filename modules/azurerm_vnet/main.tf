@@ -1,11 +1,10 @@
 # Sourced and modified from https://github.com/Azure/terraform-azurerm-vnet
 locals {
   vnet_name = coalesce(var.name, "${var.prefix}-vnet")
-  subnets = ( length(var.existing_subnets) == 0 
-              ? [ for k, v in azurerm_subnet.subnet[*] :{ for kk, vv in v: kk => {"id": vv.id, "address_prefixes": vv.address_prefixes }}][0] 
+  subnets = ( length(var.existing_subnets) == 0
+              ? [ for k, v in azurerm_subnet.subnet[*] :{ for kk, vv in v: kk => {"id": vv.id, "address_prefixes": vv.address_prefixes }}][0]
               : [ for k, v in data.azurerm_subnet.subnet[*] :{for kk, vv in v: kk => {"id": vv.id, "address_prefixes": vv.address_prefixes }}][0]
   )
-  #nat_ip    = var.nat_gateway_name == "" ? azurerm_public_ip.nat-gw-ip.0.ip_address : 0
 }
 
 data "azurerm_virtual_network" "vnet" {
@@ -53,59 +52,6 @@ resource "azurerm_subnet" "subnet" {
     }
   }
 
-  depends_on                                     = [data.azurerm_virtual_network.vnet, azurerm_virtual_network.vnet]  
+  depends_on = [data.azurerm_virtual_network.vnet, azurerm_virtual_network.vnet]
 }
-
-#
-# NAT Gateway - aks needs it, else the VMs have issues calling out (helpful video at https://docs.microsoft.com/en-us/azure/virtual-network/nat-gateway/nat-overview)
-#
-# resource "azurerm_public_ip" "nat-gw-ip" {
-#   count               = var.nat_gateway_name == "" ? 1 : 0
-#   name                = "${var.prefix}-nat-gateway-publicIP"
-#   location            = var.location
-#   resource_group_name = var.resource_group_name
-#   allocation_method   = "Static"
-#   sku                 = "Standard"
-#   tags                = var.tags
-# }
-
-# # resource "azurerm_public_ip_prefix" "nat-gw-ip-prefix" {
-# #   count               = var.nat_gateway_name == null ? 1 : 0
-# #   name                = "${var.prefix}-nat-gateway-publicIPPrefix"
-# #   location            = var.location
-# #   resource_group_name = var.resource_group_name
-# #   prefix_length       = 30
-# #   tags                = var.tags
-# # }
-
-# resource "azurerm_nat_gateway" "nat-gw" {
-#   count               = var.nat_gateway_name == "" ? 1 : 0
-#   name                = "${var.prefix}-nat-gw"
-#   location            = var.location
-#   resource_group_name = var.resource_group_name
-#   tags                = var.tags
-# }
-
-# resource "azurerm_subnet_nat_gateway_association" "nat-gw-subnet-assoc" {
-#   count          = var.nat_gateway_name == "" ? 1 : 0
-#   subnet_id      = local.subnets["aks"].id
-#   nat_gateway_id = azurerm_nat_gateway.nat-gw.0.id
-# }
-# resource "azurerm_nat_gateway_public_ip_association" "nat-gw-ip-assoc" {
-#   count                = var.nat_gateway_name == "" ? 1 : 0
-#   public_ip_address_id = azurerm_public_ip.nat-gw-ip.0.id
-#   nat_gateway_id       = azurerm_nat_gateway.nat-gw.0.id
-# }
-# # resource "azurerm_nat_gateway_public_ip_prefix_association" "nat-gw-ip-prefix-assoc" {
-# #   count               = var.nat_gateway_name == null ? 1 : 0
-# #   public_ip_prefix_id = azurerm_public_ip_prefix.nat-gw-ip-prefix.0.id
-# #   nat_gateway_id      = azurerm_nat_gateway.nat-gw.0.id
-# # }
-
-# data "azurerm_nat_gateway" "nat-gw" {
-#   count               = var.nat_gateway_name == "" ? 0 : 1
-#   name                = var.nat_gateway_name
-#   resource_group_name = var.resource_group_name
-# }
-
 

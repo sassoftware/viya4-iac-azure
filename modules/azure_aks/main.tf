@@ -91,7 +91,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
 
   # change these default timeouts if needed
   timeouts {
-    create = "20m"   # TODO reset to 90m
+    create = "90m"
     update = "90m"
     read   = "5m"
     delete = "90m"
@@ -105,12 +105,12 @@ resource "azurerm_kubernetes_cluster" "aks" {
 
 }
 
-#  data "azurerm_public_ip" "cluster_public_ip" {
-#   count               = var.aks_private_cluster ? 0 : 1
+ data "azurerm_public_ip" "cluster_public_ip" {
+  count               = var.cluster_egress_type == "loadBalancer" ? 1 : 0
 
-#   # effective_outbound_ips is a set of strings, that needs to be converted to a list type
-#   name                = split("/", tolist(azurerm_kubernetes_cluster.aks.network_profile[0].load_balancer_profile[0].effective_outbound_ips)[0])[8]
-#   resource_group_name = "MC_${var.aks_cluster_rg}_${var.aks_cluster_name}_${var.aks_cluster_location}"
+  # effective_outbound_ips is a set of strings, that needs to be converted to a list type
+  name                = split("/", tolist(azurerm_kubernetes_cluster.aks.network_profile[0].load_balancer_profile[0].effective_outbound_ips)[0])[8]
+  resource_group_name = "MC_${var.aks_cluster_rg}_${var.aks_cluster_name}_${var.aks_cluster_location}"
 
-#   depends_on = [azurerm_kubernetes_cluster.aks]
-# }
+  depends_on = [azurerm_kubernetes_cluster.aks]
+}

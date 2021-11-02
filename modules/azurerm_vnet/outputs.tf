@@ -22,8 +22,3 @@ output "subnets" {
   description = "The ids of subnets inside the vNet"
   value       = local.subnets
 }
-
-# output "nat_ip" {
-#   description = "The primary public IP of the NAT Gateway"
-#   value       = local.nat_ip
-# }
