@@ -1,7 +1,3 @@
-output xxxdefault_access_cidrs {
-  value = local.default_access_cidrs
-}
-
 locals {
   
   # Useful flags
