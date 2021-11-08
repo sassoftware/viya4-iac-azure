@@ -10,11 +10,11 @@ locals {
                    )
                    
   # CIDR/Network
-  default_access_cidrs = coalesce(var.default_access_cidrs, var.default_public_access_cidrs,[])
-  vm_access_cidrs               = coalesce(var.vm_access_cidrs, var.vm_public_access_cidrs, local.default_access_cidrs)
-  acr_access_cidrs              = coalesce(var.acr_access_cidrs, var.acr_public_access_cidrs, local.default_access_cidrs)
-  cluster_endpoint_access_cidrs = coalesce(var.cluster_endpoint_access_cidrs, var.cluster_endpoint_public_access_cidrs, local.default_access_cidrs)
-  postgres_access_cidrs         = coalesce(var.postgres_access_cidrs, var.postgres_public_access_cidrs, local.default_access_cidrs)
+  default_access_cidrs          = coalescelist(var.default_access_cidrs, var.default_public_access_cidrs,[])
+  vm_access_cidrs               = coalescelist(var.vm_access_cidrs, var.vm_public_access_cidrs, local.default_access_cidrs)
+  acr_access_cidrs              = coalescelist(var.acr_access_cidrs, var.acr_public_access_cidrs, local.default_access_cidrs)
+  cluster_endpoint_access_cidrs = coalescelist(var.cluster_endpoint_access_cidrs, var.cluster_endpoint_public_access_cidrs, local.default_access_cidrs)
+  postgres_access_cidrs         = coalescelist(var.postgres_access_cidrs, var.postgres_public_access_cidrs, local.default_access_cidrs)
   
   subnets = { for k, v in var.subnets : k => v if ! ( k == "netapp" && var.storage_type == "standard")}
 
