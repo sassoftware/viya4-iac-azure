@@ -8,7 +8,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   # https://docs.microsoft.com/en-us/azure/aks/supported-kubernetes-versions
   # az aks get-versions --location eastus -o table
   kubernetes_version              = var.kubernetes_version
-  api_server_authorized_ip_ranges = var.aks_cluster_endpoint_access_cidrs
+  api_server_authorized_ip_ranges = var.aks_cluster_endpoint_public_access_cidrs
   private_cluster_enabled         = var.aks_private_cluster
   private_dns_zone_id             = var.aks_private_cluster ? "System" : null
 

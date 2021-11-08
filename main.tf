@@ -115,14 +115,14 @@ resource "azurerm_container_registry" "acr" {
 resource "azurerm_network_security_rule" "acr" {
   name                        = "SAS-ACR"
   description                 = "Allow ACR from source"
-  count                       = (length(local.acr_access_cidrs) != 0 && var.create_container_registry) ? 1 : 0
+  count                       = (length(local.acr_public_access_cidrs) != 0 && var.create_container_registry) ? 1 : 0
   priority                    = 180
   direction                   = "Inbound"
   access                      = "Allow"
   protocol                    = "Tcp"
   source_port_range           = "*"
   destination_port_range      = "5000"
-  source_address_prefixes     = local.acr_access_cidrs
+  source_address_prefixes     = local.acr_public_access_cidrs
   destination_address_prefix  = "*"
   resource_group_name         = local.nsg_rg_name
   network_security_group_name = local.nsg.name
@@ -147,7 +147,7 @@ module "aks" {
   aks_cluster_ssh_public_key               = try( file(var.ssh_public_key), "")
   aks_vnet_subnet_id                       = module.vnet.subnets["aks"].id
   kubernetes_version                       = var.kubernetes_version
-  aks_cluster_endpoint_access_cidrs        = var.cluster_api_mode == "private" ? [] : local.cluster_endpoint_access_cidrs # "Private cluster cannot be enabled with AuthorizedIPRanges.""
+  aks_cluster_endpoint_public_access_cidrs = var.cluster_api_mode == "private" ? [] : local.cluster_endpoint_public_access_cidrs # "Private cluster cannot be enabled with AuthorizedIPRanges.""
   aks_availability_zones                   = var.default_nodepool_availability_zones
   aks_oms_enabled                          = var.create_aks_azure_monitor
   aks_log_analytics_workspace_id           = var.create_aks_azure_monitor ? azurerm_log_analytics_workspace.viya4[0].id : null

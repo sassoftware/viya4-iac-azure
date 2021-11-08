@@ -12,8 +12,8 @@ location = "<azure-location-value>" # e.g., "eastus2"
 #          to your cluster will be blocked by default.
 
 # **************  RECOMMENDED  VARIABLES  ***************
-default_access_cidrs = [] # e.g., ["123.45.6.89/32"]
-ssh_public_key       = "~/.ssh/id_rsa.pub"
+default_public_access_cidrs = [] # e.g., ["123.45.6.89/32"]
+ssh_public_key              = "~/.ssh/id_rsa.pub"
 # **************  RECOMMENDED  VARIABLES  ***************
 
 # Tags can be specified matching your tagging strategy.

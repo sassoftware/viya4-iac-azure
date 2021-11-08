@@ -46,61 +46,33 @@ variable "ssh_public_key" {
   default = "~/.ssh/id_rsa.pub"
 }
 
+
 variable "default_public_access_cidrs" {
-  description = "Deprecated. Use  default_access_cidrs instead."
-  type        = list(string)
-  default     = []
-}
-
-variable "default_access_cidrs" {
   description = "Default list of CIDRs to access created resources."
-  type        = list(string)
-  default     = []
-}
-
-variable "cluster_endpoint_public_access_cidrs" {
-  description = "Deprecated. Use cluster_endpoint_access_cidrs instead."
   type        = list(string)
   default     = null
 }
 
-variable "cluster_endpoint_access_cidrs" {
+
+variable "cluster_endpoint_public_access_cidrs" {
   description = "List of CIDRs to access Kubernetes cluster."
   type        = list(string)
   default     = null
 }
 
 variable "acr_public_access_cidrs" {
-  description = "Deprecated. Use acr_access_cidrs instead."
-  type        = list(string)
-  default     = null
-}
-
-variable "acr_access_cidrs" {
   description = "List of CIDRs to access Azure Container Registry."
   type        = list(string)
   default     = null
 }
 
 variable "vm_public_access_cidrs" {
-  description = "Deprecated. Use vm_access_cidrs instead."
-  type        = list(string)
-  default     = null
-}
-
-variable "vm_access_cidrs" {
   description = "List of CIDRs to access jump or nfs VM."
   type        = list(string)
   default     = null
 }
 
 variable "postgres_public_access_cidrs" {
-  description = "Deprecated. Use postgress_access_cidrs instead."
-  type        = list(string)
-  default     = null
-}
-
-variable "postgres_access_cidrs" {
   description = "List of CIDRs to access PostgreSQL server."
   type        = list(string)
   default     = null
