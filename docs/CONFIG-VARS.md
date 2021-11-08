@@ -67,13 +67,14 @@ You can use `default_public_access_cidrs` to set a default range for all created
 | :--- | ---: | ---: | ---: | ---: |
 | default_public_access_cidrs | IP address ranges allowed to access all created cloud resources | list of strings | | Sets a default for all resources. |
 | cluster_endpoint_public_access_cidrs | IP address ranges allowed to access the AKS cluster API | list of strings | | For client admin access to the cluster (by `kubectl`, for example). |
-| vm_public_access_cidrs | IP address ranges allowed to access the VMs | list of strings | | Opens port 22 for SSH access to the jump server and/or NFS VM. |
-| postgres_public_access_cidrs | IP address ranges allowed to access the Azure PostgreSQL Server | list of strings |||
+| vm_public_access_cidrs | IP address ranges allowed to access the VMs | list of strings | | Opens port 22 for SSH access to the jump server and/or NFS VM by adding Ingress Rule on the NSG |
+| postgres_public_access_cidrs | IP address ranges allowed to access the Azure PostgreSQL Server | list of strings || Opens port 5432 by adding Ingress Rule on the NSG |
 | acr_public_access_cidrs | IP address ranges allowed to access the ACR instance | list of strings |||
 
 **NOTE:** In a SCIM environment, the AzureActiveDirectory service tag must be granted access to port 443/HTTPS for the Ingress IP address. 
 
 ## Networking
+
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
 | vnet_address_space | Address space for created vnet | string | "192.168.0.0/16" | This variable is ignored when vnet_name is set (AKA bring your own vnet). |
@@ -115,9 +116,7 @@ The default values for the `subnets` variable are as follows:
 
 ### Use Existing
 
-If you want to deploy into an existing resource group, vnet, subnets, or network security group, 
-use the variables shown in the following table to define
-the existing resources:
+The variables in the table below can be used to point to existing resources. Refer to the [Bring Your Own Network](./user/BYOnetwork.md) page for information about all supported scenarios for using existing network resources, with additional details and requirements.
 
 Resource Location:
 
@@ -136,6 +135,8 @@ Note: All of the following resources are expected to be in the Resource Group se
 | subnet_names | Existing subnets mapped to desired usage. | map(string) | null | Only required if deploying into existing subnets. See the example that follows. |
 | nsg_name | Name of pre-existing network security group. | string | null | Only required if deploying into existing NSG. |
 | aks_uai_name | Name of existing User Assigned Identity for the cluster | string | null | This Identity will need permissions as listed in [AKS Cluster Identity Permissions](https://docs.microsoft.com/en-us/azure/aks/concepts-identity#aks-cluster-identity-permissions) and [Additional Cluster Identity Permissions](https://docs.microsoft.com/en-us/azure/aks/concepts-identity#additional-cluster-identity-permissions). Alternatively, use can use the [Contributor](https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#contributor) role for this Identity. |
+| egress_public_ip_name | Name of pre-existing public ip resource for your network egress (NAT, Firewall, or similar). | string | null | Only required when using your own network [egress](https://docs.microsoft.com/en-us/azure/aks/egress-outboundtype). By default, AKS will create and use a [loadbalancer](https://docs.microsoft.com/en-us/azure/aks/load-balancer-standard) for outgoing connections. |
+
 
 Example for the `subnet_names` variable:
 

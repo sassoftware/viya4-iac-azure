@@ -1,6 +1,10 @@
 # Sourced and modified from https://github.com/Azure/terraform-azurerm-vnet
 locals {
   vnet_name = coalesce(var.name, "${var.prefix}-vnet")
+  subnets = ( length(var.existing_subnets) == 0
+              ? [ for k, v in azurerm_subnet.subnet[*] :{ for kk, vv in v: kk => {"id": vv.id, "address_prefixes": vv.address_prefixes }}][0]
+              : [ for k, v in data.azurerm_subnet.subnet[*] :{for kk, vv in v: kk => {"id": vv.id, "address_prefixes": vv.address_prefixes }}][0]
+  )
 }
 
 data "azurerm_virtual_network" "vnet" {
@@ -48,5 +52,6 @@ resource "azurerm_subnet" "subnet" {
     }
   }
 
-  depends_on                                     = [data.azurerm_virtual_network.vnet, azurerm_virtual_network.vnet]  
+  depends_on = [data.azurerm_virtual_network.vnet, azurerm_virtual_network.vnet]
 }
+

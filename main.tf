@@ -69,6 +69,12 @@ data "azurerm_network_security_group" "nsg" {
   resource_group_name = local.network_rg.name
 }
 
+data "azurerm_public_ip" "nat-ip" {
+  count               = var.egress_public_ip_name == null ? 0 : 1
+  name                = var.egress_public_ip_name
+  resource_group_name = local.network_rg.name
+}
+
 module "vnet" {
   source = "./modules/azurerm_vnet"
 
@@ -157,6 +163,7 @@ module "aks" {
   client_id                                = var.client_id
   client_secret                            = var.client_secret
   aks_private_cluster                      = local.is_private
+  cluster_egress_type                      = var.egress_public_ip_name ==  null ? "loadBalancer" : "userDefinedRouting"
   depends_on                               = [module.vnet]
 }
 
