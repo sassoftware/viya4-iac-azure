@@ -13,6 +13,10 @@ variable "aks_private_cluster" {
   default = false
 }
 
+variable "private_dns_zone_id" {
+  default = null
+}
+
 variable "aks_cluster_node_count" {
   default = 4
 }

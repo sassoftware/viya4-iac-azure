@@ -107,6 +107,12 @@ variable "default_nodepool_availability_zones" {
 }
 
 # AKS advanced network config
+variable private_dns_zone_id {
+  description = "Either the ID of Private DNS Zone which should be delegated to this Cluster, System to have AKS manage this or None. In case of None you will need to bring your own DNS server and set up resolving."
+  type = string
+  default = null # take the default (System)
+}
+
 variable "aks_network_plugin" {
   description = "Network plugin to use for networking. Currently supported values are azure and kubenet. Changing this forces a new resource to be created."
   type        = string

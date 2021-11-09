@@ -163,6 +163,7 @@ module "aks" {
   client_id                                = var.client_id
   client_secret                            = var.client_secret
   aks_private_cluster                      = local.is_private
+  private_dns_zone_id                      = var.private_dns_zone_id 
   cluster_egress_type                      = var.egress_public_ip_name ==  null ? "loadBalancer" : "userDefinedRouting"
   depends_on                               = [module.vnet]
 }
