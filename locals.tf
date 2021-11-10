@@ -1,20 +1,16 @@
 locals {
   
   # Useful flags
-  create_jump_public_ip = var.create_jump_public_ip
-  create_nfs_public_ip  = var.create_nfs_public_ip
-
   ssh_public_key = ( var.create_jump_vm || var.storage_type == "standard"
                      ? file(var.ssh_public_key)
                      : null
                    )
                    
   # CIDR/Network
-  default_public_access_cidrs          = var.cluster_api_mode == "private" ? [] : (var.default_public_access_cidrs == null ? [] : var.default_public_access_cidrs)
-  vm_public_access_cidrs               = var.cluster_api_mode == "private" ? [] : (var.vm_public_access_cidrs == null ? local.default_public_access_cidrs : var.vm_public_access_cidrs)
-  acr_public_access_cidrs              = var.cluster_api_mode == "private" ? [] : (var.acr_public_access_cidrs == null ? local.default_public_access_cidrs : var.acr_public_access_cidrs)
-  cluster_endpoint_public_access_cidrs = var.cluster_api_mode == "private" ? [] : (var.cluster_endpoint_public_access_cidrs == null ? local.default_public_access_cidrs : var.cluster_endpoint_public_access_cidrs)
-  postgres_public_access_cidrs         = var.cluster_api_mode == "private" ? [] : (var.postgres_public_access_cidrs == null ? local.default_public_access_cidrs : var.postgres_public_access_cidrs)
+  vm_public_access_cidrs               = var.vm_public_access_cidrs == null ? var.default_public_access_cidrs : var.vm_public_access_cidrs
+  acr_public_access_cidrs              = var.acr_public_access_cidrs == null ? var.default_public_access_cidrs : var.acr_public_access_cidrs
+  cluster_endpoint_public_access_cidrs = var.cluster_api_mode == "private" ? [] : (var.cluster_endpoint_public_access_cidrs == null ? var.default_public_access_cidrs : var.cluster_endpoint_public_access_cidrs)
+  postgres_public_access_cidrs         = var.postgres_public_access_cidrs == null ? var.default_public_access_cidrs : var.postgres_public_access_cidrs
 
   subnets = { for k, v in var.subnets : k => v if ! ( k == "netapp" && var.storage_type == "standard")}
 

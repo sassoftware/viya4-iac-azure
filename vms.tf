@@ -60,7 +60,7 @@ module "jump" {
   vm_zone           = var.jump_vm_zone
   ssh_public_key    = local.ssh_public_key
   cloud_init        = data.template_cloudinit_config.jump.0.rendered
-  create_public_ip  = local.create_jump_public_ip
+  create_public_ip  = var.create_jump_public_ip
 
   # Jump VM mounts NFS path hence dependency on 'module.nfs'
   depends_on = [module.vnet, module.nfs]
@@ -104,7 +104,7 @@ module "nfs" {
   vm_zone                        = var.nfs_vm_zone
   ssh_public_key                 = local.ssh_public_key
   cloud_init                     = data.template_cloudinit_config.nfs.0.rendered
-  create_public_ip               = local.create_nfs_public_ip
+  create_public_ip               = var.create_nfs_public_ip
   data_disk_count                = 4
   data_disk_size                 = var.nfs_raid_disk_size
   data_disk_storage_account_type = var.nfs_raid_disk_type
@@ -115,7 +115,10 @@ module "nfs" {
 resource "azurerm_network_security_rule" "vm-ssh" {
   name                        = "${var.prefix}-ssh"
   description                 = "Allow SSH from source"
-  count                       = (((local.create_jump_public_ip && var.create_jump_vm && (length(local.vm_public_access_cidrs) > 0)) || (local.create_nfs_public_ip && var.storage_type == "standard" && (length(local.vm_public_access_cidrs) > 0))) != false) ? 1 : 0
+  count                       = ( length(local.vm_public_access_cidrs) > 0
+                                  && (( var.create_jump_public_ip && var.create_jump_vm ) || (var.create_nfs_public_ip && var.storage_type == "standard"))
+                                  ? 1 : 0
+                                )
   priority                    = 120
   direction                   = "Inbound"
   access                      = "Allow"
