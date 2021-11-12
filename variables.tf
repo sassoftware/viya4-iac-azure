@@ -228,7 +228,7 @@ variable "create_jump_vm" {
 
 variable "create_jump_public_ip" {
   default = null
-  type = bool
+  type = true
 }
 
 variable "jump_vm_admin" {
@@ -263,7 +263,7 @@ variable "storage_type" {
 
 variable "create_nfs_public_ip" {
   default = null
-  type = bool
+  type = false
 }
 
 variable "nfs_vm_machine_type" {
