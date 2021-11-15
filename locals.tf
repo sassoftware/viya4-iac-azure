@@ -7,10 +7,11 @@ locals {
                    )
                    
   # CIDR/Network
-  vm_public_access_cidrs               = var.vm_public_access_cidrs == null ? var.default_public_access_cidrs : var.vm_public_access_cidrs
-  acr_public_access_cidrs              = var.acr_public_access_cidrs == null ? var.default_public_access_cidrs : var.acr_public_access_cidrs
-  cluster_endpoint_public_access_cidrs = var.cluster_api_mode == "private" ? [] : (var.cluster_endpoint_public_access_cidrs == null ? var.default_public_access_cidrs : var.cluster_endpoint_public_access_cidrs)
-  postgres_public_access_cidrs         = var.postgres_public_access_cidrs == null ? var.default_public_access_cidrs : var.postgres_public_access_cidrs
+  default_public_access_cidrs          = var.default_public_access_cidrs == null ? [] : var.default_public_access_cidrs
+  vm_public_access_cidrs               = var.vm_public_access_cidrs == null ? local.default_public_access_cidrs : var.vm_public_access_cidrs
+  acr_public_access_cidrs              = var.acr_public_access_cidrs == null ? local.default_public_access_cidrs : var.acr_public_access_cidrs
+  cluster_endpoint_public_access_cidrs = var.cluster_api_mode == "private" ? [] : (var.cluster_endpoint_public_access_cidrs == null ? local.default_public_access_cidrs : var.cluster_endpoint_public_access_cidrs)
+  postgres_public_access_cidrs         = var.postgres_public_access_cidrs == null ? local.default_public_access_cidrs : var.postgres_public_access_cidrs
 
   subnets = { for k, v in var.subnets : k => v if ! ( k == "netapp" && var.storage_type == "standard")}
 
