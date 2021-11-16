@@ -227,7 +227,7 @@ variable "create_jump_vm" {
 }
 
 variable "create_jump_public_ip" {
-  default = false
+  default = true
   type = bool
 }
 
