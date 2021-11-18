@@ -6,6 +6,11 @@ locals {
   create_jump_public_ip = var.create_jump_public_ip == null ? local.is_standard : var.create_jump_public_ip
   create_nfs_public_ip  = var.create_nfs_public_ip == null ? local.is_standard : var.create_nfs_public_ip
 
+  ssh_public_key = ( var.create_jump_vm || var.storage_type == "standard"
+                     ? file(var.ssh_public_key)
+                     : null
+                   )
+                   
   # CIDR/Network
   default_public_access_cidrs          = local.is_private ? [] : (var.default_public_access_cidrs == null ? [] : var.default_public_access_cidrs)
   vm_public_access_cidrs               = local.is_private ? [] : (var.vm_public_access_cidrs == null ? local.default_public_access_cidrs : var.vm_public_access_cidrs)

@@ -82,7 +82,6 @@ module "vnet" {
   tags                = var.tags
 }
 
-
 resource "azurerm_container_registry" "acr" {
   count                    = var.create_container_registry ? 1 : 0
   name                     = join("", regexall("[a-zA-Z0-9]+", "${var.prefix}acr")) # alpha numeric characters only are allowed
