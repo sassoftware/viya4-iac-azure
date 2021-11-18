@@ -147,7 +147,7 @@ module "aks" {
   aks_cluster_ssh_public_key               = try( file(var.ssh_public_key), "")
   aks_vnet_subnet_id                       = module.vnet.subnets["aks"].id
   kubernetes_version                       = var.kubernetes_version
-  aks_cluster_endpoint_public_access_cidrs = local.cluster_endpoint_public_access_cidrs
+  aks_cluster_endpoint_public_access_cidrs = var.cluster_api_mode == "private" ? [] : local.cluster_endpoint_public_access_cidrs # "Private cluster cannot be enabled with AuthorizedIPRanges.""
   aks_availability_zones                   = var.default_nodepool_availability_zones
   aks_oms_enabled                          = var.create_aks_azure_monitor
   aks_log_analytics_workspace_id           = var.create_aks_azure_monitor ? azurerm_log_analytics_workspace.viya4[0].id : null
@@ -162,7 +162,7 @@ module "aks" {
   aks_uai_id                               = local.aks_uai_id
   client_id                                = var.client_id
   client_secret                            = var.client_secret
-  aks_private_cluster                      = local.is_private
+  aks_private_cluster                      = var.cluster_api_mode == "private" ? true : false
   cluster_egress_type                      = var.egress_public_ip_name ==  null ? "loadBalancer" : "userDefinedRouting"
   depends_on                               = [module.vnet]
 }

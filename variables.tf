@@ -46,32 +46,34 @@ variable "ssh_public_key" {
   default = "~/.ssh/id_rsa.pub"
 }
 
+
 variable "default_public_access_cidrs" {
-  description = "List of CIDRs to access created resources"
+  description = "Default list of CIDRs to access created resources."
   type        = list(string)
   default     = null
 }
 
+
 variable "cluster_endpoint_public_access_cidrs" {
-  description = "List of CIDRs to access Kubernetes cluster"
+  description = "List of CIDRs to access Kubernetes cluster."
   type        = list(string)
   default     = null
 }
 
 variable "acr_public_access_cidrs" {
-  description = "List of CIDRs to access Azure Container Registry"
+  description = "List of CIDRs to access Azure Container Registry."
   type        = list(string)
   default     = null
 }
 
 variable "vm_public_access_cidrs" {
-  description = "List of CIDRs to access jump or nfs VM"
+  description = "List of CIDRs to access jump or nfs VM."
   type        = list(string)
   default     = null
 }
 
 variable "postgres_public_access_cidrs" {
-  description = "LList of CIDRs to access PostgreSQL server"
+  description = "List of CIDRs to access PostgreSQL server."
   type        = list(string)
   default     = null
 }
@@ -225,7 +227,7 @@ variable "create_jump_vm" {
 }
 
 variable "create_jump_public_ip" {
-  default = null
+  default = true
   type = bool
 }
 
@@ -260,7 +262,7 @@ variable "storage_type" {
 }
 
 variable "create_nfs_public_ip" {
-  default = null
+  default = false
   type = bool
 }
 
@@ -579,14 +581,14 @@ variable "cluster_node_pool_mode" {
   default     = "default"
 }
 
-variable "infra_mode" {
-  description = "Use Private IP address for cluster API endpoint"
+variable "cluster_api_mode" {
+  description = "Use Public or Private IP address for the cluster API endpoint"
   type        = string
-  default     = "standard"
+  default     = "public"
 
   validation {
-    condition     = contains(["standard", "private"], lower(var.infra_mode))
-    error_message = "ERROR: Supported values for `infra_mode` are - standard, private."
+    condition     = contains(["public", "private"], lower(var.cluster_api_mode))
+    error_message = "ERROR: Supported values for `cluster_api_mode` are - public, private."
   }
 }
 
