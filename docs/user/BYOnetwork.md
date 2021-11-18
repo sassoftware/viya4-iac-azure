@@ -37,7 +37,7 @@ values set by the [`vm_public_access_cidrs`/`postgres_public_access_cidrs`](../C
 When creating an AKS cluster, Azure associates an Identity with the cluster. Any resources created on behalf of the cluster (e.g. VMs for the Node Pools etc.) will use the permissions associated with that Identity.
 By default, an Identity with the same permissions as the [Identity used for  authenticating to the terraform script](TerraformAzureAuthentication.md) will be used. You can chose to use the Service Principal directly (if used), or bring your own User Assigned Identity, depending on the setting of the  [`aks_identity`](../CONFIG-VARS.md#general) variable.
 
-When providing your own networking, the AKS cluster identity will need write access to the aks subnet the associated routing table. 
+When providing your own networking, the AKS cluster identity will need write access to the aks subnet and the associated routing table.
 
 See [AKS Cluster Identity Permissions](https://docs.microsoft.com/en-us/azure/aks/concepts-identity#aks-cluster-identity-permissions) and [Additional Cluster Identity Permissions](https://docs.microsoft.com/en-us/azure/aks/concepts-identity#additional-cluster-identity-permissions) for details.
 
