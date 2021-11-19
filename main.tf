@@ -155,7 +155,7 @@ module "aks" {
   aks_network_policy                       = var.aks_network_policy
   aks_dns_service_ip                       = var.aks_dns_service_ip
   aks_docker_bridge_cidr                   = var.aks_docker_bridge_cidr
-  aks_outbound_type                        = var.aks_outbound_type
+  cluster_egress_type                      = var.cluster_egress_type
   aks_pod_cidr                             = var.aks_pod_cidr
   aks_service_cidr                         = var.aks_service_cidr
   aks_cluster_tags                         = var.tags
@@ -163,7 +163,6 @@ module "aks" {
   client_id                                = var.client_id
   client_secret                            = var.client_secret
   aks_private_cluster                      = var.cluster_api_mode == "private" ? true : false
-  cluster_egress_type                      = var.egress_public_ip_name ==  null ? "loadBalancer" : "userDefinedRouting"
   depends_on                               = [module.vnet]
 }
 
