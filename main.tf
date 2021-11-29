@@ -155,7 +155,7 @@ module "aks" {
   aks_network_policy                       = var.aks_network_policy
   aks_dns_service_ip                       = var.aks_dns_service_ip
   aks_docker_bridge_cidr                   = var.aks_docker_bridge_cidr
-  cluster_egress_type                      = var.cluster_egress_type
+  cluster_egress_type                      = local.cluster_egress_type
   aks_pod_cidr                             = var.aks_pod_cidr
   aks_service_cidr                         = var.aks_service_cidr
   aks_cluster_tags                         = var.tags
