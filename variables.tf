@@ -209,7 +209,7 @@ variable "postgres_servers" {
     condition = var.postgres_servers != null ? length(var.postgres_servers) != 0 ? alltrue([
       for k,v in var.postgres_servers : contains(keys(v),"administrator_password") ? alltrue([
         length(v.administrator_password) > 7,
-        length(v.administrator_login) < 129,
+        length(v.administrator_password) < 129,
         anytrue([
           (can(regex("[0-9]+", v.administrator_password)) && can(regex("[a-z]+", v.administrator_password)) && can(regex("[A-Z]+", v.administrator_password))),
           (can(regex("[!@#$%^&*(){}[]|<>~`,./_-+=]+", v.administrator_password)) && can(regex("[a-z]+", v.administrator_password)) && can(regex("[A-Z]+", v.administrator_password))),
