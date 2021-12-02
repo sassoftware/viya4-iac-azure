@@ -4,7 +4,8 @@ output "aks_host" {
 }
 
 output "nat_ip" {
-  value = local.is_private ? null : "${join(",", data.dns_a_record_set.aks_cluster_fqdn.addrs)}"
+  value = var.cluster_api_mode == "private" ?  null : "${join(",", data.dns_a_record_set.aks_cluster_fqdn.addrs)}"
+  # value = var.egress_public_ip_name == null ? module.aks.cluster_public_ip : data.azurerm_public_ip.nat-ip.0.ip_address
 }
 
 output "kube_config" {
@@ -30,15 +31,15 @@ output "postgres_servers" {
 
 # jump server
 output jump_private_ip {
-  value = var.create_jump_vm ? element(coalescelist(module.jump.*.private_ip_address, [""] ),0) : null
+  value = var.create_jump_vm ? module.jump.0.private_ip_address : null
 }
 
 output jump_public_ip {
-  value = var.create_jump_vm && local.create_jump_public_ip ? element(coalescelist(module.jump.*.public_ip_address, [""] ),0) : null
+  value = var.create_jump_vm && var.create_jump_public_ip ? module.jump.0.public_ip_address : null
 }
 
 output jump_admin_username {
-  value = var.create_jump_vm ? element(coalescelist(module.jump.*.admin_username, [""] ),0): null
+  value = var.create_jump_vm ? module.jump.0.admin_username : null
 }
 
 output jump_rwx_filestore_path {
@@ -51,7 +52,7 @@ output nfs_private_ip {
 }
 
 output nfs_public_ip {
-  value = var.storage_type == "standard" && local.create_nfs_public_ip ? module.nfs.0.public_ip_address : null
+  value = var.storage_type == "standard" && var.create_nfs_public_ip ? module.nfs.0.public_ip_address : null
 }
 
 output nfs_admin_username {
@@ -136,6 +137,6 @@ output "cluster_node_pool_mode" {
   value = var.cluster_node_pool_mode
 }
 
-output "infra_mode" {
-  value = var.infra_mode
+output "cluster_api_mode" {
+  value = var.cluster_api_mode
 }

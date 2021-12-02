@@ -69,6 +69,12 @@ data "azurerm_network_security_group" "nsg" {
   resource_group_name = local.network_rg.name
 }
 
+data "azurerm_public_ip" "nat-ip" {
+  count               = var.egress_public_ip_name == null ? 0 : 1
+  name                = var.egress_public_ip_name
+  resource_group_name = local.network_rg.name
+}
+
 module "vnet" {
   source = "./modules/azurerm_vnet"
 
@@ -153,7 +159,7 @@ module "aks" {
   net_profile_service_cidr        = var.aks_service_cidr
   tags                            = var.tags
   user_assigned_identity_id       = local.aks_uai_id
-  private_cluster_enabled         = local.is_private
+  private_cluster_enabled         = var.cluster_api_mode == "private" ? true : false
   identity_type                   = var.aks_identity == "uai" ? "UserAssigned" : "SystemAssigned"
   client_id                       = local.aks_uai_id == null ? var.client_id : ""
   client_secret                   = local.aks_uai_id == null ? var.client_secret : ""
@@ -161,7 +167,44 @@ module "aks" {
   # rbac_aad_managed                = false
  
   depends_on                      = [module.vnet]
+  /*
+  source = "./modules/azure_aks"
 
+  aks_cluster_name                         = "${var.prefix}-aks"
+  aks_cluster_rg                           = local.aks_rg.name
+  aks_cluster_rg_id                        = local.aks_rg.id
+  aks_cluster_dns_prefix                   = "${var.prefix}-aks"
+  aks_cluster_location                     = var.location
+  aks_cluster_node_auto_scaling            = var.default_nodepool_min_nodes == var.default_nodepool_max_nodes ? false : true
+  aks_cluster_node_count                   = var.default_nodepool_min_nodes
+  aks_cluster_min_nodes                    = var.default_nodepool_min_nodes == var.default_nodepool_max_nodes ? null : var.default_nodepool_min_nodes
+  aks_cluster_max_nodes                    = var.default_nodepool_min_nodes == var.default_nodepool_max_nodes ? null : var.default_nodepool_max_nodes
+  aks_cluster_max_pods                     = var.default_nodepool_max_pods
+  aks_cluster_os_disk_size                 = var.default_nodepool_os_disk_size
+  aks_cluster_node_vm_size                 = var.default_nodepool_vm_type
+  aks_cluster_node_admin                   = var.node_vm_admin
+  aks_cluster_ssh_public_key               = try( file(var.ssh_public_key), "")
+  aks_vnet_subnet_id                       = module.vnet.subnets["aks"].id
+  kubernetes_version                       = var.kubernetes_version
+  aks_cluster_endpoint_public_access_cidrs = var.cluster_api_mode == "private" ? [] : local.cluster_endpoint_public_access_cidrs # "Private cluster cannot be enabled with AuthorizedIPRanges.""
+  aks_availability_zones                   = var.default_nodepool_availability_zones
+  aks_oms_enabled                          = var.create_aks_azure_monitor
+  aks_log_analytics_workspace_id           = var.create_aks_azure_monitor ? azurerm_log_analytics_workspace.viya4[0].id : null
+  aks_network_plugin                       = var.aks_network_plugin
+  aks_network_policy                       = var.aks_network_policy
+  aks_dns_service_ip                       = var.aks_dns_service_ip
+  aks_docker_bridge_cidr                   = var.aks_docker_bridge_cidr
+  aks_outbound_type                        = var.aks_outbound_type
+  aks_pod_cidr                             = var.aks_pod_cidr
+  aks_service_cidr                         = var.aks_service_cidr
+  aks_cluster_tags                         = var.tags
+  aks_uai_id                               = local.aks_uai_id
+  client_id                                = var.client_id
+  client_secret                            = var.client_secret
+  aks_private_cluster                      = var.cluster_api_mode == "private" ? true : false
+  cluster_egress_type                      = var.egress_public_ip_name ==  null ? "loadBalancer" : "userDefinedRouting"
+  depends_on                               = [module.vnet]
+  */
 }
 
 data "azurerm_kubernetes_cluster" "aks_cluster" {
