@@ -33,7 +33,16 @@ locals {
       "ssl_enforcement_enabled" : local.postgres_servers[k].ssl_enforcement_enabled,
       "internal" : false
     }
-  } : {}
+  } : ( length(module.flex_postgresql) != 0 ? { for k,v in module.flex_postgresql :
+    k => {
+      "server_name" : module.flex_postgresql[k].server_name,
+      "fqdn" : module.flex_postgresql[k].server_fqdn,
+      "admin" : "${module.flex_postgresql[k].administrator_login}@${module.flex_postgresql[k].server_name}",
+      "password" : module.flex_postgresql[k].administrator_password,
+      "server_port" : "5432", # TODO - Create a var when supported
+      "internal" : false
+    }
+  } : {} )
 
   # Container Registry
   container_registry_sku = title(var.container_registry_sku)

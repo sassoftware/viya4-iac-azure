@@ -168,6 +168,14 @@ variable "tags" {
 # PostgreSQL
 
 # Defaults
+
+# https://docs.microsoft.com/en-us/azure/postgresql/overview#deployment-models
+variable "postgres_type" {
+  description = "Supported Azure PostgreSQL deployment modes are `single` and `flexible`"
+  type        = string
+  default     = "single"
+}
+
 variable "postgres_server_defaults" {
   description = ""
   type        = any

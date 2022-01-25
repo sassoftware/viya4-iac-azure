@@ -212,7 +212,7 @@ module "postgresql" {
   source  = "Azure/postgresql/azurerm"
   version = "2.1.0"
 
-  for_each                     = local.postgres_servers != null ? length(local.postgres_servers) != 0 ? local.postgres_servers : {} : {}
+  for_each                     = local.postgres_servers != null && var.postgres_type == "single" ? length(local.postgres_servers) != 0 ? local.postgres_servers : {} : {}
 
   resource_group_name          = local.aks_rg.name
   location                     = var.location
@@ -233,6 +233,34 @@ module "postgresql" {
 
   ## TODO : requires specific permissions
   vnet_rules = [{ name = "aks", subnet_id = module.vnet.subnets["aks"].id }, { name = "misc", subnet_id = module.vnet.subnets["misc"].id }]
+}
+
+module "flex_postgresql" {
+  source  = "./modules/azurerm_postgresql_flex"
+
+  for_each                     = local.postgres_servers != null && var.postgres_type == "flexible" ? length(local.postgres_servers) != 0 ? local.postgres_servers : {} : {}
+
+  resource_group_name          = local.aks_rg.name
+  location                     = var.location
+  server_name                  = lower("${var.prefix}-${each.key}-pgsql")
+  sku_name                     = each.value.sku_name
+  storage_mb                   = each.value.storage_mb
+  backup_retention_days        = each.value.backup_retention_days
+  geo_redundant_backup_enabled = each.value.geo_redundant_backup_enabled
+  administrator_login          = each.value.administrator_login
+  administrator_password       = each.value.administrator_password
+  server_version               = each.value.server_version
+  # ssl_enforcement_enabled      = each.value.ssl_enforcement_enabled
+  firewall_rule_prefix         = "${var.prefix}-${each.key}-postgres-firewall-"
+  firewall_rules               = local.postgres_firewall_rules
+  vnet_rule_name_prefix        = "${var.prefix}-${each.key}-postgresql-vnet-rule-"
+  postgresql_configurations    = each.value.postgresql_configurations
+  tags                         = var.tags
+
+  delegated_subnet_id          = module.vnet.subnets["misc"].id
+  ## TODO : requires specific permissions
+
+  # vnet_rules = [{ name = "aks", subnet_id = module.vnet.subnets["aks"].id }, { name = "misc", subnet_id = module.vnet.subnets["misc"].id }]
 }
 
 module "netapp" {

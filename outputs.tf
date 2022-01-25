@@ -24,7 +24,7 @@ output "aks_cluster_password" {
 #postgres
 
 output "postgres_servers" {
-  value = length(module.postgresql) != 0 ? local.postgres_outputs : null
+  value = length(module.postgresql) != 0 || length(module.flex_postgresql) != 0 ? local.postgres_outputs : null
   sensitive = true
 }
 
