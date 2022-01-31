@@ -32,7 +32,7 @@ container_registry_sku              = "Standard"
 container_registry_admin_enabled    = false
 
 # AKS config
-kubernetes_version         = "1.19.13"
+kubernetes_version         = "1.21.7"
 default_nodepool_min_nodes = 1
 #v3 still has local temp storage
 default_nodepool_vm_type   = "Standard_D2_v3"
