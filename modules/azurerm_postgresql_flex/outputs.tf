@@ -24,5 +24,5 @@ output "server_id" {
 
 output "firewall_rule_ids" {
   description = "The list of all firewall rule resource ids"
-  value       = [azurerm_postgresql_flexible_server_firewall_rule.flexpsql_firewall_rules.*.id]
+  value       = [azurerm_postgresql_flexible_server_firewall_rule.flexpsql.*.id]
 }

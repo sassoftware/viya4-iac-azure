@@ -8,6 +8,11 @@ variable "location" {
   type        = string
 }
 
+# variable "virtual_network_id" {
+#   description = "The ID of the Virtual Network that should be linked to the DNS Zone. Changing this forces a new resource to be created."
+#   type        = string
+# }
+
 variable "server_name" {
   description = "Specifies the name of the PostgreSQL Server. Changing this forces a new resource to be created."
   type        = string
@@ -16,7 +21,7 @@ variable "server_name" {
 variable "sku_name" {
   description = "Specifies the SKU Name for this PostgreSQL Server. The name of the SKU, follows the tier + family + cores pattern (e.g. B_Gen4_1, GP_Gen5_8)."
   type        = string
-  default     = "GP_Standard_D16s_v3" 
+  default     = "GP_Standard_D16s_v3"
 }
 
 variable "storage_mb" {
@@ -113,7 +118,7 @@ variable "postgresql_configurations" {
   default     = {}
 }
 
-variable "delegated_subnet_id" {
-  description = "Subnet Id"
-  type        = string
-}
+# variable "delegated_subnet_id" {
+#   description = "Subnet Id"
+#   type        = string
+# }

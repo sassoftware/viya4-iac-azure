@@ -233,6 +233,8 @@ module "postgresql" {
 
   ## TODO : requires specific permissions
   vnet_rules = [{ name = "aks", subnet_id = module.vnet.subnets["aks"].id }, { name = "misc", subnet_id = module.vnet.subnets["misc"].id }]
+  ## TODO: to support Flexible Postgres assign Postgres to a isolated subnet
+  # vnet_rules = [{ name = "aks", subnet_id = module.vnet.subnets["aks"].id }, { name = "postgresql", subnet_id = module.vnet.subnets["postgresql"].id }]
 }
 
 module "flex_postgresql" {
@@ -242,7 +244,7 @@ module "flex_postgresql" {
 
   resource_group_name          = local.aks_rg.name
   location                     = var.location
-  server_name                  = lower("${var.prefix}-${each.key}-pgsql")
+  server_name                  = lower("${var.prefix}-${each.key}") # suffix '-flexpgsql' added in the module
   sku_name                     = each.value.sku_name
   storage_mb                   = each.value.storage_mb
   backup_retention_days        = each.value.backup_retention_days
@@ -250,17 +252,14 @@ module "flex_postgresql" {
   administrator_login          = each.value.administrator_login
   administrator_password       = each.value.administrator_password
   server_version               = each.value.server_version
-  # ssl_enforcement_enabled      = each.value.ssl_enforcement_enabled
   firewall_rule_prefix         = "${var.prefix}-${each.key}-postgres-firewall-"
   firewall_rules               = local.postgres_firewall_rules
   vnet_rule_name_prefix        = "${var.prefix}-${each.key}-postgresql-vnet-rule-"
   postgresql_configurations    = each.value.postgresql_configurations
   tags                         = var.tags
-
-  delegated_subnet_id          = module.vnet.subnets["misc"].id
-  ## TODO : requires specific permissions
-
-  # vnet_rules = [{ name = "aks", subnet_id = module.vnet.subnets["aks"].id }, { name = "misc", subnet_id = module.vnet.subnets["misc"].id }]
+  ## TODO: need to clarify requirements, given this "... private_dns_zone_id will be required when setting a delegated_subnet_id ..."
+  # virtual_network_id           = module.vnet.id
+  # delegated_subnet_id          = module.vnet.subnets["postgresql"].id
 }
 
 module "netapp" {

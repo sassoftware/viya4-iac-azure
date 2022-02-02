@@ -37,7 +37,7 @@ locals {
     k => {
       "server_name" : module.flex_postgresql[k].server_name,
       "fqdn" : module.flex_postgresql[k].server_fqdn,
-      "admin" : "${module.flex_postgresql[k].administrator_login}@${module.flex_postgresql[k].server_name}",
+      "admin" : "${module.flex_postgresql[k].administrator_login}",
       "password" : module.flex_postgresql[k].administrator_password,
       "server_port" : "5432", # TODO - Create a var when supported
       "internal" : false

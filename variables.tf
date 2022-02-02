@@ -575,7 +575,48 @@ variable "subnets" {
       }
     }
   }
-}
+  # TODO: for Flexible Postgres VNet Integration
+  # default = {
+  #   aks = {
+  #     "prefixes": ["192.168.0.0/23"],
+  #     "service_endpoints": ["Microsoft.Sql"],
+  #     "enforce_private_link_endpoint_network_policies": true,
+  #     "enforce_private_link_service_network_policies": false,
+  #     "service_delegations": {},
+  #   }
+  #   postgresql = {
+  #     "prefixes": ["192.168.2.0/24"],
+  #     "service_endpoints": ["Microsoft.Sql"],
+  #     "enforce_private_link_endpoint_network_policies": true,
+  #     "enforce_private_link_service_network_policies": false,
+  #     "service_delegations": {
+  #       postgresflex = {
+  #         "name"    : "Microsoft.DBforPostgreSQL/flexibleServers"
+  #         "actions" : ["Microsoft.Network/virtualNetworks/subnets/join/action"]
+  #       }
+  #     }
+  #   }
+  #   netapp = {
+  #     "prefixes": ["192.168.3.0/24"],
+  #     "service_endpoints": [],
+  #     "enforce_private_link_endpoint_network_policies": false,
+  #     "enforce_private_link_service_network_policies": false,
+  #     "service_delegations": {
+  #       netapp = {
+  #         "name"    : "Microsoft.Netapp/volumes"
+  #         "actions" : ["Microsoft.Network/networkinterfaces/*", "Microsoft.Network/virtualNetworks/subnets/join/action"]
+  #       }
+  #     }
+  #   }
+  #   misc = {
+  #     "prefixes": ["192.168.4.0/24"],
+  #     "service_endpoints": ["Microsoft.Sql"],
+  #     "enforce_private_link_endpoint_network_policies": true,
+  #     "enforce_private_link_service_network_policies": false,
+  #     "service_delegations": {},
+  #   }
+  # }
+  }
 
 variable "create_static_kubeconfig" {
   description = "Allows the user to create a provider / service account based kube config file"
