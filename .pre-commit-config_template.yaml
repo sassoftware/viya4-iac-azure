@@ -1,0 +1,30 @@
+# See https://pre-commit.com for more information
+    # See https://pre-commit.com/hooks.html for more hooks
+repos:
+-  repo: meta
+   hooks:
+   - id: check-hooks-apply
+-  repo: local
+   hooks:
+   - id: hadolint-docker-file-entrypoint
+     name: hadolint
+     entry: docker.io/hadolint/hadolint /bin/hadolint
+     language: docker_image
+     types: [dockerfile]
+   - id: shellcheck-docker-file-entrypoint
+     name: shellcheck
+     entry: docker.io/koalaman/shellcheck
+     language: docker_image
+     types: [shell]
+   - id: tflint-locally-installed
+     name: tflint
+     entry: tflint
+     language: system
+     types: [terraform]
+-  repo: https://github.com/pre-commit/pre-commit-hooks
+   rev: v4.1.0
+   hooks:
+    - id: trailing-whitespace
+    - id: end-of-file-fixer
+    - id: check-added-large-files
+    - id: check-yaml
