@@ -38,7 +38,7 @@ variable "prefix" {
 }
 variable "location" {
   description = "The Azure Region to provision all resources in this script"
-  default     = "East US"
+  default     = "eastus"
 }
 
 variable "ssh_public_key" {
