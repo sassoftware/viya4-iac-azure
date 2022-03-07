@@ -32,7 +32,7 @@ Terraform input variables can be set in the following ways:
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
 | prefix | A prefix used in the name of all the Azure resources created by this script. | string | | The prefix string must start with a lowercase letter and contain only lowercase alphanumeric characters and dashes (-), but it cannot end with a dash. |
-| location | The Azure Region to provision all resources in this script. | string | "East US" | |
+| location | The Azure Region to provision all resources in this script. | string | "eastus" | |
 
 ### Azure Authentication
 
