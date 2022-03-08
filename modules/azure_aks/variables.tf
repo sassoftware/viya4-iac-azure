@@ -6,7 +6,7 @@ variable aks_cluster_dns_prefix {}
 
 variable "aks_cluster_location" {
   description = "The Azure Region in which all resources in this example should be provisioned"
-  default     = "East US"
+  default     = "eastus"
 }
 
 variable "aks_private_cluster" {
