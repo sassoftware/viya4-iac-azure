@@ -134,9 +134,14 @@ variable "aks_docker_bridge_cidr" {
   default     = "172.17.0.1/16"
 }
 
-variable "aks_outbound_type" {
+variable "cluster_egress_type" {
   description = "The outbound (egress) routing method which should be used for this Kubernetes Cluster. Possible values are loadBalancer and userDefinedRouting. Defaults to loadBalancer."
-  default     = "loadBalancer"
+  default     = null
+  validation {
+    condition     = var.cluster_egress_type != null ? contains(["loadBalancer", "userDefinedRouting"], var.cluster_egress_type) : true
+    error_message = "ERROR: Supported values for `cluster_egress_type` are: loadBalancer, userDefinedRouting."
+  }
+
 }
 
 variable "aks_pod_cidr" {
@@ -513,7 +518,7 @@ variable "nsg_name" {
 variable "egress_public_ip_name" {
   type        = string
   default     = null
-  description = "Name of pre-existing Public IP for the Network egress."
+  description = "DEPRECATED: Name of pre-existing Public IP for the Network egress."
 }
 
 variable "subnet_names" {
