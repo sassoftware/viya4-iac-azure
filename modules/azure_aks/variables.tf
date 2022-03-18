@@ -6,7 +6,7 @@ variable aks_cluster_dns_prefix {}
 
 variable "aks_cluster_location" {
   description = "The Azure Region in which all resources in this example should be provisioned"
-  default     = "East US"
+  default     = "eastus"
 }
 
 variable "aks_private_cluster" {
@@ -89,11 +89,6 @@ variable "aks_dns_service_ip" {
 variable "aks_docker_bridge_cidr" {
   description = "IP address (in CIDR notation) used as the Docker bridge IP address on nodes. Changing this forces a new resource to be created."
   default     = "172.17.0.1/16"
-}
-
-variable "aks_outbound_type" {
-  description = "The outbound (egress) routing method which should be used for this Kubernetes Cluster. Possible values are loadBalancer and userDefinedRouting. Defaults to loadBalancer."
-  default     = "loadBalancer"
 }
 
 variable "aks_pod_cidr" {
