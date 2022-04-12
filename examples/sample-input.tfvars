@@ -63,18 +63,6 @@ node_pools = {
       "launcher.sas.com/prepullImage" = "sas-programming-environment"
     }
   },
-  connect = {
-    "machine_type" = "Standard_E16s_v3"
-    "os_disk_size" = 200
-    "min_nodes"    = 1
-    "max_nodes"    = 1
-    "max_pods"     = 110
-    "node_taints"  = ["workload.sas.com/class=connect:NoSchedule"]
-    "node_labels" = {
-      "workload.sas.com/class"        = "connect"
-      "launcher.sas.com/prepullImage" = "sas-programming-environment"
-    }
-  },
   stateless = {
     "machine_type" = "Standard_D16s_v3"
     "os_disk_size" = 200
