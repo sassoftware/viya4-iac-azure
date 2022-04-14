@@ -4,7 +4,7 @@ You have the option to use existing network resources with SAS Viya 4 Terraform 
 
 **NOTE:** We refer to the use of existing resources as "bring your own" or "BYO" resources.
 
-**NOTE:** The minimal permissions required for the Identity or Service Principal that runs the terraform script vary, depending on which components you provide. For all scenarios, the [Contributor](https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#contributor) Role will work.
+**NOTE:** The minimal permissions required for the Identity or Service Principal that runs the Terraform script vary, depending on which components you provide. For all scenarios, the [Contributor](https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#contributor) Role will work.
 
 ## Resource Location
 
@@ -19,23 +19,23 @@ Any BYO resources you bring are expected to be in the `vnet_resource_group_name`
 | Scenario |Required Variable|Additional Requirements|If not Provided|
 | :--- | :--- | :--- | :--- |
 | Use an existing VNET | `vnet_name` | <ul><li>the VNET IPv4 address space(s) must encompass the subnet cidr ranges as set by the [`subnets` variable](../CONFIG-VARS.md#networking) |creates a VNET with the primary address space as set in the [`vnet_address_space` variable](../CONFIG-VARS.md#networking).|
-| Use VNET with Subnets | `subnet_names` | <ul><li>a VNET set with the `vnet_name` variable.<li>use the subnet attributes as listed in the default value for the [`subnets` variable](../CONFIG-VARS.md#networking) <li>you also need to have a [Route Table and a Route to the aks subnet](https://docs.microsoft.com/en-us/azure/aks/configure-kubenet#bring-your-own-subnet-and-route-table-with-kubenet)<li>an [AKS Cluster identity](#cluster-identity) with write permissions to the aks subnet and route table | creates subnets as set in the [`subnets` variable](../CONFIG-VARS.md#networking), as well as a Route Table for the AKS subnet. Note that [AKS will modify the Route Table](https://docs.microsoft.com/en-us/azure/aks/configure-kubenet#bring-your-own-subnet-and-route-table-with-kubenet).  |
+| Use VNET with Subnets | `subnet_names` | <ul><li>a VNET set with the `vnet_name` variable.<li>the subnets you bring should have the same attribuites as the default [`subnets` variable](../CONFIG-VARS.md#networking) <li>ensure the subnets have access to requisite Microsoft services (per deployment elections) through service endpoints.  If electing for an external Postgres database, create a service endpoint for `Microsoft.Sql` in both the `aks` & `misc` subnets <li>you also need to have a [Route Table and a Route to the aks subnet](https://docs.microsoft.com/en-us/azure/aks/configure-kubenet#bring-your-own-subnet-and-route-table-with-kubenet) <li>an [AKS Cluster identity](#cluster-identity) with write permissions to the aks subnet and route table | creates subnets as set in the [`subnets` variable](../CONFIG-VARS.md#networking), as well as a Route Table for the AKS subnet. Note that [AKS will modify the Route Table](https://docs.microsoft.com/en-us/azure/aks/configure-kubenet#bring-your-own-subnet-and-route-table-with-kubenet).  |
 | Provide Network Egress| `cluster_egress_type="userDefinedRouting"` | <ul><li>A VNET and subnets set with the `vnet_name` and `subnet_names` variables. <li>Network  [egress](https://docs.microsoft.com/en-us/azure/aks/egress-outboundtype) needs to be defined (with NAT, Azure Firewall or similar) | AKS will create and use a [loadbalancer](https://docs.microsoft.com/en-us/azure/aks/load-balancer-standard) for outgoing traffic.|
 
 ## Network Security Group
 
 By default, this script creates a Network Security Group and adds firewall rules
-to allow external external access to the Jump/NFS VMs and Postgres, as set by the
+to allow external access to the Jump/NFS VMs and Postgres, as set by the
 [`vm_public_access_cidrs`/`postgres_public_access_cidrs`](../CONFIG-VARS.md#admin-access) variables.
 
 You can provide your own Network Security Group with the `nsg_name` variable.
-The terraform script will try to add firewall rules to that security group for any
+The Terraform script will try to add firewall rules to that security group for any
 values set by the [`vm_public_access_cidrs`/`postgres_public_access_cidrs`](../CONFIG-VARS.md#admin-access) variables.
 
 ## Cluster Identity
 
 When creating an AKS cluster, Azure associates an Identity with the cluster. Any resources created on behalf of the cluster (e.g. VMs for the Node Pools etc.) will use the permissions associated with that Identity.
-By default, an Identity with the same permissions as the [Identity used for  authenticating to the terraform script](TerraformAzureAuthentication.md) will be used. You can chose to use the Service Principal directly (if used), or bring your own User Assigned Identity, depending on the setting of the  [`aks_identity`](../CONFIG-VARS.md#general) variable.
+By default, an Identity with the same permissions as the [Identity used for  authenticating to the Terraform script](TerraformAzureAuthentication.md) will be used. You can choose to use the Service Principal directly (if used), or bring your own User Assigned Identity, depending on the setting of the  [`aks_identity`](../CONFIG-VARS.md#general) variable.
 
 When providing your own networking, the AKS cluster identity will need write access to the aks subnet and the associated routing table.
 
