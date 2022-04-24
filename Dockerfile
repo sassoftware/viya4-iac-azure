@@ -15,7 +15,7 @@ RUN apk --update --no-cache add git openssh \
   && chmod 755 ./kubectl /viya4-iac-azure/docker-entrypoint.sh \
   && mv ./kubectl /usr/local/bin/kubectl \
   && chmod g=u -R /etc/passwd /etc/group /viya4-iac-azure \
-  && git config --global --add safe.directory /viya4-iac-azure \
+  && git config --system --add safe.directory /viya4-iac-azure \
   && terraform init
 
 ENV TF_VAR_iac_tooling=docker
