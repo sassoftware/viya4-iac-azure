@@ -7,3 +7,4 @@ If you are updating SAS Viya to version 2021.2.6, take some additional steps to 
 1.	Perform the update by following the steps in the [SAS Viya documentation](https://go.documentation.sas.com/doc/en/itopscdc/default/k8sag/p043aa4ghwwom6n1beyfifdgkve7.htm). 
 2.	When the update to 2021.2.6 has completed successfully, use the `examples/sample-input.tfvars` or edit your customized variable definition file (tfvars) to remove `connect={}` from the "node_pools" section.
 3.	Run `terraform apply` using your edited tfvars file.
+
