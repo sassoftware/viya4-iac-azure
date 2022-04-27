@@ -40,19 +40,6 @@ default_nodepool_vm_type   = "Standard_D8s_v4"
 
 # AKS Node Pools config
 node_pools = {
-
-  singlestore = {
-    "machine_type" = "Standard_E8ds_v5"         
-    "os_disk_size" = 200
-    "min_nodes" = 0
-    "max_nodes" = 7
-    "max_pods" = 110
-    "node_taints" = ["workload.sas.com/class=singlestore:NoSchedule"]
-    "node_labels" = {
-      "workload.sas.com/class" = "singlestore"
-    }
-  },
-
   cas = {
     "machine_type" = "Standard_E16s_v3"
     "os_disk_size" = 200
@@ -96,6 +83,17 @@ node_pools = {
     "node_taints"  = ["workload.sas.com/class=stateful:NoSchedule"]
     "node_labels" = {
       "workload.sas.com/class" = "stateful"
+    }
+  },
+  singlestore = {
+    "machine_type" = "Standard_E8ds_v5"         
+    "os_disk_size" = 200
+    "min_nodes" = 0
+    "max_nodes" = 7
+    "max_pods" = 110
+    "node_taints" = ["workload.sas.com/class=singlestore:NoSchedule"]
+    "node_labels" = {
+      "workload.sas.com/class" = "singlestore"
     }
   }
 }
