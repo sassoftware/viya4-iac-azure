@@ -101,7 +101,7 @@ node_pools = {
 }
 
 # Jump Server
-create_jump_public_ip = true
+create_jump_public_ip = false
 jump_vm_admin        = "edcadmin"
 jump_vm_machine_type = "Standard_B2s"
 
