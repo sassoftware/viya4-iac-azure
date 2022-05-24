@@ -13,13 +13,14 @@ vnet_resource_group_name = "shd-network-rg-n" # RG for BYO resources
 vnet_name                = "SHD-INF-VNET-n"           # only needed if using pre-existing
 subnet_names             = {
   "aks": "shd-inf-sas-k8s-10.23.8.64-26-n", 
-  "misc": "shd-inf-sas-k8s-10.23.8.64-26-n", 
-  "netapp": "shd-inf-sas-k8s-10.23.8.64-26-n" # only needed if using ha storage (aka netapp)
+  "misc": "shd-inf-sas-k8s-10.23.8.64-26-n"
+  #, "netapp": "" # only needed if using ha storage (aka netapp)
 }
 # also available as BYO
 resource_group_name      = "shd-sas-k8s-rg-n" # RG for aks resources
 nsg_name                 = "shd-inf-sas-k8s-10.23.8.64-26-n-nsg"            # 
-# aks_uai_name             = "<existing-user-defined-identity-name"
+aks_uai_name             = null #"zandsas-aks-identity" #"<existing-user-defined-identity-name"
+aks_identity             = "uai" 
 
 # !NOTE! - Without specifying your CIDR block access rules, ingress traffic
 #          to your cluster will be blocked by default. In a SCIM environment,
@@ -49,7 +50,7 @@ container_registry_admin_enabled    = false
 # AKS config
 kubernetes_version         = "1.21.7"
 default_nodepool_min_nodes = 2
-default_nodepool_vm_type   = "Standard_D8s_v4"
+default_nodepool_vm_type   = "Standard_D8s_v3" # "Standard_D8s_v4" # Not in UAE
 
 # AKS Node Pools config
 node_pools = {
@@ -110,7 +111,7 @@ storage_type = "standard"
 # required ONLY when storage_type is "standard" to create NFS Server VM
 create_nfs_public_ip = false
 nfs_vm_admin         = "edcadmin"
-nfs_vm_machine_type  = "Standard_D8s_v4"
+nfs_vm_machine_type  = "Standard_D8s_v4" # Not in UAE
 nfs_raid_disk_size   = 128
 nfs_raid_disk_type   = "Standard_LRS"
 
