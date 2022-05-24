@@ -9,3 +9,4 @@ terraform.tfvars
 .terraform.lock.hcl
 .DS_Store
 sas_iac_buildinfo.yaml
+.vscode/settings.json
