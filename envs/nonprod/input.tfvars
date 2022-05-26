@@ -4,7 +4,7 @@
 
 # ****************  REQUIRED VARIABLES  ****************
 # These required variables' values MUST be provided by the User
-prefix   = "zandsas" # this is a prefix that you assign for the resources to be created
+prefix   = "shd-sas" # this is a prefix that you assign for the resources to be created
 location = "uaenorth" # e.g., "eastus2"
 # ****************  REQUIRED VARIABLES  ****************
 
@@ -38,9 +38,19 @@ tags = {} # for example: { "owner|email" = "<you>@<domain>.<com>", "key1" = "val
 # Postgres config - By having this entry a database server is created. If you do not
 #                   need an external database server remove the 'postgres_servers'
 #                   block below.
-# postgres_servers = {
-#   default = {},
-# }
+postgres_servers = {
+  default = {
+    sku_name                     = "GP_Gen5_32"
+    storage_mb                   = 51200
+    backup_retention_days        = 7
+    geo_redundant_backup_enabled = false
+    administrator_login          = "pgadmin"
+    administrator_password       = "1tsAB3aut1fulDay"
+    server_version               = "11"
+    ssl_enforcement_enabled      = true
+    # postgresql_configurations    = { foo = "true", bar = "false" }
+  }
+}
 
 # Azure Container Registry config
 create_container_registry           = false
