@@ -12,13 +12,12 @@ resource "azurerm_user_assigned_identity" "uai" {
 }
 
 
-# resource "azurerm_role_assignment" "ra1" {
-#   scope                = data.azurerm_subnet.kubesubnet.id
-#   role_definition_name = "Network Contributor"
-#   principal_id         = var.aks_service_principal_object_id
-
-#   depends_on = [azurerm_virtual_network.test]
-# }
+resource "azurerm_role_assignment" "ra1" {
+  scope                = "/subscriptions/76f40aaa-eacd-4fd8-a046-3bd07855f6f8/resourceGroups/shd-network-rg-n" #/providers/Microsoft.Network/routeTables/shd-inf-sas-k8s-10.23.8.64-26-rtt-n"
+  role_definition_name = "Network Contributor"
+  principal_id         = azurerm_user_assigned_identity.uai.0.principal_id
+  depends_on           = [azurerm_user_assigned_identity.uai]
+}
 
 resource "azurerm_role_assignment" "ra2" {
   scope                = local.aks_rg.id
