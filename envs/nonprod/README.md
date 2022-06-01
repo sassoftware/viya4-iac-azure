@@ -7,16 +7,17 @@
     $ export TF_VAR_client_id=
     $ export TF_VAR_client_secret=
     $ export TF_VAR_subscription_id=
+    $ export TF_VAR_storage_account_access_key=
 
 
 ## Apply the Terraform
 
-    $ terraform init    -var-file ./envs/nonprod/input.tfvars
-    $ terraform plan    -var-file ./envs/nonprod/input.tfvars -no-color > plan
-    $ terraform apply   -var-file ./envs/nonprod/input.tfvars
+    $ ./scripts/deploy-nonprod.sh -planapply
 
 ## Install cert-manager
 
+    $ az account set --subscription 76f40aaa-eacd-4fd8-a046-3bd07855f6f8
+    $ az aks get-credentials --resource-group shd-sas-k8s-rg-n --name shd-sas-aks
     $ kubectl create namespace cert-manager
     $ helm repo add jetstack https://charts.jetstack.io
     $ helm repo update

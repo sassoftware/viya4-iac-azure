@@ -9,6 +9,11 @@ resource "azurerm_user_assigned_identity" "uai" {
   name                = "${var.prefix}-aks-identity"
   resource_group_name = local.aks_rg.name
   location            = var.location
+  
+  # wait 30s for server replication before attempting role assignment creation
+  provisioner "local-exec" {
+    command = "sleep 30"
+  }
 }
 
 

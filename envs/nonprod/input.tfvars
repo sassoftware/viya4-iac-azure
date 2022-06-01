@@ -28,7 +28,7 @@ aks_identity             = "uai"
 #          443/HTTPS for the ingress IP address. 
 
 # **************  RECOMMENDED  VARIABLES  ***************
-default_public_access_cidrs = [] # e.g., ["0.0.0.0/0"]
+default_public_access_cidrs = ["0.0.0.0/0"] # e.g., ["0.0.0.0/0"]
 ssh_public_key              = "~/.ssh/id_rsa.pub"
 # **************  RECOMMENDED  VARIABLES  ***************
 

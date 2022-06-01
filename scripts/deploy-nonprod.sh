@@ -30,6 +30,13 @@ if [ "$1" == "-apply" ]; then
     STATUS=$?
 fi
 
+if [ "$1" == "-destroy" ]; then
+  echo "----------------------------------------------------"
+  echo "| ${GREEN} Running terraform plan ... ${RESET}"
+  echo "----------------------------------------------------"         
+  terragrunt destroy -var-file=./envs/nonprod/input.tfvars
+fi
+
 # Useful for Automation clients
 if [ "$1" == "-planapply" ]; then
   echo "----------------------------------------------------"
