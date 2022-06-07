@@ -208,8 +208,8 @@ module "node_pools" {
 
 # Module Registry - https://registry.terraform.io/modules/Azure/postgresql/azurerm/2.1.0
 module "postgresql" {
-  source  = "Azure/postgresql/azurerm"
-  version = "2.1.0"
+  source  = "./modules/postgresql" #"Azure/postgresql/azurerm"
+  #version = "2.1.0"
 
   for_each                     = local.postgres_servers != null ? length(local.postgres_servers) != 0 ? local.postgres_servers : {} : {}
 
@@ -225,13 +225,12 @@ module "postgresql" {
   server_version               = each.value.server_version
   ssl_enforcement_enabled      = each.value.ssl_enforcement_enabled
   firewall_rule_prefix         = "${var.prefix}-${each.key}-postgres-firewall-"
-  firewall_rules               = local.postgres_firewall_rules
+  firewall_rules               = [] #local.postgres_firewall_rules
   vnet_rule_name_prefix        = "${var.prefix}-${each.key}-postgresql-vnet-rule-"
+  vnet_rules                   = [] #[{ name = "aks", subnet_id = module.vnet.subnets["aks"].id }, { name = "misc", subnet_id = module.vnet.subnets["misc"].id }]
   postgresql_configurations    = each.value.postgresql_configurations
-  tags                         = var.tags
-
-  ## TODO : requires specific permissions
-  vnet_rules = [{ name = "aks", subnet_id = module.vnet.subnets["aks"].id }, { name = "misc", subnet_id = module.vnet.subnets["misc"].id }]
+  tags                         = var.tags  
+  pe_subnet_id                 = var.pe_subnet_id 
 }
 
 module "netapp" {

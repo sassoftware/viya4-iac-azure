@@ -18,7 +18,7 @@ resource "azurerm_user_assigned_identity" "uai" {
 
 
 resource "azurerm_role_assignment" "ra1" {
-  scope                = "/subscriptions/76f40aaa-eacd-4fd8-a046-3bd07855f6f8/resourceGroups/shd-network-rg-n" #/providers/Microsoft.Network/routeTables/shd-inf-sas-k8s-10.23.8.64-26-rtt-n"
+  scope                = "/subscriptions/${var.subscription_id}/resourceGroups/${var.vnet_resource_group_name}" #/providers/Microsoft.Network/routeTables/shd-inf-sas-k8s-10.23.8.64-26-rtt-n"
   role_definition_name = "Network Contributor"
   principal_id         = azurerm_user_assigned_identity.uai.0.principal_id
   depends_on           = [azurerm_user_assigned_identity.uai]
@@ -39,7 +39,7 @@ resource "azurerm_role_assignment" "ra3" {
 }
 
 resource "azurerm_role_assignment" "ra4" {
-  scope                = "/subscriptions/76f40aaa-eacd-4fd8-a046-3bd07855f6f8/resourceGroups/shd-network-rg-n" #/providers/Microsoft.Network/routeTables/shd-inf-sas-k8s-10.23.8.64-26-rtt-n"
+  scope                = "/subscriptions/${var.subscription_id}/resourceGroups/${var.vnet_resource_group_name}" #/providers/Microsoft.Network/routeTables/shd-inf-sas-k8s-10.23.8.64-26-rtt-n"
   role_definition_name = "Owner"
   principal_id         = azurerm_user_assigned_identity.uai.0.principal_id
   depends_on           = [azurerm_user_assigned_identity.uai]

@@ -31,16 +31,16 @@
 
     $ cd envs/nonprod/cert-manager
     $ kubectl apply -f secret.yaml
-    $ kubectl apply -f clusterissuer-hvault.yaml
-    
-    $ kubectl get issuers vault-issuer -n cert-manager -o wide # Check
+    $ kubectl apply -f clusterissuer-hvault.yaml    
+    # Check:
+    $ kubectl get clusterissuers cluster-vault-issuer -n cert-manager -o wide
 
 ## Install nginx ingress controller
     $ helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
     $ helm repo update
 <!-- ingress-nginx-3.39.0 -->
 <!-- kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.49.3/deploy/static/provider/cloud/deploy.yaml -->
-    $ export VIP_STATIC_IP=
+    $ export VIP_STATIC_IP=10.23.7.16
     $ helm install nginx-ingress ingress-nginx/ingress-nginx \
         --version 3.39.0 \
         --namespace ingress-basic --create-namespace \

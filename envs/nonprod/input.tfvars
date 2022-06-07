@@ -132,3 +132,5 @@ create_aks_azure_monitor = false
 default_nodepool_availability_zones = []
 node_pools_proximity_placement = true
 node_pools_availability_zone   = ""
+
+pe_subnet_id = "/subscriptions/76f40aaa-eacd-4fd8-a046-3bd07855f6f8/resourceGroups/shd-network-rg-n/providers/Microsoft.Network/virtualNetworks/SHD-INF-VNET-n/subnets/SHD-INF-PrivateEndpoint-10.23.5.0-24-n"

@@ -594,3 +594,8 @@ variable "aks_identity" {
     error_message = "ERROR: Supported values for `aks_identity` are: uai, sp."
   }
 }
+
+variable "pe_subnet_id" {
+  description = "Private Endpoint Subnet Id for PostgreSQL."
+  type        = string
+}
