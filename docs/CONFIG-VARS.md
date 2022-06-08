@@ -163,7 +163,7 @@ Ubuntu 20.04 LTS is the operating system used on the Jump/NFS servers. Ubuntu cr
 | :--- | ---: | ---: | ---: | ---: |
 | partner_id | A GUID that is registered with Microsoft to facilitate partner resource usage attribution | string | "5d27f3ae-e49c-4dea-9aa3-b44e4750cd8c" | Defaults to SAS partner GUID. When you deploy this Terraform configuration, Microsoft can identify the installation of SAS software with the deployed Azure resources. Microsoft can then correlate the resources that are used to support the software. Microsoft collects this information to provide the best experiences with their products and to operate their business. The data is collected and governed by Microsoft's privacy policies, located at https://www.microsoft.com/trustcenter. |
 | create_static_kubeconfig | Allows the user to create a provider / service account-based kubeconfig file | bool | true | A value of `false` will default to using the cloud provider's mechanism for generating the kubeconfig file. A value of `true` will create a static kubeconfig that uses a `Service Account` and `Cluster Role Binding` to provide credentials. |
-| kubernetes_version | The AKS cluster Kubernetes version | string | "1.21.7" | |
+| kubernetes_version | The AKS cluster Kubernetes version | string | "1.22.6" | |
 | create_jump_vm | Create bastion host | bool | true | |
 | create_jump_public_ip | Add public IP address to the jump VM | bool | true | |
 | jump_vm_admin | Operating system Admin User for the jump VM | string | "jumpuser" | |
