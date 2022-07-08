@@ -87,7 +87,7 @@ node_pools = {
     }
   },
   singlestore = {
-    "machine_type" = "Standard_E8ds_v5"         
+    "machine_type" = "Standard_E16ds_v5"         
     "os_disk_size" = 200
     "min_nodes" = 0
     "max_nodes" = 7
