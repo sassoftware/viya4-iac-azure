@@ -4,7 +4,7 @@ In order to create and destroy Microsoft Azure resources on your behalf, Terrafo
 
 Your Service Principal or Managed Identity in the Azure subscription requires a **"Contributor"** role to create Azure resources. Follow these links for more information about how to create and retrieve the values to configure Terraform access to Azure: 
 
-- [How to Create a Service Principal](./AzureHelpTopics.md#how-to-create-service-principal-using-azurecli) | See Using a Service Principal Below
+- [How to Create a Service Principal](./AzureHelpTopics.md#how-to-create-a-service-principal-using-the-azure-cli) | See Using a Service Principal Below
 
 - [How to Create a Managed Identity](./AzureHelpTopics.md#how-to-create-a-user-assigned-managed-identity-with-contributor-role) and [How to Assign the Managed Identity to a VM](./AzureHelpTopics.md#how-to-assign-a-user-assigned-managed-identity-to-a-vm)
 
