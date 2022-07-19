@@ -190,7 +190,7 @@ Ubuntu 20.04 LTS is the operating system used on the Jump/NFS servers. Ubuntu cr
 
 ### Additional Node Pools
 
-Additional node pools can be created separate from the default node pool. This is done with the `node_pools` variable, which is a map of objects. Each node pool requires the following variables:
+Additional node pools can be created separate from the default node pool. This is done with the `node_pools` variable, which is a map of objects. The following variables are required for each node pool:
 
 | Name | Description | Type | Notes |
 | :--- | ---: | ---: | ---: |
@@ -201,6 +201,8 @@ Additional node pools can be created separate from the default node pool. This i
 | max_pods | Maximum number of pods per node | number | Default is 110
 | node_taints | Taints for the node pool VMs | list of strings | |
 | node_labels | Labels to add to the node pool VMs | map | |
+
+**NOTE:** Irrespective of the default values, all the above variables are required to be defined for each node pool.
 
 The default values for the `node_pools` variable are as follows:
 
