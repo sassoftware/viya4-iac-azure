@@ -4,6 +4,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   location            = var.aks_cluster_location
   resource_group_name = var.aks_cluster_rg
   dns_prefix          = var.aks_cluster_dns_prefix
+  sku_tier            = var.aks_cluster_sku_tier
   
   # https://docs.microsoft.com/en-us/azure/aks/supported-kubernetes-versions
   # az aks get-versions --location eastus -o table
