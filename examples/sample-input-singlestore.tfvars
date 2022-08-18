@@ -116,10 +116,10 @@ nfs_raid_disk_type   = "Standard_LRS"
 # Azure Monitor
 create_aks_azure_monitor = false
 
-# S2 configuration
+# SingleStore configuration
 aks_network_plugin = "azure"
 
-# subnets
+# Subnets for SingleStore using azure network plugin
 subnets = {
   aks = {
     "prefixes": ["192.168.0.0/21"],
