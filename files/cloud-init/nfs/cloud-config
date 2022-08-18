@@ -56,8 +56,13 @@ runcmd:
   #
   # Update /etc/exports - NOTE: The CIDR provided works for the whole VPC
   #
-  - echo "/export         ${aks_cidr_block}(rw,no_root_squash,async,insecure,fsid=0,crossmnt,no_subtree_check)" >> /etc/exports
-  - echo "/export         ${misc_cidr_block}(rw,no_root_squash,async,insecure,fsid=0,crossmnt,no_subtree_check)" >> /etc/exports
+  - if [ "${aks_cidr_block}" != "${misc_cidr_block}" ]
+  - then
+  -   echo "/export         ${aks_cidr_block}(rw,no_root_squash,async,insecure,fsid=0,crossmnt,no_subtree_check)" >> /etc/exports
+  -   echo "/export         ${misc_cidr_block}(rw,no_root_squash,async,insecure,fsid=0,crossmnt,no_subtree_check)" >> /etc/exports
+  - else
+  -   echo "/export         ${aks_cidr_block}(rw,no_root_squash,async,insecure,fsid=0,crossmnt,no_subtree_check)" >> /etc/exports
+  - fi
   #
   # Restart nfs-server service
   #
