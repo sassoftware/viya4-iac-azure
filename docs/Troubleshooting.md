@@ -33,6 +33,8 @@ Error: A resource with the ID "/subscriptions/REDACTED/resourcegroups/viya-tst-r
 
 ```bash
 terraform import -var-file=sample-input.tfvars module.aks.azurerm_kubernetes_cluster.aks '/subscription/REDACTED/../../'
+
+terraform import -var-file=./terraform.tfvars module.node_pools[\"stateless\"].azurerm_kubernetes_cluster_node_pool.autoscale_node_pool[0] "/subscriptions/.../resourcegroups/.../providers/Microsoft.ContainerService/managedClusters/.../agentPools/stateless"
 ```
 
 ## Not able to access AKS with kubectl
