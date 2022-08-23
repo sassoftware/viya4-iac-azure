@@ -21,6 +21,7 @@ data "template_file" "kubeconfig_provider" {
 
 # 1.24 change: Create service account secret
 resource "kubernetes_secret" "sa_secret" {
+  count = var.create_static_kubeconfig ? 1 : 0
   metadata {
     name      = local.service_account_secret_name
     namespace = var.namespace
@@ -36,7 +37,7 @@ resource "kubernetes_secret" "sa_secret" {
 data "kubernetes_secret" "sa_secret" {
   count = var.create_static_kubeconfig ? 1 : 0
   metadata {
-    name = "${kubernetes_secret.sa_secret.metadata.0.name}"
+    name = "${kubernetes_secret.sa_secret[0].metadata.0.name}"
     namespace = var.namespace
   }
 }
@@ -55,8 +56,8 @@ data "template_file" "kubeconfig_sa" {
   }
 }
 
-## Warning message from hashicorp/terraform-provider-kubernetes is expected 
-# Message: "Warning: 'default_secret_name' is no longer applicable for Kubernetes 'v1.24.0' and above"
+# Starting K8s v1.24+ hashicorp/terraform-provider-kubernetes issues warning message:
+# "Warning: 'default_secret_name' is no longer applicable for Kubernetes 'v1.24.0' and above"
 resource "kubernetes_service_account" "kubernetes_sa" {
   count = var.create_static_kubeconfig ? 1 : 0
   metadata {
@@ -64,7 +65,6 @@ resource "kubernetes_service_account" "kubernetes_sa" {
     namespace = var.namespace
   }
 }
-
 
 resource "kubernetes_cluster_role_binding" "kubernetes_crb" {
   count = var.create_static_kubeconfig ? 1 : 0
