@@ -129,6 +129,16 @@ variable "aks_dns_service_ip" {
   default     = "10.0.0.10"
 }
 
+variable "aks_private_dns_zone_id" {
+  description = "If creating a private cluster, the desired private DNS zone configuration. Either 'System' to have AKS manage this, or 'None'. In case of 'None' you will need to bring your own DNS server. Changing this forces a new resource to be created."
+  type        = string
+  default     = "System"
+  validation {
+    condition     = var.aks_private_dns_zone_id != null ? contains(["System", "None"], var.aks_private_dns_zone_id) : true
+    error_message = "ERROR: Supported values for `aks_private_dns_zone_id` are: System, None."
+  }
+}
+
 variable "aks_docker_bridge_cidr" {
   description = "IP address (in CIDR notation) used as the Docker bridge IP address on nodes. Changing this forces a new resource to be created."
   default     = "172.17.0.1/16"
