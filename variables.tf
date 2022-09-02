@@ -301,9 +301,9 @@ variable nfs_raid_disk_type {
   }
 }
 
-variable nfs_raid_disk_zones {
-  description = "A collection containing the availability zones to allocate the Managed Disk in."
-  default     = []
+variable nfs_raid_disk_zone {
+  description = "Specifies the Availability Zone in which this Managed Disk should be located. Changing this property forces a new resource to be created."
+  default     = null
 }
 
 ## Azure Container Registry (ACR)
@@ -525,8 +525,8 @@ variable "subnets" {
   type = map(object({
     prefixes                                       = list(string)
     service_endpoints                              = list(string)
-    enforce_private_link_endpoint_network_policies = bool
-    enforce_private_link_service_network_policies  = bool
+    private_endpoint_network_policies_enabled      = bool
+    private_link_service_network_policies_enabled  = bool
     service_delegations                            = map(object({
       name    = string
       actions = list(string)
@@ -536,22 +536,22 @@ variable "subnets" {
     aks = {
       "prefixes": ["192.168.0.0/23"],
       "service_endpoints": ["Microsoft.Sql"],
-      "enforce_private_link_endpoint_network_policies": true,
-      "enforce_private_link_service_network_policies": false,
+      "private_endpoint_network_policies_enabled": true,
+      "private_link_service_network_policies_enabled": false,
       "service_delegations": {},
     }
     misc = {
       "prefixes": ["192.168.2.0/24"],
       "service_endpoints": ["Microsoft.Sql"],
-      "enforce_private_link_endpoint_network_policies": true,
-      "enforce_private_link_service_network_policies": false,
+      "private_endpoint_network_policies_enabled": true,
+      "private_link_service_network_policies_enabled": false,
       "service_delegations": {},
     }
     netapp = {
       "prefixes": ["192.168.3.0/24"],
       "service_endpoints": [],
-      "enforce_private_link_endpoint_network_policies": false,
-      "enforce_private_link_service_network_policies": false,
+      "private_endpoint_network_policies_enabled": false,
+      "private_link_service_network_policies_enabled": false,
       "service_delegations": {
         netapp = {
           "name"    : "Microsoft.Netapp/volumes"

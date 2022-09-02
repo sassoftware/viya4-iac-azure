@@ -5,7 +5,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "autoscale_node_pool" {
   name                         = var.node_pool_name
   kubernetes_cluster_id        = var.aks_cluster_id
   vnet_subnet_id               = var.vnet_subnet_id
-  availability_zones           = var.availability_zones
+  zones                        = var.zones
   proximity_placement_group_id = var.proximity_placement_group_id == "" ? null : var.proximity_placement_group_id
   vm_size                      = var.machine_type
   os_disk_size_gb              = var.os_disk_size
@@ -34,7 +34,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "static_node_pool" {
   name                         = var.node_pool_name
   kubernetes_cluster_id        = var.aks_cluster_id
   vnet_subnet_id               = var.vnet_subnet_id
-  availability_zones           = var.availability_zones
+  zones                        = var.zones
   proximity_placement_group_id = var.proximity_placement_group_id == "" ? null : var.proximity_placement_group_id
   vm_size                      = var.machine_type
   os_disk_size_gb              = var.os_disk_size

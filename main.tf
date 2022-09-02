@@ -100,13 +100,21 @@ resource "azurerm_container_registry" "acr" {
   # Moving from deprecated argument, georeplication_locations, but keeping container_registry_geo_replica_locs
   # for backwards compatability.
   #
-  georeplications = (local.container_registry_sku == "Premium" && var.container_registry_geo_replica_locs != null) ? [
-    for location_item in var.container_registry_geo_replica_locs:
-      {
-        location = location_item
-        tags     = var.tags
-      }
-  ] : local.container_registry_sku == "Premium" ? [] : null
+  dynamic "georeplications" {
+    for_each = (local.container_registry_sku == "Premium" && var.container_registry_geo_replica_locs != null) ? var.container_registry_geo_replica_locs : (local.container_registry_sku == "Premium" ? [] : null)
+    content {
+      location                = var.container_registry_geo_replica_locs.value.location
+      tags                    = var.tags
+    }
+  }
+
+#   georeplications = (local.container_registry_sku == "Premium" && var.container_registry_geo_replica_locs != null) ? [
+#     for location_item in var.container_registry_geo_replica_locs:
+#       {
+#         location = location_item
+#         tags     = var.tags
+#       }
+#   ] : local.container_registry_sku == "Premium" ? [] : null
 
   tags                     = var.tags
 }
@@ -200,7 +208,7 @@ module "node_pools" {
   max_pods                     = each.value.max_pods == null ? 110 : each.value.max_pods
   node_taints                  = each.value.node_taints
   node_labels                  = each.value.node_labels
-  availability_zones           = (var.node_pools_availability_zone == "" || var.node_pools_proximity_placement == true) ? [] : [var.node_pools_availability_zone]
+  zones                        = (var.node_pools_availability_zone == "" || var.node_pools_proximity_placement == true) ? [] : [var.node_pools_availability_zone]
   proximity_placement_group_id = element(coalescelist(azurerm_proximity_placement_group.proximity.*.id, [""]), 0)
   orchestrator_version         = var.kubernetes_version
   tags                         = var.tags

@@ -108,7 +108,7 @@ module "nfs" {
   data_disk_count                = 4
   data_disk_size                 = var.nfs_raid_disk_size
   data_disk_storage_account_type = var.nfs_raid_disk_type
-  data_disk_zones                = var.nfs_raid_disk_zones
+  data_disk_zone                 = var.nfs_raid_disk_zone
   depends_on                     = [module.vnet]
 }
 

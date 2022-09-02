@@ -1,6 +1,7 @@
 # #aks
 output "aks_host" {
   value = module.aks.host
+  sensitive = true
 }
 
 output "nat_ip" {
@@ -13,7 +14,7 @@ output "kube_config" {
 }
 
 output "aks_cluster_node_username" {
-  value = module.aks.cluster_username
+  value = nonsensitive(module.aks.cluster_username)
 }
 
 output "aks_cluster_password" {

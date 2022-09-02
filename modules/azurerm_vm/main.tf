@@ -41,7 +41,7 @@ resource "azurerm_managed_disk" "vm_data_disk" {
   storage_account_type = var.data_disk_storage_account_type
   create_option        = "Empty"
   disk_size_gb         = var.data_disk_size
-  zones                = var.data_disk_zones
+  zone                 = var.data_disk_zone
   tags                 = var.tags
 }
 
