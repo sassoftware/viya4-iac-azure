@@ -101,21 +101,13 @@ resource "azurerm_container_registry" "acr" {
   # for backwards compatability.
   #
   dynamic "georeplications" {
-    for_each = (local.container_registry_sku == "Premium" && var.container_registry_geo_replica_locs != null) ? var.container_registry_geo_replica_locs : (local.container_registry_sku == "Premium" ? [] : null)
+    for_each = (local.container_registry_sku == "Premium" && var.container_registry_geo_replica_locs != null) ? toset(
+      var.container_registry_geo_replica_locs) : []
     content {
-      location                = var.container_registry_geo_replica_locs.value.location
+      location                = georeplications.key
       tags                    = var.tags
     }
   }
-
-#   georeplications = (local.container_registry_sku == "Premium" && var.container_registry_geo_replica_locs != null) ? [
-#     for location_item in var.container_registry_geo_replica_locs:
-#       {
-#         location = location_item
-#         tags     = var.tags
-#       }
-#   ] : local.container_registry_sku == "Premium" ? [] : null
-
   tags                     = var.tags
 }
 

@@ -77,20 +77,6 @@ resource "azurerm_kubernetes_cluster" "aks" {
     }
   }
 
-  # addon_profile {
-  #   http_application_routing {
-  #     enabled = false
-  #   }
-  #   # removed since Kube Dashboard is not supported for Kubernetes versions above 1.19.
-  #   # kube_dashboard {
-  #   #   enabled = false
-  #   # }
-  #   oms_agent {
-  #     enabled                    = var.aks_oms_enabled
-  #     log_analytics_workspace_id = var.aks_log_analytics_workspace_id
-  #   }
-  # }
-
   dynamic "oms_agent" {
     for_each = var.aks_oms_enabled ? ["oms_agent"] : []
     content {
