@@ -118,4 +118,4 @@ See the [Troubleshooting](./docs/Troubleshooting.md) page for information about 
 ### Terraform Resources
 
 - [Azure Provider](https://www.terraform.io/docs/providers/azurerm/index.html)
-- [Azure AKS](https://www.terraform.io/docs/providers/azurerm/r/kubernetes_cluster.html)
+- [Azure AKS](https://www.terraform.io/docs/providers/azurerm/r/kubernetes_cluster)
