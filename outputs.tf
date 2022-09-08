@@ -14,7 +14,8 @@ output "kube_config" {
 }
 
 output "aks_cluster_node_username" {
-  value = nonsensitive(module.aks.cluster_username)
+  value = module.aks.cluster_username
+  sensitive = true
 }
 
 output "aks_cluster_password" {
