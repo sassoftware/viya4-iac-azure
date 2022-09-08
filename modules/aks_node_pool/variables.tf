@@ -8,7 +8,7 @@ variable "aks_cluster_id" {
   type = string
 }
 
-variable "availability_zones" {
+variable "zones" {
   type    = list(string)
   default = []
 }

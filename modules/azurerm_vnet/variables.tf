@@ -30,8 +30,8 @@ variable "subnets" {
   type = map(object({
     prefixes                                       = list(string)
     service_endpoints                              = list(string)
-    enforce_private_link_endpoint_network_policies = bool
-    enforce_private_link_service_network_policies  = bool
+    private_endpoint_network_policies_enabled      = bool
+    private_link_service_network_policies_enabled  = bool
     service_delegations                            = map(object({
       name    = string
       actions = list(string)

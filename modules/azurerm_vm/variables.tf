@@ -75,9 +75,9 @@ variable data_disk_storage_account_type {
   description = "The type of storage to use for the managed disk. Possible values are Standard_LRS, Premium_LRS, StandardSSD_LRS or UltraSSD_LRS."
 }
 
-variable "data_disk_zones" {
-  description = "A collection containing the availability zone to allocate the Managed Disk in."
-  default     = []
+variable "data_disk_zone" {
+  description = "Specifies the Availability Zone in which this Managed Disk should be located. Changing this property forces a new resource to be created."
+  default     = null
 }
 
 variable os_disk_size {

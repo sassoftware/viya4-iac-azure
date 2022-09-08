@@ -93,23 +93,23 @@ The default values for the `subnets` variable are as follows:
   aks = {
     "prefixes": ["192.168.0.0/23"],
     "service_endpoints": ["Microsoft.Sql"],
-    "enforce_private_link_endpoint_network_policies": false,
-    "enforce_private_link_service_network_policies": false,
+    "private_endpoint_network_policies_enabled": false,
+    "private_link_service_network_policies_enabled": false,
     "service_delegations": {},
   }
   misc = {
     "prefixes": ["192.168.2.0/24"],
     "service_endpoints": ["Microsoft.Sql"],
-    "enforce_private_link_endpoint_network_policies": false,
-    "enforce_private_link_service_network_policies": false,
+    "private_endpoint_network_policies_enabled": false,
+    "private_link_service_network_policies_enabled": false,
     "service_delegations": {},
   }
   ## If using ha storage then the following is also added
   netapp = {
     "prefixes": ["192.168.3.0/24"],
     "service_endpoints": [],
-    "enforce_private_link_endpoint_network_policies": false,
-    "enforce_private_link_service_network_policies": false,
+    "private_endpoint_network_policies_enabled": false,
+    "private_link_service_network_policies_enabled": false,
     "service_delegations": {
       netapp = {
         "name"    : "Microsoft.Netapp/volumes"
@@ -283,7 +283,7 @@ When `storage_type=standard`, a NFS Server VM is created, only when these variab
 | nfs_vm_zone | Zone in which NFS server VM should be created | string | null | |
 | nfs_raid_disk_type | Managed disk types | string | "Standard_LRS" | Supported values: Standard_LRS, Premium_LRS, StandardSSD_LRS or UltraSSD_LRS. When using `UltraSSD_LRS`, `nfs_vm_zone` and `nfs_raid_disk_zones` must be specified. See the [Azure documentation](https://docs.microsoft.com/en-us/azure/virtual-machines/disks-enable-ultra-ssd) for limitations on Availability Zones and VM types. |
 | nfs_raid_disk_size | Size in Gb for each disk of the RAID5 cluster on the NFS server VM | number | 128 | |
-| nfs_raid_disk_zones | A collection containing the availability zones to allocate the Managed Disks for NFS | list of strings | [] | |
+| nfs_raid_disk_zone | The Availability Zone in which the Managed Disk should be located. Changing this property forces a new resource to be created. | string | null | |
 
 ### Azure NetApp Files (only when `storage_type=ha`)
 
