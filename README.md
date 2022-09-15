@@ -15,12 +15,16 @@ This project contains Terraform scripts to provision the Microsoft Azure Cloud i
 
 [<img src="./docs/images/viya4-iac-azure-diag.png" alt="Architecture Diagram" width="750"/>](./docs/images/viya4-iac-azure-diag.png?raw=true)
 
-This project helps you to automate the cluster-provisioning phase of SAS Viya deployment. To learn about all phases and options of the
-SAS Viya deployment process, see [Getting Started with SAS Viya and Azure Kubernetes Service](https://go.documentation.sas.com/doc/en/itopscdc/v_015/itopscon/n1d7qc4nfr3s5zn103a1qy0kj4l1.htm) in _SAS Viya Operations_.
+This project addresses the first of three steps in [Steps for Getting Started in SAS Viya Operations](https://go.documentation.sas.com/doc/en/itopscdc/v_031/itopscon/n12fgslcw9swbsn10rva4bp0mr2w.htm) in _SAS&reg; Viya&reg; Operations_:
+
+1. Provision resources.
+1. Prepare for the deployment.
+1. Customize and deploy SAS Viya.
+
+**Note:** The scripts in this project are provided as examples. They do not provide comprehensive configuration. The second and third steps include additional configuration tasks. Some of those tasks (for example, enabling logging and specifying available IP addresses) are essential for a more secure deployment.
 
 Once the cloud resources are provisioned, use the [viya4-deployment](https://github.com/sassoftware/viya4-deployment) project to deploy 
-SAS Viya 4 in your cloud environment. For more information about SAS Viya 4 requirements and documentation for the deployment
-process, refer to the [SAS&reg; Viya&reg; 4 IT Operations Guide](https://go.documentation.sas.com/doc/en/itopscdc/default/itopswlcm/home.htm).
+SAS Viya 4 in your cloud environment.
 
 ## Prerequisites
 
@@ -94,6 +98,10 @@ Create and manage the required cloud resources. Perform one of the following ste
 ### Troubleshooting
 
 See the [Troubleshooting](./docs/Troubleshooting.md) page for information about possible issues that you might encounter.
+
+## Security
+
+Additional configuration to harden your cluster environment is supported and encouraged. For example, you can limit cluster access to specified IP addresses. You can also deploy a load balancer or application gateway to mediate data flows between SAS Viya components and the ingress controller.
 
 ## Contributing
 
