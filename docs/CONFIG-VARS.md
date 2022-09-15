@@ -72,7 +72,7 @@ You can use `default_public_access_cidrs` to set a default range for all created
 | default_public_access_cidrs | IP address ranges allowed to access all created cloud resources | list of strings | | Sets a default for all resources. |
 | cluster_endpoint_public_access_cidrs | IP address ranges allowed to access the AKS cluster API | list of strings | | For client admin access to the cluster api (by `kubectl`, for example). Only used with `cluster_api_mode=public`|
 | vm_public_access_cidrs | IP address ranges allowed to access the VMs | list of strings | | Opens port 22 for SSH access to the jump server and/or NFS VM by adding Ingress Rule on the NSG. Only used with `create_jump_public_ip=true` or `create_nfs_public_ip=true`   |
-| postgres_public_access_cidrs | IP address ranges allowed to access the Azure PostgreSQL Server | list of strings || Opens port 5432 by adding Ingress Rule on the NSG. Only used when creating postgres instances. |
+| postgres_public_access_cidrs | IP address ranges allowed to access the Azure PostgreSQL Flexible Server | list of strings || Opens port 5432 by adding Ingress Rule on the NSG. Only used when creating postgres instances. |
 | acr_public_access_cidrs | IP address ranges allowed to access the ACR instance | list of strings || Only used with `create_container_registry=true` |
 
 **NOTE:** In a SCIM environment, the AzureActiveDirectory service tag must be granted access to port 443/HTTPS for the Ingress IP address. 
@@ -326,15 +326,15 @@ Each server element, like `foo = {}`, can contain none, some, or all of the para
 
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
-| sku_name| The SKU Name for the PostgreSQL Server | string | "GP_Gen5_32" | The name pattern is the SKU, followed by the tier + family + cores (e.g. B_Gen4_1, GP_Gen5_4).|
-| storage_mb | Max storage allowed for the PostgreSQL server | number | 51200 | Possible values are between 5120 MB(5GB) and 1048576 MB(1TB) for the Basic SKU and between 5120 MB(5GB) and 4194304 MB(4TB) for General Purpose/Memory Optimized SKUs |
-| backup_retention_days | Backup retention days for the PostgreSQL server | number | 7 | Supported values are between 7 and 35 days. |
+| sku_name| The SKU Name for the PostgreSQL Flexible Server | string | "GP_Standard_D16s_v3" | The name pattern is the SKU, followed by the tier + family + cores (e.g. B_Standard_B1ms, GP_Standard_D2s_v3, MO_Standard_E4s_v3).|
+| storage_mb | The max storage allowed for the PostgreSQL Flexible Server | number | 51200 | Possible values are 32768, 65536, 131072, 262144, 524288, 1048576, 2097152, 4194304, 8388608, 16777216, and 33554432. |
+| backup_retention_days | Backup retention days for the PostgreSQL Flexible server | number | 7 | Supported values are between 7 and 35 days. |
 | geo_redundant_backup_enabled | Enable Geo-redundant or not for server backup | bool | false | Not supported for the basic tier. |
-| administrator_login | The Administrator Login for the PostgreSQL Server. Changing this forces a new resource to be created. | string | "pgadmin" | The admin login name cannot be azure_superuser, azure_pg_admin, admin, administrator, root, guest, or public. It cannot start with pg_. See: [Microsoft Quickstart Server Database](https://docs.microsoft.com/en-us/azure/postgresql/quickstart-create-server-database-portal) |
-| administrator_password | The Password associated with the administrator_login for the PostgreSQL Server | string | "my$up3rS3cretPassw0rd" | The password must contain between 8 and 128 characters and must contain characters from three of the following categories: English uppercase letters, English lowercase letters, numbers (0 through 9), and non-alphanumeric characters (!, $, #, %, etc.). |
-| server_version | The version of the Azure Database for PostgreSQL server instance. Changing this forces a new resource to be created.| string | "11" | |
-| ssl_enforcement_enabled | Enforce SSL on connection to the Azure Database for PostgreSQL server instance | bool | true | |
-| postgresql_configurations | Configurations to enable on the PostgreSQL Database server instance | map(string) | {} | More details can be found [here](https://docs.microsoft.com/en-us/azure/postgresql/howto-configure-server-parameters-using-cli) |
+| administrator_login | The Administrator Login for the PostgreSQL Flexible Server. Changing this forces a new resource to be created. | string | "pgadmin" | The admin login name cannot be azure_superuser, azure_pg_admin, admin, administrator, root, guest, or public. It cannot start with pg_. See: [Microsoft Quickstart Server Database](https://docs.microsoft.com/en-us/azure/postgresql/flexible-server/quickstart-create-server-portal) |
+| administrator_password | The Password associated with the administrator_login for the PostgreSQL Flexible Server | string | "my$up3rS3cretPassw0rd" | The password must contain between 8 and 128 characters and must contain characters from three of the following categories: English uppercase letters, English lowercase letters, numbers (0 through 9), and non-alphanumeric characters (!, $, #, %, etc.). |
+| server_version | The version of the Azure Database for PostgreSQL Flexible server instance. Changing this forces a new resource to be created.| string | "13" | |
+| ssl_enforcement_enabled | Enforce SSL on connection to the Azure Database for PostgreSQL Flexible server instance | bool | true | |
+| postgresql_configurations | Sets a PostgreSQL Configuration value on a Azure PostgreSQL Flexible Server | list(object) | [] | More details can be found [here](https://docs.microsoft.com/en-us/azure/postgresql/flexible-server/howto-configure-server-parameters-using-cli) |
 
 Here is a sample of the `postgres_servers` variable with the `default` entry only overriding the `administrator_password` parameter and the `cps` entry overriding all of the parameters:
 
@@ -344,15 +344,20 @@ postgres_servers = {
     administrator_password       = "D0ntL00kTh1sWay"
   },
   another_server = {
-    sku_name                     = "GP_Gen5_32"
-    storage_mb                   = 51200
+    sku_name                     = "GP_Standard_D16s_v3"
+    storage_mb                   = 65536
     backup_retention_days        = 7
     geo_redundant_backup_enabled = false
     administrator_login          = "pgadmin"
     administrator_password       = "1tsAB3aut1fulDay"
-    server_version               = "11"
+    server_version               = "13"
     ssl_enforcement_enabled      = true
-    postgresql_configurations    = { foo = "true", bar = "false" }
+    postgresql_configurations    = [
+       {
+         name  = "azure.extensions"
+         value = "PLPGSQL,LTREE"
+       }
+      ]
   }
 }
 ```
