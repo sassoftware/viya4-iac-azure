@@ -2,7 +2,7 @@
 
 ## Overview
 
-This project contains Terraform scripts to provision the Microsoft Azure Cloud infrastructure resources that are required to deploy SAS Viya 4 product offerings. Here is a list of resources that this project can create:
+This project helps you to automate the cluster-provisioning phase of SAS Viya deployment. It contains Terraform scripts to provision the Microsoft Azure Cloud infrastructure resources that are required to deploy SAS Viya 4 product offerings. Here is a list of resources that this project can create:
 
   >- Azure resource group(s): primary resource group and AKS resource group
   >- Virtual network, network security groups, and network security rules
@@ -24,7 +24,9 @@ This project addresses the first of three steps in [Steps for Getting Started in
 **Note:** The scripts in this project are provided as examples. They do not provide comprehensive configuration. The second and third steps include additional configuration tasks. Some of those tasks (for example, enabling logging and specifying available IP addresses) are essential for a more secure deployment.
 
 Once the cloud resources are provisioned, use the [viya4-deployment](https://github.com/sassoftware/viya4-deployment) project to deploy 
-SAS Viya 4 in your cloud environment.
+SAS Viya 4 in your cloud environment. To learn about all phases and options of the SAS Viya deployment process, see
+[Getting Started with SAS Viya and Azure Kubernetes Service](https://go.documentation.sas.com/doc/en/itopscdc/default/itopscon/n1d7qc4nfr3s5zn103a1qy0kj4l1.htm) in _SAS Viya Operations_.
+
 
 ## Prerequisites
 
