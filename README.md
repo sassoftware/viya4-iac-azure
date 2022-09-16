@@ -15,7 +15,7 @@ This project contains Terraform scripts to provision the Microsoft Azure Cloud i
 
 [<img src="./docs/images/viya4-iac-azure-diag.png" alt="Architecture Diagram" width="750"/>](./docs/images/viya4-iac-azure-diag.png?raw=true)
 
-This project addresses the first of three steps in [Steps for Getting Started in SAS Viya Operations](https://go.documentation.sas.com/doc/en/itopscdc/v_031/itopscon/n12fgslcw9swbsn10rva4bp0mr2w.htm) in _SAS&reg; Viya&reg; Operations_:
+This project addresses the first of three steps in [Steps for Getting Started in SAS Viya Operations](https://go.documentation.sas.com/doc/en/itopscdc/default/itopscon/n12fgslcw9swbsn10rva4bp0mr2w.htm) in _SAS&reg; Viya&reg; Operations_:
 
 1. Provision resources.
 1. Prepare for the deployment.
