@@ -174,15 +174,16 @@ variable "postgres_server_defaults" {
   description = ""
   type        = any
   default = {
-    sku_name                     = "GP_Standard_D16s_v3"
-    storage_mb                   = 65536
-    backup_retention_days        = 7
-    geo_redundant_backup_enabled = false
-    administrator_login          = "pgadmin"
-    administrator_password       = "my$up3rS3cretPassw0rd"
-    server_version               = "13"
-    ssl_enforcement_enabled      = true
-    postgresql_configurations    = []
+    sku_name                      = "GP_Standard_D16s_v3"
+    storage_mb                    = 65536
+    backup_retention_days         = 7
+    geo_redundant_backup_enabled  = false
+    administrator_login           = "pgadmin"
+    administrator_password        = "my$up3rS3cretPassw0rd"
+    server_version                = "13"
+    ssl_enforcement_enabled       = true
+    public_network_access_enabled = true
+    postgresql_configurations     = []
   }
 }
 
@@ -512,8 +513,8 @@ variable "subnet_names" {
   description = "Map subnet usage roles to existing subnet names"
   # Example:
   # subnet_names = {
-  #   'aks': 'my_aks_subnet', 
-  #   'misc': 'my_misc_subnet', 
+  #   'aks': 'my_aks_subnet',
+  #   'misc': 'my_misc_subnet',
   #   'netapp': 'my_netapp_subnet'
   # }
 }

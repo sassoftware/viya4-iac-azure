@@ -5,6 +5,22 @@
 # https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/postgresql_flexible_server
 #
 
+resource "azurerm_private_dns_zone" "flexpsql" {
+  count = var.public_network_access_enabled ? 0 : 1
+
+  name                = "${var.server_name}.postgres.database.azure.com"
+  resource_group_name = var.resource_group_name
+}
+
+resource "azurerm_private_dns_zone_virtual_network_link" "flexpsql" {
+  count = var.public_network_access_enabled ? 0 : 1
+
+  name                  = var.server_name
+  private_dns_zone_name = azurerm_private_dns_zone.flexpsql.0.name
+  virtual_network_id    = var.virtual_network_id
+  resource_group_name   = var.resource_group_name
+}
+
 resource "azurerm_postgresql_flexible_server" "flexpsql" {
 
   name                         = "${var.server_name}-flexpsql"
@@ -18,12 +34,16 @@ resource "azurerm_postgresql_flexible_server" "flexpsql" {
   administrator_password       = var.administrator_password
   version                      = var.server_version
   tags                         = var.tags
+  delegated_subnet_id          = var.delegated_subnet_id
+  private_dns_zone_id          = try(azurerm_private_dns_zone.flexpsql.0.id, null)
+
+  depends_on = [azurerm_private_dns_zone_virtual_network_link.flexpsql]
 
   lifecycle {
-    ignore_changes = [ 
+    ignore_changes = [
       # Ignore changes to zone on updates after intial creation
       zone
-    ]  
+    ]
   }
 }
 
@@ -40,7 +60,7 @@ resource "azurerm_postgresql_flexible_server_configuration" "flexpsql" {
 
 resource "azurerm_postgresql_flexible_server_firewall_rule" "flexpsql" {
   count = var.public_network_access_enabled ? length(var.firewall_rules) : 0
-  
+
   name             = format("%s%s", var.firewall_rule_prefix, lookup(var.firewall_rules[count.index], "name", count.index))
   server_id        = azurerm_postgresql_flexible_server.flexpsql.id
   start_ip_address = var.firewall_rules[count.index]["start_ip"]
