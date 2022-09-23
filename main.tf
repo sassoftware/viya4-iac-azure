@@ -31,8 +31,8 @@ provider "kubernetes" {
 data "azurerm_subscription" "current" {}
 
 data "azurerm_resource_group" "network_rg" {
-  count    = var.vnet_resource_group_name == null ? 0 : 1
-  name     = var.vnet_resource_group_name
+  count = var.vnet_resource_group_name == null ? 0 : 1
+  name  = var.vnet_resource_group_name
 }
 
 resource "azurerm_resource_group" "aks_rg" {
@@ -43,8 +43,8 @@ resource "azurerm_resource_group" "aks_rg" {
 }
 
 data "azurerm_resource_group" "aks_rg" {
-  count    = var.resource_group_name == null ? 0 : 1
-  name     = var.resource_group_name
+  count = var.resource_group_name == null ? 0 : 1
+  name  = var.resource_group_name
 }
 resource "azurerm_proximity_placement_group" "proximity" {
   count = var.node_pools_proximity_placement ? 1 : 0
@@ -89,28 +89,23 @@ module "vnet" {
 }
 
 resource "azurerm_container_registry" "acr" {
-  count                    = var.create_container_registry ? 1 : 0
-  name                     = join("", regexall("[a-zA-Z0-9]+", "${var.prefix}acr")) # alpha numeric characters only are allowed
-  resource_group_name      = local.aks_rg.name
-  location                 = var.location
-  sku                      = local.container_registry_sku
-  admin_enabled            = var.container_registry_admin_enabled
-  
-  #
-  # Moving from deprecated argument, georeplication_locations, but keeping container_registry_geo_replica_locs
-  # for backwards compatability.
-  #
+  count               = var.create_container_registry ? 1 : 0
+  name                = join("", regexall("[a-zA-Z0-9]+", "${var.prefix}acr")) # alpha numeric characters only are allowed
+  resource_group_name = local.aks_rg.name
+  location            = var.location
+  sku                 = local.container_registry_sku
+  admin_enabled       = var.container_registry_admin_enabled
+
   dynamic "georeplications" {
     for_each = (local.container_registry_sku == "Premium" && var.container_registry_geo_replica_locs != null) ? toset(
-      var.container_registry_geo_replica_locs) : []
+    var.container_registry_geo_replica_locs) : []
     content {
-      location                = georeplications.key
-      tags                    = var.tags
+      location = georeplications.key
+      tags     = var.tags
     }
   }
-  tags                     = var.tags
+  tags = var.tags
 }
-
 
 resource "azurerm_network_security_rule" "acr" {
   name                        = "SAS-ACR"
@@ -144,7 +139,7 @@ module "aks" {
   aks_cluster_os_disk_size                 = var.default_nodepool_os_disk_size
   aks_cluster_node_vm_size                 = var.default_nodepool_vm_type
   aks_cluster_node_admin                   = var.node_vm_admin
-  aks_cluster_ssh_public_key               = try( file(var.ssh_public_key), "")
+  aks_cluster_ssh_public_key               = try(file(var.ssh_public_key), "")
   aks_vnet_subnet_id                       = module.vnet.subnets["aks"].id
   kubernetes_version                       = var.kubernetes_version
   aks_cluster_endpoint_public_access_cidrs = var.cluster_api_mode == "private" ? [] : local.cluster_endpoint_public_access_cidrs # "Private cluster cannot be enabled with AuthorizedIPRanges.""
@@ -178,7 +173,7 @@ module "kubeconfig" {
   client_crt               = module.aks.client_certificate
   client_key               = module.aks.client_key
   token                    = module.aks.cluster_password
-  depends_on               = [ module.aks ]
+  depends_on               = [module.aks]
 }
 
 module "node_pools" {
@@ -206,16 +201,15 @@ module "node_pools" {
   tags                         = var.tags
 }
 
-# Module Registry - https://registry.terraform.io/modules/Azure/postgresql/azurerm/2.1.0
-module "postgresql" {
-  source  = "Azure/postgresql/azurerm"
-  version = "2.1.0"
+# https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/postgresql_flexible_server
+module "flex_postgresql" {
+  source = "./modules/azurerm_postgresql_flex"
 
-  for_each                     = local.postgres_servers != null ? length(local.postgres_servers) != 0 ? local.postgres_servers : {} : {}
+  for_each = local.postgres_servers != null ? length(local.postgres_servers) != 0 ? local.postgres_servers : {} : {}
 
   resource_group_name          = local.aks_rg.name
   location                     = var.location
-  server_name                  = lower("${var.prefix}-${each.key}-pgsql")
+  server_name                  = lower("${var.prefix}-${each.key}") # suffix '-flexpsql' added in the module
   sku_name                     = each.value.sku_name
   storage_mb                   = each.value.storage_mb
   backup_retention_days        = each.value.backup_retention_days
@@ -223,33 +217,29 @@ module "postgresql" {
   administrator_login          = each.value.administrator_login
   administrator_password       = each.value.administrator_password
   server_version               = each.value.server_version
-  ssl_enforcement_enabled      = each.value.ssl_enforcement_enabled
   firewall_rule_prefix         = "${var.prefix}-${each.key}-postgres-firewall-"
   firewall_rules               = local.postgres_firewall_rules
-  vnet_rule_name_prefix        = "${var.prefix}-${each.key}-postgresql-vnet-rule-"
-  postgresql_configurations    = each.value.postgresql_configurations
+  postgresql_configurations    = each.value.ssl_enforcement_enabled ? concat(each.value.postgresql_configurations, local.default_postgres_configuration) : concat(
+    each.value.postgresql_configurations, [{name: "require_secure_transport", value: "OFF"}], local.default_postgres_configuration)
   tags                         = var.tags
-
-  ## TODO : requires specific permissions
-  vnet_rules = [{ name = "aks", subnet_id = module.vnet.subnets["aks"].id }, { name = "misc", subnet_id = module.vnet.subnets["misc"].id }]
 }
 
 module "netapp" {
-  source        = "./modules/azurerm_netapp"
-  count                = var.storage_type == "ha" ? 1 : 0
+  source = "./modules/azurerm_netapp"
+  count  = var.storage_type == "ha" ? 1 : 0
 
-  prefix                = var.prefix
-  resource_group_name   = local.aks_rg.name
-  location              = var.location
-  vnet_name             = module.vnet.name
-  subnet_id             = module.vnet.subnets["netapp"].id
-  service_level         = var.netapp_service_level
-  size_in_tb            = var.netapp_size_in_tb
-  protocols             = var.netapp_protocols
-  volume_path           = "${var.prefix}-${var.netapp_volume_path}"
-  tags                  = var.tags
-  allowed_clients       = concat(module.vnet.subnets["aks"].address_prefixes, module.vnet.subnets["misc"].address_prefixes)
-  depends_on            = [module.vnet]
+  prefix              = var.prefix
+  resource_group_name = local.aks_rg.name
+  location            = var.location
+  vnet_name           = module.vnet.name
+  subnet_id           = module.vnet.subnets["netapp"].id
+  service_level       = var.netapp_service_level
+  size_in_tb          = var.netapp_size_in_tb
+  protocols           = var.netapp_protocols
+  volume_path         = "${var.prefix}-${var.netapp_volume_path}"
+  tags                = var.tags
+  allowed_clients     = concat(module.vnet.subnets["aks"].address_prefixes, module.vnet.subnets["misc"].address_prefixes)
+  depends_on          = [module.vnet]
 }
 
 data "external" "git_hash" {
@@ -262,14 +252,14 @@ data "external" "iac_tooling_version" {
 
 resource "kubernetes_config_map" "sas_iac_buildinfo" {
   metadata {
-     name      = "sas-iac-buildinfo"
-     namespace = "kube-system"
+    name      = "sas-iac-buildinfo"
+    namespace = "kube-system"
   }
 
   data = {
-     git-hash    = lookup(data.external.git_hash.result, "git-hash")
-     iac-tooling = var.iac_tooling
-     terraform   = <<EOT
+    git-hash    = lookup(data.external.git_hash.result, "git-hash")
+    iac-tooling = var.iac_tooling
+    terraform   = <<EOT
 version: ${lookup(data.external.iac_tooling_version.result, "terraform_version")}
 revision: ${lookup(data.external.iac_tooling_version.result, "terraform_revision")}
 provider-selections: ${lookup(data.external.iac_tooling_version.result, "provider_selections")}
@@ -277,5 +267,5 @@ outdated: ${lookup(data.external.iac_tooling_version.result, "terraform_outdated
 EOT
   }
 
-  depends_on = [ module.aks ]
+  depends_on = [module.aks]
 }
