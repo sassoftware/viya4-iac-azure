@@ -233,6 +233,7 @@ module "netapp" {
   location            = var.location
   vnet_name           = module.vnet.name
   subnet_id           = module.vnet.subnets["netapp"].id
+  network_features    = var.netapp_network_features
   service_level       = var.netapp_service_level
   size_in_tb          = var.netapp_size_in_tb
   protocols           = var.netapp_protocols

@@ -35,6 +35,7 @@ resource "azurerm_netapp_volume" "anf" {
   pool_name           = "${var.prefix}-netapppool"
   volume_path         = var.volume_path
   subnet_id           = var.subnet_id
+  network_features    = var.network_features
   protocols           = var.protocols
   storage_quota_in_gb = var.size_in_tb * 1024
   tags                = var.tags
