@@ -25,6 +25,8 @@ variable "subnet_id" {
 
 variable "network_features" {
   description = "Indicates which network feature to use, accepted values are Basic or Standard, it defaults to Basic if not defined."
+  type        = string
+  default     = "Basic"
 }
 
 # https://docs.microsoft.com/en-us/azure/azure-netapp-files/azure-netapp-files-service-levels

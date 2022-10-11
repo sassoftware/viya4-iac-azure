@@ -353,6 +353,7 @@ variable "netapp_volume_path" {
 
 variable "netapp_network_features" {
   description = "Indicates which network feature to use, accepted values are Basic or Standard, it defaults to Basic if not defined."
+  type    = string
   default     = "Basic"
 }
 
