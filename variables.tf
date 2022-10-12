@@ -330,6 +330,7 @@ variable "netapp_service_level" {
     error_message = "ERROR: netapp_service_level - Valid values include - Premium, Standard, or Ultra."
   }
 }
+
 variable "netapp_size_in_tb" {
   description = "When storage_type=ha, Provisioned size of the pool in TB. Value must be between 4 and 500"
   default     = 4
@@ -344,9 +345,16 @@ variable "netapp_protocols" {
   description = "The target volume protocol expressed as a list. Supported single value include CIFS, NFSv3, or NFSv4.1. If argument is not defined it will default to NFSv3. Changing this forces a new resource to be created and data will be lost."
   default     = ["NFSv3"]
 }
+
 variable "netapp_volume_path" {
   description = "A unique file path for the volume. Used when creating mount targets. Changing this forces a new resource to be created"
   default     = "export"
+}
+
+variable "netapp_network_features" {
+  description = "Indicates which network feature to use, accepted values are Basic or Standard, it defaults to Basic if not defined."
+  type    = string
+  default     = "Basic"
 }
 
 variable "node_pools_availability_zone" {
