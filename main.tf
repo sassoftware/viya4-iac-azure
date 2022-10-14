@@ -219,9 +219,9 @@ module "flex_postgresql" {
   server_version               = each.value.server_version
   firewall_rule_prefix         = "${var.prefix}-${each.key}-postgres-firewall-"
   firewall_rules               = local.postgres_firewall_rules
-  postgresql_configurations    = each.value.ssl_enforcement_enabled ? concat(each.value.postgresql_configurations, local.default_postgres_configuration) : concat(
-    each.value.postgresql_configurations, [{name: "require_secure_transport", value: "OFF"}], local.default_postgres_configuration)
-  tags                         = var.tags
+  postgresql_configurations = each.value.ssl_enforcement_enabled ? concat(each.value.postgresql_configurations, local.default_postgres_configuration) : concat(
+  each.value.postgresql_configurations, [{ name : "require_secure_transport", value : "OFF" }], local.default_postgres_configuration)
+  tags = var.tags
 }
 
 module "netapp" {

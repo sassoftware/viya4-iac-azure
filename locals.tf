@@ -20,9 +20,9 @@ locals {
   kubeconfig_path     = var.iac_tooling == "docker" ? "/workspace/${local.kubeconfig_filename}" : local.kubeconfig_filename
 
   # PostgreSQL
-  default_postgres_configuration = [{name: "max_prepared_transactions", value: 1024}]
-  postgres_servers        = var.postgres_servers == null ? {} : { for k, v in var.postgres_servers : k => merge(var.postgres_server_defaults, v, ) }
-  postgres_firewall_rules = [for addr in local.postgres_public_access_cidrs : { "name" : replace(replace(addr, "/", "_"), ".", "_"), "start_ip" : cidrhost(addr, 0), "end_ip" : cidrhost(addr, abs(pow(2, 32 - split("/", addr)[1]) - 1)) }]
+  default_postgres_configuration = [{ name : "max_prepared_transactions", value : 1024 }]
+  postgres_servers               = var.postgres_servers == null ? {} : { for k, v in var.postgres_servers : k => merge(var.postgres_server_defaults, v, ) }
+  postgres_firewall_rules        = [for addr in local.postgres_public_access_cidrs : { "name" : replace(replace(addr, "/", "_"), ".", "_"), "start_ip" : cidrhost(addr, 0), "end_ip" : cidrhost(addr, abs(pow(2, 32 - split("/", addr)[1]) - 1)) }]
 
   postgres_outputs = length(module.flex_postgresql) != 0 ? { for k, v in module.flex_postgresql :
     k => {
