@@ -108,7 +108,4 @@ nfs_vm_zone          = 1
 
 nfs_raid_disk_size  = 128
 nfs_raid_disk_type  = "Standard_LRS"
-nfs_raid_disk_zones = ["1"]
-
-# Azure Monitor
-create_aks_azure_monitor = false
+nfs_raid_disk_zone = "1"
