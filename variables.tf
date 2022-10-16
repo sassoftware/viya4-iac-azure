@@ -432,7 +432,7 @@ variable "node_pools" {
 variable "create_aks_azure_monitor" {
   type        = bool
   description = "Enable Azure Log Analytics agent on AKS cluster"
-  default     = "false"
+  default     = false
 }
 
 variable "enable_log_analytics_workspace" {

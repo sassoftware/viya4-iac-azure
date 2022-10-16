@@ -97,6 +97,3 @@ storage_type = "ha"
 # required ONLY when storage_type = ha for Azure NetApp Files service
 netapp_service_level = "Premium"
 netapp_size_in_tb    = 4
-
-# Azure Monitor
-create_aks_azure_monitor = false

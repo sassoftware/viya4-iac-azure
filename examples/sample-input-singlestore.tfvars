@@ -113,9 +113,6 @@ nfs_vm_machine_type  = "Standard_D8s_v4"
 nfs_raid_disk_size   = 128
 nfs_raid_disk_type   = "Standard_LRS"
 
-# Azure Monitor
-create_aks_azure_monitor = false
-
 # SingleStore configuration
 aks_network_plugin = "azure"
 
