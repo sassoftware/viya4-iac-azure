@@ -24,11 +24,11 @@ process, refer to the [SAS&reg; Viya&reg; 4 IT Operations Guide](https://go.docu
 
 This project follows the [SemVer](https://semver.org/#summary) versioning scheme. Given a version number MAJOR.MINOR.PATCH, we increment the:
 
- >- MAJOR version when we make incompatible changes
- >- MINOR version when we add functionality in a backwards compatible manner
- >- PATCH version when we make backwards compatible bug fixes
+ >- MAJOR version when we make changes that are incompatible with the functionality of a previous component
+ >- MINOR version when we add functionality that is backwards-compatible
+ >- PATCH version when we make bug fixes that are backwards-compatible
 
-Please note when upgrading to a major version due to backward incompatibility you would need to take down your existing infrastructure and rebuild. For details about the changes added in each release please see the release notes.
+**Note**: You must take down your existing infrastructure and rebuild it when you are upgrading to a new major version because of potential backward incompatibility. For details about the changes that are added in each release, see the Release Notes.
 
 ## Prerequisites
 
