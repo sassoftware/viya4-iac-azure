@@ -22,6 +22,14 @@ Once the cloud resources are provisioned, use the [viya4-deployment](https://git
 SAS Viya 4 in your cloud environment. For more information about SAS Viya 4 requirements and documentation for the deployment
 process, refer to the [SAS&reg; Viya&reg; 4 IT Operations Guide](https://go.documentation.sas.com/doc/en/itopscdc/default/itopswlcm/home.htm).
 
+This project follows the [SemVer](https://semver.org/#summary) versioning scheme. Given a version number MAJOR.MINOR.PATCH, we increment the:
+
+ >- MAJOR version when we make changes that are incompatible with the functionality of a previous component
+ >- MINOR version when we add functionality that is backwards-compatible
+ >- PATCH version when we make bug fixes that are backwards-compatible
+
+**Note**: You must take down your existing infrastructure and rebuild it when you are upgrading to a new major version because of potential backward incompatibility. For details about the changes that are added in each release, see the Release Notes.
+
 ## Prerequisites
 
 Use of these tools requires operational knowledge of the following technologies:
