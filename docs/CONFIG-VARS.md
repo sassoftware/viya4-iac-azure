@@ -220,7 +220,7 @@ The default values for the `node_pools` variable are as follows:
   compute = {
     "machine_type"          = "Standard_E16s_v3"
     "os_disk_size"          = 200
-    "min_nodes"             = 0
+    "min_nodes"             = 1
     "max_nodes"             = 5
     "max_pods"              = 110
     "node_taints"           = ["workload.sas.com/class=compute:NoSchedule"]
