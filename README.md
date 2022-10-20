@@ -28,6 +28,14 @@ SAS Viya 4 in your cloud environment. To learn about all phases and options of t
 [Getting Started with SAS Viya and Azure Kubernetes Service](https://go.documentation.sas.com/doc/en/itopscdc/default/itopscon/n1d7qc4nfr3s5zn103a1qy0kj4l1.htm) in _SAS Viya Operations_.
 
 
+This project follows the [SemVer](https://semver.org/#summary) versioning scheme. Given a version number MAJOR.MINOR.PATCH, we increment the:
+
+ >- MAJOR version when we make changes that are incompatible with the functionality of a previous component
+ >- MINOR version when we add functionality that is backwards-compatible
+ >- PATCH version when we make bug fixes that are backwards-compatible
+
+**Note**: You must take down your existing infrastructure and rebuild it when you are upgrading to a new major version because of potential backward incompatibility. For details about the changes that are added in each release, see the Release Notes.
+
 ## Prerequisites
 
 Use of these tools requires operational knowledge of the following technologies:
@@ -128,4 +136,4 @@ Additional configuration to harden your cluster environment is supported and enc
 ### Terraform Resources
 
 - [Azure Provider](https://www.terraform.io/docs/providers/azurerm/index.html)
-- [Azure AKS](https://www.terraform.io/docs/providers/azurerm/r/kubernetes_cluster.html)
+- [Azure AKS](https://www.terraform.io/docs/providers/azurerm/r/kubernetes_cluster)

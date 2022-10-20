@@ -1,15 +1,15 @@
 ## Global
-variable client_id {
+variable "client_id" {
   default = ""
 }
-variable client_secret {
+variable "client_secret" {
   default = ""
 }
 
-variable subscription_id {}
-variable tenant_id {}
+variable "subscription_id" {}
+variable "tenant_id" {}
 
-variable use_msi {
+variable "use_msi" {
   description = "Use Managed Identity for Authentication (Azure VMs only)"
   type        = bool
   default     = false
@@ -46,13 +46,11 @@ variable "ssh_public_key" {
   default = "~/.ssh/id_rsa.pub"
 }
 
-
 variable "default_public_access_cidrs" {
   description = "Default list of CIDRs to access created resources."
   type        = list(string)
   default     = null
 }
-
 
 variable "cluster_endpoint_public_access_cidrs" {
   description = "List of CIDRs to access Kubernetes cluster."
@@ -104,7 +102,7 @@ variable "default_nodepool_max_pods" {
 }
 
 variable "default_nodepool_availability_zones" {
-  type    = list
+  type    = list(any)
   default = ["1"]
 }
 
@@ -141,7 +139,6 @@ variable "cluster_egress_type" {
     condition     = var.cluster_egress_type != null ? contains(["loadBalancer", "userDefinedRouting"], var.cluster_egress_type) : true
     error_message = "ERROR: Supported values for `cluster_egress_type` are: loadBalancer, userDefinedRouting."
   }
-
 }
 
 variable "aks_pod_cidr" {
@@ -154,10 +151,10 @@ variable "aks_service_cidr" {
   default     = "10.0.0.0/16"
 }
 
-variable "aks_uai_name"{
+variable "aks_uai_name" {
   description = "User assigned identity name"
-  default = null
-} 
+  default     = null
+}
 
 variable "node_vm_admin" {
   description = "OS Admin User for VMs of AKS Cluster nodes"
@@ -166,7 +163,7 @@ variable "node_vm_admin" {
 
 variable "tags" {
   description = "Map of common tags to be placed on the Resources"
-  type        = map
+  type        = map(any)
   default     = {}
 }
 
@@ -177,15 +174,15 @@ variable "postgres_server_defaults" {
   description = ""
   type        = any
   default = {
-    sku_name                     = "GP_Gen5_32"
-    storage_mb                   = 51200
+    sku_name                     = "GP_Standard_D16s_v3"
+    storage_mb                   = 65536
     backup_retention_days        = 7
     geo_redundant_backup_enabled = false
     administrator_login          = "pgadmin"
     administrator_password       = "my$up3rS3cretPassw0rd"
-    server_version               = "11"
+    server_version               = "13"
     ssl_enforcement_enabled      = true
-    postgresql_configurations    = {}
+    postgresql_configurations    = []
   }
 }
 
@@ -197,14 +194,14 @@ variable "postgres_servers" {
 
   # Checking for user provided "default" server
   validation {
-    condition = var.postgres_servers != null ? length(var.postgres_servers) != 0 ? contains(keys(var.postgres_servers), "default") : false : true
+    condition     = var.postgres_servers != null ? length(var.postgres_servers) != 0 ? contains(keys(var.postgres_servers), "default") : false : true
     error_message = "ERROR: The provided map of PostgreSQL server objects does not contain the required 'default' key."
   }
-  
+
   # Checking user provided login
   validation {
     condition = var.postgres_servers != null ? length(var.postgres_servers) != 0 ? alltrue([
-      for k,v in var.postgres_servers : contains(keys(v),"administrator_login") ? ! contains(["azure_superuser", "azure_pg_admin", "admin", "administrator", "root", "guest", "public"], v.administrator_login) && ! can(regex("^pg_", v.administrator_login)) : true
+      for k, v in var.postgres_servers : contains(keys(v), "administrator_login") ? !contains(["azure_superuser", "azure_pg_admin", "admin", "administrator", "root", "guest", "public"], v.administrator_login) && !can(regex("^pg_", v.administrator_login)) : true
     ]) : false : true
     error_message = "ERROR: The admin login name can't be azure_superuser, azure_pg_admin, admin, administrator, root, guest, or public. It can't start with pg_."
   }
@@ -212,7 +209,7 @@ variable "postgres_servers" {
   # Checking user provided password
   validation {
     condition = var.postgres_servers != null ? length(var.postgres_servers) != 0 ? alltrue([
-      for k,v in var.postgres_servers : contains(keys(v),"administrator_password") ? alltrue([
+      for k, v in var.postgres_servers : contains(keys(v), "administrator_password") ? alltrue([
         length(v.administrator_password) > 7,
         length(v.administrator_password) < 129,
         anytrue([
@@ -220,7 +217,7 @@ variable "postgres_servers" {
           (can(regex("[!@#$%^&*(){}[]|<>~`,./_-+=]+", v.administrator_password)) && can(regex("[a-z]+", v.administrator_password)) && can(regex("[A-Z]+", v.administrator_password))),
           (can(regex("[!@#$%^&*(){}[]|<>~`,./_-+=]+", v.administrator_password)) && can(regex("[0-9]+", v.administrator_password)) && can(regex("[A-Z]+", v.administrator_password))),
           (can(regex("[!@#$%^&*(){}[]|<>~`,./_-+=]+", v.administrator_password)) && can(regex("[0-9]+", v.administrator_password)) && can(regex("[a-z]+", v.administrator_password)))
-        ])]) : true 
+      ])]) : true
     ]) : false : true
     error_message = "ERROR: Password is not complex enough. It must contain between 8 and 128 characters. Your password must contain characters from three of the following categories:\n * English uppercase letters,\n * English lowercase letters,\n * numbers (0 through 9), and\n * non-alphanumeric characters (!, $, #, %, etc.)."
   }
@@ -233,7 +230,7 @@ variable "create_jump_vm" {
 
 variable "create_jump_public_ip" {
   default = true
-  type = bool
+  type    = bool
 }
 
 variable "jump_vm_admin" {
@@ -247,7 +244,7 @@ variable "jump_vm_zone" {
 }
 
 variable "jump_vm_machine_type" {
-  default = "Standard_B2s"
+  default     = "Standard_B2s"
   description = "SKU which should be used for this Virtual Machine"
 }
 
@@ -268,7 +265,7 @@ variable "storage_type" {
 
 variable "create_nfs_public_ip" {
   default = false
-  type = bool
+  type    = bool
 }
 
 variable "nfs_vm_machine_type" {
@@ -291,7 +288,7 @@ variable "nfs_raid_disk_size" {
   default     = 128
 }
 
-variable nfs_raid_disk_type {
+variable "nfs_raid_disk_type" {
   default     = "Standard_LRS"
   description = "The type of storage to use for the managed disk. Possible values are Standard_LRS, Premium_LRS, StandardSSD_LRS or UltraSSD_LRS."
 
@@ -301,9 +298,9 @@ variable nfs_raid_disk_type {
   }
 }
 
-variable nfs_raid_disk_zones {
-  description = "A collection containing the availability zones to allocate the Managed Disk in."
-  default     = []
+variable "nfs_raid_disk_zone" {
+  description = "Specifies the Availability Zone in which this Managed Disk should be located. Changing this property forces a new resource to be created."
+  default     = null
 }
 
 ## Azure Container Registry (ACR)
@@ -319,12 +316,12 @@ variable "container_registry_admin_enabled" {
   default = false
 }
 variable "container_registry_geo_replica_locs" {
-  type    = list
+  type    = list(any)
   default = null
 }
 
 # Azure NetApp Files
-variable netapp_service_level {
+variable "netapp_service_level" {
   description = "When storage_type=ha, The target performance of the file system. Valid values include Premium, Standard, or Ultra"
   default     = "Premium"
 
@@ -333,7 +330,8 @@ variable netapp_service_level {
     error_message = "ERROR: netapp_service_level - Valid values include - Premium, Standard, or Ultra."
   }
 }
-variable netapp_size_in_tb {
+
+variable "netapp_size_in_tb" {
   description = "When storage_type=ha, Provisioned size of the pool in TB. Value must be between 4 and 500"
   default     = 4
 
@@ -343,26 +341,33 @@ variable netapp_size_in_tb {
   }
 }
 
-variable netapp_protocols {
+variable "netapp_protocols" {
   description = "The target volume protocol expressed as a list. Supported single value include CIFS, NFSv3, or NFSv4.1. If argument is not defined it will default to NFSv3. Changing this forces a new resource to be created and data will be lost."
   default     = ["NFSv3"]
 }
-variable netapp_volume_path {
+
+variable "netapp_volume_path" {
   description = "A unique file path for the volume. Used when creating mount targets. Changing this forces a new resource to be created"
   default     = "export"
 }
 
-variable node_pools_availability_zone {
+variable "netapp_network_features" {
+  description = "Indicates which network feature to use, accepted values are Basic or Standard, it defaults to Basic if not defined."
+  type    = string
+  default     = "Basic"
+}
+
+variable "node_pools_availability_zone" {
   type    = string
   default = "1"
 }
 
-variable node_pools_proximity_placement {
+variable "node_pools_proximity_placement" {
   type    = bool
   default = false
 }
 
-variable node_pools {
+variable "node_pools" {
   description = "Node pool definitions"
   type = map(object({
     machine_type = string
@@ -427,7 +432,7 @@ variable node_pools {
 variable "create_aks_azure_monitor" {
   type        = bool
   description = "Enable Azure Log Analytics agent on AKS cluster"
-  default     = "false"
+  default     = false
 }
 
 variable "enable_log_analytics_workspace" {
@@ -474,20 +479,20 @@ variable "log_analytics_solution_promotion_code" {
 
 # BYO
 variable "resource_group_name" {
-  type    = string
-  default = null
+  type        = string
+  default     = null
   description = "Name of pre-exising resource group. Leave blank to have one created"
 }
 
 variable "vnet_resource_group_name" {
-  type    = string
-  default = null
+  type        = string
+  default     = null
   description = "Name of a pre-exising resource group containing the BYO vnet resource. Leave blank if you are not using a BYO vnet or if the BYO vnet is co-located with the SAS Viya4 AKS cluster."
 }
 
 variable "vnet_name" {
-  type    = string
-  default = null
+  type        = string
+  default     = null
   description = "Name of pre-exising vnet. Leave blank to have one created"
 }
 
@@ -498,8 +503,8 @@ variable "vnet_address_space" {
 }
 
 variable "nsg_name" {
-  type    = string
-  default = null
+  type        = string
+  default     = null
   description = "Name of pre-exising NSG. Leave blank to have one created"
 }
 
@@ -523,38 +528,38 @@ variable "subnet_names" {
 
 variable "subnets" {
   type = map(object({
-    prefixes                                       = list(string)
-    service_endpoints                              = list(string)
-    enforce_private_link_endpoint_network_policies = bool
-    enforce_private_link_service_network_policies  = bool
-    service_delegations                            = map(object({
+    prefixes                                      = list(string)
+    service_endpoints                             = list(string)
+    private_endpoint_network_policies_enabled     = bool
+    private_link_service_network_policies_enabled = bool
+    service_delegations = map(object({
       name    = string
       actions = list(string)
     }))
   }))
   default = {
     aks = {
-      "prefixes": ["192.168.0.0/23"],
-      "service_endpoints": ["Microsoft.Sql"],
-      "enforce_private_link_endpoint_network_policies": true,
-      "enforce_private_link_service_network_policies": false,
-      "service_delegations": {},
+      "prefixes" : ["192.168.0.0/23"],
+      "service_endpoints" : ["Microsoft.Sql"],
+      "private_endpoint_network_policies_enabled" : true,
+      "private_link_service_network_policies_enabled" : false,
+      "service_delegations" : {},
     }
     misc = {
-      "prefixes": ["192.168.2.0/24"],
-      "service_endpoints": ["Microsoft.Sql"],
-      "enforce_private_link_endpoint_network_policies": true,
-      "enforce_private_link_service_network_policies": false,
-      "service_delegations": {},
+      "prefixes" : ["192.168.2.0/24"],
+      "service_endpoints" : ["Microsoft.Sql"],
+      "private_endpoint_network_policies_enabled" : true,
+      "private_link_service_network_policies_enabled" : false,
+      "service_delegations" : {},
     }
     netapp = {
-      "prefixes": ["192.168.3.0/24"],
-      "service_endpoints": [],
-      "enforce_private_link_endpoint_network_policies": false,
-      "enforce_private_link_service_network_policies": false,
-      "service_delegations": {
+      "prefixes" : ["192.168.3.0/24"],
+      "service_endpoints" : [],
+      "private_endpoint_network_policies_enabled" : false,
+      "private_link_service_network_policies_enabled" : false,
+      "service_delegations" : {
         netapp = {
-          "name"    : "Microsoft.Netapp/volumes"
+          "name" : "Microsoft.Netapp/volumes"
           "actions" : ["Microsoft.Network/networkinterfaces/*", "Microsoft.Network/virtualNetworks/subnets/join/action"]
         }
       }

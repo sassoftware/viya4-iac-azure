@@ -113,9 +113,6 @@ nfs_vm_machine_type  = "Standard_D8s_v4"
 nfs_raid_disk_size   = 128
 nfs_raid_disk_type   = "Standard_LRS"
 
-# Azure Monitor
-create_aks_azure_monitor = false
-
 # SingleStore configuration
 aks_network_plugin = "azure"
 
@@ -124,23 +121,23 @@ subnets = {
   aks = {
     "prefixes": ["192.168.0.0/21"],
     "service_endpoints": ["Microsoft.Sql"],
-    "enforce_private_link_endpoint_network_policies": false,
-    "enforce_private_link_service_network_policies": false,
+    "private_endpoint_network_policies_enabled": false,
+    "private_link_service_network_policies_enabled": false,
     "service_delegations": {},
   }
   misc = {
     "prefixes": ["192.168.8.0/24"],
     "service_endpoints": ["Microsoft.Sql"],
-    "enforce_private_link_endpoint_network_policies": false,
-    "enforce_private_link_service_network_policies": false,
+    "private_endpoint_network_policies_enabled": false,
+    "private_link_service_network_policies_enabled": false,
     "service_delegations": {},
   }
   ## If using ha storage then the following is also added
   netapp = {
     "prefixes": ["192.168.9.0/24"],
     "service_endpoints": [],
-    "enforce_private_link_endpoint_network_policies": false,
-    "enforce_private_link_service_network_policies": false,
+    "private_endpoint_network_policies_enabled": false,
+    "private_link_service_network_policies_enabled": false,
     "service_delegations": {
       netapp = {
         "name"    : "Microsoft.Netapp/volumes"

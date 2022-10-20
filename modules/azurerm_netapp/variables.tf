@@ -23,6 +23,12 @@ variable "subnet_id" {
   description = "Azure subnet id for Azure NetApp Files"
 }
 
+variable "network_features" {
+  description = "Indicates which network feature to use, accepted values are Basic or Standard, it defaults to Basic if not defined."
+  type        = string
+  default     = "Basic"
+}
+
 # https://docs.microsoft.com/en-us/azure/azure-netapp-files/azure-netapp-files-service-levels
 variable "service_level" {
   description = "The target performance of the file system. Valid values include Premium, Standard, or Ultra."

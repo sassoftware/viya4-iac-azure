@@ -72,7 +72,7 @@ You can use `default_public_access_cidrs` to set a default range for all created
 | default_public_access_cidrs | IP address ranges allowed to access all created cloud resources | list of strings | | Sets a default for all resources. |
 | cluster_endpoint_public_access_cidrs | IP address ranges allowed to access the AKS cluster API | list of strings | | For client admin access to the cluster api (by `kubectl`, for example). Only used with `cluster_api_mode=public`|
 | vm_public_access_cidrs | IP address ranges allowed to access the VMs | list of strings | | Opens port 22 for SSH access to the jump server and/or NFS VM by adding Ingress Rule on the NSG. Only used with `create_jump_public_ip=true` or `create_nfs_public_ip=true`   |
-| postgres_public_access_cidrs | IP address ranges allowed to access the Azure PostgreSQL Server | list of strings || Opens port 5432 by adding Ingress Rule on the NSG. Only used when creating postgres instances. |
+| postgres_public_access_cidrs | IP address ranges allowed to access the Azure PostgreSQL Flexible Server | list of strings || Opens port 5432 by adding Ingress Rule on the NSG. Only used when creating postgres instances. |
 | acr_public_access_cidrs | IP address ranges allowed to access the ACR instance | list of strings || Only used with `create_container_registry=true` |
 
 **NOTE:** In a SCIM environment, the AzureActiveDirectory service tag must be granted access to port 443/HTTPS for the Ingress IP address. 
@@ -93,23 +93,23 @@ The default values for the `subnets` variable are as follows:
   aks = {
     "prefixes": ["192.168.0.0/23"],
     "service_endpoints": ["Microsoft.Sql"],
-    "enforce_private_link_endpoint_network_policies": false,
-    "enforce_private_link_service_network_policies": false,
+    "private_endpoint_network_policies_enabled": false,
+    "private_link_service_network_policies_enabled": false,
     "service_delegations": {},
   }
   misc = {
     "prefixes": ["192.168.2.0/24"],
     "service_endpoints": ["Microsoft.Sql"],
-    "enforce_private_link_endpoint_network_policies": false,
-    "enforce_private_link_service_network_policies": false,
+    "private_endpoint_network_policies_enabled": false,
+    "private_link_service_network_policies_enabled": false,
     "service_delegations": {},
   }
   ## If using ha storage then the following is also added
   netapp = {
     "prefixes": ["192.168.3.0/24"],
     "service_endpoints": [],
-    "enforce_private_link_endpoint_network_policies": false,
-    "enforce_private_link_service_network_policies": false,
+    "private_endpoint_network_policies_enabled": false,
+    "private_link_service_network_policies_enabled": false,
     "service_delegations": {
       netapp = {
         "name"    : "Microsoft.Netapp/volumes"
@@ -281,9 +281,9 @@ When `storage_type=standard`, a NFS Server VM is created, only when these variab
 | nfs_vm_admin | OS Admin User for the NFS server VM | string | "nfsuser" | |
 | nfs_vm_machine_type | SKU to use for NFS server VM | string | "Standard_D8s_v4" | To check for valid types for your subscription, run: `az vm list-skus --resource-type virtualMachines --subscription $subscription --location $location -o table`|
 | nfs_vm_zone | Zone in which NFS server VM should be created | string | null | |
-| nfs_raid_disk_type | Managed disk types | string | "Standard_LRS" | Supported values: Standard_LRS, Premium_LRS, StandardSSD_LRS or UltraSSD_LRS. When using `UltraSSD_LRS`, `nfs_vm_zone` and `nfs_raid_disk_zones` must be specified. See the [Azure documentation](https://docs.microsoft.com/en-us/azure/virtual-machines/disks-enable-ultra-ssd) for limitations on Availability Zones and VM types. |
+| nfs_raid_disk_type | Managed disk types | string | "Standard_LRS" | Supported values: Standard_LRS, Premium_LRS, StandardSSD_LRS or UltraSSD_LRS. When using `UltraSSD_LRS`, `nfs_vm_zone` and `nfs_raid_disk_zone` must be specified. See the [Azure documentation](https://docs.microsoft.com/en-us/azure/virtual-machines/disks-enable-ultra-ssd) for limitations on Availability Zones and VM types. |
 | nfs_raid_disk_size | Size in Gb for each disk of the RAID5 cluster on the NFS server VM | number | 128 | |
-| nfs_raid_disk_zones | A collection containing the availability zones to allocate the Managed Disks for NFS | list of strings | [] | |
+| nfs_raid_disk_zone | The Availability Zone in which the Managed Disk should be located. Changing this property forces a new resource to be created. | string | null | |
 
 ### Azure NetApp Files (only when `storage_type=ha`)
 
@@ -295,6 +295,7 @@ When `storage_type=ha` (high availability), [Microsoft Azure NetApp Files](https
 | netapp_size_in_tb | Provisioned size of the pool in TB. Value must be between 4 and 500 | number | 4 | |
 | netapp_protocols | The target volume protocol expressed as a list. Supported single value include CIFS, NFSv3, or NFSv4.1. If argument is not defined, it defaults to NFSv3. Changing this forces a new resource to be created and data will be lost. | list of strings | ["NFSv3"] | |
 | netapp_volume_path |A unique file path for the volume. Used when creating mount targets. Changing this forces a new resource to be created. | string | "export" | |
+| netapp_network_features |Indicates which network feature to use, accepted values are `Basic` or `Standard`, it defaults to `Basic` if not defined. | string | "Basic" | This is a feature in public preview. For more information about it and how to register, please refer to [Configure network features for an Azure NetApp Files volume](https://docs.microsoft.com/en-us/azure/azure-netapp-files/configure-network-features)|
 
 ## Azure Container Registry (ACR)
 
@@ -326,15 +327,15 @@ Each server element, like `foo = {}`, can contain none, some, or all of the para
 
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
-| sku_name| The SKU Name for the PostgreSQL Server | string | "GP_Gen5_32" | The name pattern is the SKU, followed by the tier + family + cores (e.g. B_Gen4_1, GP_Gen5_4).|
-| storage_mb | Max storage allowed for the PostgreSQL server | number | 51200 | Possible values are between 5120 MB(5GB) and 1048576 MB(1TB) for the Basic SKU and between 5120 MB(5GB) and 4194304 MB(4TB) for General Purpose/Memory Optimized SKUs |
-| backup_retention_days | Backup retention days for the PostgreSQL server | number | 7 | Supported values are between 7 and 35 days. |
+| sku_name| The SKU Name for the PostgreSQL Flexible Server | string | "GP_Standard_D16s_v3" | The name pattern is the SKU, followed by the tier + family + cores (e.g. B_Standard_B1ms, GP_Standard_D2s_v3, MO_Standard_E4s_v3).|
+| storage_mb | The max storage allowed for the PostgreSQL Flexible Server | number | 51200 | Possible values are 32768, 65536, 131072, 262144, 524288, 1048576, 2097152, 4194304, 8388608, 16777216, and 33554432. |
+| backup_retention_days | Backup retention days for the PostgreSQL Flexible server | number | 7 | Supported values are between 7 and 35 days. |
 | geo_redundant_backup_enabled | Enable Geo-redundant or not for server backup | bool | false | Not supported for the basic tier. |
-| administrator_login | The Administrator Login for the PostgreSQL Server. Changing this forces a new resource to be created. | string | "pgadmin" | The admin login name cannot be azure_superuser, azure_pg_admin, admin, administrator, root, guest, or public. It cannot start with pg_. See: [Microsoft Quickstart Server Database](https://docs.microsoft.com/en-us/azure/postgresql/quickstart-create-server-database-portal) |
-| administrator_password | The Password associated with the administrator_login for the PostgreSQL Server | string | "my$up3rS3cretPassw0rd" | The password must contain between 8 and 128 characters and must contain characters from three of the following categories: English uppercase letters, English lowercase letters, numbers (0 through 9), and non-alphanumeric characters (!, $, #, %, etc.). |
-| server_version | The version of the Azure Database for PostgreSQL server instance. Changing this forces a new resource to be created.| string | "11" | |
-| ssl_enforcement_enabled | Enforce SSL on connection to the Azure Database for PostgreSQL server instance | bool | true | |
-| postgresql_configurations | Configurations to enable on the PostgreSQL Database server instance | map(string) | {} | More details can be found [here](https://docs.microsoft.com/en-us/azure/postgresql/howto-configure-server-parameters-using-cli) |
+| administrator_login | The Administrator Login for the PostgreSQL Flexible Server. Changing this forces a new resource to be created. | string | "pgadmin" | The admin login name cannot be azure_superuser, azure_pg_admin, admin, administrator, root, guest, or public. It cannot start with pg_. See: [Microsoft Quickstart Server Database](https://docs.microsoft.com/en-us/azure/postgresql/flexible-server/quickstart-create-server-portal) |
+| administrator_password | The Password associated with the administrator_login for the PostgreSQL Flexible Server | string | "my$up3rS3cretPassw0rd" | The password must contain between 8 and 128 characters and must contain characters from three of the following categories: English uppercase letters, English lowercase letters, numbers (0 through 9), and non-alphanumeric characters (!, $, #, %, etc.). |
+| server_version | The version of the PostgreSQL Flexible server instance | string | "13" | Refer to the [Viya 4 Administration Guide](https://go.documentation.sas.com/doc/en/sasadmincdc/default/itopssr/p05lfgkwib3zxbn1t6nyihexp12n.htm?fromDefault=#p1wq8ouke3c6ixn1la636df9oa1u) for the supported versions of PostgreSQL for SAS Viya. |
+| ssl_enforcement_enabled | Enforce SSL on connection to the Azure Database for PostgreSQL Flexible server instance | bool | true | |
+| postgresql_configurations | Sets a PostgreSQL Configuration value on a Azure PostgreSQL Flexible Server | list(object) | [] | More details can be found [here](https://docs.microsoft.com/en-us/azure/postgresql/flexible-server/howto-configure-server-parameters-using-cli) |
 
 Here is a sample of the `postgres_servers` variable with the `default` entry only overriding the `administrator_password` parameter and the `cps` entry overriding all of the parameters:
 
@@ -344,15 +345,20 @@ postgres_servers = {
     administrator_password       = "D0ntL00kTh1sWay"
   },
   another_server = {
-    sku_name                     = "GP_Gen5_32"
-    storage_mb                   = 51200
+    sku_name                     = "GP_Standard_D16s_v3"
+    storage_mb                   = 65536
     backup_retention_days        = 7
     geo_redundant_backup_enabled = false
     administrator_login          = "pgadmin"
     administrator_password       = "1tsAB3aut1fulDay"
-    server_version               = "11"
+    server_version               = "13"
     ssl_enforcement_enabled      = true
-    postgresql_configurations    = { foo = "true", bar = "false" }
+    postgresql_configurations    = [
+       {
+         name  = "azure.extensions"
+         value = "PLPGSQL,LTREE"
+       }
+      ]
   }
 }
 ```
