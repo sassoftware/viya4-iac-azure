@@ -204,6 +204,8 @@ Additional node pools can be created separate from the default node pool. This i
 
 The default values for the `node_pools` variable are as follows:
 
+**Note**: Maintaining a minimum of 1 node in the pool for `compute` node provides the best customer experience at this time as it makes sure that compute-related pods have the required images pulled and ready for use in the environment.
+
 ```yaml
 {
   cas = {
