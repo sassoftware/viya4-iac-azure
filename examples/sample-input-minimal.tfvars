@@ -34,7 +34,7 @@ container_registry_admin_enabled    = false
 # AKS config
 kubernetes_version         = "1.23.8"
 default_nodepool_min_nodes = 2
-default_nodepool_vm_type   = "Standard_D8s_v4"
+default_nodepool_vm_type   = "Standard_D4_v3"
 #v3 still has local temp storage
 
 # AKS Node Pools config - minimal
