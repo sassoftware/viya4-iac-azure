@@ -102,7 +102,7 @@ variable "default_nodepool_max_pods" {
 }
 
 variable "default_nodepool_availability_zones" {
-  type    = list(any)
+  type    = list(string)
   default = ["1"]
 }
 
@@ -353,13 +353,18 @@ variable "netapp_volume_path" {
 
 variable "netapp_network_features" {
   description = "Indicates which network feature to use, accepted values are Basic or Standard, it defaults to Basic if not defined."
-  type    = string
+  type        = string
   default     = "Basic"
 }
 
 variable "node_pools_availability_zone" {
   type    = string
-  default = "1"
+  default = null
+}
+
+variable "node_pools_availability_zones" {
+  type    = list(string)
+  default = ["1"]
 }
 
 variable "node_pools_proximity_placement" {
@@ -520,8 +525,8 @@ variable "subnet_names" {
   description = "Map subnet usage roles to existing subnet names"
   # Example:
   # subnet_names = {
-  #   'aks': 'my_aks_subnet', 
-  #   'misc': 'my_misc_subnet', 
+  #   'aks': 'my_aks_subnet',
+  #   'misc': 'my_misc_subnet',
   #   'netapp': 'my_netapp_subnet'
   # }
 }

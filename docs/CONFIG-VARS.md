@@ -63,7 +63,7 @@ To do set these permissions as part of this Terraform script, specify ranges of 
 
 NOTE: When deploying infrastructure into a private network (e.g. a VPN), with no public endpoints, the options documented in this block are not applicable.
 
-NOTE: The script will either create a new NSG, or use an existing NSG, if specified in the [`nsg_name`](#use-existing) variable. 
+NOTE: The script will either create a new NSG, or use an existing NSG, if specified in the [`nsg_name`](#use-existing) variable.
 
 You can use `default_public_access_cidrs` to set a default range for all created resources. To set different ranges for other resources, define the appropriate variable. Use an empty list `[]` to disallow access explicitly.
 
@@ -75,7 +75,7 @@ You can use `default_public_access_cidrs` to set a default range for all created
 | postgres_public_access_cidrs | IP address ranges allowed to access the Azure PostgreSQL Flexible Server | list of strings || Opens port 5432 by adding Ingress Rule on the NSG. Only used when creating postgres instances. |
 | acr_public_access_cidrs | IP address ranges allowed to access the ACR instance | list of strings || Only used with `create_container_registry=true` |
 
-**NOTE:** In a SCIM environment, the AzureActiveDirectory service tag must be granted access to port 443/HTTPS for the Ingress IP address. 
+**NOTE:** In a SCIM environment, the AzureActiveDirectory service tag must be granted access to port 443/HTTPS for the Ingress IP address.
 
 ## Networking
 
@@ -147,7 +147,7 @@ Example for the `subnet_names` variable:
 ```yaml
 subnet_names = {
   ## Required subnets
-  'aks': '<my_aks_subnet_name>', 
+  'aks': '<my_aks_subnet_name>',
   'misc': '<my_misc_subnet_name>',
 
   ## If using ha storage then the following is also required
@@ -258,7 +258,8 @@ In addition, you can control the placement for the additional node pools using t
 
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
-| node_pools_availability_zone | Availability Zone for the additional node pools and the NFS VM, for `storage_type="standard"'| string | "1" | The possible values depend on the region set in the "location" variable. |
+| node_pools_availability_zone | Availability Zone for the additional node pools | string | null | The possible values depend on the region set in the "location" variable.  **Note** Variable superceeded by `node_pools_availability_zones`. |
+| node_pools_availability_zones | Availability Zones for the additional node pools | list of strings | ["1"] | The possible values depend on the region set in the "location" variable. |
 | node_pools_proximity_placement | Co-locates all node pool VMs for improved application performance. | bool | false | Selecting proximity placement imposes an additional constraint on VM creation and can lead to more frequent denials of VM allocation requests. We recommend that you set `node_pools_availability_zone=""` and allocate all required resources at one time by setting `min_nodes` and `max_nodes` to the same value for all node pools.  Additional information: [Proximity Group Placement](./user/ProximityPlacementGroup.md). |
 
 ## Storage
