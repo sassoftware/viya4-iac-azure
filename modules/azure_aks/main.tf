@@ -61,6 +61,35 @@ resource "azurerm_kubernetes_cluster" "aks" {
     orchestrator_version  = var.kubernetes_version
   }
 
+  # dynamic "azure_active_directory_role_based_access_control" {
+  #   for_each = var.role_based_access_control_enabled && var.rbac_aad_managed ? ["rbac"] : []
+
+  #   content {
+  #     admin_group_object_ids = var.rbac_aad_admin_group_object_ids
+  #     azure_rbac_enabled     = var.rbac_aad_azure_rbac_enabled
+  #     managed                = true
+  #     tenant_id              = var.rbac_aad_tenant_id
+  #   }
+  # }
+
+  # dynamic "azure_active_directory_role_based_access_control" {
+  #   for_each = var.role_based_access_control_enabled && !var.rbac_aad_managed ? ["rbac"] : []
+
+  #   content {
+  #     client_app_id     = var.rbac_aad_client_app_id
+  #     managed           = false
+  #     server_app_id     = var.rbac_aad_server_app_id
+  #     server_app_secret = var.rbac_aad_server_app_secret
+  #     tenant_id         = var.rbac_aad_tenant_id
+  #   }
+  # }
+
+  # azure_active_directory_role_based_access_control {
+  #   managed                = true
+  #   admin_group_object_ids = var.aks_admin_group_object_ids
+  #   azure_rbac_enabled     = true
+  # }
+
   dynamic "service_principal" {
     for_each = var.aks_uai_id == null ? [1] : []
     content {

@@ -134,7 +134,8 @@ variable "aks_docker_bridge_cidr" {
 
 variable "cluster_egress_type" {
   description = "The outbound (egress) routing method which should be used for this Kubernetes Cluster. Possible values are loadBalancer and userDefinedRouting. Defaults to loadBalancer."
-  default     = null
+  type = string
+  default     = "loadBalancer"
   validation {
     condition     = var.cluster_egress_type != null ? contains(["loadBalancer", "userDefinedRouting"], var.cluster_egress_type) : true
     error_message = "ERROR: Supported values for `cluster_egress_type` are: loadBalancer, userDefinedRouting."

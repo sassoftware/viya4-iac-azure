@@ -16,6 +16,7 @@ locals {
   subnets = { for k, v in var.subnets : k => v if !(k == "netapp" && var.storage_type == "standard") }
 
   # Kubernetes
+  cluster_name = "${var.prefix}-aks"
   kubeconfig_filename = "${var.prefix}-aks-kubeconfig.conf"
   kubeconfig_path     = var.iac_tooling == "docker" ? "/workspace/${local.kubeconfig_filename}" : local.kubeconfig_filename
 
@@ -55,18 +56,18 @@ locals {
   # Use BYO UAI if given, else create a UAI
   aks_uai_id = (var.aks_identity == "uai"
     ? (var.aks_uai_name == null
-      ? azurerm_user_assigned_identity.uai.0.id
-      : data.azurerm_user_assigned_identity.uai.0.id
+      ? [azurerm_user_assigned_identity.uai.0.id]
+      : [data.azurerm_user_assigned_identity.uai.0.id]
     )
     : null
   )
 
-  cluster_egress_type = (var.cluster_egress_type == null
-    ? (var.egress_public_ip_name == null
-      ? "loadBalancer"
-      : "userDefinedRouting"
-    )
-    : var.cluster_egress_type
-  )
+  # cluster_egress_type = (var.cluster_egress_type == null
+  #   ? (var.egress_public_ip_name == null
+  #     ? "loadBalancer"
+  #     : "userDefinedRouting"
+  #   )
+  #   : var.cluster_egress_type
+  # )
 }
 
