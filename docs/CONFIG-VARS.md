@@ -204,6 +204,8 @@ Additional node pools can be created separate from the default node pool. This i
 
 The default values for the `node_pools` variable are as follows:
 
+**Note**: SAS recommends that you maintain a minimum of 1 node in the pool for `compute` workloads. This allocation ensures that compute-related pods have the required images pulled and ready for use in the environment..
+
 ```yaml
 {
   cas = {
@@ -220,7 +222,7 @@ The default values for the `node_pools` variable are as follows:
   compute = {
     "machine_type"          = "Standard_E16s_v3"
     "os_disk_size"          = 200
-    "min_nodes"             = 0
+    "min_nodes"             = 1
     "max_nodes"             = 5
     "max_pods"              = 110
     "node_taints"           = ["workload.sas.com/class=compute:NoSchedule"]
