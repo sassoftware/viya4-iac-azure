@@ -130,6 +130,7 @@ module "aks" {
   aks_cluster_rg                           = local.aks_rg.name
   aks_cluster_rg_id                        = local.aks_rg.id
   aks_cluster_dns_prefix                   = "${var.prefix}-aks"
+  aks_cluster_sku_tier                     = var.aks_cluster_sku_tier
   aks_cluster_location                     = var.location
   aks_cluster_node_auto_scaling            = var.default_nodepool_min_nodes == var.default_nodepool_max_nodes ? false : true
   aks_cluster_node_count                   = var.default_nodepool_min_nodes
