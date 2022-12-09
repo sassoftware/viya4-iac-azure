@@ -34,6 +34,16 @@ resource "azurerm_kubernetes_cluster" "aks" {
     load_balancer_sku  = "standard"
   }
 
+  dynamic "azure_active_directory_role_based_access_control" {
+    for_each = var.aks_aad ? [1] : []
+    content {
+      managed                 = true
+      tenant_id               = var.aks_aad_tenant_id
+      admin_group_object_ids  = var.aks_aad_admin_group_ids
+      azure_rbac_enabled      = var.aks_aad_azure_rbac_enabled
+    }
+  }
+
   dynamic "linux_profile" {
     for_each = var.aks_cluster_ssh_public_key == "" ? [] : [1]
     content {

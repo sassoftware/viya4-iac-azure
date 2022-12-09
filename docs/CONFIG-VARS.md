@@ -174,6 +174,9 @@ Ubuntu 20.04 LTS is the operating system used on the Jump/NFS servers. Ubuntu cr
 | ssh_public_key | File name of public ssh key for jump and nfs VM | string | "~/.ssh/id_rsa.pub" | Required with `create_jump_vm=true` or `storage_type=standard` |
 | cluster_api_mode | Public or private IP for the cluster api | string | "public" | Valid Values: "public", "private" |
 | aks_cluster_sku_tier | Optimizes api server for cost vs availability | string | "Free" | Valid Values:  "Free", "Paid" | 
+| aks_aad | Whether to integrate this cluster with Azure Active Directory | bool | false | |
+| aks_aad_admin_group_ids | List of Azure Active Directory group ids to be granted admin access over this cluster | list of strings | null | Only relevant when `aks_aad` is true |
+| aks_aad_tenant_id | The Azure tenant id where the aforementioned admin group ids reside.  Defaults to the tenant id of the cluster | string | null | Only relevant when `aks_aad` is true |
 
 ## Node Pools
 

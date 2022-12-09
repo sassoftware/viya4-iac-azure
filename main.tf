@@ -159,6 +159,10 @@ module "aks" {
   client_id                                = var.client_id
   client_secret                            = var.client_secret
   aks_private_cluster                      = var.cluster_api_mode == "private" ? true : false
+  aks_aad                                  = var.aks_aad
+  aks_aad_tenant_id                        = var.aks_aad_tenant_id
+  aks_aad_admin_group_ids                  = var.aks_aad_admin_group_ids
+  aks_aad_azure_rbac_enabled               = var.aks_aad_azure_rbac_enabled
   depends_on                               = [module.vnet]
 }
 

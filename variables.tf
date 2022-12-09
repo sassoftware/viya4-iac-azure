@@ -610,3 +610,27 @@ variable "aks_identity" {
     error_message = "ERROR: Supported values for `aks_identity` are: uai, sp."
   }
 }
+
+variable "aks_aad" {
+  description = "Whether or not to integrate this cluster with Azure Active Directory"
+  type        = bool
+  default     = false
+}
+
+variable "aks_aad_tenant_id" {
+  description = "The Azure Active Directory tenant this cluster should integrate with (i.e. where aks_aad_admin_group_ids reside).  Only relevant when aks_aad is true.  Defaults to the tenant id of the cluster's subscription."
+  type        = string
+  default     = null
+}
+
+variable "aks_aad_admin_group_ids" {
+  description = "List of Azure Active Directory group ids to be granted admin access over this cluster.  Only relevant when aks_aad is true."
+  type        = list(string)
+  default     = null
+}
+
+variable "aks_aad_azure_rbac_enabled" {
+  description = "Whether or not to enable Azure RBAC in this cluster.  Only relevant when aks_aad is true"
+  type        = bool
+  default     = false
+}
