@@ -173,6 +173,7 @@ Ubuntu 20.04 LTS is the operating system used on the Jump/NFS servers. Ubuntu cr
 | aks_identity | Use UserAssignedIdentity or Service Principal as  [AKS identity](https://docs.microsoft.com/en-us/azure/aks/concepts-identity) | string | "uai" | A value of `uai` wil create a Managed Identity based on the permissions of the authenticated user or use [`AKS_UAI_NAME`](#use-existing), if set. A value of `sp` will use values from [`CLIENT_ID`/`CLIENT_SECRET`](#azure-authentication), if set. |
 | ssh_public_key | File name of public ssh key for jump and nfs VM | string | "~/.ssh/id_rsa.pub" | Required with `create_jump_vm=true` or `storage_type=standard` |
 | cluster_api_mode | Public or private IP for the cluster api | string | "public" | Valid Values: "public", "private" |
+| aks_cluster_sku_tier | Optimizes api server for cost vs availability | string | "Free" | Valid Values:  "Free", "Paid" | 
 
 ## Node Pools
 
@@ -204,6 +205,8 @@ Additional node pools can be created separate from the default node pool. This i
 
 The default values for the `node_pools` variable are as follows:
 
+**Note**: SAS recommends that you maintain a minimum of 1 node in the pool for `compute` workloads. This allocation ensures that compute-related pods have the required images pulled and ready for use in the environment..
+
 ```yaml
 {
   cas = {
@@ -220,7 +223,7 @@ The default values for the `node_pools` variable are as follows:
   compute = {
     "machine_type"          = "Standard_E16s_v3"
     "os_disk_size"          = 200
-    "min_nodes"             = 0
+    "min_nodes"             = 1
     "max_nodes"             = 5
     "max_pods"              = 110
     "node_taints"           = ["workload.sas.com/class=compute:NoSchedule"]

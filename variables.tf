@@ -41,6 +41,17 @@ variable "location" {
   default     = "eastus"
 }
 
+variable aks_cluster_sku_tier {
+  description = "The SKU Tier that should be used for this Kubernetes Cluster. Possible values are Free and Paid (which includes the Uptime SLA). Defaults to Free"
+  default = "Free"
+  type = string 
+
+  validation {
+    condition     = contains(["Free", "Paid"],  var.aks_cluster_sku_tier)
+    error_message = "ERROR: Valid types are \"Free\" and \"Paid\"!"
+  }
+}
+
 variable "ssh_public_key" {
   type    = string
   default = "~/.ssh/id_rsa.pub"
@@ -394,7 +405,7 @@ variable "node_pools" {
     compute = {
       "machine_type" = "Standard_E16s_v3"
       "os_disk_size" = 200
-      "min_nodes"    = 0
+      "min_nodes"    = 1
       "max_nodes"    = 5
       "max_pods"     = 110
       "node_taints"  = ["workload.sas.com/class=compute:NoSchedule"]

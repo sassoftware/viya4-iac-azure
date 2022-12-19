@@ -9,6 +9,16 @@ variable "aks_cluster_location" {
   default     = "eastus"
 }
 
+variable aks_cluster_sku_tier {
+  description = "The SKU Tier that should be used for this Kubernetes Cluster. Possible values are Free and Paid (which includes the Uptime SLA). Defaults to Free"
+  default     = "Free"
+
+  validation {
+    condition     = contains(["Free", "Paid"],  var.aks_cluster_sku_tier)
+    error_message = "ERROR: Valid types are \"Free\" and \"Paid\"!"
+  }
+}
+
 variable "aks_private_cluster" {
   default = false
 }
