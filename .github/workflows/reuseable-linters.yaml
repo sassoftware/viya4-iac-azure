@@ -1,0 +1,9 @@
+name: Reuseable Linters
+
+on:
+  push:
+
+jobs:
+  # Linter Jobs from AWS
+  Call-Linters:
+    uses: sassoftware/viya4-iac-aws/.github/workflows/linter-analysis.yaml@IAC-811-github-actions
