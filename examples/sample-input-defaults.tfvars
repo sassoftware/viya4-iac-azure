@@ -4,7 +4,7 @@
 
 # ****************  REQUIRED VARIABLES  ****************
 # These required variables' values MUST be provided by the User
-prefix   = "<prefix-value>" # this is a prefix that you assign for the resources to be created
+prefix   = "<prefix-value>"         # this is a prefix that you assign for the resources to be created
 location = "<azure-location-value>" # e.g., "eastus2"
 # ****************  REQUIRED VARIABLES  ****************
 

@@ -41,13 +41,13 @@ variable "location" {
   default     = "eastus"
 }
 
-variable aks_cluster_sku_tier {
+variable "aks_cluster_sku_tier" {
   description = "The SKU Tier that should be used for this Kubernetes Cluster. Possible values are Free and Paid (which includes the Uptime SLA). Defaults to Free"
-  default = "Free"
-  type = string 
+  default     = "Free"
+  type        = string
 
   validation {
-    condition     = contains(["Free", "Paid"],  var.aks_cluster_sku_tier)
+    condition     = contains(["Free", "Paid"], var.aks_cluster_sku_tier)
     error_message = "ERROR: Valid types are \"Free\" and \"Paid\"!"
   }
 }
@@ -364,7 +364,7 @@ variable "netapp_volume_path" {
 
 variable "netapp_network_features" {
   description = "Indicates which network feature to use, accepted values are Basic or Standard, it defaults to Basic if not defined."
-  type    = string
+  type        = string
   default     = "Basic"
 }
 

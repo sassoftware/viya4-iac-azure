@@ -20,27 +20,27 @@ resource "azurerm_postgresql_flexible_server" "flexpsql" {
   tags                         = var.tags
 
   lifecycle {
-    ignore_changes = [ 
+    ignore_changes = [
       # Ignore changes to zone on updates after intial creation
       zone
-    ]  
+    ]
   }
 }
 
 resource "azurerm_postgresql_flexible_server_configuration" "flexpsql" {
-  for_each   = {
-    for config in var.postgresql_configurations:
-      config.name => config
+  for_each = {
+    for config in var.postgresql_configurations :
+    config.name => config
   }
 
-  name       = each.value.name
-  server_id  = azurerm_postgresql_flexible_server.flexpsql.id
-  value      = each.value.value
+  name      = each.value.name
+  server_id = azurerm_postgresql_flexible_server.flexpsql.id
+  value     = each.value.value
 }
 
 resource "azurerm_postgresql_flexible_server_firewall_rule" "flexpsql" {
   count = var.public_network_access_enabled ? length(var.firewall_rules) : 0
-  
+
   name             = format("%s%s", var.firewall_rule_prefix, lookup(var.firewall_rules[count.index], "name", count.index))
   server_id        = azurerm_postgresql_flexible_server.flexpsql.id
   start_ip_address = var.firewall_rules[count.index]["start_ip"]

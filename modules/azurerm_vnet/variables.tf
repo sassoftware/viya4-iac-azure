@@ -28,11 +28,11 @@ variable "dns_servers" {
 
 variable "subnets" {
   type = map(object({
-    prefixes                                       = list(string)
-    service_endpoints                              = list(string)
-    private_endpoint_network_policies_enabled      = bool
-    private_link_service_network_policies_enabled  = bool
-    service_delegations                            = map(object({
+    prefixes                                      = list(string)
+    service_endpoints                             = list(string)
+    private_endpoint_network_policies_enabled     = bool
+    private_link_service_network_policies_enabled = bool
+    service_delegations = map(object({
       name    = string
       actions = list(string)
     }))
