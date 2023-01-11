@@ -2,30 +2,30 @@
 
 ## Overview
 
-This project helps you to automate the cluster-provisioning phase of SAS Viya deployment. It contains Terraform scripts to provision the Microsoft Azure Cloud infrastructure resources that are required to deploy SAS Viya 4 product offerings. Here is a list of resources that this project can create:
+This project helps you to automate the cluster-provisioning phase of SAS Viya platform deployment. It contains Terraform scripts to provision the Microsoft Azure Cloud infrastructure resources that are required to deploy SSAS Viya platform product offerings. Here is a list of resources that this project can create:
 
   >- Azure resource group(s): primary resource group and AKS resource group
   >- Virtual network, network security groups, and network security rules
   >- Managed Azure Kubernetes Service (AKS) cluster
   >- System and User AKS Node pools with required Labels and Taints
-  >- Infrastructure to deploy SAS Viya CAS in SMP or MPP mode
-  >- Storage options for SAS Viya -  NFS Server (Standard) or Azure NetApp Files (HA)
+  >- Infrastructure to deploy SAS Viya platform CAS in SMP or MPP mode
+  >- Storage options for SAS Viya platform -  NFS Server (Standard) or Azure NetApp Files (HA)
   >- Azure DB for PostgreSQL, optional
   >- Azure Container Registry, optional
 
 [<img src="./docs/images/viya4-iac-azure-diag.png" alt="Architecture Diagram" width="750"/>](./docs/images/viya4-iac-azure-diag.png?raw=true)
 
-This project addresses the first of three steps in [Steps for Getting Started in SAS Viya Operations](https://go.documentation.sas.com/doc/en/itopscdc/default/itopscon/n12fgslcw9swbsn10rva4bp0mr2w.htm) in _SAS&reg; Viya&reg; Operations_:
+This project addresses the first of three steps in [Steps for Getting Started](https://go.documentation.sas.com/doc/en/itopscdc/default/itopscon/n12fgslcw9swbsn10rva4bp0mr2w.htm) in _SAS&reg; Viya&reg; Platform Operations_:
 
 1. Provision resources.
 1. Prepare for the deployment.
-1. Customize and deploy SAS Viya.
+1. Customize and deploy the SAS Viya platform.
 
 **Note:** The scripts in this project are provided as examples. They do not provide comprehensive configuration. The second and third steps include additional configuration tasks. Some of those tasks (for example, enabling logging and specifying available IP addresses) are essential for a more secure deployment.
 
 Once the cloud resources are provisioned, use the [viya4-deployment](https://github.com/sassoftware/viya4-deployment) project to deploy 
-SAS Viya 4 in your cloud environment. To learn about all phases and options of the SAS Viya deployment process, see
-[Getting Started with SAS Viya and Azure Kubernetes Service](https://go.documentation.sas.com/doc/en/itopscdc/default/itopscon/n1d7qc4nfr3s5zn103a1qy0kj4l1.htm) in _SAS Viya Operations_.
+the SAS Viya platform in your cloud environment. To learn about all phases and options of the SAS Viya platform deployment process, see
+[Getting Started with SAS Viya and Azure Kubernetes Service](https://go.documentation.sas.com/doc/en/itopscdc/default/itopscon/n1d7qc4nfr3s5zn103a1qy0kj4l1.htm) in _SAS Viya Platform Operations_.
 
 
 This project follows the [SemVer](https://semver.org/#summary) versioning scheme. Given a version number MAJOR.MINOR.PATCH, we increment the:
@@ -111,7 +111,7 @@ See the [Troubleshooting](./docs/Troubleshooting.md) page for information about 
 
 ## Security
 
-Additional configuration to harden your cluster environment is supported and encouraged. For example, you can limit cluster access to specified IP addresses. You can also deploy a load balancer or application gateway to mediate data flows between SAS Viya components and the ingress controller.
+Additional configuration to harden your cluster environment is supported and encouraged. For example, you can limit cluster access to specified IP addresses. You can also deploy a load balancer or application gateway to mediate data flows between SAS Viya platform components and the ingress controller.
 
 ## Contributing
 
