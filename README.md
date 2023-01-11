@@ -2,7 +2,7 @@
 
 ## Overview
 
-This project helps you to automate the cluster-provisioning phase of SAS Viya platform deployment. It contains Terraform scripts to provision the Microsoft Azure Cloud infrastructure resources that are required to deploy SSAS Viya platform product offerings. Here is a list of resources that this project can create:
+This project helps you to automate the cluster-provisioning phase of SAS Viya platform deployment. It contains Terraform scripts to provision the Microsoft Azure Cloud infrastructure resources that are required to deploy SAS Viya platform product offerings. Here is a list of resources that this project can create:
 
   >- Azure resource group(s): primary resource group and AKS resource group
   >- Virtual network, network security groups, and network security rules
