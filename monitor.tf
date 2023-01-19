@@ -37,3 +37,45 @@ resource "azurerm_log_analytics_solution" "viya4" {
   tags = var.tags
 
 }
+
+# https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_diagnostic_setting
+
+resource "azurerm_monitor_diagnostic_setting" "audit" {
+  count = var.create_aks_azure_monitor ? 1 : 0
+
+  name                       = "${var.prefix}-monitor_diagnostic_setting"
+  target_resource_id         = module.aks.cluster_id
+  log_analytics_workspace_id = azurerm_log_analytics_workspace.viya4[0].id
+
+  dynamic "log" {
+    iterator = log_category
+    for_each = var.resource_log_category
+
+    content {
+      category = log_category.value
+      enabled  = true
+
+      retention_policy {
+        enabled = true
+        days    = var.log_retention_in_days
+      }
+    }
+  }
+
+  dynamic "metric" {
+    iterator = metric_category
+    for_each = var.metric_category
+
+    content {
+      category = metric_category.value
+      enabled  = true
+
+      retention_policy {
+        enabled = true
+        days    = var.log_retention_in_days
+      }
+    }
+  }
+
+  tags = var.tags
+}
