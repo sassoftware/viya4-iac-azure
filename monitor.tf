@@ -76,6 +76,4 @@ resource "azurerm_monitor_diagnostic_setting" "audit" {
       }
     }
   }
-
-  tags = var.tags
 }
