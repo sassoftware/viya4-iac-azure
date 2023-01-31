@@ -41,13 +41,13 @@ variable "location" {
   default     = "eastus"
 }
 
-variable aks_cluster_sku_tier {
+variable "aks_cluster_sku_tier" {
   description = "The SKU Tier that should be used for this Kubernetes Cluster. Possible values are Free and Paid (which includes the Uptime SLA). Defaults to Free"
-  default = "Free"
-  type = string 
+  default     = "Free"
+  type        = string
 
   validation {
-    condition     = contains(["Free", "Paid"],  var.aks_cluster_sku_tier)
+    condition     = contains(["Free", "Paid"], var.aks_cluster_sku_tier)
     error_message = "ERROR: Valid types are \"Free\" and \"Paid\"!"
   }
 }
@@ -364,7 +364,7 @@ variable "netapp_volume_path" {
 
 variable "netapp_network_features" {
   description = "Indicates which network feature to use, accepted values are Basic or Standard, it defaults to Basic if not defined."
-  type    = string
+  type        = string
   default     = "Basic"
 }
 
@@ -439,7 +439,7 @@ variable "node_pools" {
   }
 }
 
-# Azure Monitor
+# Azure Monitor - Undocumented
 variable "create_aks_azure_monitor" {
   type        = bool
   description = "Enable Azure Log Analytics agent on AKS cluster"
@@ -486,6 +486,19 @@ variable "log_analytics_solution_promotion_code" {
   type        = string
   description = "A promotion code to be used with the solution"
   default     = ""
+}
+
+## Azure Monitor Diagonostic setting - Undocumented
+variable "resource_log_category" {
+  type        = list(string)
+  description = "List of all resource logs category types supported in Azure Monitor."
+  default     = ["kube-controller-manager", "kube-apiserver", "kube-scheduler"]
+}
+
+variable "metric_category" {
+  type        = list(string)
+  description = "List of all metric category types supported in Azure Monitor."
+  default     = ["AllMetrics"]
 }
 
 # BYO
