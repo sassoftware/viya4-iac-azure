@@ -4,6 +4,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   location                           = var.aks_cluster_location
   resource_group_name                = var.aks_cluster_rg
   dns_prefix                         = var.aks_cluster_dns_prefix
+  sku_tier                           = var.aks_cluster_sku_tier
   role_based_access_control_enabled  = true
   http_application_routing_enabled   = false
   
