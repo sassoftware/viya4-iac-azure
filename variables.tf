@@ -359,7 +359,7 @@ variable "netapp_network_features" {
 
 variable "node_pools_availability_zone" {
   type    = string
-  default = null
+  default = "1"
 }
 
 variable "node_pools_availability_zones" {

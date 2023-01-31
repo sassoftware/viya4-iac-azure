@@ -258,8 +258,7 @@ In addition, you can control the placement for the additional node pools using t
 
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
-| node_pools_availability_zone | Availability Zone for the additional node pools | string | null | The possible values depend on the region set in the "location" variable.  **Note** Variable superceeded by `node_pools_availability_zones`. |
-| node_pools_availability_zones | Availability Zones for the additional node pools | list of strings | ["1"] | The possible values depend on the region set in the "location" variable. |
+| node_pools_availability_zone | Availability Zone for the additional node pools and the NFS VM, for `storage_type="standard"`| string | "1" | The possible values depend on the region set in the "location" variable. |
 | node_pools_proximity_placement | Co-locates all node pool VMs for improved application performance. | bool | false | Selecting proximity placement imposes an additional constraint on VM creation and can lead to more frequent denials of VM allocation requests. We recommend that you set `node_pools_availability_zone=""` and allocate all required resources at one time by setting `min_nodes` and `max_nodes` to the same value for all node pools.  Additional information: [Proximity Group Placement](./user/ProximityPlacementGroup.md). |
 
 ## Storage
