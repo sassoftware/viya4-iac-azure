@@ -5,8 +5,7 @@ output "aks_host" {
 }
 
 output "nat_ip" {
-  value = var.cluster_api_mode == "private" ? null : "${join(",", data.dns_a_record_set.aks_cluster_fqdn.addrs)}"
-  # value = var.egress_public_ip_name == null ? module.aks.cluster_public_ip : data.azurerm_public_ip.nat-ip.0.ip_address
+  value = var.cluster_api_mode == "private" ? null : data.azurerm_public_ip.cluster_public_ip.ip_address
 }
 
 output "kube_config" {

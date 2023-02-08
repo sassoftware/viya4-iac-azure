@@ -164,9 +164,6 @@ module "aks" {
   rbac_aad_azure_rbac_enabled                 = var.rbac_aad_azure_rbac_enabled
   rbac_aad_admin_group_object_ids             = var.rbac_aad_admin_group_object_ids
   rbac_aad_tenant_id                          = var.rbac_aad_tenant_id
-  # rbac_aad_client_app_id                      = local.aks_uai_id == null ? var.client_id : var.rbac_aad_client_app_id
-  # rbac_aad_server_app_id                      = var.rbac_aad_server_app_id
-  # rbac_aad_server_app_secret                  = var.rbac_aad_server_app_secret
   private_cluster_enabled                     = local.aks_private_cluster
   private_dns_zone_id                         = local.aks_private_cluster ? var.aks_private_dns_zone_id : null
   log_analytics_workspace_enabled             = var.create_aks_azure_monitor
@@ -178,27 +175,17 @@ module "aks" {
   depends_on = [module.vnet]
 }
 
-data "azurerm_kubernetes_cluster" "aks_cluster" {
-  name                = local.cluster_name
-  resource_group_name = local.aks_rg.name
-
-  depends_on = [module.aks]
-}
-
-data "dns_a_record_set" "aks_cluster_fqdn" {
-  host = data.azurerm_kubernetes_cluster.aks_cluster.fqdn
-
+data "azurerm_lb" "aks_lb" {
+  count               = var.cluster_egress_type == "loadBalancer" ? 1 : 0
+  name                = "kubernetes"
+  resource_group_name = module.aks.node_resource_group
   depends_on = [module.aks]
 }
 
 data "azurerm_public_ip" "cluster_public_ip" {
-  count = var.cluster_egress_type == "loadBalancer" ? 1 : 0
-
-  # effective_outbound_ips is a set of strings, that needs to be converted to a list type
-  # name                = split("/", tolist(module.aks.network_profile[0].load_balancer_profile[0].effective_outbound_ips)[0])[8]
-  name                = "${local.cluster_name}-public-ip"
-  resource_group_name = local.aks_rg.name
-
+  count               = var.cluster_egress_type == "loadBalancer" ? 1 : 0
+  name                = reverse(split("/", data.azurerm_lb.aks_lb.frontend_ip_configuration.0.public_ip_address_id))[0]
+  resource_group_name = module.aks.node_resource_group
   depends_on = [module.aks]
 }
 
@@ -235,7 +222,7 @@ module "node_pools" {
   max_pods                     = each.value.max_pods == null ? 110 : each.value.max_pods
   node_taints                  = each.value.node_taints
   node_labels                  = each.value.node_labels
-  zones                        = (var.node_pools_availability_zone == "" || var.node_pools_proximity_placement == true) ? [] : [var.node_pools_availability_zone]
+  zones                        = (var.node_pools_availability_zone == "" || var.node_pools_proximity_placement == true) ? [] : (var.node_pools_availability_zones != null) ? var.node_pools_availability_zones : [var.node_pools_availability_zone]
   proximity_placement_group_id = element(coalescelist(azurerm_proximity_placement_group.proximity.*.id, [""]), 0)
   orchestrator_version         = var.kubernetes_version
   tags                         = var.tags
@@ -319,7 +306,7 @@ resource "azurerm_monitor_diagnostic_setting" "audit" {
 
   name                       = "${var.prefix}-monitor_diagnostic_setting"
   target_resource_id         = module.aks.aks_id
-  log_analytics_workspace_id = module.aks.azurerm_log_analytics_workspace_id #azurerm_log_analytics_workspace.viya4[0].id
+  log_analytics_workspace_id = module.aks.azurerm_log_analytics_workspace_id
 
   dynamic "log" {
     iterator = log_category

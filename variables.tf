@@ -61,7 +61,6 @@ variable "aks_load_balancer_profile_enabled" {
   type        = bool
   description = "Enable a load_balancer_profile block. This can only be used when load_balancer_sku is set to `standard`."
   default     = false
-  nullable    = false
 }
 
 variable "aks_load_balancer_sku" {
@@ -131,7 +130,7 @@ variable "default_nodepool_max_pods" {
 }
 
 variable "default_nodepool_availability_zones" {
-  type    = list(any)
+  type    = list(string)
   default = ["1"]
 }
 
@@ -210,8 +209,8 @@ variable "tags" {
 variable "local_account_disabled" {
   type        = bool
   description =<<EOT
-  "(Optional) - If `true` local accounts will be disabled. Defaults to `false`. If local_account_disabled is set to true, it is required to enable Kubernetes RBAC and AKS-managed Azure AD integration. "
-  "See [the documentation](https://docs.microsoft.com/azure/aks/managed-aad#disable-local-accounts) for more information."
+  (Optional) - If `true` local accounts will be disabled. Defaults to `false`. If local_account_disabled is set to true, it is required to enable Kubernetes RBAC and AKS-managed Azure AD integration.
+  See [the documentation](https://docs.microsoft.com/azure/aks/managed-aad#disable-local-accounts) for more information.
   EOT
   default     = false
 }
@@ -250,25 +249,6 @@ variable "rbac_aad_admin_group_object_ids" {
 variable "rbac_aad_tenant_id" {
   type        = string
   description = "(Optional) The Tenant ID used for Azure Active Directory Application. If this isn't specified the Tenant ID of the current Subscription is used."
-  default     = null
-}
-
-## Check if following are required
-variable "rbac_aad_client_app_id" {
-  type        = string
-  description = "The Client ID of an Azure Active Directory Application."
-  default     = null
-}
-
-variable "rbac_aad_server_app_id" {
-  type        = string
-  description = "The Server ID of an Azure Active Directory Application."
-  default     = null
-}
-
-variable "rbac_aad_server_app_secret" {
-  type        = string
-  description = "The Server Secret of an Azure Active Directory Application."
   default     = null
 }
 
@@ -467,6 +447,12 @@ variable "node_pools_availability_zone" {
   default = "1"
 }
 
+variable "node_pools_availability_zones" {
+  description = "Specifies a list of Availability Zones in which the Kubernetes Cluster Node Pool should be located. Changing this forces a new Kubernetes Cluster Node Pool to be created."
+  type    = list(string)
+  default = null
+}
+
 variable "node_pools_proximity_placement" {
   type    = bool
   default = false
@@ -581,14 +567,30 @@ variable "log_retention_in_days" {
 ## Azure Monitor Diagonostic setting - Undocumented
 variable "resource_log_category" {
   type        = list(string)
-  description = "List of all resource logs category types supported in Azure Monitor."
+  description = "List of all resource logs category types supported in Azure Monitor. See https://learn.microsoft.com/en-us/azure/aks/monitor-aks-reference#resource-logs "
   default     = ["kube-controller-manager", "kube-apiserver", "kube-scheduler"]
+
+  validation {
+    condition     = length(var.resource_log_category) > 0
+    error_message = <<EOT
+    Please specify at least one resource log category. See the list of all resource logs category types
+    supported in Azure Monitor here: https://learn.microsoft.com/en-us/azure/aks/monitor-aks-reference#resource-logs
+  EOT
+  }
 }
 
 variable "metric_category" {
   type        = list(string)
-  description = "List of all metric category types supported in Azure Monitor."
+  description = "List of all metric category types supported in Azure Monitor. See https://learn.microsoft.com/en-us/azure/aks/monitor-aks-reference#metrics"
   default     = ["AllMetrics"]
+
+  validation {
+    condition     = length(var.metric_category) > 0
+    error_message = <<EOT
+    Please specify at least one metric category. See the list of all platform metrics supported in Azure Monitor
+    here: https://learn.microsoft.com/en-us/azure/aks/monitor-aks-reference#metrics
+  EOT
+  }
 }
 
 # BYO
@@ -628,8 +630,8 @@ variable "subnet_names" {
   description = "Map subnet usage roles to existing subnet names"
   # Example:
   # subnet_names = {
-  #   'aks': 'my_aks_subnet', 
-  #   'misc': 'my_misc_subnet', 
+  #   'aks': 'my_aks_subnet',
+  #   'misc': 'my_misc_subnet',
   #   'netapp': 'my_netapp_subnet'
   # }
 }
