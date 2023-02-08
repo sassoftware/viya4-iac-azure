@@ -113,7 +113,7 @@ variable "default_nodepool_max_pods" {
 }
 
 variable "default_nodepool_availability_zones" {
-  type    = list(any)
+  type    = list(string)
   default = ["1"]
 }
 
@@ -373,6 +373,12 @@ variable "node_pools_availability_zone" {
   default = "1"
 }
 
+variable "node_pools_availability_zones" {
+  description = "Specifies a list of Availability Zones in which the Kubernetes Cluster Node Pool should be located. Changing this forces a new Kubernetes Cluster Node Pool to be created."
+  type    = list(string)
+  default = null
+}
+
 variable "node_pools_proximity_placement" {
   type    = bool
   default = false
@@ -560,8 +566,8 @@ variable "subnet_names" {
   description = "Map subnet usage roles to existing subnet names"
   # Example:
   # subnet_names = {
-  #   'aks': 'my_aks_subnet', 
-  #   'misc': 'my_misc_subnet', 
+  #   'aks': 'my_aks_subnet',
+  #   'misc': 'my_misc_subnet',
   #   'netapp': 'my_netapp_subnet'
   # }
 }
