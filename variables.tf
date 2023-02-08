@@ -57,6 +57,24 @@ variable "ssh_public_key" {
   default = "~/.ssh/id_rsa.pub"
 }
 
+variable "aks_load_balancer_profile_enabled" {
+  type        = bool
+  description = "Enable a load_balancer_profile block. This can only be used when load_balancer_sku is set to `standard`."
+  default     = false
+  nullable    = false
+}
+
+variable "aks_load_balancer_sku" {
+  type        = string
+  description = "Specifies the SKU of the Load Balancer used for this Kubernetes Cluster. Possible values are `basic` and `standard`. Defaults to `standard`. Changing this forces a new kubernetes cluster to be created."
+  default     = "standard"
+
+  validation {
+    condition     = contains(["basic", "standard"], var.aks_load_balancer_sku)
+    error_message = "Possible values are `basic` and `standard`"
+  }
+}
+
 variable "default_public_access_cidrs" {
   description = "Default list of CIDRs to access created resources."
   type        = list(string)
@@ -132,6 +150,16 @@ variable "aks_network_policy" {
   #TODO: add validation
 }
 
+variable "aks_private_dns_zone_id" {
+  description = "If creating a private cluster, the ID of Private DNS Zone configuration. Either 'System' to have AKS manage this, or 'None'. In case of 'None' you will need to bring your own DNS server. Changing this forces a new resource to be created."
+  type        = string
+  default     = "System"
+  validation {
+    condition     = var.aks_private_dns_zone_id != null ? contains(["System", "None"], var.aks_private_dns_zone_id) : true
+    error_message = "ERROR: Supported values for `aks_private_dns_zone_id` are: System, None."
+  }
+}
+
 variable "aks_dns_service_ip" {
   description = "IP address within the Kubernetes service address range that will be used by cluster service discovery (kube-dns). Changing this forces a new resource to be created."
   type        = string
@@ -169,7 +197,7 @@ variable "aks_uai_name" {
 }
 
 variable "node_vm_admin" {
-  description = "OS Admin User for VMs of AKS Cluster nodes"
+  description = "The username of the local administrator to be created on the Kubernetes cluster. OS Admin User for VMs of AKS Cluster nodes"
   default     = "azureuser"
 }
 
@@ -179,7 +207,72 @@ variable "tags" {
   default     = {}
 }
 
-# PostgreSQL
+variable "local_account_disabled" {
+  type        = bool
+  description =<<EOT
+  "(Optional) - If `true` local accounts will be disabled. Defaults to `false`. If local_account_disabled is set to true, it is required to enable Kubernetes RBAC and AKS-managed Azure AD integration. "
+  "See [the documentation](https://docs.microsoft.com/azure/aks/managed-aad#disable-local-accounts) for more information."
+  EOT
+  default     = false
+}
+
+## RBAC
+variable "role_based_access_control_enabled" {
+  type        = bool
+  description = "Enable Role Based Access Control."
+  default     = true
+}
+
+variable "rbac_aad" {
+  type        = bool
+  description = "(Optional) Is Azure Active Directory ingration enabled?"
+  default     = false
+}
+
+variable "rbac_aad_managed" {
+  type        = bool
+  description = "Is the Azure Active Directory integration Managed, meaning that Azure will create/manage the Service Principal used for integration."
+  default     = false
+}
+
+variable "rbac_aad_azure_rbac_enabled" {
+  type        = bool
+  description = "(Optional) Is Role Based Access Control based on Azure AD enabled?"
+  default     = false
+}
+
+variable "rbac_aad_admin_group_object_ids" {
+  type        = list(string)
+  description = "Object ID of groups with admin access."
+  default     = null
+}
+
+variable "rbac_aad_tenant_id" {
+  type        = string
+  description = "(Optional) The Tenant ID used for Azure Active Directory Application. If this isn't specified the Tenant ID of the current Subscription is used."
+  default     = null
+}
+
+## Check if following are required
+variable "rbac_aad_client_app_id" {
+  type        = string
+  description = "The Client ID of an Azure Active Directory Application."
+  default     = null
+}
+
+variable "rbac_aad_server_app_id" {
+  type        = string
+  description = "The Server ID of an Azure Active Directory Application."
+  default     = null
+}
+
+variable "rbac_aad_server_app_secret" {
+  type        = string
+  description = "The Server Secret of an Azure Active Directory Application."
+  default     = null
+}
+
+## PostgreSQL
 
 # Defaults
 variable "postgres_server_defaults" {
@@ -384,6 +477,7 @@ variable "node_pools" {
   type = map(object({
     machine_type = string
     os_disk_size = number
+    os_disk_type = string
     min_nodes    = string
     max_nodes    = string
     max_pods     = string
@@ -395,6 +489,7 @@ variable "node_pools" {
     cas = {
       "machine_type" = "Standard_E16s_v3"
       "os_disk_size" = 200
+      "os_disk_type" = "Managed"
       "min_nodes"    = 0
       "max_nodes"    = 5
       "max_pods"     = 110
@@ -406,6 +501,7 @@ variable "node_pools" {
     compute = {
       "machine_type" = "Standard_E16s_v3"
       "os_disk_size" = 200
+      "os_disk_type" = "Managed"
       "min_nodes"    = 1
       "max_nodes"    = 5
       "max_pods"     = 110
@@ -418,6 +514,7 @@ variable "node_pools" {
     stateless = {
       "machine_type" = "Standard_D16s_v3"
       "os_disk_size" = 200
+      "os_disk_type" = "Managed"
       "min_nodes"    = 0
       "max_nodes"    = 5
       "max_pods"     = 110
@@ -429,6 +526,7 @@ variable "node_pools" {
     stateful = {
       "machine_type" = "Standard_D8s_v3"
       "os_disk_size" = 200
+      "os_disk_type" = "Managed"
       "min_nodes"    = 0
       "max_nodes"    = 3
       "max_pods"     = 110
@@ -447,14 +545,29 @@ variable "create_aks_azure_monitor" {
   default     = false
 }
 
-variable "enable_log_analytics_workspace" {
-  type        = bool
-  description = "Enable Azure Log Analytics Solution"
-  default     = true
+variable "log_analytics_workspace" {
+  type = object({
+    id   = string
+    name = string
+  })
+  description = "(Optional) Existing azurerm_log_analytics_workspace to attach azurerm_log_analytics_solution. Providing the config disables creation of azurerm_log_analytics_workspace."
+  default     = null
+}
+
+variable "log_analytics_solution_id" {
+  type        = string
+  description = "(Optional) Existing azurerm_log_analytics_solution ID. Providing ID disables creation of azurerm_log_analytics_solution."
+  default     = null
+}
+
+variable "log_analytics_workspace_resource_group_name" {
+  type        = string
+  description = "(Optional) Resource group name to create azurerm_log_analytics_solution."
+  default     = null
 }
 
 variable "log_analytics_workspace_sku" {
-  description = "Specifies the Sku of the Log Analytics Workspace. Possible values are Free, PerNode, Premium, Standard, Standalone, Unlimited, and PerGB2018 (new Sku as of 2018-04-03)"
+  description = "(Optional) Specifies the Sku of the Log Analytics Workspace. Possible values are Free, PerNode, Premium, Standard, Standalone, Unlimited, and PerGB2018 (new Sku as of 2018-04-03)"
   type        = string
   default     = "PerGB2018"
 }
@@ -463,30 +576,6 @@ variable "log_retention_in_days" {
   description = "(Optional) The workspace data retention in days. Possible values are either 7 (Free Tier only) or range between 30 and 730."
   type        = number
   default     = 30
-}
-
-variable "log_analytics_solution_name" {
-  type        = string
-  description = "The publisher of the solution. For example Microsoft. Changing this forces a new resource to be created"
-  default     = "ContainerInsights"
-}
-
-variable "log_analytics_solution_publisher" {
-  type        = string
-  description = " The publisher of the solution. For example Microsoft. Changing this forces a new resource to be created"
-  default     = "Microsoft"
-}
-
-variable "log_analytics_solution_product" {
-  type        = string
-  description = "The product name of the solution. For example OMSGallery/Containers. Changing this forces a new resource to be created."
-  default     = "OMSGallery/ContainerInsights"
-}
-
-variable "log_analytics_solution_promotion_code" {
-  type        = string
-  description = "A promotion code to be used with the solution"
-  default     = ""
 }
 
 ## Azure Monitor Diagonostic setting - Undocumented
@@ -531,12 +620,6 @@ variable "nsg_name" {
   type        = string
   default     = null
   description = "Name of pre-exising NSG. Leave blank to have one created"
-}
-
-variable "egress_public_ip_name" {
-  type        = string
-  default     = null
-  description = "DEPRECATED: Name of pre-existing Public IP for the Network egress."
 }
 
 variable "subnet_names" {
