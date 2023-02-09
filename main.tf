@@ -179,14 +179,14 @@ data "azurerm_lb" "aks_lb" {
   count               = var.cluster_egress_type == "loadBalancer" ? 1 : 0
   name                = "kubernetes"
   resource_group_name = module.aks.node_resource_group
-  depends_on = [module.aks]
+  depends_on          = [module.aks]
 }
 
 data "azurerm_public_ip" "cluster_public_ip" {
   count               = var.cluster_egress_type == "loadBalancer" ? 1 : 0
   name                = reverse(split("/", data.azurerm_lb.aks_lb.frontend_ip_configuration.0.public_ip_address_id))[0]
   resource_group_name = module.aks.node_resource_group
-  depends_on = [module.aks]
+  depends_on          = [module.aks]
 }
 
 module "kubeconfig" {

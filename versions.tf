@@ -24,7 +24,7 @@ terraform {
       version = "3.2.1"
     }
     # TODO: Provider has been archived, need to update code
-    template = { 
+    template = {
       source  = "hashicorp/template"
       version = "2.2.0"
     }

@@ -1,13 +1,19 @@
 variable "name" {
-  description = "Name of the pre-existing vNet"
+  description = "Name of the pre-existing VNet"
+  type = string
   default     = null
 }
 
 variable "prefix" {
+  description = "A prefix to be used in resources creation"
+  type = string
   default = null
 }
 
-variable "location" {}
+variable "location" {
+  description = "The Azure Region to provision the Virtual Network"
+  type = string
+}
 
 variable "resource_group_name" {
   description = "Name of the resource group to be imported."
@@ -15,8 +21,8 @@ variable "resource_group_name" {
 }
 
 variable "address_space" {
-  type        = list(string)
   description = "The address space that is used by the virtual network."
+  type        = list(string)
 }
 
 # If no values specified, this defaults to Azure DNS 
@@ -27,6 +33,7 @@ variable "dns_servers" {
 }
 
 variable "subnets" {
+  description = "Subnets to be created and their settings"
   type = map(object({
     prefixes                                       = list(string)
     service_endpoints                              = list(string)
@@ -42,6 +49,7 @@ variable "subnets" {
 }
 
 variable "existing_subnets" {
+  description = "Set of existing subnets"
   type    = map(string)
   default = {}
 }

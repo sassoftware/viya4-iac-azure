@@ -1,13 +1,23 @@
 ## Global
 variable "client_id" {
-  default = ""
+  description = "(Required) The Client ID for the Service Principal"
+  type        = string
+  default     = ""
 }
 variable "client_secret" {
-  default = ""
+  description = "(Required) The Client Secret for the Service Principal."
+  type        = string
+  default     = ""
 }
 
-variable "subscription_id" {}
-variable "tenant_id" {}
+variable "subscription_id" {
+  description = "(Required) The ID of the Subscription."
+  type        = string
+}
+variable "tenant_id" {
+  description = "(Required) The ID of the Tenant to which the subscription belongs"
+  type        = string
+}
 
 variable "use_msi" {
   description = "Use Managed Identity for Authentication (Azure VMs only)"
@@ -36,15 +46,17 @@ variable "prefix" {
     error_message = "ERROR: Value of 'prefix'\n * must start with lowercase letter and at most be 20 characters in length\n * can only contain lowercase letters, numbers, and hyphen or dash(-), but can't start or end with '-'."
   }
 }
+
 variable "location" {
   description = "The Azure Region to provision all resources in this script"
+  type        = string
   default     = "eastus"
 }
 
 variable "aks_cluster_sku_tier" {
   description = "The SKU Tier that should be used for this Kubernetes Cluster. Possible values are Free and Paid (which includes the Uptime SLA). Defaults to Free"
-  default     = "Free"
   type        = string
+  default     = "Free"
 
   validation {
     condition     = contains(["Free", "Paid"], var.aks_cluster_sku_tier)
@@ -53,19 +65,20 @@ variable "aks_cluster_sku_tier" {
 }
 
 variable "ssh_public_key" {
-  type    = string
-  default = "~/.ssh/id_rsa.pub"
+  description = "A custom ssh key to control access to the AKS cluster. Changing this forces a new resource to be created."
+  type        = string
+  default     = "~/.ssh/id_rsa.pub"
 }
 
 variable "aks_load_balancer_profile_enabled" {
-  type        = bool
   description = "Enable a load_balancer_profile block. This can only be used when load_balancer_sku is set to `standard`."
+  type        = bool
   default     = false
 }
 
 variable "aks_load_balancer_sku" {
-  type        = string
   description = "Specifies the SKU of the Load Balancer used for this Kubernetes Cluster. Possible values are `basic` and `standard`. Defaults to `standard`. Changing this forces a new kubernetes cluster to be created."
+  type        = string
   default     = "standard"
 
   validation {
@@ -105,27 +118,38 @@ variable "postgres_public_access_cidrs" {
 }
 
 variable "default_nodepool_vm_type" {
-  default = "Standard_D8s_v4"
+  description = "The default virtual machine size for the Kubernetes agents"
+  type        = string
+  default     = "Standard_D8s_v4"
 }
+
 variable "kubernetes_version" {
   description = "The AKS cluster K8s version"
+  type        = string
   default     = "1.23.8"
 }
 
 variable "default_nodepool_max_nodes" {
   description = "(Required, when default_nodepool_auto_scaling=true) The maximum number of nodes which should exist in this Node Pool. If specified this must be between 1 and 100."
+  type        = number
   default     = 5
 }
+
 variable "default_nodepool_min_nodes" {
   description = "(Required, when default_nodepool_auto_scaling=true) The minimum number of nodes which should exist in this Node Pool. If specified this must be between 1 and 100."
+  type        = number
   default     = 1
 }
+
 variable "default_nodepool_os_disk_size" {
   description = "(Optional) The size of the OS Disk which should be used for each agent in the Node Pool. Changing this forces a new resource to be created."
+  type        = number
   default     = 128
 }
+
 variable "default_nodepool_max_pods" {
   description = "(Optional) The maximum number of pods that can run on each agent. Changing this forces a new resource to be created."
+  type        = number
   default     = 110
 }
 
@@ -139,20 +163,29 @@ variable "aks_network_plugin" {
   description = "Network plugin to use for networking. Currently supported values are azure and kubenet. Changing this forces a new resource to be created."
   type        = string
   default     = "kubenet"
-  #TODO: add validation when value is 'azure'
+
+  validation {
+    condition     = contains(["kubenet", "azure"], var.aks_network_plugin)
+    error_message = "Error: Currently the supported values are `kubenet` and `azure`"
+  }
 }
 
 variable "aks_network_policy" {
   description = "Sets up network policy to be used with Azure CNI. Network policy allows us to control the traffic flow between pods. Currently supported values are calico and azure. Changing this forces a new resource to be created."
   type        = string
   default     = "azure"
-  #TODO: add validation
+
+  validation {
+    condition     = contains(["azure", "calico"], var.aks_network_policy)
+    error_message = "Error: Currently the supported values are `calico` and `azure`"
+  }
 }
 
 variable "aks_private_dns_zone_id" {
   description = "If creating a private cluster, the ID of Private DNS Zone configuration. Either 'System' to have AKS manage this, or 'None'. In case of 'None' you will need to bring your own DNS server. Changing this forces a new resource to be created."
   type        = string
   default     = "System"
+
   validation {
     condition     = var.aks_private_dns_zone_id != null ? contains(["System", "None"], var.aks_private_dns_zone_id) : true
     error_message = "ERROR: Supported values for `aks_private_dns_zone_id` are: System, None."
@@ -167,12 +200,25 @@ variable "aks_dns_service_ip" {
 
 variable "aks_docker_bridge_cidr" {
   description = "IP address (in CIDR notation) used as the Docker bridge IP address on nodes. Changing this forces a new resource to be created."
+  type        = string
   default     = "172.17.0.1/16"
+}
+
+variable "aks_pod_cidr" {
+  description = "The CIDR to use for pod IP addresses. This field can only be set when network_plugin is set to kubenet. Changing this forces a new resource to be created."
+  type        = string
+  default     = "10.244.0.0/16"
+}
+
+variable "aks_service_cidr" {
+  description = "The Network Range used by the Kubernetes service. Changing this forces a new resource to be created."
+  type        = string
+  default     = "10.0.0.0/16"
 }
 
 variable "cluster_egress_type" {
   description = "The outbound (egress) routing method which should be used for this Kubernetes Cluster. Possible values are loadBalancer and userDefinedRouting. Defaults to loadBalancer."
-  type = string
+  type        = string
   default     = "loadBalancer"
   validation {
     condition     = var.cluster_egress_type != null ? contains(["loadBalancer", "userDefinedRouting"], var.cluster_egress_type) : true
@@ -180,23 +226,15 @@ variable "cluster_egress_type" {
   }
 }
 
-variable "aks_pod_cidr" {
-  description = "The CIDR to use for pod IP addresses. This field can only be set when network_plugin is set to kubenet. Changing this forces a new resource to be created."
-  default     = "10.244.0.0/16"
-}
-
-variable "aks_service_cidr" {
-  description = "The Network Range used by the Kubernetes service. Changing this forces a new resource to be created."
-  default     = "10.0.0.0/16"
-}
-
 variable "aks_uai_name" {
   description = "User assigned identity name"
+  type        = string
   default     = null
 }
 
 variable "node_vm_admin" {
   description = "The username of the local administrator to be created on the Kubernetes cluster. OS Admin User for VMs of AKS Cluster nodes"
+  type        = string
   default     = "azureuser"
 }
 
@@ -208,7 +246,7 @@ variable "tags" {
 
 variable "local_account_disabled" {
   type        = bool
-  description =<<EOT
+  description = <<EOT
   (Optional) - If `true` local accounts will be disabled. Defaults to `false`. If local_account_disabled is set to true, it is required to enable Kubernetes RBAC and AKS-managed Azure AD integration.
   See [the documentation](https://docs.microsoft.com/azure/aks/managed-aad#disable-local-accounts) for more information.
   EOT
@@ -309,38 +347,45 @@ variable "postgres_servers" {
 }
 
 variable "create_jump_vm" {
-  description = "Create bastion host VM"
+  description = "Creates bastion host VM"
+  type        = bool
   default     = true
 }
 
 variable "create_jump_public_ip" {
-  default = true
-  type    = bool
+  description = "Creates public IP for the bastion host VM"
+  type        = bool
+  default     = true
 }
 
 variable "jump_vm_admin" {
   description = "OS Admin User for Jump VM"
+  type        = string
   default     = "jumpuser"
 }
 
 variable "jump_vm_zone" {
   description = "The Zone in which this Virtual Machine should be created. Changing this forces a new resource to be created"
+  type        = string
   default     = null
 }
 
 variable "jump_vm_machine_type" {
-  default     = "Standard_B2s"
   description = "SKU which should be used for this Virtual Machine"
+  type        = string
+  default     = "Standard_B2s"
 }
 
 variable "jump_rwx_filestore_path" {
   description = "OS path used in cloud-init for NFS integration"
+  type        = string
   default     = "/viya-share"
 }
 
 variable "storage_type" {
-  type    = string
-  default = "standard"
+  description = "Type of Storage. Valid Values: `standard`, `ha` and `none`. `standard` creates NFS server VM, `ha` creates Azure Netapp Files"
+  type        = string
+  default     = "standard"
   # NOTE: storage_type=none is for internal use only
   validation {
     condition     = contains(["standard", "ha", "none"], lower(var.storage_type))
@@ -349,33 +394,39 @@ variable "storage_type" {
 }
 
 variable "create_nfs_public_ip" {
-  default = false
-  type    = bool
+  description = "Create public IP for the NFS VM"
+  type        = bool
+  default     = false
 }
 
 variable "nfs_vm_machine_type" {
-  default     = "Standard_D8s_v4" # "Standard_E8s_v3" "Standard_D8s_v4"
   description = "SKU which should be used for this Virtual Machine"
+  type        = string
+  default     = "Standard_D8s_v4"
 }
 
 variable "nfs_vm_admin" {
   description = "OS Admin User for NFS VM, when storage_type=standard"
+  type        = string
   default     = "nfsuser"
 }
 
 variable "nfs_vm_zone" {
   description = "The Zone in which this Virtual Machine should be created. Changing this forces a new resource to be created"
+  type        = string
   default     = null
 }
 
 variable "nfs_raid_disk_size" {
   description = "Size in Gb for each disk of the RAID5 cluster, when storage_type=standard"
+  type        = number
   default     = 128
 }
 
 variable "nfs_raid_disk_type" {
-  default     = "Standard_LRS"
   description = "The type of storage to use for the managed disk. Possible values are Standard_LRS, Premium_LRS, StandardSSD_LRS or UltraSSD_LRS."
+  type        = string
+  default     = "Standard_LRS"
 
   validation {
     condition     = contains(["Standard_LRS", "Premium_LRS", "StandardSSD_LRS", "UltraSSD_LRS"], var.nfs_raid_disk_type)
@@ -385,29 +436,39 @@ variable "nfs_raid_disk_type" {
 
 variable "nfs_raid_disk_zone" {
   description = "Specifies the Availability Zone in which this Managed Disk should be located. Changing this property forces a new resource to be created."
+  type        = string
   default     = null
 }
 
 ## Azure Container Registry (ACR)
 variable "create_container_registry" {
+  description = "Create Azure Container Registry"
   type        = bool
-  description = "Boolean flag to create container registry"
   default     = false
 }
+
 variable "container_registry_sku" {
-  default = "Standard"
+  description = "The SKU name of the container registry. Possible values are `Basic`, `Standard` and `Premium`."
+  type        = string
+  default     = "Standard"
 }
+
 variable "container_registry_admin_enabled" {
-  default = false
+  description = "Specifies whether the admin user is enabled. Defaults to `false`."
+  type        = bool
+  default     = false
 }
+
 variable "container_registry_geo_replica_locs" {
-  type    = list(any)
-  default = null
+  description = "A location where the container registry should be geo-replicated."
+  type        = list(any)
+  default     = null
 }
 
 # Azure NetApp Files
 variable "netapp_service_level" {
   description = "When storage_type=ha, The target performance of the file system. Valid values include Premium, Standard, or Ultra"
+  type        = string
   default     = "Premium"
 
   validation {
@@ -418,6 +479,7 @@ variable "netapp_service_level" {
 
 variable "netapp_size_in_tb" {
   description = "When storage_type=ha, Provisioned size of the pool in TB. Value must be between 4 and 500"
+  type        = number
   default     = 4
 
   validation {
@@ -428,11 +490,13 @@ variable "netapp_size_in_tb" {
 
 variable "netapp_protocols" {
   description = "The target volume protocol expressed as a list. Supported single value include CIFS, NFSv3, or NFSv4.1. If argument is not defined it will default to NFSv3. Changing this forces a new resource to be created and data will be lost."
+  type        = list(string)
   default     = ["NFSv3"]
 }
 
 variable "netapp_volume_path" {
   description = "A unique file path for the volume. Used when creating mount targets. Changing this forces a new resource to be created"
+  type        = string
   default     = "export"
 }
 
@@ -440,22 +504,29 @@ variable "netapp_network_features" {
   description = "Indicates which network feature to use, accepted values are Basic or Standard, it defaults to Basic if not defined."
   type        = string
   default     = "Basic"
+
+  validation {
+    condition     = contains(["Basic", "Standard"], var.netapp_network_features)
+    error_message = "Error: Currently the supported values are `Basic` and `Standard`"
+  }
 }
 
 variable "node_pools_availability_zone" {
-  type    = string
-  default = "1"
+  description = "Specifies a Availability Zone in which the Kubernetes Cluster Node Pool should be located."
+  type        = string
+  default     = "1"
 }
 
 variable "node_pools_availability_zones" {
   description = "Specifies a list of Availability Zones in which the Kubernetes Cluster Node Pool should be located. Changing this forces a new Kubernetes Cluster Node Pool to be created."
-  type    = list(string)
-  default = null
+  type        = list(string)
+  default     = null
 }
 
 variable "node_pools_proximity_placement" {
-  type    = bool
-  default = false
+  description = "Enables Node Pool Proximity Placement Group"
+  type        = bool
+  default     = false
 }
 
 variable "node_pools" {
@@ -526,29 +597,29 @@ variable "node_pools" {
 
 # Azure Monitor - Undocumented
 variable "create_aks_azure_monitor" {
-  type        = bool
   description = "Enable Azure Log Analytics agent on AKS cluster"
+  type        = bool
   default     = false
 }
 
 variable "log_analytics_workspace" {
+  description = "(Optional) Existing azurerm_log_analytics_workspace to attach azurerm_log_analytics_solution. Providing the config disables creation of azurerm_log_analytics_workspace."
   type = object({
     id   = string
     name = string
   })
-  description = "(Optional) Existing azurerm_log_analytics_workspace to attach azurerm_log_analytics_solution. Providing the config disables creation of azurerm_log_analytics_workspace."
-  default     = null
+  default = null
 }
 
 variable "log_analytics_solution_id" {
-  type        = string
   description = "(Optional) Existing azurerm_log_analytics_solution ID. Providing ID disables creation of azurerm_log_analytics_solution."
+  type        = string
   default     = null
 }
 
 variable "log_analytics_workspace_resource_group_name" {
-  type        = string
   description = "(Optional) Resource group name to create azurerm_log_analytics_solution."
+  type        = string
   default     = null
 }
 
@@ -566,8 +637,8 @@ variable "log_retention_in_days" {
 
 ## Azure Monitor Diagonostic setting - Undocumented
 variable "resource_log_category" {
-  type        = list(string)
   description = "List of all resource logs category types supported in Azure Monitor. See https://learn.microsoft.com/en-us/azure/aks/monitor-aks-reference#resource-logs."
+  type        = list(string)
   default     = ["kube-controller-manager", "kube-apiserver", "kube-scheduler"]
 
   validation {
@@ -577,8 +648,8 @@ variable "resource_log_category" {
 }
 
 variable "metric_category" {
-  type        = list(string)
   description = "List of all metric category types supported in Azure Monitor. See https://learn.microsoft.com/en-us/azure/aks/monitor-aks-reference#metrics."
+  type        = list(string)
   default     = ["AllMetrics"]
 
   validation {
@@ -589,39 +660,39 @@ variable "metric_category" {
 
 # BYO
 variable "resource_group_name" {
+  description = "Name of pre-exising resource group. Leave blank to have one created"
   type        = string
   default     = null
-  description = "Name of pre-exising resource group. Leave blank to have one created"
 }
 
 variable "vnet_resource_group_name" {
+  description = "Name of a pre-exising resource group containing the BYO vnet resource. Leave blank if you are not using a BYO vnet or if the BYO vnet is co-located with the SAS Viya4 AKS cluster."
   type        = string
   default     = null
-  description = "Name of a pre-exising resource group containing the BYO vnet resource. Leave blank if you are not using a BYO vnet or if the BYO vnet is co-located with the SAS Viya4 AKS cluster."
 }
 
 variable "vnet_name" {
+  description = "Name of pre-exising vnet. Leave blank to have one created"
   type        = string
   default     = null
-  description = "Name of pre-exising vnet. Leave blank to have one created"
 }
 
 variable "vnet_address_space" {
+  description = "Address space for created vnet"
   type        = string
   default     = "192.168.0.0/16"
-  description = "Address space for created vnet"
 }
 
 variable "nsg_name" {
+  description = "Name of pre-exising NSG. Leave blank to have one created"
   type        = string
   default     = null
-  description = "Name of pre-exising NSG. Leave blank to have one created"
 }
 
 variable "subnet_names" {
+  description = "Map subnet usage roles to existing subnet names"
   type        = map(string)
   default     = {}
-  description = "Map subnet usage roles to existing subnet names"
   # Example:
   # subnet_names = {
   #   'aks': 'my_aks_subnet',
@@ -631,6 +702,7 @@ variable "subnet_names" {
 }
 
 variable "subnets" {
+  description = "Subnets to be created and their settings"
   type = map(object({
     prefixes                                      = list(string)
     service_endpoints                             = list(string)
@@ -672,7 +744,7 @@ variable "subnets" {
 }
 
 variable "create_static_kubeconfig" {
-  description = "Allows the user to create a provider / service account based kube config file"
+  description = "Allows the user to create a provider/service account based kube config file"
   type        = bool
   default     = true
 }
