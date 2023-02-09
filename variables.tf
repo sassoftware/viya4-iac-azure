@@ -497,29 +497,23 @@ variable "log_analytics_solution_promotion_code" {
 ## Azure Monitor Diagonostic setting - Undocumented
 variable "resource_log_category" {
   type        = list(string)
-  description = "List of all resource logs category types supported in Azure Monitor. See https://learn.microsoft.com/en-us/azure/aks/monitor-aks-reference#resource-logs "
+  description = "List of all resource logs category types supported in Azure Monitor. See https://learn.microsoft.com/en-us/azure/aks/monitor-aks-reference#resource-logs."
   default     = ["kube-controller-manager", "kube-apiserver", "kube-scheduler"]
 
   validation {
     condition     = length(var.resource_log_category) > 0
-    error_message = <<EOT
-    Please specify at least one resource log category. See the list of all resource logs category types
-    supported in Azure Monitor here: https://learn.microsoft.com/en-us/azure/aks/monitor-aks-reference#resource-logs
-  EOT
+    error_message = "Please specify at least one resource log category. See the list of all resource logs category types supported in Azure Monitor here: https://learn.microsoft.com/en-us/azure/aks/monitor-aks-reference#resource-logs."
   }
 }
 
 variable "metric_category" {
   type        = list(string)
-  description = "List of all metric category types supported in Azure Monitor. See https://learn.microsoft.com/en-us/azure/aks/monitor-aks-reference#metrics"
+  description = "List of all metric category types supported in Azure Monitor. See https://learn.microsoft.com/en-us/azure/aks/monitor-aks-reference#metrics."
   default     = ["AllMetrics"]
 
   validation {
     condition     = length(var.metric_category) > 0
-    error_message = <<EOT
-    Please specify at least one metric category. See the list of all platform metrics supported in Azure Monitor
-    here: https://learn.microsoft.com/en-us/azure/aks/monitor-aks-reference#metrics
-  EOT
+    error_message = "Please specify at least one metric category. See the list of all platform metrics supported in Azure Monitor here: https://learn.microsoft.com/en-us/azure/aks/monitor-aks-reference#metrics."
   }
 }
 
