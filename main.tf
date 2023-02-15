@@ -22,10 +22,10 @@ provider "azuread" {
 }
 
 provider "kubernetes" {
-  host                   = module.aks.host
-  client_key             = base64decode(module.aks.client_key)
-  client_certificate     = base64decode(module.aks.client_certificate)
-  cluster_ca_certificate = base64decode(module.aks.cluster_ca_certificate)
+  host                   = var.rbac_aad_managed ? module.aks.admin_host : module.aks.host
+  client_key             = var.rbac_aad_managed ? base64decode(module.aks.admin_client_key) : base64decode(module.aks.client_key)
+  client_certificate     = var.rbac_aad_managed ? base64decode(module.aks.admin_client_certificate) : base64decode(module.aks.client_certificate)
+  cluster_ca_certificate = var.rbac_aad_managed ? base64decode(module.aks.admin_cluster_ca_certificate) : base64decode(module.aks.cluster_ca_certificate)
 }
 
 data "azurerm_subscription" "current" {}
@@ -134,6 +134,7 @@ module "aks" {
   agents_max_count                            = var.default_nodepool_min_nodes == var.default_nodepool_max_nodes ? null : var.default_nodepool_max_nodes
   agents_max_pods                             = var.default_nodepool_max_pods
   os_disk_size_gb                             = var.default_nodepool_os_disk_size
+  os_disk_type                                = var.default_os_disk_type
   agents_size                                 = var.default_nodepool_vm_type
   admin_username                              = var.node_vm_admin
   public_ssh_key                              = try(file(var.ssh_public_key), "")
@@ -149,9 +150,7 @@ module "aks" {
   net_profile_pod_cidr                        = var.aks_network_plugin == "kubenet" ? "10.244.0.0/16" : null
   net_profile_service_cidr                    = var.aks_network_plugin == "kubenet" ? "10.0.0.0/16" : var.aks_service_cidr
   net_profile_outbound_type                   = var.cluster_egress_type
-  load_balancer_profile_enabled               = var.aks_load_balancer_profile_enabled
-  load_balancer_sku                           = var.aks_load_balancer_sku
-  local_account_disabled                      = var.local_account_disabled
+  load_balancer_sku                           = "standard"
   enable_node_public_ip                       = false
   tags                                        = var.tags
   identity_ids                                = local.aks_uai_id
@@ -159,9 +158,9 @@ module "aks" {
   client_id                                   = local.aks_uai_id == null ? var.client_id : ""
   client_secret                               = local.aks_uai_id == null ? var.client_secret : ""
   role_based_access_control_enabled           = var.role_based_access_control_enabled
-  rbac_aad                                    = var.rbac_aad
   rbac_aad_managed                            = var.rbac_aad_managed
-  rbac_aad_azure_rbac_enabled                 = var.rbac_aad_azure_rbac_enabled
+  rbac_aad                                    = var.rbac_aad_managed ? true : false
+  rbac_aad_azure_rbac_enabled                 = var.azure_rbac_enabled
   rbac_aad_admin_group_object_ids             = var.rbac_aad_admin_group_object_ids
   rbac_aad_tenant_id                          = var.rbac_aad_tenant_id
   private_cluster_enabled                     = local.aks_private_cluster
@@ -184,7 +183,7 @@ data "azurerm_lb" "aks_lb" {
 
 data "azurerm_public_ip" "cluster_public_ip" {
   count               = var.cluster_egress_type == "loadBalancer" ? 1 : 0
-  name                = reverse(split("/", data.azurerm_lb.aks_lb.frontend_ip_configuration.0.public_ip_address_id))[0]
+  name                = reverse(split("/", data.azurerm_lb.aks_lb.0.frontend_ip_configuration.0.public_ip_address_id))[0]
   resource_group_name = module.aks.node_resource_group
   depends_on          = [module.aks]
 }
@@ -196,11 +195,11 @@ module "kubeconfig" {
   path                     = local.kubeconfig_path
   namespace                = "kube-system"
   cluster_name             = local.cluster_name
-  endpoint                 = module.aks.host
-  ca_crt                   = module.aks.cluster_ca_certificate
-  client_crt               = module.aks.client_certificate
-  client_key               = module.aks.client_key
-  token                    = module.aks.password
+  endpoint                 = var.rbac_aad_managed ? module.aks.admin_host : module.aks.host
+  ca_crt                   = var.rbac_aad_managed ? module.aks.admin_cluster_ca_certificate : module.aks.cluster_ca_certificate
+  client_crt               = var.rbac_aad_managed ? module.aks.admin_client_certificate : module.aks.client_certificate
+  client_key               = var.rbac_aad_managed ? module.aks.admin_client_key : module.aks.client_key
+  token                    = var.rbac_aad_managed ? module.aks.admin_password : module.aks.password
   depends_on               = [module.aks]
 }
 

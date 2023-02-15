@@ -14,7 +14,7 @@ commandTests:
   - name: "terraform version"
     command: "terraform"
     args: ["--version"]
-    expectedOutput: ["Terraform v1.3.2"]
+    expectedOutput: ["Terraform v1.3.7"]
   - name: "python version"
     command: "python3"
     args: ["--version"]

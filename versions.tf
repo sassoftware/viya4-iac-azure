@@ -5,7 +5,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "3.42.0"
+      version = "3.43.0"
     }
     azuread = {
       source  = "hashicorp/azuread"
@@ -23,7 +23,6 @@ terraform {
       source  = "hashicorp/null"
       version = "3.2.1"
     }
-    # TODO: Provider has been archived, need to update code
     template = {
       source  = "hashicorp/template"
       version = "2.2.0"

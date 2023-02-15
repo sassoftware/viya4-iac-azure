@@ -8,6 +8,7 @@ Supported configuration variables are listed in the tables below.  All variables
   - [Table of Contents](#table-of-contents)
   - [Required Variables](#required-variables)
     - [Azure Authentication](#azure-authentication)
+  - [Role Based Access Control](#role-based-access-control)
   - [Admin Access](#admin-access)
   - [Networking](#networking)
     - [Use Existing](#use-existing)
@@ -52,6 +53,22 @@ For details on how to retrieve that information, see [Azure Help Topics](./user/
 
 For recommendations on how to set these variables in your environment, see [Authenticating Terraform to Access Azure](./user/TerraformAzureAuthentication.md).
 
+## Role Based Access Control
+
+The ability to manage RBAC for Kubernetes resources from Azure gives you the choice to manage RBAC for the cluster resources either using Azure or native Kubernetes mechanisms. For details see [Azure role-based access control](https://docs.microsoft.com/en-us/azure/aks/concepts-identity#azure-rbac-for-kubernetes-authorization).
+
+Following are the possible ways to configure Authentication and Authorization in an AKS cluster:
+1. Authentication using local accounts with Kubernetes RBAC. This is traditionally used and current default, see details [here](https://learn.microsoft.com/en-us/azure/aks/concepts-identity#kubernetes-rbac)
+2. Azure AD authentication with Kubernetes RBAC. See details [here](https://learn.microsoft.com/en-us/azure/aks/azure-ad-rbac)
+3. Azure AD authentication with Azure RBAC. See details [here](https://learn.microsoft.com/en-us/azure/aks/managed-aad) -- experimental
+
+| Name | Description | Type | Default |
+| :--- | ---: | ---: | ---: |
+| rbac_aad_tenant_id | (Optional) The Tenant ID used for Azure Active Directory Application. If this isn't specified the Tenant ID of the current Subscription is used.| string  | |
+| rbac_aad_managed | Is the Azure Active Directory integration Managed, meaning that Azure will create/manage the Service Principal used for integration | bool  | false |
+| rbac_aad_admin_group_object_ids | Object ID of groups with admin access. | list(string) | null |
+| azure_rbac_enabled | Is Role Based Access Control based on Azure AD enabled? | bool | false |
+
 ## Admin Access
 
 By default, the public endpoints of the Azure resources that are being created
@@ -82,9 +99,10 @@ You can use `default_public_access_cidrs` to set a default range for all created
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | :--- |
 | vnet_address_space | Address space for created vnet | string | "192.168.0.0/16" | This variable is ignored when vnet_name is set (AKA bring your own vnet). |
+| aks_network_plugin | Network plugin to use for networking. Currently supported values are `azure` and `kubenet`| string | `kubenet`| For details see Azure's documentation on: [configure kubenet](https://docs.microsoft.com/en-us/azure/aks/configure-kubenet), [Configure Azure CNI](https://learn.microsoft.com/en-us/azure/aks/configure-azure-cni)|
+| aks_network_policy | Sets up network policy to be used with Azure CNI. Network policy allows to control the traffic flow between pods. Currently supported values are calico and azure.| string | `azure`| Network policy can only be used when `aks_network_plugin` is set to `azure`. |
+| cluster_egress_type | The outbound (egress) routing method to be used for this Kubernetes Cluster | string | "loadBalancer" | Possible values: <ul><li>`loadBalancer`<li>`userDefinedRouting`</ul> By default, AKS will create and use a [loadbalancer](https://docs.microsoft.com/en-us/azure/aks/load-balancer-standard) for outgoing connections.<p>Set to `userDefinedRouting` when using your own network [egress](https://docs.microsoft.com/en-us/azure/aks/egress-outboundtype).|
 | subnets | Subnets to be created and their settings | map(object) | *check below* | This variable is ignored when subnet_names is set (AKA bring your own subnets). All defined subnets must exist within the vnet address space. |
-| cluster_egress_type | The outbound (egress) routing method to be used for this Kubernetes Cluster | string | "loadBalancer" | Possible values: <ul><li>`loadBalancer`<li>`userDefinedRouting`</ul> By default, AKS will create and use a [loadbalancer](https://docs.microsoft.com/en-us/azure/aks/load-balancer-standard) for outgoing connections.<p>Set to `userDefinedRouting` when using your own network [egress](https://docs.microsoft.com/en-us/azure/aks/egress-outboundtype). |
-
 
 The default values for the `subnets` variable are as follows:
 
@@ -167,7 +185,7 @@ Ubuntu 20.04 LTS is the operating system used on the Jump/NFS servers. Ubuntu cr
 | create_jump_vm | Create bastion host | bool | true | |
 | create_jump_public_ip | Add public IP address to the jump VM | bool | true | |
 | jump_vm_admin | Operating system Admin User for the jump VM | string | "jumpuser" | |
-| jump_vm_machine_type | SKU to use for the jump VM | string | "Standard_B2s" | To check for valid types for your subscription, run: `az vm list-skus --resource-type virtualMachines --subscription $subscription --location $location -o table`|
+| jump_vm_machine_type | SKU to use for the jump VM | string | "Standard_D2s_v4" | To check for valid types for your subscription, run: az vm list-skus --resource-type virtualMachines --subscription $subscription --location $location --query '[].{size:size, name:name, acceleratedNetworkingEnabled: capabilities[?name==`AcceleratedNetworkingEnabled`].value | [0]}' -o table|
 | jump_rwx_filestore_path | File store mount point on jump server | string | "/viya-share" | This location cannot include `/mnt` as its root location. This disk is ephemeral on Ubuntu, which is the operating system being used for the jump/NFS servers. |
 | tags | Map of common tags to be placed on all Azure resources created by this script | map | { project_name = "sasviya4", environment = "dev" } | |
 | aks_identity | Use UserAssignedIdentity or Service Principal as  [AKS identity](https://docs.microsoft.com/en-us/azure/aks/concepts-identity) | string | "uai" | A value of `uai` wil create a Managed Identity based on the permissions of the authenticated user or use [`AKS_UAI_NAME`](#use-existing), if set. A value of `sp` will use values from [`CLIENT_ID`/`CLIENT_SECRET`](#azure-authentication), if set. |
@@ -181,12 +199,13 @@ Ubuntu 20.04 LTS is the operating system used on the Jump/NFS servers. Ubuntu cr
 
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
-| node_vm_admin | Operating system Admin User for VMs of AKS cluster nodes | string | "azureuser" | |
-| default_nodepool_vm_type | Type of the default node pool VMs | string | "Standard_D8s_v4" | |
+| node_vm_admin | Operating system Admin User for VMs of AKS cluster nodes | string | "azureuser" ||
+| default_nodepool_vm_type | Type of the default node pool VMs | string | "Standard_D8s_v4" ||
 | default_nodepool_os_disk_size | Disk size for default node pool VMs in GB | number | 128 ||
 | default_nodepool_max_pods | Maximum number of pods that can run on each | number | 110 | Changing this forces a new resource to be created. |
 | default_nodepool_min_nodes | Minimum and initial number of nodes for the default node pool | number | 1 |  Value must be between 0 and 100. Setting min and max node counts the same disables autoscaling. |
 | default_nodepool_max_nodes | Maximum number of nodes for the default node pool| number | 5 | Value must be between 0 and 100. Setting min and max node counts to the same value  disables autoscaling. |
+| default_os_disk_type | The type of disk which should be used for the Operating System. Possible values are `Ephemeral` and `Managed`.| string | Managed ||
 | default_nodepool_availability_zones | Availability Zones for the cluster default node pool | list of strings | ["1"]  | **NOTE:** This value depends on the "location". For example, not all regions have numbered availability zones.|
 
 ### Additional Node Pools
@@ -197,9 +216,10 @@ Additional node pools can be created separate from the default node pool. This i
 | :--- | ---: | ---: | ---: |
 | machine_type | Type of the node pool VMs | string | |
 | os_disk_size | Disk size for node pool VMs in GB | number | |
+| os_disk_type | The type of disk which should be used for the Operating System. Possible values are `Ephemeral` and `Managed`. | string | Defaults to `Managed`|
 | min_nodes | Minimum number of nodes for the node pool | number | Value must be between 0 and 100. Setting min and max node counts to the same value disables autoscaling |
 | max_nodes | Maximum number of nodes for the node pool | number | Value must be between 0 and 100. Setting min and max node counts to the same value disables autoscaling |
-| max_pods | Maximum number of pods per node | number | Default is 110
+| max_pods | Maximum number of pods per node | number | Default is 110 |
 | node_taints | Taints for the node pool VMs | list of strings | |
 | node_labels | Labels to add to the node pool VMs | map | |
 
@@ -212,6 +232,7 @@ The default values for the `node_pools` variable are as follows:
   cas = {
     "machine_type"          = "Standard_E16s_v3"
     "os_disk_size"          = 200
+    "os_disk_type"          = "Managed"
     "min_nodes"             = 0
     "max_nodes"             = 5
     "max_pods"              = 110
@@ -223,6 +244,7 @@ The default values for the `node_pools` variable are as follows:
   compute = {
     "machine_type"          = "Standard_E16s_v3"
     "os_disk_size"          = 200
+    "os_disk_type"          = "Managed"
     "min_nodes"             = 1
     "max_nodes"             = 5
     "max_pods"              = 110
@@ -235,6 +257,7 @@ The default values for the `node_pools` variable are as follows:
   stateless = {
     "machine_type"          = "Standard_D16s_v3"
     "os_disk_size"          = 200
+    "os_disk_type"          = "Managed"
     "min_nodes"             = 0
     "max_nodes"             = 5
     "max_pods"              = 110
@@ -246,6 +269,7 @@ The default values for the `node_pools` variable are as follows:
   stateful = {
     "machine_type"          = "Standard_D8s_v3"
     "os_disk_size"          = 200
+    "os_disk_type"          = "Managed"
     "min_nodes"             = 0
     "max_nodes"             = 3
     "max_pods"              = 110

@@ -4,6 +4,7 @@ variable "client_id" {
   type        = string
   default     = ""
 }
+
 variable "client_secret" {
   description = "(Required) The Client Secret for the Service Principal."
   type        = string
@@ -14,6 +15,7 @@ variable "subscription_id" {
   description = "(Required) The ID of the Subscription."
   type        = string
 }
+
 variable "tenant_id" {
   description = "(Required) The ID of the Tenant to which the subscription belongs"
   type        = string
@@ -68,23 +70,6 @@ variable "ssh_public_key" {
   description = "A custom ssh key to control access to the AKS cluster. Changing this forces a new resource to be created."
   type        = string
   default     = "~/.ssh/id_rsa.pub"
-}
-
-variable "aks_load_balancer_profile_enabled" {
-  description = "Enable a load_balancer_profile block. This can only be used when load_balancer_sku is set to `standard`."
-  type        = bool
-  default     = false
-}
-
-variable "aks_load_balancer_sku" {
-  description = "Specifies the SKU of the Load Balancer used for this Kubernetes Cluster. Possible values are `basic` and `standard`. Defaults to `standard`. Changing this forces a new kubernetes cluster to be created."
-  type        = string
-  default     = "standard"
-
-  validation {
-    condition     = contains(["basic", "standard"], var.aks_load_balancer_sku)
-    error_message = "Possible values are `basic` and `standard`"
-  }
 }
 
 variable "default_public_access_cidrs" {
@@ -153,6 +138,17 @@ variable "default_nodepool_max_pods" {
   default     = 110
 }
 
+variable "default_os_disk_type" {
+  description = "The type of disk which should be used for the Operating System. Possible values are `Ephemeral` and `Managed`. Defaults to `Managed`. Changing this forces a new resource to be created."
+  type        = string
+  default     = "Managed"
+
+  validation {
+    condition     = contains(["Ephemeral", "Managed"], var.default_os_disk_type)
+    error_message = "ERROR: Valid types are \"Ephemeral\" and \"Managed\"!"
+  }
+}
+
 variable "default_nodepool_availability_zones" {
   type    = list(string)
   default = ["1"]
@@ -171,24 +167,13 @@ variable "aks_network_plugin" {
 }
 
 variable "aks_network_policy" {
-  description = "Sets up network policy to be used with Azure CNI. Network policy allows us to control the traffic flow between pods. Currently supported values are calico and azure. Changing this forces a new resource to be created."
+  description = "Sets up network policy to be used with Azure CNI. Network policy allows to control the traffic flow between pods. Currently supported values are calico and azure. Changing this forces a new resource to be created."
   type        = string
   default     = "azure"
 
   validation {
     condition     = contains(["azure", "calico"], var.aks_network_policy)
     error_message = "Error: Currently the supported values are `calico` and `azure`"
-  }
-}
-
-variable "aks_private_dns_zone_id" {
-  description = "If creating a private cluster, the ID of Private DNS Zone configuration. Either 'System' to have AKS manage this, or 'None'. In case of 'None' you will need to bring your own DNS server. Changing this forces a new resource to be created."
-  type        = string
-  default     = "System"
-
-  validation {
-    condition     = var.aks_private_dns_zone_id != null ? contains(["System", "None"], var.aks_private_dns_zone_id) : true
-    error_message = "ERROR: Supported values for `aks_private_dns_zone_id` are: System, None."
   }
 }
 
@@ -226,6 +211,17 @@ variable "cluster_egress_type" {
   }
 }
 
+variable "aks_private_dns_zone_id" { # undocumented
+  description = "If creating a private cluster, the ID of Private DNS Zone configuration. Either 'System' to have AKS manage this, or 'None'. In case of 'None' you will need to bring your own DNS server. Changing this forces a new resource to be created."
+  type        = string
+  default     = "System"
+
+  validation {
+    condition     = var.aks_private_dns_zone_id != null ? contains(["System", "None"], var.aks_private_dns_zone_id) : true
+    error_message = "ERROR: Supported values for `aks_private_dns_zone_id` are: System, None."
+  }
+}
+
 variable "aks_uai_name" {
   description = "User assigned identity name"
   type        = string
@@ -244,26 +240,11 @@ variable "tags" {
   default     = {}
 }
 
-variable "local_account_disabled" {
-  type        = bool
-  description = <<EOT
-  (Optional) - If `true` local accounts will be disabled. Defaults to `false`. If local_account_disabled is set to true, it is required to enable Kubernetes RBAC and AKS-managed Azure AD integration.
-  See [the documentation](https://docs.microsoft.com/azure/aks/managed-aad#disable-local-accounts) for more information.
-  EOT
-  default     = false
-}
-
 ## RBAC
 variable "role_based_access_control_enabled" {
   type        = bool
   description = "Enable Role Based Access Control."
   default     = true
-}
-
-variable "rbac_aad" {
-  type        = bool
-  description = "(Optional) Is Azure Active Directory ingration enabled?"
-  default     = false
 }
 
 variable "rbac_aad_managed" {
@@ -272,7 +253,7 @@ variable "rbac_aad_managed" {
   default     = false
 }
 
-variable "rbac_aad_azure_rbac_enabled" {
+variable "azure_rbac_enabled" {
   type        = bool
   description = "(Optional) Is Role Based Access Control based on Azure AD enabled?"
   default     = false
@@ -373,7 +354,7 @@ variable "jump_vm_zone" {
 variable "jump_vm_machine_type" {
   description = "SKU which should be used for this Virtual Machine"
   type        = string
-  default     = "Standard_B2s"
+  default     = "Standard_D2s_v4"
 }
 
 variable "jump_rwx_filestore_path" {

@@ -43,22 +43,24 @@ node_pools = {
   cas = {
     "machine_type" = "Standard_E16s_v3"
     "os_disk_size" = 200
+    "os_disk_type" = "Managed"
     "min_nodes"    = 1
     "max_nodes"    = 1
     "max_pods"     = 110
     "node_taints"  = ["workload.sas.com/class=cas:NoSchedule"]
-    "node_labels" = {
+    "node_labels"  = {
       "workload.sas.com/class" = "cas"
     }
   },
   compute = {
     "machine_type" = "Standard_E16s_v3"
     "os_disk_size" = 200
+    "os_disk_type" = "Managed"
     "min_nodes"    = 1
     "max_nodes"    = 1
     "max_pods"     = 110
     "node_taints"  = ["workload.sas.com/class=compute:NoSchedule"]
-    "node_labels" = {
+    "node_labels"  = {
       "workload.sas.com/class"        = "compute"
       "launcher.sas.com/prepullImage" = "sas-programming-environment"
     }
@@ -66,11 +68,12 @@ node_pools = {
   connect = {
     "machine_type" = "Standard_E16s_v3"
     "os_disk_size" = 200
+    "os_disk_type" = "Managed"
     "min_nodes"    = 1
     "max_nodes"    = 1
     "max_pods"     = 110
     "node_taints"  = ["workload.sas.com/class=connect:NoSchedule"]
-    "node_labels" = {
+    "node_labels"  = {
       "workload.sas.com/class"        = "connect"
       "launcher.sas.com/prepullImage" = "sas-programming-environment"
     }
@@ -78,22 +81,24 @@ node_pools = {
   stateless = {
     "machine_type" = "Standard_D16s_v3"
     "os_disk_size" = 200
+    "os_disk_type" = "Managed"
     "min_nodes"    = 1
     "max_nodes"    = 2
     "max_pods"     = 110
     "node_taints"  = ["workload.sas.com/class=stateless:NoSchedule"]
-    "node_labels" = {
+    "node_labels"  = {
       "workload.sas.com/class" = "stateless"
     }
   },
   stateful = {
     "machine_type" = "Standard_D8s_v3"
     "os_disk_size" = 200
+    "os_disk_type" = "Managed"
     "min_nodes"    = 1
     "max_nodes"    = 3
     "max_pods"     = 110
     "node_taints"  = ["workload.sas.com/class=stateful:NoSchedule"]
-    "node_labels" = {
+    "node_labels"  = {
       "workload.sas.com/class" = "stateful"
     }
   }
@@ -102,7 +107,7 @@ node_pools = {
 # Jump Server
 create_jump_public_ip = true
 jump_vm_admin        = "jumpuser"
-jump_vm_machine_type = "Standard_B2s"
+jump_vm_machine_type = "Standard_D2s_v4"
 
 # Storage for SAS Viya CAS/Compute
 storage_type = "standard"
