@@ -125,7 +125,7 @@ variable os_disk_caching {
 }
 
 variable enable_accelerated_networking {
-  description = "Should Accelerated Networking be enabled? Defaults to false."
+  description = "Enables network accelaration for VMs. By default enabled for the nfs and jump VMs. For any other VM the default is false"
   type = bool
   default = false
 }
