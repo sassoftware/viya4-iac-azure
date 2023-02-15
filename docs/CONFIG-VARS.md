@@ -340,6 +340,25 @@ Each server element, like `foo = {}`, can contain none, some, or all of the para
 | ssl_enforcement_enabled | Enforce SSL on connection to the Azure Database for PostgreSQL Flexible server instance | bool | true | |
 | postgresql_configurations | Sets a PostgreSQL Configuration value on a Azure PostgreSQL Flexible Server | list(object) | [] | More details can be found [here](https://docs.microsoft.com/en-us/azure/postgresql/flexible-server/howto-configure-server-parameters-using-cli) |
 
+Several SAS Viya platform offerings require a second Postgres instance referred to as SAS Common Data Store or CDS PostgreSQL. See details [here](https://go.documentation.sas.com/doc/en/itopscdc/default/dplyml0phy0dkr/n08u2yg8tdkb4jn18u8zsi6yfv3d.htm#p0wkxxi9s38zbzn19ukjjaxsc0kl). The list of software offerings that include CDS PostgreSQL is located at [SAS Common Data Store Requirements (for SAS Planning and Retail Offerings)](https://go.documentation.sas.com/doc/en/sasadmincdc/default/itopssr/p05lfgkwib3zxbn1t6nyihexp12n.htm#n03wzanutmc6gon1val5fykas9aa) in System Requirements for the SAS Viya platform. To create and configure an external CDS PostgreSQL instance in addition to the default external platform Postgres instance, specify "cds-postgres" as a second Postgres instance as shown in the sample below.
+
+Here is a sample of the `postgres_servers` variable with the `default` entry only overriding the `administrator_password` and `postgresql_configurations` parameter and the `cds-postgres` entry overriding none of the parameters:
+
+```terraform
+postgres_servers = {
+  default = {
+    administrator_password       = "D0ntL00kTh1sWay"
+    postgresql_configurations    = [
+       {
+         name  = "azure.extensions"
+         value = "PLPGSQL,LTREE"
+       }
+      ]
+  },
+  cds-postgres = {}
+}
+```
+
 Here is a sample of the `postgres_servers` variable with the `default` entry only overriding the `administrator_password` parameter and the `cps` entry overriding all of the parameters:
 
 ```terraform
