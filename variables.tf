@@ -41,13 +41,13 @@ variable "location" {
   default     = "eastus"
 }
 
-variable aks_cluster_sku_tier {
+variable "aks_cluster_sku_tier" {
   description = "The SKU Tier that should be used for this Kubernetes Cluster. Possible values are Free and Paid (which includes the Uptime SLA). Defaults to Free"
-  default = "Free"
-  type = string 
+  default     = "Free"
+  type        = string
 
   validation {
-    condition     = contains(["Free", "Paid"],  var.aks_cluster_sku_tier)
+    condition     = contains(["Free", "Paid"], var.aks_cluster_sku_tier)
     error_message = "ERROR: Valid types are \"Free\" and \"Paid\"!"
   }
 }
@@ -92,7 +92,7 @@ variable "default_nodepool_vm_type" {
 }
 variable "kubernetes_version" {
   description = "The AKS cluster K8s version"
-  default     = "1.23.8"
+  default     = "1.23.12"
 }
 
 variable "default_nodepool_max_nodes" {
@@ -113,7 +113,7 @@ variable "default_nodepool_max_pods" {
 }
 
 variable "default_nodepool_availability_zones" {
-  type    = list(any)
+  type    = list(string)
   default = ["1"]
 }
 
@@ -364,13 +364,19 @@ variable "netapp_volume_path" {
 
 variable "netapp_network_features" {
   description = "Indicates which network feature to use, accepted values are Basic or Standard, it defaults to Basic if not defined."
-  type    = string
+  type        = string
   default     = "Basic"
 }
 
 variable "node_pools_availability_zone" {
   type    = string
   default = "1"
+}
+
+variable "node_pools_availability_zones" {
+  description = "Specifies a list of Availability Zones in which the Kubernetes Cluster Node Pool should be located. Changing this forces a new Kubernetes Cluster Node Pool to be created."
+  type    = list(string)
+  default = null
 }
 
 variable "node_pools_proximity_placement" {
@@ -439,7 +445,7 @@ variable "node_pools" {
   }
 }
 
-# Azure Monitor
+# Azure Monitor - Undocumented
 variable "create_aks_azure_monitor" {
   type        = bool
   description = "Enable Azure Log Analytics agent on AKS cluster"
@@ -488,6 +494,29 @@ variable "log_analytics_solution_promotion_code" {
   default     = ""
 }
 
+## Azure Monitor Diagonostic setting - Undocumented
+variable "resource_log_category" {
+  type        = list(string)
+  description = "List of all resource logs category types supported in Azure Monitor. See https://learn.microsoft.com/en-us/azure/aks/monitor-aks-reference#resource-logs."
+  default     = ["kube-controller-manager", "kube-apiserver", "kube-scheduler"]
+
+  validation {
+    condition     = length(var.resource_log_category) > 0
+    error_message = "Please specify at least one resource log category. See the list of all resource logs category types supported in Azure Monitor here: https://learn.microsoft.com/en-us/azure/aks/monitor-aks-reference#resource-logs."
+  }
+}
+
+variable "metric_category" {
+  type        = list(string)
+  description = "List of all metric category types supported in Azure Monitor. See https://learn.microsoft.com/en-us/azure/aks/monitor-aks-reference#metrics."
+  default     = ["AllMetrics"]
+
+  validation {
+    condition     = length(var.metric_category) > 0
+    error_message = "Please specify at least one metric category. See the list of all platform metrics supported in Azure Monitor here: https://learn.microsoft.com/en-us/azure/aks/monitor-aks-reference#metrics."
+  }
+}
+
 # BYO
 variable "resource_group_name" {
   type        = string
@@ -531,8 +560,8 @@ variable "subnet_names" {
   description = "Map subnet usage roles to existing subnet names"
   # Example:
   # subnet_names = {
-  #   'aks': 'my_aks_subnet', 
-  #   'misc': 'my_misc_subnet', 
+  #   'aks': 'my_aks_subnet',
+  #   'misc': 'my_misc_subnet',
   #   'netapp': 'my_netapp_subnet'
   # }
 }
