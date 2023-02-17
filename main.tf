@@ -16,13 +16,13 @@ provider "azurerm" {
 }
 
 provider "azuread" {
-  client_id     = var.client_id
+  client_id = var.client_id
   client_secret = var.client_secret
-  tenant_id     = var.tenant_id
+  tenant_id  = var.tenant_id
 }
 
 provider "kubernetes" {
-  host                   = module.aks.host
+  host         = module.aks.host
   client_key             = base64decode(module.aks.client_key)
   client_certificate     = base64decode(module.aks.client_certificate)
   cluster_ca_certificate = base64decode(module.aks.cluster_ca_certificate)
