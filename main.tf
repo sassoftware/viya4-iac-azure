@@ -145,10 +145,10 @@ module "aks" {
   agents_availability_zones                   = var.default_nodepool_availability_zones
   network_plugin                              = var.aks_network_plugin
   network_policy                              = var.aks_network_plugin == "azure" ? var.aks_network_policy : null
-  net_profile_dns_service_ip                  = var.aks_network_plugin == "kubenet" ? "10.0.0.10" : var.aks_dns_service_ip
-  net_profile_docker_bridge_cidr              = var.aks_network_plugin == "kubenet" ? "172.17.0.1/16" : var.aks_docker_bridge_cidr
-  net_profile_pod_cidr                        = var.aks_network_plugin == "kubenet" ? "10.244.0.0/16" : null
-  net_profile_service_cidr                    = var.aks_network_plugin == "kubenet" ? "10.0.0.0/16" : var.aks_service_cidr
+  net_profile_dns_service_ip                  = var.aks_dns_service_ip
+  net_profile_docker_bridge_cidr              = var.aks_docker_bridge_cidr
+  net_profile_pod_cidr                        = var.aks_network_plugin == "kubenet" ? var.aks_pod_cidr : null
+  net_profile_service_cidr                    = var.aks_service_cidr
   net_profile_outbound_type                   = var.cluster_egress_type
   load_balancer_sku                           = "standard"
   enable_node_public_ip                       = false
