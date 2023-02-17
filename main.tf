@@ -16,13 +16,13 @@ provider "azurerm" {
 }
 
 provider "azuread" {
-  client_id = var.client_id
+  client_id     = var.client_id
   client_secret = var.client_secret
-  tenant_id  = var.tenant_id
+  tenant_id     = var.tenant_id
 }
 
 provider "kubernetes" {
-  host         = module.aks.host
+  host                   = module.aks.host
   client_key             = base64decode(module.aks.client_key)
   client_certificate     = base64decode(module.aks.client_certificate)
   cluster_ca_certificate = base64decode(module.aks.cluster_ca_certificate)
@@ -220,9 +220,9 @@ module "flex_postgresql" {
   server_version               = each.value.server_version
   firewall_rule_prefix         = "${var.prefix}-${each.key}-postgres-firewall-"
   firewall_rules               = local.postgres_firewall_rules
-  postgresql_configurations    = each.value.ssl_enforcement_enabled ? concat(each.value.postgresql_configurations, local.default_postgres_configuration) : concat(
-    each.value.postgresql_configurations, [{name: "require_secure_transport", value: "OFF"}], local.default_postgres_configuration)
-  tags                         = var.tags
+  postgresql_configurations = each.value.ssl_enforcement_enabled ? concat(each.value.postgresql_configurations, local.default_postgres_configuration) : concat(
+  each.value.postgresql_configurations, [{ name : "require_secure_transport", value : "OFF" }], local.default_postgres_configuration)
+  tags = var.tags
 }
 
 module "netapp" {
