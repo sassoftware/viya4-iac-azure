@@ -10,8 +10,8 @@ variable "subscription_id" {}
 variable "tenant_id" {}
 
 variable "use_msi" {
-  # description = "Use Managed Identity for Authentication (Azure VMs only)"
-  # type        = bool
+  description = "Use Managed Identity for Authentication (Azure VMs only)"
+  type        = bool
   default     = false
 }
 
