@@ -126,6 +126,8 @@ module "aks" {
   prefix                                      = var.prefix
   location                                    = var.location
   sku_tier                                    = var.aks_cluster_sku_tier
+  ## FIPS is not available in 6.6.0 version yet. Uncomment below once available.
+  # fips_enabled                                = var.fips_enabled
   http_application_routing_enabled            = false
   agents_pool_name                            = "system"
   enable_auto_scaling                         = var.default_nodepool_min_nodes == var.default_nodepool_max_nodes ? false : true
@@ -214,6 +216,7 @@ module "node_pools" {
   machine_type                 = each.value.machine_type
   os_disk_size                 = each.value.os_disk_size
   os_disk_type                 = each.value.os_disk_type
+  fips_enabled                 = var.fips_enabled
   enable_auto_scaling          = each.value.min_nodes == each.value.max_nodes ? false : true
   node_count                   = each.value.min_nodes
   min_nodes                    = each.value.min_nodes == each.value.max_nodes ? null : each.value.min_nodes

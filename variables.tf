@@ -55,6 +55,13 @@ variable "location" {
   default     = "eastus"
 }
 
+#### FIPS enabled - Experimental
+variable "fips_enabled" {
+  description = "Should the nodes in this Node Pool have Federal Information Processing Standard enabled? Changing this forces a new resource to be created."
+  type        = bool
+  default     = false
+}
+
 variable "aks_cluster_sku_tier" {
   description = "The SKU Tier that should be used for this Kubernetes Cluster. Possible values are Free and Paid (which includes the Uptime SLA). Defaults to Free"
   type        = string

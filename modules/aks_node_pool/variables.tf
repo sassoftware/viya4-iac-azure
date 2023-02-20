@@ -21,6 +21,12 @@ variable "zones" {
   default = []
 }
 
+variable "fips_enabled" {
+  description = "Should the nodes in this Node Pool have Federal Information Processing Standard enabled? Changing this forces a new resource to be created."
+  type        = bool
+  default     = false
+}
+
 variable "vnet_subnet_id" {
   description = " (Optional) The ID of the Subnet where this Node Pool should exist. Changing this forces a new resource to be created."
   type = string
