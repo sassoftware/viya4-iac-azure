@@ -33,6 +33,12 @@ variable "vm_zone" {
   default     = null
 }
 
+variable "fips_enabled" {
+  description = "Should the nodes in this Node Pool have Federal Information Processing Standard enabled? Changing this forces a new resource to be created."
+  type        = bool
+  default     = false
+}
+
 variable "ssh_public_key" {
   description = "Path to ssh public key"
   default     = ""
