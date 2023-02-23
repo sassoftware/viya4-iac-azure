@@ -67,7 +67,7 @@ variable "aks_cluster_max_pods" {
 
 variable kubernetes_version {
   description = "The AKS cluster K8s version"
-  default     = "1.23.12"
+  default     = "1.24"
 }
 variable "aks_cluster_endpoint_public_access_cidrs" {
   description = "Kubernetes cluster access IP ranges"
