@@ -46,24 +46,26 @@ data "template_cloudinit_config" "jump" {
 }
 
 module "jump" {
-  source            = "./modules/azurerm_vm"
+  source                      = "./modules/azurerm_vm"
 
-  count             = var.create_jump_vm ? 1 : 0
-  name              = "${var.prefix}-jump"
-  azure_rg_name     = local.aks_rg.name
-  azure_rg_location = var.location
-  vnet_subnet_id    = module.vnet.subnets["misc"].id
-  machine_type      = var.jump_vm_machine_type
-  azure_nsg_id      = local.nsg.id
-  tags              = var.tags
-  vm_admin          = var.jump_vm_admin
-  vm_zone           = var.jump_vm_zone
-  ssh_public_key    = local.ssh_public_key
-  cloud_init        = data.template_cloudinit_config.jump.0.rendered
-  create_public_ip  = var.create_jump_public_ip
+  count                       = var.create_jump_vm ? 1 : 0
+  name                        = "${var.prefix}-jump"
+  azure_rg_name               = local.aks_rg.name
+  azure_rg_location           = var.location
+  vnet_subnet_id              = module.vnet.subnets["misc"].id
+  machine_type                = var.jump_vm_machine_type
+  azure_nsg_id                = local.nsg.id
+  tags                        = var.tags
+  vm_admin                    = var.jump_vm_admin
+  vm_zone                     = var.jump_vm_zone
+  ssh_public_key              = local.ssh_public_key
+  cloud_init                  = data.template_cloudinit_config.jump.0.rendered
+  create_public_ip            = var.create_jump_public_ip
+  public_ip_allocation_method = var.jump_public_ip_allocation_method
+  public_ip_domain_name_label = var.jump_public_ip_domain_name_label
 
   # Jump VM mounts NFS path hence dependency on 'module.nfs'
-  depends_on = [module.vnet, module.nfs]
+  depends_on                  = [module.vnet, module.nfs]
 }
 
 data "template_file" "nfs-cloudconfig" {
@@ -105,6 +107,8 @@ module "nfs" {
   ssh_public_key                 = local.ssh_public_key
   cloud_init                     = data.template_cloudinit_config.nfs.0.rendered
   create_public_ip               = var.create_nfs_public_ip
+  public_ip_allocation_method    = var.nfs_public_ip_allocation_method
+  public_ip_domain_name_label    = var.nfs_public_ip_domain_name_label
   data_disk_count                = 4
   data_disk_size                 = var.nfs_raid_disk_size
   data_disk_storage_account_type = var.nfs_raid_disk_type

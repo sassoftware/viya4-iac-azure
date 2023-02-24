@@ -244,6 +244,16 @@ variable "create_jump_public_ip" {
   type    = bool
 }
 
+variable "jump_public_ip_allocation_method" {
+  default = "Static"
+  type    = string
+}
+
+variable "jump_public_ip_domain_name_label" {
+  default = null
+  type    = string
+}
+
 variable "jump_vm_admin" {
   description = "OS Admin User for Jump VM"
   default     = "jumpuser"
@@ -277,6 +287,16 @@ variable "storage_type" {
 variable "create_nfs_public_ip" {
   default = false
   type    = bool
+}
+
+variable "nfs_public_ip_allocation_method" {
+  default = "Static"
+  type    = string
+}
+
+variable "nfs_public_ip_domain_name_label" {
+  default = null
+  type    = string
 }
 
 variable "nfs_vm_machine_type" {
