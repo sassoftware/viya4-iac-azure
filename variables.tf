@@ -332,6 +332,16 @@ variable "jump_public_ip_domain_name_label" {
   type    = string
 }
 
+variable "jump_public_ip_allocation_method" {
+  default = "Static"
+  type    = string
+}
+
+variable "jump_public_ip_domain_name_label" {
+  default = null
+  type    = string
+}
+
 variable "jump_vm_admin" {
   description = "OS Admin User for Jump VM"
   type        = string
@@ -381,6 +391,16 @@ variable "nfs_public_ip_allocation_method" {
 
 variable "nfs_public_ip_domain_name_label" {
   description = "Label for the domain name that is used to make up the FQDN for this Virtual Machine"
+  default = null
+  type    = string
+}
+
+variable "nfs_public_ip_allocation_method" {
+  default = "Static"
+  type    = string
+}
+
+variable "nfs_public_ip_domain_name_label" {
   default = null
   type    = string
 }
