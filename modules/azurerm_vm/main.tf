@@ -11,6 +11,7 @@ resource "azurerm_public_ip" "vm_ip" {
   sku                 = var.vm_zone == null ? "Basic" : "Standard"
   zones               = var.vm_zone == null ? [] : [var.vm_zone]
   tags                = var.tags
+  domain_name_label   = var.public_ip_domain_name_label
 }
 
 resource "azurerm_network_interface" "vm_nic" {

@@ -320,6 +320,7 @@ variable "create_jump_public_ip" {
   default     = true
 }
 
+<<<<<<< HEAD
 variable "enable_jump_public_static_ip" {
   description = "Enables `Static` allocation method for the public IP address of Jump Server. Setting false will enable `Dynamic` allocation method."
   type        = bool
@@ -328,12 +329,18 @@ variable "enable_jump_public_static_ip" {
 
 variable "jump_public_ip_allocation_method" {
   description = "The allocation method for the public IP address of this Virtual Machine. Possible values are Static or Dynamic"
+=======
+variable "jump_public_ip_allocation_method" {
+>>>>>>> add ability to set the allocation method and domain name of public ips
   default = "Static"
   type    = string
 }
 
 variable "jump_public_ip_domain_name_label" {
+<<<<<<< HEAD
   description = "Label for the domain name that is used to make up the FQDN for this Virtual Machine" 
+=======
+>>>>>>> add ability to set the allocation method and domain name of public ips
   default = null
   type    = string
 }
