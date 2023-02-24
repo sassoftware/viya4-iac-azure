@@ -157,6 +157,16 @@ variable "enable_public_static_ip" {
   default     = true
 }
 
+variable public_ip_allocation_method {
+  default = "Static"
+  type    = string
+}
+
+variable public_ip_domain_name_label {
+  default = null
+  type    = string
+}
+
 variable "proximity_placement_group_id" {
   type    = string
 }
