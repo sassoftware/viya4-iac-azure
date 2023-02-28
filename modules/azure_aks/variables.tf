@@ -1,3 +1,23 @@
+variable "aks_cluster_name" {
+  description = "The name for the AKS resources created in the specified Azure Resource Group"
+  type        = string
+}
+
+variable "aks_cluster_rg" {
+  description = "The resource group name to be imported"
+  type        = string
+}
+
+variable "aks_cluster_rg_id" {
+  description = "The `azurerm_kubernetes_cluster`'s id."
+  type        = string
+}
+
+variable "aks_cluster_dns_prefix" {
+  description = "DNS prefix specified when creating the managed cluster."
+  type        = string
+}
+
 variable "aks_cluster_location" {
   description = "The Azure Region in which all resources in this example should be provisioned"
   type        = string
@@ -8,6 +28,11 @@ variable "aks_cluster_sku_tier" {
   description = "The SKU Tier that should be used for this Kubernetes Cluster. Possible values are Free and Paid (which includes the Uptime SLA). Defaults to Free"
   type        = string
   default     = "Free"
+
+  validation {
+    condition     = contains(["Free", "Paid"], var.aks_cluster_sku_tier)
+    error_message = "ERROR: Valid types are \"Free\" and \"Paid\"!"
+  }
 }
 
 variable "aks_private_cluster" {

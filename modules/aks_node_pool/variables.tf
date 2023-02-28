@@ -27,12 +27,6 @@ variable "machine_type" {
   type        = string
 }
 
-variable "fips_enabled" {
-  description = "Should the nodes in this Node Pool have Federal Information Processing Standard enabled? Changing this forces a new resource to be created."
-  type        = bool
-  default     = false
-}
-
 variable "os_disk_size" {
   description = "(Optional) The Agent Operating System disk size in GB. Changing this forces a new resource to be created."
   type        = number

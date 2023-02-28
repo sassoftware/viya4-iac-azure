@@ -55,15 +55,6 @@ variable "location" {
   default     = "eastus"
 }
 
-## FIPS support - Experimental
-## Before your subscription can be used to enable the FIPS support, you need to accept the legal terms of the image. To accept the terms please run following az command before deploying cluster:
-### `az vm image terms accept --urn Canonical:0001-com-ubuntu-pro-focal-fips:pro-fips-20_04-gen2:latest --subscription $subscription_id`
-variable "fips_enabled" {
-  description = "Enables the Federal Information Processing Standard for the nodes in this cluster's Node Pool. Changing this forces a new resource to be created."
-  type        = bool
-  default     = false
-}
-
 variable "aks_cluster_sku_tier" {
   description = "The SKU Tier that should be used for this Kubernetes Cluster. Possible values are Free and Paid (which includes the Uptime SLA). Defaults to Free"
   type        = string
@@ -223,7 +214,7 @@ variable "aks_service_cidr" {
 variable "cluster_egress_type" {
   description = "The outbound (egress) routing method which should be used for this Kubernetes Cluster. Possible values are loadBalancer and userDefinedRouting. Defaults to loadBalancer."
   type        = string
-  default     = "loadBalancer"
+  default     = null
   validation {
     condition     = var.cluster_egress_type != null ? contains(["loadBalancer", "userDefinedRouting"], var.cluster_egress_type) : true
     error_message = "ERROR: Supported values for `cluster_egress_type` are: loadBalancer, userDefinedRouting."
