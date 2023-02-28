@@ -79,9 +79,9 @@ variable "tags" {
 
 variable "postgresql_configurations" {
   description = "A map with PostgreSQL configurations to enable."
-  type        = list(object({
-    name = string
+  type = list(object({
+    name  = string
     value = string
   }))
-  default     = []
+  default = []
 }
