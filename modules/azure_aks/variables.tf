@@ -63,7 +63,7 @@ variable "aks_cluster_node_vm_size" {
 variable "aks_cluster_node_admin" {
   description = "The operating system Admin User for VMs of AKS cluster nodes"
   type        = string
-  default     = "azureuser"
+  default     = "ubuntu"
 }
 
 variable "aks_cluster_ssh_public_key" {

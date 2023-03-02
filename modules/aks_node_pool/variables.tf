@@ -77,6 +77,7 @@ variable "min_nodes" {
 }
 
 variable "node_taints" {
+  description = "A list of the taints added to new nodes during node pool create and scale. Changing this forces a new resource to be created."
   type    = list(any)
   default = []
 }
