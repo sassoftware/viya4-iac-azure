@@ -83,7 +83,7 @@ variable "data_disk_count" {
 }
 
 variable "data_disk_size" {
-  description = "Specifies the size of the managed disk to create in gigabytes."
+  description = "Specifies the size of the managed disk to create in GB."
   type        = number
   default     = 128
 }
@@ -137,7 +137,7 @@ variable "cloud_init" {
 }
 
 variable "create_public_ip" {
-  description = "Reference to a Public IP Address to associate with this NIC"
+  description = "If true associates a Public IP Address to the NIC"
   type        = bool
   default     = false
 }

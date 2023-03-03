@@ -36,7 +36,7 @@ variable "aks_cluster_sku_tier" {
 }
 
 variable "aks_private_cluster" {
-  description = "The cluster API endpoint uses Private IP address?"
+  description = "Enables cluster API endpoint to use Private IP address"
   type        = bool
   default     = false
 }
@@ -55,7 +55,7 @@ variable "aks_availability_zones" {
 
 # https://docs.microsoft.com/en-us/azure/virtual-machines/linux/sizes
 variable "aks_cluster_node_vm_size" {
-  description = "The default virtual machine size for the Kubernetes agents"
+  description = "The default virtual machine size for the AKS cluster nodes"
   type        = string
   default     = "Standard_D4_v2"
 }
@@ -110,7 +110,7 @@ variable "kubernetes_version" {
 }
 
 variable "aks_cluster_endpoint_public_access_cidrs" {
-  description = "Kubernetes cluster access IP ranges"
+  description = "Azure Kubernetes cluster access IP ranges"
   type        = list(any)
 }
 

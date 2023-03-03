@@ -11,19 +11,19 @@ variable "aks_cluster_id" {
 }
 
 variable "zones" {
-  description = " (Optional) Specifies a list of Availability Zones in which this Kubernetes Cluster Node Pool should be located. Changing this forces a new Kubernetes Cluster Node Pool to be created."
+  description = "(Optional) Specifies a list of Availability Zones in which this Kubernetes Cluster Node Pool should be located. Changing this forces a new Kubernetes Cluster Node Pool to be created."
   type        = list(string)
   default     = []
 }
 
 variable "vnet_subnet_id" {
-  description = " (Optional) The ID of the Subnet where this Node Pool should exist. Changing this forces a new resource to be created."
+  description = "(Optional) The ID of the Subnet where this Node Pool should exist. Changing this forces a new resource to be created."
   type        = string
   default     = null
 }
 
 variable "machine_type" {
-  description = " (Required) The SKU which should be used for the Virtual Machines used in this Node Pool. Changing this forces a new resource to be created."
+  description = "(Required) The SKU which should be used for the Virtual Machines used in this Node Pool. Changing this forces a new resource to be created."
   type        = string
 }
 
