@@ -15,7 +15,7 @@ resource "azurerm_network_interface" "vm_nic" {
   name                          = "${var.name}-nic"
   location                      = var.azure_rg_location
   resource_group_name           = var.azure_rg_name
-  enable_accelerated_networking = length(regexall("/-nfs/", var.name)) > 0 ? true : var.enable_accelerated_networking
+  enable_accelerated_networking = length(regexall("-nfs", var.name)) > 0 ? true : var.enable_accelerated_networking
 
   ip_configuration {
     name                          = "${var.name}-ip_config"
