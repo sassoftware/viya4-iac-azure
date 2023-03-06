@@ -55,7 +55,7 @@ You can create a Service Principal to use with Terraform by taking the following
 az login # follow the instructions given by this command
 
 TF_VAR_client_secret=$(az ad sp create-for-rbac --role "Contributor" --scopes="/subscriptions/$TF_VAR_subscription_id" --name http://$USER --query password --output tsv)
-TF_VAR_client_id=$(az ad sp show --id http://$USER --query appId --output tsv)
+TF_VAR_client_id=$(az ad sp list --display-name http://$USER --query [].appId --output tsv)
 
 echo $TF_VAR_client_id
 echo $TF_VAR_client_secret
@@ -70,7 +70,7 @@ az ad sp list --show-mine -o table
 In a case where the value for `$TF_VAR_client_secret` is lost or has expired, you can reset it with this command:
 
 ```bash
-az ad sp credential reset --name http://$USER
+az ad sp credential reset --display-name http://$USER
 ```
 
 If you don't have an Azure account with **Owner** role, check with your Azure account administrator. You can find more information about how to `create/retrieve/manage/reset` in the Azure documentation. See [Azure Service Principal with AzureCLI](https://docs.microsoft.com/en-us/cli/azure/create-an-azure-service-principal-azure-cli?view=azure-cli-latest). 
