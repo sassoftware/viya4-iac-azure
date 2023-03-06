@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# Copyright © 2020-2023, SAS Institute Inc., Cary, NC, USA. All Rights Reserved.
+
 # We need to return an error if things don't work
 set -e
 

@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# Copyright © 2020-2023, SAS Institute Inc., Cary, NC, USA. All Rights Reserved.
+
 echo -e "\nUsage: You must have an active az cli login 'az login' before this script will work"
 echo -e "\nUsage: Run an export referenced in line 8 or 9 before this script before continuing"
 echo "    For example: export YOURSP=your-SP-name or export YOURSP=\$USER"

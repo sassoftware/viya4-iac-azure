@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+
+# Copyright © 2020-2023, SAS Institute Inc., Cary, NC, USA. All Rights Reserved.
+
 set -e
 
 # setup container user
