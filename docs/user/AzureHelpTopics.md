@@ -70,7 +70,7 @@ az ad sp list --show-mine -o table
 In a case where the value for `$TF_VAR_client_secret` is lost or has expired, you can reset it with this command:
 
 ```bash
-az ad sp credential reset --display-name http://$USER
+az ad sp credential reset --name http://$USER
 ```
 
 If you don't have an Azure account with **Owner** role, check with your Azure account administrator. You can find more information about how to `create/retrieve/manage/reset` in the Azure documentation. See [Azure Service Principal with AzureCLI](https://docs.microsoft.com/en-us/cli/azure/create-an-azure-service-principal-azure-cli?view=azure-cli-latest). 
