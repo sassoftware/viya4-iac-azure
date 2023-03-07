@@ -4,7 +4,7 @@
 
 ## Changes for SAS locked down
 - make var for setting outbound_type. Needing for locked down accounts where creating routing tables is not permitted
-- make var for postgres vnet_rules. for vpn subscriptions
+- add Private access (VNet Integration) for flexible postgres
 
 ## Update docs
 - Add this line back into CONFIG-VARS.md @ 122

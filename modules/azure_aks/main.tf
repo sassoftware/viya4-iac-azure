@@ -1,16 +1,19 @@
 # Reference: https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster
 resource "azurerm_kubernetes_cluster" "aks" {
-  name                = var.aks_cluster_name
-  location            = var.aks_cluster_location
-  resource_group_name = var.aks_cluster_rg
-  dns_prefix          = var.aks_cluster_dns_prefix
+  name                               = var.aks_cluster_name
+  location                           = var.aks_cluster_location
+  resource_group_name                = var.aks_cluster_rg
+  dns_prefix                         = var.aks_cluster_dns_prefix
+  sku_tier                           = var.aks_cluster_sku_tier
+  role_based_access_control_enabled  = true
+  http_application_routing_enabled   = false
   
   # https://docs.microsoft.com/en-us/azure/aks/supported-kubernetes-versions
   # az aks get-versions --location eastus -o table
-  kubernetes_version              = var.kubernetes_version
-  api_server_authorized_ip_ranges = var.aks_cluster_endpoint_public_access_cidrs
-  private_cluster_enabled         = var.aks_private_cluster
-  private_dns_zone_id             = var.aks_private_cluster ? "System" : null
+  kubernetes_version                 = var.kubernetes_version
+  api_server_authorized_ip_ranges    = var.aks_cluster_endpoint_public_access_cidrs
+  private_cluster_enabled            = var.aks_private_cluster
+  private_dns_zone_id                = var.aks_private_cluster ? "System" : null
 
   network_profile {
     network_plugin = var.aks_network_plugin
@@ -28,11 +31,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
     pod_cidr           = var.aks_network_plugin == "kubenet" ? var.aks_pod_cidr : null
     docker_bridge_cidr = var.aks_docker_bridge_cidr
     outbound_type      = var.cluster_egress_type
-    load_balancer_sku  = "Standard"
-  }
-
-  role_based_access_control {
-    enabled = true
+    load_balancer_sku  = "standard"
   }
 
   dynamic "linux_profile" {
@@ -48,7 +47,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   default_node_pool {
     name                  = "system"
     vm_size               = var.aks_cluster_node_vm_size
-    availability_zones    = var.aks_availability_zones
+    zones                 = var.aks_availability_zones
     enable_auto_scaling   = var.aks_cluster_node_auto_scaling
     enable_node_public_ip = false
     node_labels           = {}
@@ -75,19 +74,13 @@ resource "azurerm_kubernetes_cluster" "aks" {
     for_each = var.aks_uai_id == null ? [] : [1]
     content {
       type = "UserAssigned"
-      user_assigned_identity_id = var.aks_uai_id
+      identity_ids = [var.aks_uai_id]
     }
   }
 
-  addon_profile {
-    http_application_routing {
-      enabled = false
-    }
-    kube_dashboard {
-      enabled = false
-    }
-    oms_agent {
-      enabled                    = var.aks_oms_enabled
+  dynamic "oms_agent" {
+    for_each = var.aks_oms_enabled ? ["oms_agent"] : []
+    content {
       log_analytics_workspace_id = var.aks_log_analytics_workspace_id
     }
   }

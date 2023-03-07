@@ -41,9 +41,6 @@ runcmd:
   #
   # Create Raid5 Array
   #
-  # NOTE: We need to sleep 5 minutes here to ensure the drives have been attached
-  #
-  # - sleep 300
   - pvcreate $(find /dev/disk/azure/scsi1/ -type l | xargs)
   - vgcreate data-vg01 $(find /dev/disk/azure/scsi1/ -type l | xargs)
   - lvcreate --type raid5 --extents 100%FREE --stripes 3 --name data-lv01 data-vg01
@@ -51,13 +48,21 @@ runcmd:
   #
   # Update /etc/fstab
   #
-  - echo "/dev/data-vg01/data-lv01       /export        ext4        defaults,nofail,x-systemd.requires=cloud-init.service,barrier=0,discard        0  2" >>/etc/fstab
+  - device=`lsblk -r | grep lvm | cut -d " " -f1 | grep -v "_"`
+  - mntDir='/export'
+  - deviceUUID=`sudo blkid /dev/mapper/$device | sed -r 's/.*UUID="([^"]*).*"/\1/g'`
+  - echo "UUID=$deviceUUID $mntDir auto defaults,acl,nofail 0 2" | sudo tee -a /etc/fstab > /dev/null
   - mount -a
   #
   # Update /etc/exports - NOTE: The CIDR provided works for the whole VPC
   #
-  - echo "/export         ${aks_cidr_block}(rw,no_root_squash,async,insecure,fsid=0,crossmnt,no_subtree_check)" >> /etc/exports
-  - echo "/export         ${misc_cidr_block}(rw,no_root_squash,async,insecure,fsid=0,crossmnt,no_subtree_check)" >> /etc/exports
+  - if [ "${aks_cidr_block}" != "${misc_cidr_block}" ]
+  - then
+  -   echo "/export         ${aks_cidr_block}(rw,no_root_squash,async,insecure,fsid=0,crossmnt,no_subtree_check)" >> /etc/exports
+  -   echo "/export         ${misc_cidr_block}(rw,no_root_squash,async,insecure,fsid=0,crossmnt,no_subtree_check)" >> /etc/exports
+  - else
+  -   echo "/export         ${aks_cidr_block}(rw,no_root_squash,async,insecure,fsid=0,crossmnt,no_subtree_check)" >> /etc/exports
+  - fi
   #
   # Restart nfs-server service
   #

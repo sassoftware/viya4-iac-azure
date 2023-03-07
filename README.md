@@ -2,25 +2,39 @@
 
 ## Overview
 
-This project contains Terraform scripts to provision the Microsoft Azure Cloud infrastructure resources that are required to deploy SAS Viya 4 product offerings. Here is a list of resources that this project can create:
+This project helps you to automate the cluster-provisioning phase of SAS Viya platform deployment. It contains Terraform scripts to provision the Microsoft Azure Cloud infrastructure resources that are required to deploy SAS Viya platform product offerings. Here is a list of resources that this project can create:
 
   >- Azure resource group(s): primary resource group and AKS resource group
   >- Virtual network, network security groups, and network security rules
   >- Managed Azure Kubernetes Service (AKS) cluster
   >- System and User AKS Node pools with required Labels and Taints
-  >- Infrastructure to deploy SAS Viya CAS in SMP or MPP mode
-  >- Storage options for SAS Viya -  NFS Server (Standard) or Azure NetApp Files (HA)
+  >- Infrastructure to deploy SAS Viya platform CAS in SMP or MPP mode
+  >- Storage options for SAS Viya platform -  NFS Server (Standard) or Azure NetApp Files (HA)
   >- Azure DB for PostgreSQL, optional
   >- Azure Container Registry, optional
 
 [<img src="./docs/images/viya4-iac-azure-diag.png" alt="Architecture Diagram" width="750"/>](./docs/images/viya4-iac-azure-diag.png?raw=true)
 
-This project helps you to automate the cluster-provisioning phase of SAS Viya deployment. To learn about all phases and options of the
-SAS Viya deployment process, see [Getting Started with SAS Viya and Azure Kubernetes Service](https://go.documentation.sas.com/doc/en/itopscdc/v_015/itopscon/n1d7qc4nfr3s5zn103a1qy0kj4l1.htm) in _SAS Viya Operations_.
+This project addresses the first of three steps in [Steps for Getting Started](https://go.documentation.sas.com/doc/en/itopscdc/default/itopscon/n12fgslcw9swbsn10rva4bp0mr2w.htm) in _SAS&reg; Viya&reg; Platform Operations_:
+
+1. Provision resources.
+1. Prepare for the deployment.
+1. Customize and deploy the SAS Viya platform.
+
+**Note:** The scripts in this project are provided as examples. They do not provide comprehensive configuration. The second and third steps include additional configuration tasks. Some of those tasks (for example, enabling logging and specifying available IP addresses) are essential for a more secure deployment.
 
 Once the cloud resources are provisioned, use the [viya4-deployment](https://github.com/sassoftware/viya4-deployment) project to deploy 
-SAS Viya 4 in your cloud environment. For more information about SAS Viya 4 requirements and documentation for the deployment
-process, refer to the [SAS&reg; Viya&reg; 4 IT Operations Guide](https://go.documentation.sas.com/doc/en/itopscdc/default/itopswlcm/home.htm).
+the SAS Viya platform in your cloud environment. To learn about all phases and options of the SAS Viya platform deployment process, see
+[Getting Started with SAS Viya and Azure Kubernetes Service](https://go.documentation.sas.com/doc/en/itopscdc/default/itopscon/n1d7qc4nfr3s5zn103a1qy0kj4l1.htm) in _SAS Viya Platform Operations_.
+
+
+This project follows the [SemVer](https://semver.org/#summary) versioning scheme. Given a version number MAJOR.MINOR.PATCH, we increment the:
+
+ >- MAJOR version when we make changes that are incompatible with the functionality of a previous component
+ >- MINOR version when we add functionality that is backwards-compatible
+ >- PATCH version when we make bug fixes that are backwards-compatible
+
+**Note**: You must take down your existing infrastructure and rebuild it when you are upgrading to a new major version because of potential backward incompatibility. For details about the changes that are added in each release, see the Release Notes.
 
 ## Prerequisites
 
@@ -44,7 +58,7 @@ Access to an **Azure Subscription** and an [**Identity**](./docs/user/TerraformA
 
 #### Terraform Requirements:
 - [Terraform](https://www.terraform.io/downloads.html) - v1.0.0
-- [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl) - v1.22.10
+- [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl) - v1.23.12
 - [jq](https://stedolan.github.io/jq/) - v1.6
 - [Azure CLI](https://docs.microsoft.com/en-us/cli/azure) - (optional - useful as an alternative to the Azure Portal) - v2.24.2
 
@@ -95,6 +109,10 @@ Create and manage the required cloud resources. Perform one of the following ste
 
 See the [Troubleshooting](./docs/Troubleshooting.md) page for information about possible issues that you might encounter.
 
+## Security
+
+Additional configuration to harden your cluster environment is supported and encouraged. For example, you can limit cluster access to specified IP addresses. You can also deploy a load balancer or application gateway to mediate data flows between SAS Viya platform components and the ingress controller.
+
 ## Contributing
 
 > We welcome your contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for information about how to submit contributions to this project.
@@ -118,4 +136,4 @@ See the [Troubleshooting](./docs/Troubleshooting.md) page for information about 
 ### Terraform Resources
 
 - [Azure Provider](https://www.terraform.io/docs/providers/azurerm/index.html)
-- [Azure AKS](https://www.terraform.io/docs/providers/azurerm/r/kubernetes_cluster.html)
+- [Azure AKS](https://www.terraform.io/docs/providers/azurerm/r/kubernetes_cluster)

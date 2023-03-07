@@ -32,7 +32,7 @@ container_registry_sku              = "Standard"
 container_registry_admin_enabled    = false
 
 # AKS config
-kubernetes_version         = "1.22.6"
+kubernetes_version         = "1.23.12"
 default_nodepool_min_nodes = 2
 default_nodepool_vm_type   = "Standard_D8s_v4"
 
@@ -97,6 +97,3 @@ storage_type = "ha"
 # required ONLY when storage_type = ha for Azure NetApp Files service
 netapp_service_level = "Premium"
 netapp_size_in_tb    = 4
-
-# Azure Monitor
-create_aks_azure_monitor = false
