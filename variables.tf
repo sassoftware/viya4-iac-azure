@@ -639,3 +639,9 @@ variable "aks_identity" {
     error_message = "ERROR: Supported values for `aks_identity` are: uai, sp."
   }
 }
+
+variable "aks_private_cluster_private_dns_zone_value" {
+  description = "Specify private DNS zone resource ID for AKS private cluster to use."
+  type = string
+  default = ""
+}

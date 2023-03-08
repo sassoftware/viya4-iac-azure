@@ -140,3 +140,8 @@ variable client_secret {
 variable "cluster_egress_type" {
   default = "loadBalancer"
 }
+
+variable "aks_private_cluster_private_dns_zone_value" {
+  type = string
+  default = ""
+}
