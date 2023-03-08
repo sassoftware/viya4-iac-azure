@@ -16,7 +16,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   kubernetes_version                 = var.kubernetes_version
   api_server_authorized_ip_ranges    = var.aks_cluster_endpoint_public_access_cidrs
   private_cluster_enabled            = var.aks_private_cluster
-  private_dns_zone_id                = var.aks_private_cluster && var.aks_private_cluster_private_dns_zone_value != "" ? var.aks_private_cluster_private_dns_zone_value : var.aks_private_cluster ? "System" : null
+  private_dns_zone_id                = var.aks_private_cluster && var.aks_private_cluster_private_dns_zone_value != "" ? var.aks_private_cluster_private_dns_zone_value : (var.aks_private_cluster ? "System" : null)
 
   network_profile {
     network_plugin = var.aks_network_plugin
