@@ -640,7 +640,7 @@ variable "aks_identity" {
   }
 }
 
-variable "aks_private_cluster_private_dns_zone_value" {
+variable "aks_cluster_private_dns_zone_id" {
   description = "Specify private DNS zone resource ID for AKS private cluster to use."
   type = string
   default = ""
