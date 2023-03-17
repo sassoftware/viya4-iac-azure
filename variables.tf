@@ -122,14 +122,22 @@ variable "aks_network_plugin" {
   description = "Network plugin to use for networking. Currently supported values are azure and kubenet. Changing this forces a new resource to be created."
   type        = string
   default     = "kubenet"
-  #TODO: add validation when value is 'azure'
+
+  validation {
+    condition     = contains(["kubenet", "azure"], var.aks_network_plugin)
+    error_message = "Error: Currently the supported values are `kubenet` and `azure`"
+  }
 }
 
 variable "aks_network_policy" {
-  description = "Sets up network policy to be used with Azure CNI. Network policy allows us to control the traffic flow between pods. Currently supported values are calico and azure. Changing this forces a new resource to be created."
+  description = "Sets up network policy to be used with Azure CNI. Network policy allows to control the traffic flow between pods. Currently supported values are calico and azure. Changing this forces a new resource to be created."
   type        = string
   default     = "azure"
-  #TODO: add validation
+
+  validation {
+    condition     = contains(["azure", "calico"], var.aks_network_policy)
+    error_message = "Error: Currently the supported values are `calico` and `azure`"
+  }
 }
 
 variable "aks_dns_service_ip" {
