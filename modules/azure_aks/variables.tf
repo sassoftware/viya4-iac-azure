@@ -1,3 +1,6 @@
+# Copyright © 2020-2023, SAS Institute Inc., Cary, NC, USA. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
 variable "aks_cluster_name" {
   description = "The name for the AKS resources created in the specified Azure Resource Group"
   type        = string

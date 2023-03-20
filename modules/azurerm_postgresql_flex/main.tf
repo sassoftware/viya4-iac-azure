@@ -1,12 +1,12 @@
+# Copyright © 2020-2023, SAS Institute Inc., Cary, NC, USA. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
 ###################################################
 ### Managed PostgreSQL Flexible server on Azure ###
 ###################################################
-#
+
 # https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/postgresql_flexible_server
-#
-
 resource "azurerm_postgresql_flexible_server" "flexpsql" {
-
   name                         = "${var.server_name}-flexpsql"
   location                     = var.location
   resource_group_name          = var.resource_group_name

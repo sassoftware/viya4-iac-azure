@@ -55,7 +55,7 @@ You can create a Service Principal to use with Terraform by taking the following
 az login # follow the instructions given by this command
 
 TF_VAR_client_secret=$(az ad sp create-for-rbac --role "Contributor" --scopes="/subscriptions/$TF_VAR_subscription_id" --name http://$USER --query password --output tsv)
-TF_VAR_client_id=$(az ad sp show --id http://$USER --query appId --output tsv)
+TF_VAR_client_id=$(az ad sp list --display-name http://$USER --query [].appId --output tsv)
 
 echo $TF_VAR_client_id
 echo $TF_VAR_client_secret
@@ -116,4 +116,3 @@ You can use the Azure Portal user interface or the Azure CLI to assign a managed
 
 - [Use the Azure Portal](https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/qs-configure-portal-windows-vm#user-assigned-managed-identity)
 - [Use the Azure CLI](https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/qs-configure-cli-windows-vm#user-assigned-managed-identity)
-
