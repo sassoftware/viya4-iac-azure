@@ -29,10 +29,10 @@ resource "azurerm_kubernetes_cluster" "aks" {
     # https://docs.microsoft.com/en-us/azure/aks/load-balancer-standard
     # https://docs.microsoft.com/en-us/azure/aks/egress-outboundtype
 
-    service_cidr       = var.aks_network_plugin == "kubenet" ? "10.0.0.0/16" : var.aks_service_cidr
-    dns_service_ip     = var.aks_network_plugin == "kubenet" ? "10.0.0.10" : var.aks_dns_service_ip
-    pod_cidr           = var.aks_network_plugin == "kubenet" ? "10.244.0.0/16" : null
-    docker_bridge_cidr = var.aks_network_plugin == "kubenet" ? "172.17.0.1/16" : var.aks_docker_bridge_cidr
+    service_cidr       = var.aks_service_cidr
+    dns_service_ip     = var.aks_dns_service_ip
+    pod_cidr           = var.aks_network_plugin == "kubenet" ? var.aks_pod_cidr : null
+    docker_bridge_cidr = var.aks_docker_bridge_cidr
     outbound_type      = var.cluster_egress_type
     load_balancer_sku  = "standard"
   }

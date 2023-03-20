@@ -190,6 +190,7 @@ variable "aks_docker_bridge_cidr" {
     condition     = var.aks_docker_bridge_cidr != null ? can(cidrnetmask(var.aks_docker_bridge_cidr)) : false
     error_message = "ERROR: aks_docker_bridge_cidr - value must not be null and must be valid CIDR."
   }
+
 }
 
 variable "aks_pod_cidr" {
@@ -218,6 +219,7 @@ variable "cluster_egress_type" {
   description = "The outbound (egress) routing method which should be used for this Kubernetes Cluster. Possible values are loadBalancer and userDefinedRouting. Defaults to loadBalancer."
   type        = string
   default     = null
+
   validation {
     condition     = var.cluster_egress_type != null ? contains(["loadBalancer", "userDefinedRouting"], var.cluster_egress_type) : true
     error_message = "ERROR: Supported values for `cluster_egress_type` are: loadBalancer, userDefinedRouting."
