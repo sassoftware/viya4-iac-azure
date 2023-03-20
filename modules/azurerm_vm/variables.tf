@@ -146,7 +146,7 @@ variable "create_public_ip" {
 }
 
 variable "proximity_placement_group_id" {
-  description = "(Optional) The ID of the Proximity Placement Group which the Virtual Machine should be assigned to."
+  description = "The ID of the Proximity Placement Group which the Virtual Machine should be assigned to."
   type        = string
   default     = ""
 }

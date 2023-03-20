@@ -1,37 +1,35 @@
 # Copyright © 2020-2023, SAS Institute Inc., Cary, NC, USA. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-# REQUIRED variables (must be set by caller of the module)
-
 variable "node_pool_name" {
-  description = "(Required) The name of the Node Pool which should be created within the Kubernetes Cluster. Changing this forces a new resource to be created."
+  description = "The name of the Node Pool which should be created within the Kubernetes Cluster. Changing this forces a new resource to be created."
   type        = string
 }
 
 variable "aks_cluster_id" {
-  description = "(Required) The ID of the Kubernetes Cluster where this Node Pool should exist. Changing this forces a new resource to be created."
+  description = "The ID of the Kubernetes Cluster where this Node Pool should exist. Changing this forces a new resource to be created."
   type        = string
 }
 
 variable "zones" {
-  description = "(Optional) Specifies a list of Availability Zones in which this Kubernetes Cluster Node Pool should be located. Changing this forces a new Kubernetes Cluster Node Pool to be created."
+  description = "Specifies a list of Availability Zones in which this Kubernetes Cluster Node Pool should be located. Changing this forces a new Kubernetes Cluster Node Pool to be created."
   type        = list(string)
   default     = []
 }
 
 variable "vnet_subnet_id" {
-  description = "(Optional) The ID of the Subnet where this Node Pool should exist. Changing this forces a new resource to be created."
+  description = "The ID of the Subnet where this Node Pool should exist. Changing this forces a new resource to be created."
   type        = string
   default     = null
 }
 
 variable "machine_type" {
-  description = "(Required) The SKU which should be used for the Virtual Machines used in this Node Pool. Changing this forces a new resource to be created."
+  description = "The SKU which should be used for the Virtual Machines used in this Node Pool. Changing this forces a new resource to be created."
   type        = string
 }
 
 variable "os_disk_size" {
-  description = "(Optional) The Agent Operating System disk size in GB. Changing this forces a new resource to be created."
+  description = "The Agent Operating System disk size in GB. Changing this forces a new resource to be created."
   type        = number
   default     = 100
 }
@@ -44,7 +42,7 @@ variable "os_disk_size" {
 # }
 
 variable "os_type" {
-  description = "(Optional) The Operating System which should be used for this Node Pool. Changing this forces a new resource to be created. Possible values are Linux and Windows. Defaults to Linux"
+  description = "The Operating System which should be used for this Node Pool. Changing this forces a new resource to be created. Possible values are Linux and Windows. Defaults to Linux"
   type        = string
   default     = "Linux"
 }
@@ -56,7 +54,7 @@ variable "node_count" {
 }
 
 variable "enable_auto_scaling" {
-  description = "(Optional) Whether to enable auto-scaler."
+  description = "Whether to enable auto-scaler."
   type        = bool
   default     = false
 }
@@ -102,7 +100,7 @@ variable "tags" {
 }
 
 variable "proximity_placement_group_id" {
-  description = "(Optional) The ID of the Proximity Placement Group where the Virtual Machine Scale Set that powers this Node Pool will be placed. Changing this forces a new resource to be created."
+  description = "The ID of the Proximity Placement Group where the Virtual Machine Scale Set that powers this Node Pool will be placed. Changing this forces a new resource to be created."
   type        = string
   default     = ""
 }

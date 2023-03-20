@@ -3,24 +3,24 @@
 
 ## Global
 variable "client_id" {
-  description = "(Required) The Client ID for the Service Principal"
+  description = "The Client ID for the Service Principal"
   type        = string
   default     = ""
 }
 
 variable "client_secret" {
-  description = "(Required) The Client Secret for the Service Principal."
+  description = "The Client Secret for the Service Principal."
   type        = string
   default     = ""
 }
 
 variable "subscription_id" {
-  description = "(Required) The ID of the Subscription."
+  description = "The ID of the Subscription."
   type        = string
 }
 
 variable "tenant_id" {
-  description = "(Required) The ID of the Tenant to which the subscription belongs"
+  description = "The ID of the Tenant to which the subscription belongs"
   type        = string
 }
 
@@ -130,13 +130,13 @@ variable "default_nodepool_min_nodes" {
 }
 
 variable "default_nodepool_os_disk_size" {
-  description = "(Optional) The size of the OS Disk which should be used for each agent in the Node Pool. Changing this forces a new resource to be created."
+  description = "The size of the OS Disk which should be used for each agent in the Node Pool. Changing this forces a new resource to be created."
   type        = number
   default     = 128
 }
 
 variable "default_nodepool_max_pods" {
-  description = "(Optional) The maximum number of pods that can run on each agent. Changing this forces a new resource to be created."
+  description = "The maximum number of pods that can run on each agent. Changing this forces a new resource to be created."
   type        = number
   default     = 110
 }
@@ -562,7 +562,7 @@ variable "log_analytics_workspace_sku" {
 }
 
 variable "log_retention_in_days" {
-  description = "(Optional) The workspace data retention in days. Possible values are either 7 (Free Tier only) or range between 30 and 730."
+  description = "The workspace data retention in days. Possible values are either 7 (Free Tier only) or range between 30 and 730."
   type        = number
   default     = 30
 }

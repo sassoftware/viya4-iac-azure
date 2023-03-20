@@ -95,13 +95,13 @@ variable "aks_cluster_max_nodes" {
 }
 
 variable "aks_cluster_os_disk_size" {
-  description = "(Optional) The size of the OS Disk which should be used for each agent in the Node Pool. Changing this forces a new resource to be created."
+  description = "The size of the OS Disk which should be used for each agent in the Node Pool. Changing this forces a new resource to be created."
   type        = number
   default     = 128
 }
 
 variable "aks_cluster_max_pods" {
-  description = "(Optional) The maximum number of pods that can run on each agent. Changing this forces a new resource to be created."
+  description = "The maximum number of pods that can run on each agent. Changing this forces a new resource to be created."
   type        = number
   default     = 110
 }
@@ -118,7 +118,7 @@ variable "aks_cluster_endpoint_public_access_cidrs" {
 }
 
 variable "aks_vnet_subnet_id" {
-  description = "(Optional) The ID of a Subnet where the Kubernetes Node Pool should exist. Changing this forces a new resource to be created."
+  description = "The ID of a Subnet where the Kubernetes Node Pool should exist. Changing this forces a new resource to be created."
   type        = string
   default     = null
 }
@@ -181,13 +181,13 @@ variable "aks_uai_id" {
 }
 
 variable "client_id" {
-  description = "(Required) The Client ID for the Service Principal"
+  description = "The Client ID for the Service Principal"
   type        = string
   default     = ""
 }
 
 variable "client_secret" {
-  description = "(Required) The Client Secret for the Service Principal."
+  description = "The Client Secret for the Service Principal."
   type        = string
   default     = ""
 }
