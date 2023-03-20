@@ -1,3 +1,6 @@
+# Copyright © 2020-2023, SAS Institute Inc., Cary, NC, USA. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
 # Azure Monitor - https://azure.microsoft.com/en-gb/services/monitor/
 # Azure Docs 
 # - https://docs.microsoft.com/en-gb/azure/azure-monitor/log-query/log-analytics-overview

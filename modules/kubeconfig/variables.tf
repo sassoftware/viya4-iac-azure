@@ -1,3 +1,6 @@
+# Copyright © 2020-2023, SAS Institute Inc., Cary, NC, USA. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
 variable "prefix" {
   description = "A prefix used for all Google Cloud resources created by this script"
   type        = string

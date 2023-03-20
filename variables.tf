@@ -1,3 +1,6 @@
+# Copyright © 2020-2023, SAS Institute Inc., Cary, NC, USA. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
 ## Global
 variable "client_id" {
   default = ""
@@ -92,7 +95,7 @@ variable "default_nodepool_vm_type" {
 }
 variable "kubernetes_version" {
   description = "The AKS cluster K8s version"
-  default     = "1.23.12"
+  default     = "1.24"
 }
 
 variable "default_nodepool_max_nodes" {
@@ -122,14 +125,22 @@ variable "aks_network_plugin" {
   description = "Network plugin to use for networking. Currently supported values are azure and kubenet. Changing this forces a new resource to be created."
   type        = string
   default     = "kubenet"
-  #TODO: add validation when value is 'azure'
+
+  validation {
+    condition     = contains(["kubenet", "azure"], var.aks_network_plugin)
+    error_message = "Error: Currently the supported values are `kubenet` and `azure`"
+  }
 }
 
 variable "aks_network_policy" {
-  description = "Sets up network policy to be used with Azure CNI. Network policy allows us to control the traffic flow between pods. Currently supported values are calico and azure. Changing this forces a new resource to be created."
+  description = "Sets up network policy to be used with Azure CNI. Network policy allows to control the traffic flow between pods. Currently supported values are calico and azure. Changing this forces a new resource to be created."
   type        = string
   default     = "azure"
-  #TODO: add validation
+
+  validation {
+    condition     = contains(["azure", "calico"], var.aks_network_policy)
+    error_message = "Error: Currently the supported values are `calico` and `azure`"
+  }
 }
 
 variable "aks_dns_service_ip" {

@@ -1,3 +1,6 @@
+# Copyright © 2020-2023, SAS Institute Inc., Cary, NC, USA. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
 # Reference: https://www.terraform.io/docs/providers/azurerm/r/kubernetes_cluster_node_pool.html
 
 resource "azurerm_kubernetes_cluster_node_pool" "autoscale_node_pool" {
