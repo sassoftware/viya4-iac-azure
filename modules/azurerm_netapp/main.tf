@@ -1,3 +1,6 @@
+# Copyright © 2020-2023, SAS Institute Inc., Cary, NC, USA. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
 # Terraform docs - https://www.terraform.io/docs/providers/azurerm/r/netapp_volume.html
 # Terraform Registry - https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/netapp_volume
 # Azure docs - https://docs.microsoft.com/en-us/azure/azure-netapp-files/
