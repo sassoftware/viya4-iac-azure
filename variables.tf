@@ -1,3 +1,6 @@
+# Copyright © 2020-2023, SAS Institute Inc., Cary, NC, USA. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
 ## Global
 variable "client_id" {
   default = ""
@@ -92,7 +95,7 @@ variable "default_nodepool_vm_type" {
 }
 variable "kubernetes_version" {
   description = "The AKS cluster K8s version"
-  default     = "1.23.12"
+  default     = "1.24"
 }
 
 variable "default_nodepool_max_nodes" {
@@ -122,25 +125,43 @@ variable "aks_network_plugin" {
   description = "Network plugin to use for networking. Currently supported values are azure and kubenet. Changing this forces a new resource to be created."
   type        = string
   default     = "kubenet"
-  #TODO: add validation when value is 'azure'
+
+  validation {
+    condition     = contains(["kubenet", "azure"], var.aks_network_plugin)
+    error_message = "Error: Currently the supported values are `kubenet` and `azure`"
+  }
 }
 
 variable "aks_network_policy" {
-  description = "Sets up network policy to be used with Azure CNI. Network policy allows us to control the traffic flow between pods. Currently supported values are calico and azure. Changing this forces a new resource to be created."
+  description = "Sets up network policy to be used with Azure CNI. Network policy allows to control the traffic flow between pods. Currently supported values are calico and azure. Changing this forces a new resource to be created."
   type        = string
   default     = "azure"
-  #TODO: add validation
+
+  validation {
+    condition     = contains(["azure", "calico"], var.aks_network_policy)
+    error_message = "Error: Currently the supported values are `calico` and `azure`"
+  }
 }
 
 variable "aks_dns_service_ip" {
   description = "IP address within the Kubernetes service address range that will be used by cluster service discovery (kube-dns). Changing this forces a new resource to be created."
   type        = string
   default     = "10.0.0.10"
+  validation {
+    condition     = var.aks_dns_service_ip != null ? can(regex("^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",var.aks_dns_service_ip)) : false
+    error_message = "ERROR: aks_dns_service_ip - value must not be null and must be a valid IP address."
+  }
+
 }
 
 variable "aks_docker_bridge_cidr" {
   description = "IP address (in CIDR notation) used as the Docker bridge IP address on nodes. Changing this forces a new resource to be created."
   default     = "172.17.0.1/16"
+  validation {
+    condition     = var.aks_docker_bridge_cidr != null ? can(cidrnetmask(var.aks_docker_bridge_cidr)) : false
+    error_message = "ERROR: aks_docker_bridge_cidr - value must not be null and must be valid CIDR."
+  }
+
 }
 
 variable "cluster_egress_type" {
@@ -155,11 +176,21 @@ variable "cluster_egress_type" {
 variable "aks_pod_cidr" {
   description = "The CIDR to use for pod IP addresses. This field can only be set when network_plugin is set to kubenet. Changing this forces a new resource to be created."
   default     = "10.244.0.0/16"
+  validation {
+    condition     = var.aks_pod_cidr != "" ? can(cidrnetmask(var.aks_pod_cidr)) : true
+    error_message = "ERROR: aks_pod_cidr - value must either be null or must be a valid CIDR."
+  }
+
 }
 
 variable "aks_service_cidr" {
   description = "The Network Range used by the Kubernetes service. Changing this forces a new resource to be created."
   default     = "10.0.0.0/16"
+  validation {
+    condition     = var.aks_service_cidr != null ? can(cidrnetmask(var.aks_service_cidr)) : false
+    error_message = "ERROR: aks_service_cidr - value must not be null and must be a valid CIDR."
+  }
+  
 }
 
 variable "aks_uai_name" {
