@@ -1,3 +1,6 @@
+# Copyright © 2020-2023, SAS Institute Inc., Cary, NC, USA. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
 locals {
   service_account_name        = "${var.prefix}-cluster-admin-sa"
   cluster_role_binding_name   = "${var.prefix}-cluster-admin-crb"

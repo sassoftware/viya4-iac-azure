@@ -1,3 +1,5 @@
+# Copyright © 2020-2023, SAS Institute Inc., Cary, NC, USA. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
 
 # https://docs.microsoft.com/en-us/azure/virtual-network/public-ip-addresses
 resource "azurerm_public_ip" "vm_ip" {
