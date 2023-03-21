@@ -38,6 +38,12 @@ variable "aks_cluster_sku_tier" {
   }
 }
 
+variable "fips_enabled" {
+  description = "Should the nodes in this Node Pool have Federal Information Processing Standard enabled? Changing this forces a new resource to be created."
+  type        = bool
+  default     = false
+}
+
 variable "aks_private_cluster" {
   description = "Enables cluster API endpoint to use Private IP address"
   type        = bool

@@ -69,6 +69,15 @@ variable "aks_cluster_sku_tier" {
   }
 }
 
+## Enable FIPS support - Experimental
+## Before your subscription can be used to enable the FIPS support, you need to accept the legal terms of the image. To accept the terms please run following az command before deploying cluster:
+### `az vm image terms accept --urn Canonical:0001-com-ubuntu-pro-focal-fips:pro-fips-20_04-gen2:latest --subscription $subscription_id`
+variable "fips_enabled" {
+  description = "Enables the Federal Information Processing Standard for the nodes in this cluster's Node Pool. Changing this forces a new resource to be created."
+  type        = bool
+  default     = false
+}
+
 variable "ssh_public_key" {
   description = "A custom ssh key to control access to the AKS cluster. Changing this forces a new resource to be created."
   type        = string
