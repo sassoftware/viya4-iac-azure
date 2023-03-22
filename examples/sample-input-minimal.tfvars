@@ -32,10 +32,10 @@ container_registry_sku              = "Standard"
 container_registry_admin_enabled    = false
 
 # AKS config
-kubernetes_version         = "1.23.8"
-default_nodepool_min_nodes = 1
+kubernetes_version         = "1.24"
+default_nodepool_min_nodes = 2
+default_nodepool_vm_type   = "Standard_D4_v3"
 #v3 still has local temp storage
-default_nodepool_vm_type   = "Standard_D2_v3"
 
 # AKS Node Pools config - minimal
 cluster_node_pool_mode = "minimal"
@@ -78,6 +78,3 @@ nfs_vm_admin         = "nfsuser"
 nfs_vm_machine_type  = "Standard_D4s_v4"
 nfs_raid_disk_size   = 128
 nfs_raid_disk_type   = "Standard_LRS"
-
-# Azure Monitor
-create_aks_azure_monitor = false

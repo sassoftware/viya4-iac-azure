@@ -1,3 +1,5 @@
+# Copyright © 2020-2023, SAS Institute Inc., Cary, NC, USA. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
 
 # https://docs.microsoft.com/en-us/azure/virtual-network/public-ip-addresses
 resource "azurerm_public_ip" "vm_ip" {
@@ -15,7 +17,7 @@ resource "azurerm_network_interface" "vm_nic" {
   name                          = "${var.name}-nic"
   location                      = var.azure_rg_location
   resource_group_name           = var.azure_rg_name
-  enable_accelerated_networking = length(regexall("/-nfs/", var.name)) > 0 ? true : var.enable_accelerated_networking
+  enable_accelerated_networking = length(regexall("-nfs", var.name)) > 0 ? true : var.enable_accelerated_networking
 
   ip_configuration {
     name                          = "${var.name}-ip_config"
@@ -83,9 +85,18 @@ resource "azurerm_linux_virtual_machine" "vm" {
 
   source_image_reference {
     publisher = var.os_publisher
-    offer     = var.os_offer
-    sku       = var.os_sku
+    offer     = var.fips_enabled ? "0001-com-ubuntu-pro-focal-fips" : var.os_offer
+    sku       = var.fips_enabled ? "pro-fips-20_04-gen2" : var.os_sku
     version   = var.os_version
+  }
+
+  dynamic "plan" {
+    for_each = var.fips_enabled ? [1] : []
+    content {
+      name       = "pro-fips-20_04-gen2"
+      publisher  = "canonical"
+      product    = "0001-com-ubuntu-pro-focal-fips"
+    }
   }
 
   additional_capabilities {

@@ -1,3 +1,6 @@
+# Copyright © 2020-2023, SAS Institute Inc., Cary, NC, USA. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
 output "id" {
   description = "The id of the vNet"
   value       = var.name == null ? azurerm_virtual_network.vnet.0.id : data.azurerm_virtual_network.vnet.0.id

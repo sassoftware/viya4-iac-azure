@@ -1,3 +1,6 @@
+# Copyright © 2020-2023, SAS Institute Inc., Cary, NC, USA. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
 ## Azure-AKS
 #
 # Terraform Registry : https://registry.terraform.io/namespaces/Azure
@@ -130,7 +133,9 @@ module "aks" {
   aks_cluster_rg                           = local.aks_rg.name
   aks_cluster_rg_id                        = local.aks_rg.id
   aks_cluster_dns_prefix                   = "${var.prefix}-aks"
+  aks_cluster_sku_tier                     = var.aks_cluster_sku_tier
   aks_cluster_location                     = var.location
+  fips_enabled                             = var.fips_enabled
   aks_cluster_node_auto_scaling            = var.default_nodepool_min_nodes == var.default_nodepool_max_nodes ? false : true
   aks_cluster_node_count                   = var.default_nodepool_min_nodes
   aks_cluster_min_nodes                    = var.default_nodepool_min_nodes == var.default_nodepool_max_nodes ? null : var.default_nodepool_min_nodes
@@ -185,6 +190,7 @@ module "node_pools" {
   aks_cluster_id = module.aks.cluster_id
   vnet_subnet_id = module.vnet.subnets["aks"].id
   machine_type   = each.value.machine_type
+  fips_enabled   = var.fips_enabled
   os_disk_size   = each.value.os_disk_size
   # TODO: enable with azurerm v2.37.0
   #  os_disk_type                 = each.value.os_disk_type
@@ -195,7 +201,7 @@ module "node_pools" {
   max_pods                     = each.value.max_pods == null ? 110 : each.value.max_pods
   node_taints                  = each.value.node_taints
   node_labels                  = each.value.node_labels
-  zones                        = (var.node_pools_availability_zone == "" || var.node_pools_proximity_placement == true) ? [] : [var.node_pools_availability_zone]
+  zones                        = (var.node_pools_availability_zone == "" || var.node_pools_proximity_placement == true) ? [] : (var.node_pools_availability_zones != null) ? var.node_pools_availability_zones : [var.node_pools_availability_zone]
   proximity_placement_group_id = element(coalescelist(azurerm_proximity_placement_group.proximity.*.id, [""]), 0)
   orchestrator_version         = var.kubernetes_version
   tags                         = var.tags
@@ -236,6 +242,7 @@ module "netapp" {
   location            = var.location
   vnet_name           = module.vnet.name
   subnet_id           = module.vnet.subnets["netapp"].id
+  network_features    = var.netapp_network_features
   service_level       = var.netapp_service_level
   size_in_tb          = var.netapp_size_in_tb
   protocols           = var.netapp_protocols

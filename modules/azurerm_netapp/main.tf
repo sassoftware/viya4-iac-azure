@@ -1,3 +1,6 @@
+# Copyright © 2020-2023, SAS Institute Inc., Cary, NC, USA. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
 # Terraform docs - https://www.terraform.io/docs/providers/azurerm/r/netapp_volume.html
 # Terraform Registry - https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/netapp_volume
 # Azure docs - https://docs.microsoft.com/en-us/azure/azure-netapp-files/
@@ -35,6 +38,7 @@ resource "azurerm_netapp_volume" "anf" {
   pool_name           = "${var.prefix}-netapppool"
   volume_path         = var.volume_path
   subnet_id           = var.subnet_id
+  network_features    = var.network_features
   protocols           = var.protocols
   storage_quota_in_gb = var.size_in_tb * 1024
   tags                = var.tags

@@ -1,3 +1,6 @@
+# Copyright © 2020-2023, SAS Institute Inc., Cary, NC, USA. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
 schemaVersion: "2.0.0"
 
 fileExistenceTests:
@@ -26,7 +29,7 @@ commandTests:
       - -c
       - |
         az version -o tsv
-    expectedOutput: ["2.24.2\t2.24.2\t1.0.6"]
+    expectedOutput: ["2.45.0\t2.45.0\t1.0.8"]
 
 metadataTest:
   workdir: "/viya4-iac-azure"

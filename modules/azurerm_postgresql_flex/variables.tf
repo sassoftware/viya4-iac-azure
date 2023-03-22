@@ -1,3 +1,6 @@
+# Copyright © 2020-2023, SAS Institute Inc., Cary, NC, USA. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
 variable "resource_group_name" {
   description = "The name of the Resource Group where the PostgreSQL Flexible Server should exist. Changing this forces a new PostgreSQL Flexible Server to be created."
   type        = string
@@ -79,11 +82,11 @@ variable "tags" {
 
 variable "postgresql_configurations" {
   description = "A map with PostgreSQL configurations to enable."
-  type        = list(object({
-    name = string
+  type = list(object({
+    name  = string
     value = string
   }))
-  default     = []
+  default = []
 }
 
 variable "virtual_network_id" {

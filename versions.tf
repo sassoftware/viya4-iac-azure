@@ -1,3 +1,6 @@
+# Copyright © 2020-2023, SAS Institute Inc., Cary, NC, USA. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
 terraform {
 
   required_version = ">= 1.0.0"
@@ -5,7 +8,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "3.21.1"
+      version = "3.26.0"
     }
     azuread = {
       source  = "hashicorp/azuread"
@@ -37,7 +40,7 @@ terraform {
     }
     kubernetes = {
       source  = "hashicorp/kubernetes"
-      version = "2.13.0"
+      version = "2.14.0"
     }
   }
 }
