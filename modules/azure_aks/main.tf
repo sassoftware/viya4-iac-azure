@@ -55,6 +55,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
     enable_node_public_ip = false
     node_labels           = {}
     node_taints           = []
+    fips_enabled          = var.fips_enabled
     max_pods              = var.aks_cluster_max_pods
     os_disk_size_gb       = var.aks_cluster_os_disk_size
     max_count             = var.aks_cluster_max_nodes
