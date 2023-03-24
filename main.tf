@@ -225,9 +225,9 @@ module "flex_postgresql" {
   server_version                 = each.value.server_version
   firewall_rule_prefix           = "${var.prefix}-${each.key}-postgres-firewall-"
   firewall_rules                 = local.postgres_firewall_rules
-  public_network_access_enabled  = each.value.public_network_access_enabled
-  virtual_network_id             = each.value.public_network_access_enabled ? null : module.vnet.id
-  delegated_subnet_id            = each.value.public_network_access_enabled ? null : module.vnet.subnets["postgresql"].id
+  connectivity_method            = each.value.connectivity_method
+  virtual_network_id             = each.value.connectivity_method == "private" ? module.vnet.id : null
+  delegated_subnet_id            = each.value.connectivity_method == "private" ? module.vnet.subnets["postgresql"].id : null
   postgresql_configurations      = each.value.ssl_enforcement_enabled ? concat(each.value.postgresql_configurations, local.default_postgres_configuration) : concat(
     each.value.postgresql_configurations, [{name: "require_secure_transport", value: "OFF"}], local.default_postgres_configuration)
   tags                           = var.tags

@@ -7,14 +7,14 @@
 
 # https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/postgresql_flexible_server
 resource "azurerm_private_dns_zone" "flexpsql" {
-  count = var.public_network_access_enabled ? 0 : 1
+  count = var.connectivity_method == "public" ? 0 : 1
 
   name                = "${var.server_name}.postgres.database.azure.com"
   resource_group_name = var.resource_group_name
 }
 
 resource "azurerm_private_dns_zone_virtual_network_link" "flexpsql" {
-  count = var.public_network_access_enabled ? 0 : 1
+  count = var.connectivity_method == "public" ? 0 : 1
 
   name                  = var.server_name
   private_dns_zone_name = azurerm_private_dns_zone.flexpsql.0.name
@@ -59,7 +59,7 @@ resource "azurerm_postgresql_flexible_server_configuration" "flexpsql" {
 }
 
 resource "azurerm_postgresql_flexible_server_firewall_rule" "flexpsql" {
-  count = var.public_network_access_enabled ? length(var.firewall_rules) : 0
+  count = var.connectivity_method == "public" ? length(var.firewall_rules) : 0
 
   name             = format("%s%s", var.firewall_rule_prefix, lookup(var.firewall_rules[count.index], "name", count.index))
   server_id        = azurerm_postgresql_flexible_server.flexpsql.id
@@ -69,7 +69,7 @@ resource "azurerm_postgresql_flexible_server_firewall_rule" "flexpsql" {
 
 # NOTE: This firewall rule enables the flag - "Allow public access from any Azure service within Azure to this server"
 resource "azurerm_postgresql_flexible_server_firewall_rule" "azure_public" {
-  count = var.public_network_access_enabled ? 1 : 0
+  count = var.connectivity_method == "public" ? 1 : 0
 
   name             = "Allow-public-access-from-any-Azure-service"
   server_id        = azurerm_postgresql_flexible_server.flexpsql.id

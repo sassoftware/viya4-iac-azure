@@ -34,7 +34,7 @@ postgres_servers = {
 
 # postgres_servers = {
 #   default = {
-#     public_network_access_enabled = false
+#     connectivity_method = "private"
 #   }
 # }
 #

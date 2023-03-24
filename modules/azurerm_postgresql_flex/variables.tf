@@ -56,10 +56,10 @@ variable "server_version" {
   default     = "13"
 }
 
-variable "public_network_access_enabled" {
-  description = "Whether or not public network access is allowed for this server. Defaults to true"
-  type        = bool
-  default     = true
+variable "connectivity_method" {
+  description = "Network connectivity options to connect to your flexible server. Valid options are 'public' and 'private'. Defaults to public"
+  type        = string
+  default     = "public"
 }
 
 variable "firewall_rule_prefix" {

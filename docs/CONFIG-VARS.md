@@ -340,7 +340,7 @@ Each server element, like `foo = {}`, can contain none, some, or all of the para
 | administrator_password | The Password associated with the administrator_login for the PostgreSQL Flexible Server | string | "my$up3rS3cretPassw0rd" | The password must contain between 8 and 128 characters and must contain characters from three of the following categories: English uppercase letters, English lowercase letters, numbers (0 through 9), and non-alphanumeric characters (!, $, #, %, etc.). |
 | server_version | The version of the PostgreSQL Flexible server instance | string | "13" | Refer to the [SAS Viya Platform Administration Guide](https://go.documentation.sas.com/doc/en/sasadmincdc/default/itopssr/p05lfgkwib3zxbn1t6nyihexp12n.htm?fromDefault=#p1wq8ouke3c6ixn1la636df9oa1u) for the supported versions of PostgreSQL for the SAS Viya platform. |
 | ssl_enforcement_enabled | Enforce SSL on connection to the Azure Database for PostgreSQL Flexible server instance | bool | true | |
-| public_network_access_enabled | Network connectivity option to connect to your flexible server. Default method is public access with firewall rules enabled. Setting this value to false will enable private access. | bool | true | Azure Database for PostgreSQL - Flexible Server supports two types of mutually exclusive network connectivity methods to connect to your flexible server. The two options are Public access (allowed IP addresses) and Private access (VNet Integration). See details [here](https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/concepts-networking) |
+| connectivity_method | Network connectivity option to connect to your flexible server. The two options are Public access (allowed IP addresses) and Private access (VNet Integration). Defaults to public access with firewall rules enabled.| string | "public" | Valid options are `public` and `private`. See details [here](https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/concepts-networking) |
 | postgresql_configurations | Sets a PostgreSQL Configuration value on a Azure PostgreSQL Flexible Server | list(object) | [] | More details can be found [here](https://docs.microsoft.com/en-us/azure/postgresql/flexible-server/howto-configure-server-parameters-using-cli) |
 
 Here is a sample of the `postgres_servers` variable with the `default` entry only overriding the `administrator_password` parameter and the `cps` entry overriding all of the parameters:
@@ -359,6 +359,7 @@ postgres_servers = {
     administrator_password       = "1tsAB3aut1fulDay"
     server_version               = "13"
     ssl_enforcement_enabled      = true
+    connectivity_method          = "public"
     postgresql_configurations    = [
        {
          name  = "azure.extensions"
