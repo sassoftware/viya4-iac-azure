@@ -213,24 +213,24 @@ module "flex_postgresql" {
 
   for_each = local.postgres_servers != null ? length(local.postgres_servers) != 0 ? local.postgres_servers : {} : {}
 
-  resource_group_name            = local.aks_rg.name
-  location                       = var.location
-  server_name                    = lower("${var.prefix}-${each.key}") # suffix '-flexpsql' added in the module
-  sku_name                       = each.value.sku_name
-  storage_mb                     = each.value.storage_mb
-  backup_retention_days          = each.value.backup_retention_days
-  geo_redundant_backup_enabled   = each.value.geo_redundant_backup_enabled
-  administrator_login            = each.value.administrator_login
-  administrator_password         = each.value.administrator_password
-  server_version                 = each.value.server_version
-  firewall_rule_prefix           = "${var.prefix}-${each.key}-postgres-firewall-"
-  firewall_rules                 = local.postgres_firewall_rules
-  connectivity_method            = each.value.connectivity_method
-  virtual_network_id             = each.value.connectivity_method == "private" ? module.vnet.id : null
-  delegated_subnet_id            = each.value.connectivity_method == "private" ? module.vnet.subnets["postgresql"].id : null
-  postgresql_configurations      = each.value.ssl_enforcement_enabled ? concat(each.value.postgresql_configurations, local.default_postgres_configuration) : concat(
-    each.value.postgresql_configurations, [{name: "require_secure_transport", value: "OFF"}], local.default_postgres_configuration)
-  tags                           = var.tags
+  resource_group_name          = local.aks_rg.name
+  location                     = var.location
+  server_name                  = lower("${var.prefix}-${each.key}") # suffix '-flexpsql' added in the module
+  sku_name                     = each.value.sku_name
+  storage_mb                   = each.value.storage_mb
+  backup_retention_days        = each.value.backup_retention_days
+  geo_redundant_backup_enabled = each.value.geo_redundant_backup_enabled
+  administrator_login          = each.value.administrator_login
+  administrator_password       = each.value.administrator_password
+  server_version               = each.value.server_version
+  firewall_rule_prefix         = "${var.prefix}-${each.key}-postgres-firewall-"
+  firewall_rules               = local.postgres_firewall_rules
+  connectivity_method          = each.value.connectivity_method
+  virtual_network_id           = each.value.connectivity_method == "private" ? module.vnet.id : null
+  delegated_subnet_id          = each.value.connectivity_method == "private" ? module.vnet.subnets["postgresql"].id : null
+  postgresql_configurations = each.value.ssl_enforcement_enabled ? concat(each.value.postgresql_configurations, local.default_postgres_configuration) : concat(
+  each.value.postgresql_configurations, [{ name : "require_secure_transport", value : "OFF" }], local.default_postgres_configuration)
+  tags = var.tags
 }
 
 module "netapp" {

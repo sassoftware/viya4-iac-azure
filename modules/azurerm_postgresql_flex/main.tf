@@ -5,16 +5,17 @@
 ### Managed PostgreSQL Flexible server on Azure ###
 ###################################################
 
-# https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/postgresql_flexible_server
+## https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/postgresql_flexible_server
+
 resource "azurerm_private_dns_zone" "flexpsql" {
-  count = var.connectivity_method == "public" ? 0 : 1
+  count = var.connectivity_method == "private" ? 1 : 0
 
   name                = "${var.server_name}.postgres.database.azure.com"
   resource_group_name = var.resource_group_name
 }
 
 resource "azurerm_private_dns_zone_virtual_network_link" "flexpsql" {
-  count = var.connectivity_method == "public" ? 0 : 1
+  count = var.connectivity_method == "private" ? 1 : 0
 
   name                  = var.server_name
   private_dns_zone_name = azurerm_private_dns_zone.flexpsql.0.name

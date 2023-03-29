@@ -260,16 +260,16 @@ variable "postgres_server_defaults" {
   description = ""
   type        = any
   default = {
-    sku_name                      = "GP_Standard_D16s_v3"
-    storage_mb                    = 65536
-    backup_retention_days         = 7
-    geo_redundant_backup_enabled  = false
-    administrator_login           = "pgadmin"
-    administrator_password        = "my$up3rS3cretPassw0rd"
-    server_version                = "13"
-    ssl_enforcement_enabled       = true
-    connectivity_method           = "public"
-    postgresql_configurations     = []
+    sku_name                     = "GP_Standard_D16s_v3"
+    storage_mb                   = 65536
+    backup_retention_days        = 7
+    geo_redundant_backup_enabled = false
+    administrator_login          = "pgadmin"
+    administrator_password       = "my$up3rS3cretPassw0rd"
+    server_version               = "13"
+    ssl_enforcement_enabled      = true
+    connectivity_method          = "public"
+    postgresql_configurations    = []
   }
 }
 
