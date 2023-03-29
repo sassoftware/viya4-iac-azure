@@ -95,11 +95,11 @@ variable "virtual_network_id" {
 }
 
 variable "delegated_subnet_id" {
-  description = "Subnet Id"
+  description = "The ID of the virtual network subnet to create the PostgreSQL Flexible Server. The provided subnet should not have any other resource deployed in it and this subnet will be delegated to the PostgreSQL Flexible Server, if not already delegated. Changing this forces a new PostgreSQL Flexible Server to be created."
   type        = string
 }
 
-# variable "private_dns_zone_id" {
-#   description = "The ID of the private DNS zone to create the PostgreSQL Flexible Server. Changing this forces a new PostgreSQL Flexible Server to be created."
-#   type        = string
-# }
+variable "private_dns_zone_id" {
+  description = "The ID of the private DNS zone to create the PostgreSQL Flexible Server. Changing this forces a new PostgreSQL Flexible Server to be created."
+  type        = string
+}
