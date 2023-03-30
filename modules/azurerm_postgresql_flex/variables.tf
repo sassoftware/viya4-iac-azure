@@ -102,4 +102,5 @@ variable "delegated_subnet_id" {
 variable "private_dns_zone_id" {
   description = "The ID of the private DNS zone to create the PostgreSQL Flexible Server. Changing this forces a new PostgreSQL Flexible Server to be created."
   type        = string
+  default     = null
 }
