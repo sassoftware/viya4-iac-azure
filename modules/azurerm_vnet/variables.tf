@@ -1,13 +1,22 @@
+# Copyright © 2020-2023, SAS Institute Inc., Cary, NC, USA. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
 variable "name" {
-  description = "Name of the pre-existing vNet"
+  description = "Name of the pre-existing VNet"
+  type        = string
   default     = null
 }
 
 variable "prefix" {
-  default = null
+  description = "A prefix to be used in resources creation"
+  type        = string
+  default     = null
 }
 
-variable "location" {}
+variable "location" {
+  description = "The Azure Region to provision the Virtual Network"
+  type        = string
+}
 
 variable "resource_group_name" {
   description = "Name of the resource group to be imported."
@@ -15,8 +24,8 @@ variable "resource_group_name" {
 }
 
 variable "address_space" {
-  type        = list(string)
   description = "The address space that is used by the virtual network."
+  type        = list(string)
 }
 
 # If no values specified, this defaults to Azure DNS 
@@ -27,12 +36,13 @@ variable "dns_servers" {
 }
 
 variable "subnets" {
+  description = "Subnets to be created and their settings"
   type = map(object({
-    prefixes                                       = list(string)
-    service_endpoints                              = list(string)
-    private_endpoint_network_policies_enabled      = bool
-    private_link_service_network_policies_enabled  = bool
-    service_delegations                            = map(object({
+    prefixes                                      = list(string)
+    service_endpoints                             = list(string)
+    private_endpoint_network_policies_enabled     = bool
+    private_link_service_network_policies_enabled = bool
+    service_delegations = map(object({
       name    = string
       actions = list(string)
     }))
@@ -42,8 +52,9 @@ variable "subnets" {
 }
 
 variable "existing_subnets" {
-  type    = map(string)
-  default = {}
+  description = "Set of existing subnets"
+  type        = map(string)
+  default     = {}
 }
 
 variable "tags" {

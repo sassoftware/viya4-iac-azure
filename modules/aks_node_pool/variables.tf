@@ -1,28 +1,43 @@
-# REQUIRED variables (must be set by caller of the module)
+# Copyright © 2020-2023, SAS Institute Inc., Cary, NC, USA. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
 
 variable "node_pool_name" {
-  type = string
+  description = "The name of the Node Pool which should be created within the Kubernetes Cluster. Changing this forces a new resource to be created."
+  type        = string
 }
 
 variable "aks_cluster_id" {
-  type = string
+  description = "The ID of the Kubernetes Cluster where this Node Pool should exist. Changing this forces a new resource to be created."
+  type        = string
 }
 
 variable "zones" {
-  type    = list(string)
-  default = []
+  description = "Specifies a list of Availability Zones in which this Kubernetes Cluster Node Pool should be located. Changing this forces a new Kubernetes Cluster Node Pool to be created."
+  type        = list(string)
+  default     = []
+}
+
+variable "fips_enabled" {
+  description = "Should the nodes in this Node Pool have Federal Information Processing Standard enabled? Changing this forces a new resource to be created."
+  type        = bool
+  default     = false
 }
 
 variable "vnet_subnet_id" {
-  default = null
+  description = "The ID of the Subnet where this Node Pool should exist. Changing this forces a new resource to be created."
+  type        = string
+  default     = null
 }
 
 variable "machine_type" {
-  type = string
+  description = "The SKU which should be used for the Virtual Machines used in this Node Pool. Changing this forces a new resource to be created."
+  type        = string
 }
 
 variable "os_disk_size" {
-  default = 100
+  description = "The Agent Operating System disk size in GB. Changing this forces a new resource to be created."
+  type        = number
+  default     = 100
 }
 
 # TODO: enable after azurerm v2.37.0
@@ -39,11 +54,61 @@ variable "os_type" {
 }
 
 variable "node_count" {
-  default = 1
+  description = "The number of nodes which should exist within this Node Pool."
+  type        = number
+  default     = 1
 }
 
 variable "enable_auto_scaling" {
-  default = false
+  description = "Whether to enable auto-scaler."
+  type        = bool
+  default     = false
+}
+
+variable "max_pods" {
+  description = "The maximum number of pods that can run on each agent. Changing this forces a new resource to be created."
+  type        = number
+  default     = 110
+}
+
+variable "max_nodes" {
+  description = "The maximum number of nodes which should exist within this Node Pool."
+  type        = number
+  default     = 1
+}
+
+variable "min_nodes" {
+  description = "The minimum number of nodes which should exist within this Node Pool."
+  type        = number
+  default     = 1
+}
+
+variable "node_taints" {
+  description = "A list of the taints added to new nodes during node pool create and scale. Changing this forces a new resource to be created."
+  type    = list(any)
+  default = []
+}
+
+variable "node_labels" {
+  description = "A map of Kubernetes labels which should be applied to nodes in this Node Pool."
+  type        = map(any)
+  default     = {}
+}
+
+variable "orchestrator_version" {
+  description = "Version of Kubernetes used for the Agents. If not specified, the latest recommended version will be used at provisioning time (but won't auto-upgrade)"
+  type        = string
+}
+
+variable "tags" {
+  description = "Map of tags to be placed on the Resources"
+  type        = map(any)
+}
+
+variable "proximity_placement_group_id" {
+  description = "The ID of the Proximity Placement Group where the Virtual Machine Scale Set that powers this Node Pool will be placed. Changing this forces a new resource to be created."
+  type        = string
+  default     = ""
 }
 
 # For future - https://docs.microsoft.com/en-us/azure/aks/spot-node-pool
@@ -65,42 +130,3 @@ variable "enable_auto_scaling" {
 #   type        = number
 #   default     = -1
 # }
-
-variable "max_pods" {
-  description = "The maximum number of pods that can run on each agent. Changing this forces a new resource to be created."
-  type        = number
-  default     = 110
-}
-
-variable "max_nodes" {
-  default = 1
-}
-
-variable "min_nodes" {
-  default = 1
-}
-
-variable "node_taints" {
-  type    = list
-  default = []
-}
-
-variable "node_labels" {
-  type    = map
-  default = {}
-}
-
-variable "orchestrator_version" {
-  description = "Version of Kubernetes used for the Agents. If not specified, the latest recommended version will be used at provisioning time (but won't auto-upgrade)"
-  type        = string
-}
-
-variable "tags" {
-  description = "Map of tags to be placed on the Resources"
-  type        = map
-}
-
-variable "proximity_placement_group_id" {
-  type    = string
-  default = ""
-}

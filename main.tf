@@ -1,3 +1,6 @@
+# Copyright © 2020-2023, SAS Institute Inc., Cary, NC, USA. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
 ## Azure-AKS
 #
 # Terraform Registry : https://registry.terraform.io/namespaces/Azure
@@ -132,6 +135,7 @@ module "aks" {
   aks_cluster_dns_prefix                   = "${var.prefix}-aks"
   aks_cluster_sku_tier                     = var.aks_cluster_sku_tier
   aks_cluster_location                     = var.location
+  fips_enabled                             = var.fips_enabled
   aks_cluster_node_auto_scaling            = var.default_nodepool_min_nodes == var.default_nodepool_max_nodes ? false : true
   aks_cluster_node_count                   = var.default_nodepool_min_nodes
   aks_cluster_min_nodes                    = var.default_nodepool_min_nodes == var.default_nodepool_max_nodes ? null : var.default_nodepool_min_nodes
@@ -186,6 +190,7 @@ module "node_pools" {
   aks_cluster_id = module.aks.cluster_id
   vnet_subnet_id = module.vnet.subnets["aks"].id
   machine_type   = each.value.machine_type
+  fips_enabled   = var.fips_enabled
   os_disk_size   = each.value.os_disk_size
   # TODO: enable with azurerm v2.37.0
   #  os_disk_type                 = each.value.os_disk_type
@@ -220,9 +225,9 @@ module "flex_postgresql" {
   server_version               = each.value.server_version
   firewall_rule_prefix         = "${var.prefix}-${each.key}-postgres-firewall-"
   firewall_rules               = local.postgres_firewall_rules
-  postgresql_configurations    = each.value.ssl_enforcement_enabled ? concat(each.value.postgresql_configurations, local.default_postgres_configuration) : concat(
-    each.value.postgresql_configurations, [{name: "require_secure_transport", value: "OFF"}], local.default_postgres_configuration)
-  tags                         = var.tags
+  postgresql_configurations = each.value.ssl_enforcement_enabled ? concat(each.value.postgresql_configurations, local.default_postgres_configuration) : concat(
+  each.value.postgresql_configurations, [{ name : "require_secure_transport", value : "OFF" }], local.default_postgres_configuration)
+  tags = var.tags
 }
 
 module "netapp" {
