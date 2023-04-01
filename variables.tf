@@ -164,7 +164,7 @@ variable "aks_network_plugin" {
 
   validation {
     condition     = contains(["kubenet", "azure"], var.aks_network_plugin)
-    error_message = "Error: Currently the supported values are `kubenet` and `azure`"
+    error_message = "Error: Currently the supported values are 'kubenet' and 'azure'."
   }
 }
 
@@ -175,7 +175,7 @@ variable "aks_network_policy" {
 
   validation {
     condition     = contains(["azure", "calico"], var.aks_network_policy)
-    error_message = "Error: Currently the supported values are `calico` and `azure`"
+    error_message = "Error: Currently the supported values are 'calico' and 'azure'."
   }
 }
 
@@ -490,7 +490,7 @@ variable "netapp_network_features" {
 
   validation {
     condition     = contains(["Basic", "Standard"], var.netapp_network_features)
-    error_message = "Error: Currently the supported values are `Basic` and `Standard`"
+    error_message = "Error: Currently the supported values are 'Basic' and 'Standard'."
   }
 }
 
