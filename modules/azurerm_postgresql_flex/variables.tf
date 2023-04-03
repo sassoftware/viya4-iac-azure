@@ -56,10 +56,10 @@ variable "server_version" {
   default     = "13"
 }
 
-variable "public_network_access_enabled" {
-  description = "Whether or not public network access is allowed for this server. Defaults to true"
-  type        = bool
-  default     = true
+variable "connectivity_method" {
+  description = "Network connectivity options to connect to your flexible server. Valid options are 'public' and 'private'. Defaults to public"
+  type        = string
+  default     = "public"
 }
 
 variable "firewall_rule_prefix" {
@@ -87,4 +87,20 @@ variable "postgresql_configurations" {
     value = string
   }))
   default = []
+}
+
+variable "virtual_network_id" {
+  description = "The ID of the Virtual Network that should be linked to the DNS Zone. Changing this forces a new resource to be created."
+  type        = string
+}
+
+variable "delegated_subnet_id" {
+  description = "The ID of the virtual network subnet to create the PostgreSQL Flexible Server. The provided subnet should not have any other resource deployed in it and this subnet will be delegated to the PostgreSQL Flexible Server, if not already delegated. Changing this forces a new PostgreSQL Flexible Server to be created."
+  type        = string
+}
+
+variable "private_dns_zone_id" {
+  description = "The ID of the private DNS zone to create the PostgreSQL Flexible Server. Changing this forces a new PostgreSQL Flexible Server to be created."
+  type        = string
+  default     = null
 }
