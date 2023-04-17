@@ -268,6 +268,7 @@ variable "postgres_server_defaults" {
     administrator_password       = "my$up3rS3cretPassw0rd"
     server_version               = "13"
     ssl_enforcement_enabled      = true
+    connectivity_method          = "public"
     postgresql_configurations    = []
   }
 }
