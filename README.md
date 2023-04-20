@@ -57,7 +57,7 @@ This project supports two options for running Terraform scripts:
 Access to an **Azure Subscription** and an [**Identity**](./docs/user/TerraformAzureAuthentication.md) with the *Contributor* role are required.
 
 #### Terraform Requirements:
-- [Terraform](https://www.terraform.io/downloads.html) - v1.0.0
+- [Terraform](https://www.terraform.io/downloads.html) - v1.4.5
 - [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl) - v1.24
 - [jq](https://stedolan.github.io/jq/) - v1.6
 - [Azure CLI](https://docs.microsoft.com/en-us/cli/azure) - (optional - useful as an alternative to the Azure Portal) - v2.45.0
