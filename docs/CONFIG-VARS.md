@@ -85,7 +85,7 @@ You can use `default_public_access_cidrs` to set a default range for all created
 | subnets | Subnets to be created and their settings | map(object) | *check below* | This variable is ignored when subnet_names is set (AKA bring your own subnets). All defined subnets must exist within the vnet address space. |
 | cluster_egress_type | The outbound (egress) routing method to be used for this Kubernetes Cluster | string | "loadBalancer" | Possible values: <ul><li>`loadBalancer`<li>`userDefinedRouting`</ul> By default, AKS will create and use a [loadbalancer](https://docs.microsoft.com/en-us/azure/aks/load-balancer-standard) for outgoing connections.<p>Set to `userDefinedRouting` when using your own network [egress](https://docs.microsoft.com/en-us/azure/aks/egress-outboundtype).|
 | aks_network_plugin | Network plugin to use for networking. Currently supported values are `azure` and `kubenet`| string | `kubenet`| For details see Azure's documentation on: [configure kubenet](https://docs.microsoft.com/en-us/azure/aks/configure-kubenet), [Configure Azure CNI](https://learn.microsoft.com/en-us/azure/aks/configure-azure-cni).<br>**Note**: To support Azure CNI your Subnet must be large enough to accommodate the nodes, pods, and all Kubernetes and Azure resources that might be provisioned in your cluster.<br>To calculate the minimum subnet size including an additional node for upgrade operations use formula: `(number of nodes + 1) + ((number of nodes + 1) * maximum pods per node that you configure)` <br>Example for a 5 node cluster: `(5) + (5 * 110) = 555 (/22 or larger)`|
-| aks_network_policy | Sets up network policy to be used with Azure CNI. Network policy allows to control the traffic flow between pods. Currently supported values are `calico` and `azure`.| string | `azure`| Network policy can only be used when `aks_network_plugin` is set to `azure`. |
+| aks_network_policy | Sets up network policy to be used with Azure CNI. Network policy allows to control the traffic flow between pods. Currently supported values are `calico` and `azure`.| string | `azure`| Network policy `azure` is only supported for `aks_network_plugin = azure` and network policy `calico` is supported for both `aks_network_plugin` values `azure` and `kubenet`. |
 
 
 The default values for the `subnets` variable are as follows:
@@ -340,6 +340,7 @@ Each server element, like `foo = {}`, can contain none, some, or all of the para
 | administrator_password | The Password associated with the administrator_login for the PostgreSQL Flexible Server | string | "my$up3rS3cretPassw0rd" | The password must contain between 8 and 128 characters and must contain characters from three of the following categories: English uppercase letters, English lowercase letters, numbers (0 through 9), and non-alphanumeric characters (!, $, #, %, etc.). |
 | server_version | The version of the PostgreSQL Flexible server instance | string | "13" | Refer to the [SAS Viya Platform Administration Guide](https://go.documentation.sas.com/doc/en/sasadmincdc/default/itopssr/p05lfgkwib3zxbn1t6nyihexp12n.htm?fromDefault=#p1wq8ouke3c6ixn1la636df9oa1u) for the supported versions of PostgreSQL for the SAS Viya platform. |
 | ssl_enforcement_enabled | Enforce SSL on connection to the Azure Database for PostgreSQL Flexible server instance | bool | true | |
+| connectivity_method | Network connectivity option to connect to your flexible server. There are two connectivity options available: Public access (allowed IP addresses) and Private access (VNet Integration). Defaults to public access with firewall rules enabled.| string | "public" | Valid options are `public` and `private`. See details [here](https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/concepts-networking) |
 | postgresql_configurations | Sets a PostgreSQL Configuration value on a Azure PostgreSQL Flexible Server | list(object) | [] | More details can be found [here](https://docs.microsoft.com/en-us/azure/postgresql/flexible-server/howto-configure-server-parameters-using-cli) |
 
 Here is a sample of the `postgres_servers` variable with the `default` entry only overriding the `administrator_password` parameter and the `cps` entry overriding all of the parameters:
@@ -358,6 +359,7 @@ postgres_servers = {
     administrator_password       = "1tsAB3aut1fulDay"
     server_version               = "13"
     ssl_enforcement_enabled      = true
+    connectivity_method          = "public"
     postgresql_configurations    = [
        {
          name  = "azure.extensions"
