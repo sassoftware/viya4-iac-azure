@@ -340,9 +340,9 @@ Each server element, like `foo = {}`, can contain none, some, or all of the para
 | ssl_enforcement_enabled | Enforce SSL on connection to the Azure Database for PostgreSQL Flexible server instance | bool | true | |
 | postgresql_configurations | Sets a PostgreSQL Configuration value on a Azure PostgreSQL Flexible Server | list(object) | [] | More details can be found [here](https://docs.microsoft.com/en-us/azure/postgresql/flexible-server/howto-configure-server-parameters-using-cli) |
 
-Multiple SAS offerings require a second PostgreSQL instance referred to as SAS Common Data Store, or CDS PostgreSQL. For more information, see [Common Customizations](https://go.documentation.sas.com/doc/en/itopscdc/default/dplyml0phy0dkr/n08u2yg8tdkb4jn18u8zsi6yfv3d.htm#p0wkxxi9s38zbzn19ukjjaxsc0kl). A list of SAS offerings that require CDS PostgreSQL is provided in [SAS Common Data Store Requirements](https://go.documentation.sas.com/doc/en/itopscdc/default/itopssr/p06lfgkwib3zxbn1t6nyihexp12n.htm#n03wzanutmc6gon1val5fykas9aa). To create and configure an external CDS PostgreSQL instance in addition to the external platform PostgreSQL instance named `default`, specify "cds-postgres" as a second PostgreSQL instance, as shown in the example below.
+Multiple SAS offerings require a second PostgreSQL instance referred to as SAS Common Data Store, or CDS PostgreSQL. For more information, see [Common Customizations](https://go.documentation.sas.com/doc/en/itopscdc/default/dplyml0phy0dkr/n08u2yg8tdkb4jn18u8zsi6yfv3d.htm#p0wkxxi9s38zbzn19ukjjaxsc0kl). A list of SAS offerings that require CDS PostgreSQL is provided in [SAS Common Data Store Requirements](https://go.documentation.sas.com/doc/en/itopscdc/default/itopssr/p06lfgkwib3zxbn1t6nyihexp12n.htm#n03wzanutmc6gon1val5fykas9aa). To create and configure an external CDS PostgreSQL instance in addition to the external platform PostgreSQL instance named `default`, specify `cds-postgres` as a second PostgreSQL instance, as shown in the example below.
 
-Here is an example of the `postgres_servers` variable with the `default` server entry overriding only the `administrator_password` and `postgresql_configurations` parameters, and the `cds-postgres` entry overriding none of the parameters:
+Here is an example of the `postgres_servers` variable with the `default` server entry overriding only the `administrator_password` and `postgresql_configurations` parameters, and the `cds-postgres` entry overriding the `sku_name`, `storage_mb`, `backup_retention_days`, `administrator_login` and `administrator_password` parameters:
 
 ```terraform
 postgres_servers = {
@@ -355,32 +355,12 @@ postgres_servers = {
        }
       ]
   },
-  cds-postgres = {}
-}
-```
-
-Here is an example of the `postgres_servers` variable with the `default` server entry overriding only the `administrator_password` parameter, and the `cps` entry overriding all parameters:
-
-```terraform
-postgres_servers = {
-  default = {
-    administrator_password       = "D0ntL00kTh1sWay"
-  },
-  another_server = {
+  cds-postgres = {
     sku_name                     = "GP_Standard_D16s_v3"
     storage_mb                   = 65536
     backup_retention_days        = 7
-    geo_redundant_backup_enabled = false
     administrator_login          = "pgadmin"
     administrator_password       = "1tsAB3aut1fulDay"
-    server_version               = "13"
-    ssl_enforcement_enabled      = true
-    postgresql_configurations    = [
-       {
-         name  = "azure.extensions"
-         value = "PLPGSQL,LTREE"
-       }
-      ]
   }
 }
 ```
