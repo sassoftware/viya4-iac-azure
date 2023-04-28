@@ -19,12 +19,66 @@ ssh_public_key              = "~/.ssh/id_rsa.pub"
 # Tags can be specified matching your tagging strategy.
 tags = {} # for example: { "owner|email" = "<you>@<domain>.<com>", "key1" = "value1", "key2" = "value2" }
 
-# Postgres config - By having this entry a database server is created. If you do not
-#                   need an external database server remove the 'postgres_servers'
+# PostgreSQL
+
+# Postgres config - By having this entry a database server is created. 
+#                   Default networking option: Public access (allowed IP addresses) is enabled
+#                   If you do not need an external database server remove the 'postgres_servers'
 #                   block below.
 postgres_servers = {
   default = {},
 }
+
+# To use Private access (VNet Integration) remove the 'postgres_servers' block above and uncomment the blocks below:
+# postgres_servers and subnets
+
+# postgres_servers = {
+#   default = {
+#     connectivity_method = "private"
+#   }
+# }
+#
+# # Subnet for PostgreSQL
+# subnets = {
+#   aks = {
+#     "prefixes" : ["192.168.0.0/23"],
+#     "service_endpoints" : ["Microsoft.Sql"],
+#     "private_endpoint_network_policies_enabled" : true,
+#     "private_link_service_network_policies_enabled" : false,
+#     "service_delegations" : {},
+#   }
+#   misc = {
+#     "prefixes" : ["192.168.2.0/24"],
+#     "service_endpoints" : ["Microsoft.Sql"],
+#     "private_endpoint_network_policies_enabled" : true,
+#     "private_link_service_network_policies_enabled" : false,
+#     "service_delegations" : {},
+#   }
+#   netapp = {
+#     "prefixes" : ["192.168.3.0/24"],
+#     "service_endpoints" : [],
+#     "private_endpoint_network_policies_enabled" : false,
+#     "private_link_service_network_policies_enabled" : false,
+#     "service_delegations" : {
+#       netapp = {
+#         "name" : "Microsoft.Netapp/volumes"
+#         "actions" : ["Microsoft.Network/networkinterfaces/*", "Microsoft.Network/virtualNetworks/subnets/join/action"]
+#       }
+#     }
+#   }
+#   postgresql = {
+#     "prefixes": ["192.168.4.0/24"],
+#     "service_endpoints": ["Microsoft.Sql"],
+#     "private_endpoint_network_policies_enabled": true,
+#     "private_link_service_network_policies_enabled": false,
+#     "service_delegations": {
+#       flexpostgres = {
+#         "name"    : "Microsoft.DBforPostgreSQL/flexibleServers"
+#         "actions" : ["Microsoft.Network/virtualNetworks/subnets/join/action"]
+#       }
+#     }
+#   }
+# }
 
 # Azure Container Registry config
 create_container_registry           = false
@@ -32,7 +86,7 @@ container_registry_sku              = "Standard"
 container_registry_admin_enabled    = false
 
 # AKS config
-kubernetes_version         = "1.24"
+kubernetes_version         = "1.25"
 default_nodepool_min_nodes = 2
 default_nodepool_vm_type   = "Standard_D8s_v4"
 

@@ -123,7 +123,7 @@ variable "default_nodepool_vm_type" {
 variable "kubernetes_version" {
   description = "The AKS cluster K8s version"
   type        = string
-  default     = "1.24"
+  default     = "1.25"
 }
 
 variable "default_nodepool_max_nodes" {
@@ -268,6 +268,7 @@ variable "postgres_server_defaults" {
     administrator_password       = "my$up3rS3cretPassw0rd"
     server_version               = "13"
     ssl_enforcement_enabled      = true
+    connectivity_method          = "public"
     postgresql_configurations    = []
   }
 }
