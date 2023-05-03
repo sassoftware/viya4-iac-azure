@@ -347,7 +347,7 @@ postgres_servers = {
   default = {
     administrator_password       = "D0ntL00kTh1sWay"
   },
-  another_server = {
+  another-server = {
     sku_name                     = "GP_Standard_D16s_v3"
     storage_mb                   = 65536
     backup_retention_days        = 7
