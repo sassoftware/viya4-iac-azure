@@ -5,22 +5,43 @@ locals {
   service_account_name        = "${var.prefix}-cluster-admin-sa"
   cluster_role_binding_name   = "${var.prefix}-cluster-admin-crb"
   service_account_secret_name = "${var.prefix}-sa-secret"
-}
 
-# Provider based kube config data/template/resources
-data "template_file" "kubeconfig_provider" {
-  count = var.create_static_kubeconfig ? 0 : 1
-  template = file("${path.module}/templates/kubeconfig-provider.tmpl")
-
-  vars = {
+  # updating template_file to templatefile function
+  # Provider based kube config data/template/resources
+  kubeconfig_provider = var.create_static_kubeconfig ? null : templatefile("${path.module}/templates/kubeconfig-provider.tmpl", {
     cluster_name = var.cluster_name
     endpoint     = var.endpoint
     ca_crt       = var.ca_crt
     client_crt   = var.client_crt
     client_key   = var.client_key
     token        = var.token
-  }
+  })
+
+  # Service Account based kube config data/template/resources
+  kubeconfig_sa = var.create_static_kubeconfig ? templatefile("${path.module}/templates/kubeconfig-sa.tmpl", {
+    cluster_name = var.cluster_name
+    endpoint     = var.endpoint
+    name         = local.service_account_name
+    ca_crt       = base64encode(lookup(data.kubernetes_secret.sa_secret.0.data,"ca.crt", ""))
+    token        = lookup(data.kubernetes_secret.sa_secret.0.data,"token", "")
+    namespace    = var.namespace
+  }) : null
 }
+
+# Provider based kube config data/template/resources
+# data "template_file" "kubeconfig_provider" {
+#   count = var.create_static_kubeconfig ? 0 : 1
+#   template = file("${path.module}/templates/kubeconfig-provider.tmpl")
+
+#   vars = {
+#     cluster_name = var.cluster_name
+#     endpoint     = var.endpoint
+#     ca_crt       = var.ca_crt
+#     client_crt   = var.client_crt
+#     client_key   = var.client_key
+#     token        = var.token
+#   }
+# }
 
 # Service Account based kube config data/template/resources
 data "kubernetes_secret" "sa_secret" {
@@ -33,21 +54,21 @@ data "kubernetes_secret" "sa_secret" {
   depends_on = [kubernetes_secret.sa_secret]
 }
 
-data "template_file" "kubeconfig_sa" {
-  count = var.create_static_kubeconfig ? 1 : 0
-  template = file("${path.module}/templates/kubeconfig-sa.tmpl")
+# data "template_file" "kubeconfig_sa" {
+#   count = var.create_static_kubeconfig ? 1 : 0
+#   template = file("${path.module}/templates/kubeconfig-sa.tmpl")
 
-  vars = {
-    cluster_name = var.cluster_name
-    endpoint     = var.endpoint
-    name         = local.service_account_name
-    ca_crt       = base64encode(lookup(data.kubernetes_secret.sa_secret.0.data,"ca.crt", ""))
-    token        = lookup(data.kubernetes_secret.sa_secret.0.data,"token", "")
-    namespace    = var.namespace
-  }
+#   vars = {
+#     cluster_name = var.cluster_name
+#     endpoint     = var.endpoint
+#     name         = local.service_account_name
+#     ca_crt       = base64encode(lookup(data.kubernetes_secret.sa_secret.0.data,"ca.crt", ""))
+#     token        = lookup(data.kubernetes_secret.sa_secret.0.data,"token", "")
+#     namespace    = var.namespace
+#   }
 
-  depends_on = [data.kubernetes_secret.sa_secret]
-}
+#   depends_on = [data.kubernetes_secret.sa_secret]
+# }
 
 # 1.24 change: Create service account secret
 resource "kubernetes_secret" "sa_secret" {
@@ -94,7 +115,7 @@ resource "kubernetes_cluster_role_binding" "kubernetes_crb" {
 
 # kube config file generation
 resource "local_file" "kubeconfig" {
-  content              = var.create_static_kubeconfig ? data.template_file.kubeconfig_sa.0.rendered : data.template_file.kubeconfig_provider.0.rendered
+  content              = var.create_static_kubeconfig ? local.kubeconfig_sa : local.kubeconfig_provider
   filename             = var.path
   file_permission      = "0644"
   directory_permission = "0755"
