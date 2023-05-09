@@ -12,7 +12,6 @@ locals {
     : var.storage_type == "ha" ? module.netapp.0.netapp_path : "/export"
   )
 
-  # updating template_file to templatefile function
   jump_cloudconfig = var.create_jump_vm ? templatefile("${path.module}/files/cloud-init/jump/cloud-config", {
     mounts = (var.storage_type == "none"
       ? "[]"
@@ -37,30 +36,6 @@ locals {
     vm_admin        = var.nfs_vm_admin
   }) : null
 }
-
-
-# data "template_file" "jump-cloudconfig" {
-#   template = file("${path.module}/files/cloud-init/jump/cloud-config")
-#   count    = var.create_jump_vm ? 1 : 0
-
-#   vars = {
-#     mounts = (var.storage_type == "none"
-#       ? "[]"
-#       : jsonencode(
-#         ["${local.rwx_filestore_endpoint}:${local.rwx_filestore_path}",
-#           "${var.jump_rwx_filestore_path}",
-#           "nfs",
-#           "_netdev,auto,x-systemd.automount,x-systemd.mount-timeout=10,timeo=14,x-systemd.idle-timeout=1min,relatime,hard,rsize=1048576,wsize=1048576,vers=3,tcp,namlen=255,retrans=2,sec=sys,local_lock=none",
-#           "0",
-#           "0"
-#       ])
-#     )
-#     rwx_filestore_endpoint  = local.rwx_filestore_endpoint
-#     rwx_filestore_path      = local.rwx_filestore_path
-#     jump_rwx_filestore_path = var.jump_rwx_filestore_path
-#     vm_admin                = var.jump_vm_admin
-#   }
-# }
 
 data "cloudinit_config" "jump" {
   count = var.create_jump_vm ? 1 : 0
@@ -95,16 +70,6 @@ module "jump" {
   # Jump VM mounts NFS path hence dependency on 'module.nfs'
   depends_on = [module.vnet, module.nfs]
 }
-
-# data "template_file" "nfs-cloudconfig" {
-#   template = file("${path.module}/files/cloud-init/nfs/cloud-config")
-#   count    = var.storage_type == "standard" ? 1 : 0
-#   vars = {
-#     aks_cidr_block  = module.vnet.subnets["aks"].address_prefixes.0
-#     misc_cidr_block = module.vnet.subnets["misc"].address_prefixes.0
-#     vm_admin        = var.nfs_vm_admin
-#   }
-# }
 
 data "cloudinit_config" "nfs" {
   count = var.storage_type == "standard" ? 1 : 0

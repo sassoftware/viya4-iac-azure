@@ -11,7 +11,7 @@ COPY --from=terraform /bin/terraform /bin/terraform
 COPY . .
 
 RUN apk update \
-  && apk --update --no-cache add git openssh \
+  && apk --no-cache add git openssh \
   && curl -sLO https://storage.googleapis.com/kubernetes-release/release/v$KUBECTL_VERSION/bin/linux/amd64/kubectl \
   && chmod 755 ./kubectl /viya4-iac-azure/docker-entrypoint.sh \
   && mv ./kubectl /usr/local/bin/kubectl \

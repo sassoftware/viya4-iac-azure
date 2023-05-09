@@ -6,8 +6,7 @@ locals {
   cluster_role_binding_name   = "${var.prefix}-cluster-admin-crb"
   service_account_secret_name = "${var.prefix}-sa-secret"
 
-  # updating template_file to templatefile function
-  # Provider based kube config data/template/resources
+  # Provider based kubeconfig: modules/kubeconfig/templates/kubeconfig-provider.tmpl
   kubeconfig_provider = var.create_static_kubeconfig ? null : templatefile("${path.module}/templates/kubeconfig-provider.tmpl", {
     cluster_name = var.cluster_name
     endpoint     = var.endpoint
@@ -17,7 +16,7 @@ locals {
     token        = var.token
   })
 
-  # Service Account based kube config data/template/resources
+  # Service Account based kubeconfig: modules/kubeconfig/templates/kubeconfig-sa.tmpl
   kubeconfig_sa = var.create_static_kubeconfig ? templatefile("${path.module}/templates/kubeconfig-sa.tmpl", {
     cluster_name = var.cluster_name
     endpoint     = var.endpoint
@@ -28,22 +27,6 @@ locals {
   }) : null
 }
 
-# Provider based kube config data/template/resources
-# data "template_file" "kubeconfig_provider" {
-#   count = var.create_static_kubeconfig ? 0 : 1
-#   template = file("${path.module}/templates/kubeconfig-provider.tmpl")
-
-#   vars = {
-#     cluster_name = var.cluster_name
-#     endpoint     = var.endpoint
-#     ca_crt       = var.ca_crt
-#     client_crt   = var.client_crt
-#     client_key   = var.client_key
-#     token        = var.token
-#   }
-# }
-
-# Service Account based kube config data/template/resources
 data "kubernetes_secret" "sa_secret" {
   count = var.create_static_kubeconfig ? 1 : 0
   metadata {
@@ -53,22 +36,6 @@ data "kubernetes_secret" "sa_secret" {
   
   depends_on = [kubernetes_secret.sa_secret]
 }
-
-# data "template_file" "kubeconfig_sa" {
-#   count = var.create_static_kubeconfig ? 1 : 0
-#   template = file("${path.module}/templates/kubeconfig-sa.tmpl")
-
-#   vars = {
-#     cluster_name = var.cluster_name
-#     endpoint     = var.endpoint
-#     name         = local.service_account_name
-#     ca_crt       = base64encode(lookup(data.kubernetes_secret.sa_secret.0.data,"ca.crt", ""))
-#     token        = lookup(data.kubernetes_secret.sa_secret.0.data,"token", "")
-#     namespace    = var.namespace
-#   }
-
-#   depends_on = [data.kubernetes_secret.sa_secret]
-# }
 
 # 1.24 change: Create service account secret
 resource "kubernetes_secret" "sa_secret" {
