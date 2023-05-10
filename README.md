@@ -60,7 +60,7 @@ Access to an **Azure Subscription** and an [**Identity**](./docs/user/TerraformA
 - [Terraform](https://www.terraform.io/downloads.html) - v1.4.5
 - [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl) - v1.25
 - [jq](https://stedolan.github.io/jq/) - v1.6
-- [Azure CLI](https://docs.microsoft.com/en-us/cli/azure) - (optional - useful as an alternative to the Azure Portal) - v2.45.0
+- [Azure CLI](https://docs.microsoft.com/en-us/cli/azure) - (optional - useful as an alternative to the Azure Portal) - v2.48.1
 
 #### Docker Requirements:
 - [Docker](https://docs.docker.com/get-docker/)
