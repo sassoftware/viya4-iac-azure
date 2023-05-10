@@ -26,7 +26,7 @@ data "template_file" "kubeconfig_provider" {
 data "kubernetes_secret" "sa_secret" {
   count = var.create_static_kubeconfig ? 1 : 0
   metadata {
-    name      = kubernetes_secret.sa_secret.0.metadata.0.name
+    name      = kubernetes_secret.sa_secret[0].metadata[0].name
     namespace = var.namespace
   }
   
@@ -41,8 +41,8 @@ data "template_file" "kubeconfig_sa" {
     cluster_name = var.cluster_name
     endpoint     = var.endpoint
     name         = local.service_account_name
-    ca_crt       = base64encode(lookup(data.kubernetes_secret.sa_secret.0.data,"ca.crt", ""))
-    token        = lookup(data.kubernetes_secret.sa_secret.0.data,"token", "")
+    ca_crt       = base64encode(lookup(data.kubernetes_secret.sa_secret[0].data,"ca.crt", ""))
+    token        = lookup(data.kubernetes_secret.sa_secret[0].data,"token", "")
     namespace    = var.namespace
   }
 
@@ -94,7 +94,7 @@ resource "kubernetes_cluster_role_binding" "kubernetes_crb" {
 
 # kube config file generation
 resource "local_file" "kubeconfig" {
-  content              = var.create_static_kubeconfig ? data.template_file.kubeconfig_sa.0.rendered : data.template_file.kubeconfig_provider.0.rendered
+  content              = var.create_static_kubeconfig ? data.template_file.kubeconfig_sa[0].rendered : data.template_file.kubeconfig_provider[0].rendered
   filename             = var.path
   file_permission      = "0644"
   directory_permission = "0755"

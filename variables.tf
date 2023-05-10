@@ -561,12 +561,6 @@ variable "create_aks_azure_monitor" {
   default     = false
 }
 
-variable "enable_log_analytics_workspace" {
-  type        = bool
-  description = "Enable Azure Log Analytics Solution"
-  default     = true
-}
-
 variable "log_analytics_workspace_sku" {
   description = "Specifies the Sku of the Log Analytics Workspace. Possible values are Free, PerNode, Premium, Standard, Standalone, Unlimited, and PerGB2018 (new Sku as of 2018-04-03)"
   type        = string
