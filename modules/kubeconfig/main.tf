@@ -21,8 +21,8 @@ locals {
     cluster_name = var.cluster_name
     endpoint     = var.endpoint
     name         = local.service_account_name
-    ca_crt       = base64encode(lookup(data.kubernetes_secret.sa_secret.0.data,"ca.crt", ""))
-    token        = lookup(data.kubernetes_secret.sa_secret.0.data,"token", "")
+    ca_crt       = base64encode(lookup(data.kubernetes_secret.sa_secret[0].data,"ca.crt", ""))
+    token        = lookup(data.kubernetes_secret.sa_secret[0].data,"token", "")
     namespace    = var.namespace
   }) : null
 }

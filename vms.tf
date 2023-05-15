@@ -31,8 +31,8 @@ locals {
   }) : null
 
   nfs_cloudconfig = var.storage_type == "standard" ? templatefile("${path.module}/files/cloud-init/nfs/cloud-config", {
-    aks_cidr_block  = module.vnet.subnets["aks"].address_prefixes.0
-    misc_cidr_block = module.vnet.subnets["misc"].address_prefixes.0
+    aks_cidr_block  = module.vnet.subnets["aks"].address_prefixes[0]
+    misc_cidr_block = module.vnet.subnets["misc"].address_prefixes[0]
     vm_admin        = var.nfs_vm_admin
   }) : null
 }
@@ -64,7 +64,7 @@ module "jump" {
   vm_zone           = var.jump_vm_zone
   fips_enabled      = var.fips_enabled
   ssh_public_key    = local.ssh_public_key
-  cloud_init        = data.cloudinit_config.jump.0.rendered
+  cloud_init        = data.cloudinit_config.jump[0].rendered
   create_public_ip  = var.create_jump_public_ip
 
   # Jump VM mounts NFS path hence dependency on 'module.nfs'
@@ -99,7 +99,7 @@ module "nfs" {
   vm_zone                        = var.nfs_vm_zone
   fips_enabled                   = var.fips_enabled
   ssh_public_key                 = local.ssh_public_key
-  cloud_init                     = data.cloudinit_config.nfs.0.rendered
+  cloud_init                     = data.cloudinit_config.nfs[0].rendered
   create_public_ip               = var.create_nfs_public_ip
   data_disk_count                = 4
   data_disk_size                 = var.nfs_raid_disk_size
