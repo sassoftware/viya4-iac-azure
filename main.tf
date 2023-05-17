@@ -202,7 +202,7 @@ module "node_pools" {
   node_taints                  = each.value.node_taints
   node_labels                  = each.value.node_labels
   zones                        = (var.node_pools_availability_zone == "" || var.node_pools_proximity_placement == true) ? [] : (var.node_pools_availability_zones != null) ? var.node_pools_availability_zones : [var.node_pools_availability_zone]
-  proximity_placement_group_id = element(coalescelist(azurerm_proximity_placement_group.proximity.*.id, [""]), 0)
+  proximity_placement_group_id = element(coalescelist(azurerm_proximity_placement_group.proximity[*].id, [""]), 0)
   orchestrator_version         = var.kubernetes_version
   tags                         = var.tags
 }

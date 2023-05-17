@@ -23,7 +23,7 @@ resource "azurerm_network_interface" "vm_nic" {
     name                          = "${var.name}-ip_config"
     subnet_id                     = var.vnet_subnet_id
     private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = var.create_public_ip ? azurerm_public_ip.vm_ip.0.id : null
+    public_ip_address_id          = var.create_public_ip ? azurerm_public_ip.vm_ip[0].id : null
   }
   tags = var.tags
 }

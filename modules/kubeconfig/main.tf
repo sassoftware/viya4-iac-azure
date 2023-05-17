@@ -21,8 +21,8 @@ locals {
     cluster_name = var.cluster_name
     endpoint     = var.endpoint
     name         = local.service_account_name
-    ca_crt       = base64encode(lookup(data.kubernetes_secret.sa_secret.0.data,"ca.crt", ""))
-    token        = lookup(data.kubernetes_secret.sa_secret.0.data,"token", "")
+    ca_crt       = base64encode(lookup(data.kubernetes_secret.sa_secret[0].data,"ca.crt", ""))
+    token        = lookup(data.kubernetes_secret.sa_secret[0].data,"token", "")
     namespace    = var.namespace
   }) : null
 }
@@ -30,7 +30,7 @@ locals {
 data "kubernetes_secret" "sa_secret" {
   count = var.create_static_kubeconfig ? 1 : 0
   metadata {
-    name      = kubernetes_secret.sa_secret.0.metadata.0.name
+    name      = kubernetes_secret.sa_secret[0].metadata[0].name
     namespace = var.namespace
   }
   
