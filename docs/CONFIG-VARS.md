@@ -175,7 +175,7 @@ Ubuntu 20.04 LTS is the operating system used on the Jump/NFS servers. Ubuntu cr
 | aks_identity | Use UserAssignedIdentity or Service Principal as  [AKS identity](https://docs.microsoft.com/en-us/azure/aks/concepts-identity) | string | "uai" | A value of `uai` wil create a Managed Identity based on the permissions of the authenticated user or use [`AKS_UAI_NAME`](#use-existing), if set. A value of `sp` will use values from [`CLIENT_ID`/`CLIENT_SECRET`](#azure-authentication), if set. |
 | ssh_public_key | File name of public ssh key for jump and nfs VM | string | "~/.ssh/id_rsa.pub" | Required with `create_jump_vm=true` or `storage_type=standard` |
 | cluster_api_mode | Public or private IP for the cluster api | string | "public" | Valid Values: "public", "private" |
-| aks_cluster_sku_tier | Optimizes api server for cost vs availability | string | "Free" | Valid Values:  "Free", "Paid" | 
+| aks_cluster_sku_tier | Optimizes api server for cost vs availability | string | "Free" | Valid Values:  "Free", "Standard" | 
 
 ## Node Pools
 
