@@ -19,6 +19,7 @@ Supported configuration variables are listed in the tables below.  All variables
     - [NFS Server VM (only when `storage_type=standard`)](#nfs-server-vm-only-when-storage_typestandard)
     - [Azure NetApp Files (only when `storage_type=ha`)](#azure-netapp-files-only-when-storage_typeha)
   - [Azure Container Registry (ACR)](#azure-container-registry-acr)
+  - [Azure Service Bus](#azure-service-bus)
   - [Postgres Servers](#postgres-servers)
 
 Terraform input variables can be set in the following ways:
@@ -310,6 +311,15 @@ When `storage_type=ha` (high availability), [Microsoft Azure NetApp Files](https
 | container_registry_sku | Service tier for the registry | string | "Standard" | Possible values: "Basic", "Standard", "Premium" |
 | container_registry_admin_enabled | Enables the admin user | bool | false | |
 | container_registry_geo_replica_locs | List of Azure locations where the container registry should be geo-replicated. | list of strings | null | This is only supported when `container_registry_sku` is set to `"Premium"`. |
+
+## Azure Service Bus
+
+| Name | Description | Type | Default | Notes |
+| :--- | ---: | ---: | ---: | ---: |
+| create_azure_servicebus| Allows User to create a Azure Service Bus | bool | false | |
+| servicebus_sku | Defines which SKU tier to use. Options are `Basic`, `Standard` or `Premium`. SAS Viya Platform recommends using `Premium`. | string | "Premium" | |
+| servicebus_policy_name | Specifies the name of the ServiceBus Namespace Authorization Rule resource| string | "Arke" | |
+| servicebus_capacity | Specifies the capacity. When sku is Premium, capacity can be `1`, `2`, `4`, `8` or `16`. When sku is Basic or Standard, capacity can be `0` only | number | 1 | |
 
 ## Postgres Servers
 
