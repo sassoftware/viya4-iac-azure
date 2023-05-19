@@ -144,3 +144,17 @@ output "cluster_node_pool_mode" {
 output "cluster_api_mode" {
   value = var.cluster_api_mode
 }
+
+## Azure Service Bus
+output "servicebus_hostname" {
+  value = element(coalescelist(module.servicebus[*].servicebus_hostname, [""]), 0)
+}
+
+output "servicebus_primary_key" {
+  value     = element(coalescelist(module.servicebus[*].servicebus_primary_key, [""]), 0)
+  sensitive = true
+}
+
+output "servicebus_policy_name" {
+  value = var.servicebus_policy_name
+}

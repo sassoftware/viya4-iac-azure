@@ -743,3 +743,28 @@ variable "aks_identity" {
     error_message = "ERROR: Supported values for `aks_identity` are: uai, sp."
   }
 }
+
+## Azure Service Bus
+variable "create_azure_servicebus" {
+  description = "Allows User to create a Azure Service Bus"
+  type        = bool
+  default     = false
+}
+
+variable "servicebus_sku" {
+  description = "Defines which tier to use. Options are Basic, Standard or Premium. SAS Viya Platform recommends using 'Premium'."
+  type        = string
+  default     = "Premium"
+}
+
+variable "servicebus_policy_name" {
+  description = "Specifies the name of the ServiceBus Namespace Authorization Rule resource. Changing this forces a new resource to be created."
+  type        = string
+  default     = "Arke"
+}
+
+variable "servicebus_capacity" {
+  description = "Specifies the capacity. When sku is Premium, capacity can be 1, 2, 4, 8 or 16. When sku is Basic or Standard, capacity can be 0 only."
+  type        = number
+  default     = 1
+}

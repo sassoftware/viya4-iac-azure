@@ -252,6 +252,19 @@ module "netapp" {
   depends_on          = [module.vnet]
 }
 
+module "servicebus" {
+  source = "./modules/azurerm_servicebus"
+  count  = var.create_azure_servicebus ? 1 : 0
+
+  resource_group_name    = local.aks_rg.name
+  location               = var.location
+  prefix                 = var.prefix
+  servicebus_sku         = var.servicebus_sku
+  servicebus_policy_name = var.servicebus_policy_name
+  servicebus_capacity    = var.servicebus_capacity
+  tags                   = var.tags
+}
+
 data "external" "git_hash" {
   program = ["files/tools/iac_git_info.sh"]
 }
