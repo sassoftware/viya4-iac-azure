@@ -1,0 +1,59 @@
+name: Linter Analysis
+on:
+  push:
+    branches: ['*'] # '*' will cause the workflow to run on all commits to all branches.
+
+jobs:
+  # Hadolint: Job-1
+  Hadolint:
+    name: Hadolint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+
+      - name: Run Hadolint Action
+        uses: jbergstroem/hadolint-gh-action@v1.11.0
+        with:
+          dockerfile: ./Dockerfile
+          config_file: linting-configs/.hadolint.yaml
+          error_level: 1 # Fail CI based on hadolint output (-1: never, 0: error, 1: warning, 2: info)
+
+  # ShellCheck: Job-2
+  ShellCheck:
+    name: ShellCheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+
+      - name: Run ShellCheck Action
+        uses: ludeeus/action-shellcheck@master
+        with:
+          severity: error
+
+  # TFLint: Job-3
+  TFLint:
+    name: TFLint
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Repo
+      uses: actions/checkout@v3
+
+    - name: Cache Plugin Directory
+      uses: actions/cache@v3
+      with:
+        path: ~/.tflint.d/plugins
+        key: ubuntu-latest-tflint-${{ hashFiles('.tflint.hcl') }}
+
+    - name: Setup TFLint
+      uses: terraform-linters/setup-tflint@v3.0.0
+      with:
+        tflint_version: latest
+        github_token: ${{ secrets.LINTER_TEST_TOKEN }}
+
+    - name: Initializing TFLint
+      run: TFLINT_LOG=info tflint --init -c .tflint.hcl 
+
+    - name: Run TFLint Action
+      run: TFLINT_LOG=info tflint -c .tflint.hcl

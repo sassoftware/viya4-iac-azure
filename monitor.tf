@@ -26,8 +26,8 @@ resource "azurerm_log_analytics_solution" "viya4" {
   solution_name       = var.log_analytics_solution_name
   location            = var.location
   resource_group_name = local.aks_rg.name
-  # workspace_resource_id = element(coalescelist(azurerm_log_analytics_workspace.viya4.*.id, [""]), 0)
-  # workspace_name        = element(coalescelist(azurerm_log_analytics_workspace.viya4.*.name, [""]), 0)
+  # workspace_resource_id = element(coalescelist(azurerm_log_analytics_workspace.viya4[*].id, [""]), 0)
+  # workspace_name        = element(coalescelist(azurerm_log_analytics_workspace.viya4[*].name, [""]), 0)
   workspace_resource_id = azurerm_log_analytics_workspace.viya4[0].id
   workspace_name        = azurerm_log_analytics_workspace.viya4[0].name
 
