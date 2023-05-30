@@ -43,7 +43,7 @@ output "jump_public_ip" {
 }
 
 output "jump_public_ip_fqdn" {
-  value = var.create_jump_vm && var.create_jump_public_ip && var.jump_public_ip_domain_name_label != null ? module.jump.0.public_ip_fqdn : null
+  value = var.create_jump_vm && var.create_jump_public_ip && var.jump_public_ip_domain_name_label != null ? module.jump[0].public_ip_fqdn : null
 }
 
 output "jump_admin_username" {
@@ -64,7 +64,7 @@ output "nfs_public_ip" {
 }
 
 output "nfs_public_ip_fqdn" {
-  value = var.storage_type == "standard" && var.create_nfs_public_ip && var.nfs_public_ip_domain_name_label != null ? module.nfs.0.public_ip_fqdn : null
+  value = var.storage_type == "standard" && var.create_nfs_public_ip && var.nfs_public_ip_domain_name_label != null ? module.nfs[0].public_ip_fqdn : null
 }
 
 output "nfs_admin_username" {

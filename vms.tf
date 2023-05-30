@@ -71,7 +71,7 @@ module "jump" {
 
 
   # Jump VM mounts NFS path hence dependency on 'module.nfs'
-  depends_on                  = [module.vnet, module.nfs]
+  depends_on = [module.vnet, module.nfs]
 }
 
 data "cloudinit_config" "nfs" {
