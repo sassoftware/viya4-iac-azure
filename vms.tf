@@ -90,7 +90,7 @@ module "jump" {
 >>>>>>> add ability to set the allocation method and domain name of public ips
 
   # Jump VM mounts NFS path hence dependency on 'module.nfs'
-  depends_on                  = [module.vnet, module.nfs]
+  depends_on = [module.vnet, module.nfs]
 }
 
 data "cloudinit_config" "nfs" {
