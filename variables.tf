@@ -59,13 +59,13 @@ variable "location" {
 }
 
 variable "aks_cluster_sku_tier" {
-  description = "The SKU Tier that should be used for this Kubernetes Cluster. Possible values are Free and Paid (which includes the Uptime SLA). Defaults to Free"
+  description = "The SKU Tier that should be used for this Kubernetes Cluster. Possible values are Free and Standard (which includes the Uptime SLA). Defaults to Free"
   type        = string
   default     = "Free"
 
   validation {
-    condition     = contains(["Free", "Paid"], var.aks_cluster_sku_tier)
-    error_message = "ERROR: Valid types are \"Free\" and \"Paid\"!"
+    condition     = contains(["Free", "Standard"], var.aks_cluster_sku_tier)
+    error_message = "ERROR: Valid types are \"Free\" and \"Standard\"!"
   }
 }
 
@@ -123,7 +123,7 @@ variable "default_nodepool_vm_type" {
 variable "kubernetes_version" {
   description = "The AKS cluster K8s version"
   type        = string
-  default     = "1.24"
+  default     = "1.25"
 }
 
 variable "default_nodepool_max_nodes" {
@@ -579,12 +579,6 @@ variable "create_aks_azure_monitor" {
   description = "Enable Azure Log Analytics agent on AKS cluster"
   type        = bool
   default     = false
-}
-
-variable "enable_log_analytics_workspace" {
-  type        = bool
-  description = "Enable Azure Log Analytics Solution"
-  default     = true
 }
 
 variable "log_analytics_workspace_sku" {

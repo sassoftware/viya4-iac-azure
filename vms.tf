@@ -4,25 +4,20 @@
 locals {
   rwx_filestore_endpoint = (var.storage_type == "none"
     ? ""
-    : var.storage_type == "ha" ? module.netapp.0.netapp_endpoint : module.nfs.0.private_ip_address
+    : var.storage_type == "ha" ? module.netapp[0].netapp_endpoint : module.nfs[0].private_ip_address
   )
+
   rwx_filestore_path = (var.storage_type == "none"
     ? ""
-    : var.storage_type == "ha" ? module.netapp.0.netapp_path : "/export"
+    : var.storage_type == "ha" ? module.netapp[0].netapp_path : "/export"
   )
-}
 
-
-data "template_file" "jump-cloudconfig" {
-  template = file("${path.module}/files/cloud-init/jump/cloud-config")
-  count    = var.create_jump_vm ? 1 : 0
-
-  vars = {
+  jump_cloudconfig = var.create_jump_vm ? templatefile("${path.module}/files/cloud-init/jump/cloud-config", {
     mounts = (var.storage_type == "none"
       ? "[]"
       : jsonencode(
         ["${local.rwx_filestore_endpoint}:${local.rwx_filestore_path}",
-          "${var.jump_rwx_filestore_path}",
+          var.jump_rwx_filestore_path,
           "nfs",
           "_netdev,auto,x-systemd.automount,x-systemd.mount-timeout=10,timeo=14,x-systemd.idle-timeout=1min,relatime,hard,rsize=1048576,wsize=1048576,vers=3,tcp,namlen=255,retrans=2,sec=sys,local_lock=none",
           "0",
@@ -33,10 +28,16 @@ data "template_file" "jump-cloudconfig" {
     rwx_filestore_path      = local.rwx_filestore_path
     jump_rwx_filestore_path = var.jump_rwx_filestore_path
     vm_admin                = var.jump_vm_admin
-  }
+  }) : null
+
+  nfs_cloudconfig = var.storage_type == "standard" ? templatefile("${path.module}/files/cloud-init/nfs/cloud-config", {
+    aks_cidr_block  = module.vnet.subnets["aks"].address_prefixes[0]
+    misc_cidr_block = module.vnet.subnets["misc"].address_prefixes[0]
+    vm_admin        = var.nfs_vm_admin
+  }) : null
 }
 
-data "template_cloudinit_config" "jump" {
+data "cloudinit_config" "jump" {
   count = var.create_jump_vm ? 1 : 0
 
   gzip          = true
@@ -44,7 +45,7 @@ data "template_cloudinit_config" "jump" {
 
   part {
     content_type = "text/cloud-config"
-    content      = data.template_file.jump-cloudconfig.0.rendered
+    content      = local.jump_cloudconfig
   }
 }
 
@@ -63,26 +64,17 @@ module "jump" {
   vm_zone                     = var.jump_vm_zone
   fips_enabled                = var.fips_enabled
   ssh_public_key              = local.ssh_public_key
-  cloud_init                  = data.template_cloudinit_config.jump.0.rendered
+  cloud_init                  = data.cloudinit_config.jump[0].rendered
   create_public_ip            = var.create_jump_public_ip
   public_ip_allocation_method = var.jump_public_ip_allocation_method
   public_ip_domain_name_label = var.jump_public_ip_domain_name_label
+
 
   # Jump VM mounts NFS path hence dependency on 'module.nfs'
   depends_on                  = [module.vnet, module.nfs]
 }
 
-data "template_file" "nfs-cloudconfig" {
-  template = file("${path.module}/files/cloud-init/nfs/cloud-config")
-  count    = var.storage_type == "standard" ? 1 : 0
-  vars = {
-    aks_cidr_block  = module.vnet.subnets["aks"].address_prefixes.0
-    misc_cidr_block = module.vnet.subnets["misc"].address_prefixes.0
-    vm_admin        = var.nfs_vm_admin
-  }
-}
-
-data "template_cloudinit_config" "nfs" {
+data "cloudinit_config" "nfs" {
   count = var.storage_type == "standard" ? 1 : 0
 
   gzip          = true
@@ -90,7 +82,7 @@ data "template_cloudinit_config" "nfs" {
 
   part {
     content_type = "text/cloud-config"
-    content      = data.template_file.nfs-cloudconfig.0.rendered
+    content      = local.nfs_cloudconfig
   }
 }
 
@@ -101,7 +93,7 @@ module "nfs" {
   name                           = "${var.prefix}-nfs"
   azure_rg_name                  = local.aks_rg.name
   azure_rg_location              = var.location
-  proximity_placement_group_id   = element(coalescelist(azurerm_proximity_placement_group.proximity.*.id, [""]), 0)
+  proximity_placement_group_id   = element(coalescelist(azurerm_proximity_placement_group.proximity[*].id, [""]), 0)
   vnet_subnet_id                 = module.vnet.subnets["misc"].id
   machine_type                   = var.nfs_vm_machine_type
   azure_nsg_id                   = local.nsg.id
@@ -110,7 +102,7 @@ module "nfs" {
   vm_zone                        = var.nfs_vm_zone
   fips_enabled                   = var.fips_enabled
   ssh_public_key                 = local.ssh_public_key
-  cloud_init                     = data.template_cloudinit_config.nfs.0.rendered
+  cloud_init                     = data.cloudinit_config.nfs[0].rendered
   create_public_ip               = var.create_nfs_public_ip
   public_ip_allocation_method    = var.nfs_public_ip_allocation_method
   public_ip_domain_name_label    = var.nfs_public_ip_domain_name_label
