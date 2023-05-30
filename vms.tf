@@ -71,7 +71,7 @@ module "jump" {
   public_ip_domain_name_label = var.jump_public_ip_domain_name_label
 
   # Jump VM mounts NFS path hence dependency on 'module.nfs'
-  depends_on                  = [module.vnet, module.nfs]
+  depends_on = [module.vnet, module.nfs]
 }
 
 data "cloudinit_config" "nfs" {
