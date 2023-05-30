@@ -71,7 +71,7 @@ module "jump" {
   enable_public_static_ip = var.enable_jump_public_static_ip
 
   # Jump VM mounts NFS path hence dependency on 'module.nfs'
-  depends_on                  = [module.vnet, module.nfs]
+  depends_on = [module.vnet, module.nfs]
 }
 
 data "cloudinit_config" "nfs" {
