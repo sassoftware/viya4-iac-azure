@@ -146,15 +146,15 @@ output "cluster_api_mode" {
 }
 
 ## Azure Service Bus
-output "servicebus_hostname" {
-  value = element(coalescelist(module.servicebus[*].servicebus_hostname, [""]), 0)
+output "message_broker_hostname" {
+  value = element(flatten(module.message_broker[*].message_broker_hostname), 0)
 }
 
-output "servicebus_primary_key" {
-  value     = element(coalescelist(module.servicebus[*].servicebus_primary_key, [""]), 0)
+output "message_broker_primary_key" {
+  value     = element(coalescelist(module.message_broker[*].message_broker_primary_key, [""]), 0)
   sensitive = true
 }
 
-output "servicebus_policy_name" {
-  value = var.servicebus_policy_name
+output "message_broker_name" {
+  value = var.message_broker_name
 }
