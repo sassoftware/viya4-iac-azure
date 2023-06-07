@@ -312,15 +312,6 @@ When `storage_type=ha` (high availability), [Microsoft Azure NetApp Files](https
 | container_registry_admin_enabled | Enables the admin user | bool | false | |
 | container_registry_geo_replica_locs | List of Azure locations where the container registry should be geo-replicated. | list of strings | null | This is only supported when `container_registry_sku` is set to `"Premium"`. |
 
-## Message Broker - Azure Service Bus
-
-| Name | Description | Type | Default | Notes |
-| :--- | ---: | ---: | ---: | ---: |
-| create_azure_message_broker| Allows user to create a fully managed enterprise message broker: `Azure Service Bus`. See details [here](https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-messaging-overview) | bool | false | |
-| message_broker_sku | Defines which SKU tier to use. Options are `Basic`, `Standard` or `Premium`. SAS Viya Platform recommends using `Premium`. | string | "Premium" | |
-| message_broker_name | Specifies the name of the message broker| string | "Arke" | |
-| message_broker_capacity | Specifies the capacity. When sku is Premium, capacity can be `1`, `2`, `4`, `8` or `16`. When sku is Basic or Standard, capacity can be `0` only | number | 1 | |
-
 ## Postgres Servers
 
 When setting up ***external database servers***, you must provide information about those servers in the `postgres_servers` variable block. Each entry in the variable block represents a ***single database server***.

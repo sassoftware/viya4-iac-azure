@@ -744,7 +744,7 @@ variable "aks_identity" {
   }
 }
 
-## Azure Service Bus
+## Message Broker - Azure Service Bus - Experimental
 variable "create_azure_message_broker" {
   description = "Allows user to create a fully managed enterprise message broker: Azure Service Bus"
   type        = bool
