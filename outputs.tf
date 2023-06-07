@@ -144,3 +144,17 @@ output "cluster_node_pool_mode" {
 output "cluster_api_mode" {
   value = var.cluster_api_mode
 }
+
+## Message Broker - Azure Service Bus
+output "message_broker_hostname" {
+  value = element(flatten(module.message_broker[*].message_broker_hostname), 0)
+}
+
+output "message_broker_primary_key" {
+  value     = element(coalescelist(module.message_broker[*].message_broker_primary_key, [""]), 0)
+  sensitive = true
+}
+
+output "message_broker_name" {
+  value = var.message_broker_name
+}
