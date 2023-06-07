@@ -9,6 +9,7 @@ Supported configuration variables are listed in the tables below.  All variables
   - [Required Variables](#required-variables)
     - [Azure Authentication](#azure-authentication)
   - [Admin Access](#admin-access)
+  - [Security](#security)
   - [Networking](#networking)
     - [Use Existing](#use-existing)
   - [General](#general)
@@ -76,6 +77,22 @@ You can use `default_public_access_cidrs` to set a default range for all created
 | acr_public_access_cidrs | IP address ranges allowed to access the ACR instance | list of strings || Only used with `create_container_registry=true` |
 
 **NOTE:** In a SCIM environment, the AzureActiveDirectory service tag must be granted access to port 443/HTTPS for the Ingress IP address.
+
+## Security
+
+The Federal Information Processing Standard (FIPS) 140 is a US government standard that defines minimum security requirements for cryptographic modules in information technology products and systems. Azure Kubernetes Service (AKS) allows to create node pools with FIPS 140-2 enabled. Deployments running on FIPS-enabled node pools provide increased security and help meet security controls as part of FedRAMP compliance. For more information on FIPS 140-2, see [Federal Information Processing Standard (FIPS) 140](https://learn.microsoft.com/en-us/azure/compliance/offerings/offering-fips-140-2).
+
+To enable the FIPS support in your subscription, you first need to accept the legal terms of the `Ubuntu Pro FIPS 20.04 LTS` image that will be used in the deployment. For details see [Ubuntu Pro FIPS 20.04 LTS](https://azuremarketplace.microsoft.com/en-us/marketplace/apps/canonical.0001-com-ubuntu-pro-focal-fips?tab=Overview).
+
+To accept the terms please run following az command before deploying cluster:
+
+```bash
+az vm image terms accept --urn Canonical:0001-com-ubuntu-pro-focal-fips:pro-fips-20_04-gen2:latest --subscription $subscription_id
+```
+
+| Name | Description | Type | Default | Notes |
+| :--- | ---: | ---: | ---: | ---: |
+| fips_enabled | Enables the Federal Information Processing Standard for all the nodes and VMs in this cluster | bool | false | Make sure to accept terms mentioned above before deploying. |
 
 ## Networking
 
