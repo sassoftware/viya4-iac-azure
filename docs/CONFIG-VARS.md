@@ -19,7 +19,6 @@ Supported configuration variables are listed in the tables below.  All variables
     - [NFS Server VM (only when `storage_type=standard`)](#nfs-server-vm-only-when-storage_typestandard)
     - [Azure NetApp Files (only when `storage_type=ha`)](#azure-netapp-files-only-when-storage_typeha)
   - [Azure Container Registry (ACR)](#azure-container-registry-acr)
-  - [Message Broker - Azure Service Bus](#message-broker---azure-service-bus)
   - [Postgres Servers](#postgres-servers)
 
 Terraform input variables can be set in the following ways:
