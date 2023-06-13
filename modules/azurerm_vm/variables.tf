@@ -158,11 +158,13 @@ variable public_ip_allocation_method {
 }
 
 variable public_ip_allocation_method {
+  description = "The allocation method for the public IP address. Possible values are Static or Dynamic."
   default = "Static"
   type    = string
 }
 
 variable public_ip_domain_name_label {
+  description = "Label for the domain name that is used to make up the FQDN. If a domain name label is specified, an A DNS record is created for the public IP in the Microsoft Azure DNS system."
   default = null
   type    = string
 }
