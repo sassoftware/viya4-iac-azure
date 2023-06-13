@@ -54,7 +54,6 @@ data "cloudinit_config" "jump" {
 module "jump" {
   source = "./modules/azurerm_vm"
 
-<<<<<<< HEAD
   count                   = var.create_jump_vm ? 1 : 0
   name                    = "${var.prefix}-jump"
   azure_rg_name           = local.aks_rg.name
@@ -70,24 +69,6 @@ module "jump" {
   cloud_init              = data.cloudinit_config.jump[0].rendered
   create_public_ip        = var.create_jump_public_ip
   enable_public_static_ip = var.enable_jump_public_static_ip
-=======
-  count             = var.create_jump_vm ? 1 : 0
-  name              = "${var.prefix}-jump"
-  azure_rg_name     = local.aks_rg.name
-  azure_rg_location = var.location
-  vnet_subnet_id    = module.vnet.subnets["misc"].id
-  machine_type      = var.jump_vm_machine_type
-  azure_nsg_id      = local.nsg.id
-  tags              = var.tags
-  vm_admin          = var.jump_vm_admin
-  vm_zone           = var.jump_vm_zone
-  fips_enabled      = var.fips_enabled
-  ssh_public_key    = local.ssh_public_key
-  cloud_init        = data.cloudinit_config.jump[0].rendered
-  create_public_ip  = var.create_jump_public_ip
-  public_ip_allocation_method = var.jump_public_ip_allocation_method
-  public_ip_domain_name_label = var.jump_public_ip_domain_name_label
->>>>>>> add ability to set the allocation method and domain name of public ips
 
   # Jump VM mounts NFS path hence dependency on 'module.nfs'
   depends_on = [module.vnet, module.nfs]
