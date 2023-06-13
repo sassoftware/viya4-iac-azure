@@ -321,11 +321,13 @@ variable "create_jump_public_ip" {
 }
 
 variable "jump_public_ip_allocation_method" {
+  description = "The allocation method for the public IP address of this Virtual Machine. Possible values are Static or Dynamic"
   default = "Static"
   type    = string
 }
 
 variable "jump_public_ip_domain_name_label" {
+  description = "Label for the domain name that is used to make up the FQDN for this Virtual Machine" 
   default = null
   type    = string
 }
@@ -372,11 +374,13 @@ variable "create_nfs_public_ip" {
 }
 
 variable "nfs_public_ip_allocation_method" {
+  description = "The allocation method for the public IP address of this Virtual Machine. Possible values are Static or Dynamic"
   default = "Static"
   type    = string
 }
 
 variable "nfs_public_ip_domain_name_label" {
+  description = "Label for the domain name that is used to make up the FQDN for this Virtual Machine"
   default = null
   type    = string
 }
