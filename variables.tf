@@ -451,9 +451,9 @@ variable "netapp_size_in_tb" {
 }
 
 variable "netapp_protocols" {
-  description = "The target volume protocol expressed as a list. Supported single value include CIFS, NFSv3, or NFSv4.1. If argument is not defined it will default to NFSv3. Changing this forces a new resource to be created and data will be lost."
+  description = "The target volume protocol expressed as a list. Supported single value include CIFS, NFSv3, or NFSv4.1. If argument is not defined it will default to NFSv4.1. Changing this forces a new resource to be created and data will be lost."
   type        = list(string)
-  default     = ["NFSv3"]
+  default     = ["NFSv4.1"]
 }
 
 variable "netapp_volume_path" {

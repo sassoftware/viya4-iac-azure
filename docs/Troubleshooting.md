@@ -6,6 +6,7 @@
   - [Import Azure Resource into Terraform state](#import-azure-resource-into-terraform-state)
   - [Not able to access AKS with kubectl](#not-able-to-access-aks-with-kubectl)
   - [Azure NetApp Files creation fails](#azure-netapp-files-creation-fails)
+  - [Azure NetApp NFSv3 volume file lock issue](#azure-netapp-nfsv3-volume-file-lock-issue)
 
 ##  Kubernetes Version is not supported in Azure region
 ```bash
