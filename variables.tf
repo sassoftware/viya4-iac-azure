@@ -741,3 +741,28 @@ variable "aks_identity" {
     error_message = "ERROR: Supported values for `aks_identity` are: uai, sp."
   }
 }
+
+## Message Broker - Azure Service Bus - Experimental
+variable "create_azure_message_broker" {
+  description = "Allows user to create a fully managed enterprise message broker: Azure Service Bus"
+  type        = bool
+  default     = false
+}
+
+variable "message_broker_sku" {
+  description = "Defines which tier to use. Options are Basic, Standard or Premium. SAS Viya Platform recommends using 'Premium'."
+  type        = string
+  default     = "Premium"
+}
+
+variable "message_broker_name" {
+  description = "Specifies the name of the message broker, also specified for the ServiceBus Namespace Authorization Rule resource. Changing this forces a new resource to be created."
+  type        = string
+  default     = "Arke"
+}
+
+variable "message_broker_capacity" {
+  description = "Specifies the capacity. When sku is Premium, capacity can be 1, 2, 4, 8 or 16. When sku is Basic or Standard, capacity can be 0 only."
+  type        = number
+  default     = 1
+}
