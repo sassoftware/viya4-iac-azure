@@ -252,6 +252,19 @@ module "netapp" {
   depends_on          = [module.vnet]
 }
 
+module "message_broker" {
+  source = "./modules/azurerm_message_broker"
+  count  = var.create_azure_message_broker ? 1 : 0
+
+  resource_group_name     = local.aks_rg.name
+  location                = var.location
+  prefix                  = var.prefix
+  message_broker_sku      = var.message_broker_sku
+  message_broker_name     = var.message_broker_name
+  message_broker_capacity = var.message_broker_capacity
+  tags                    = var.tags
+}
+
 data "external" "git_hash" {
   program = ["files/tools/iac_git_info.sh"]
 }
