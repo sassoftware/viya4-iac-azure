@@ -77,7 +77,7 @@ There are two options to avoid this issue:
 
 1. Break the file locks from Azure Portal. For details see [Troubleshoot file locks on an Azure NetApp Files volume](https://learn.microsoft.com/en-us/azure/azure-netapp-files/troubleshoot-file-locks).
 
-2. Use Azure NetApp NFS volume version 4.1. You can update the `viya4-iac-azure` to latest version to use NFSv4.1 by default. If you are using v7.2.0 or below of viya4-iac-azure then you add the variable `netapp_protocols` to your terraform.tfvars to switch to NFSv4.1.
+2. Use Azure NetApp NFS volume version 4.1. Update to the latest version of `sassoftware/viya4-iac-azure` to use NFSv4.1 by default. If you are using sassoftware/viya4-iac-azure's release v7.2.0 or before, then add the variable `netapp_protocols` to your terraform.tfvars to switch to NFSv4.1.
 
    **Note:** Changing this on existing cluster will result in data loss.
    
