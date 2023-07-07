@@ -7,6 +7,8 @@ locals {
     : var.storage_type == "ha" ? module.netapp[0].netapp_endpoint : module.nfs[0].private_ip_address
   )
 
+  protocol_version = var.storage_type == "ha" && startswith(var.netapp_protocols[0], "NFS") ? split("v", var.netapp_protocols[0])[1] : "4.1"
+
   rwx_filestore_path = (var.storage_type == "none"
     ? ""
     : var.storage_type == "ha" ? module.netapp[0].netapp_path : "/export"
@@ -19,7 +21,7 @@ locals {
         ["${local.rwx_filestore_endpoint}:${local.rwx_filestore_path}",
           var.jump_rwx_filestore_path,
           "nfs",
-          "_netdev,auto,x-systemd.automount,x-systemd.mount-timeout=10,timeo=14,x-systemd.idle-timeout=1min,relatime,hard,rsize=1048576,wsize=1048576,vers=3,tcp,namlen=255,retrans=2,sec=sys,local_lock=none",
+          "_netdev,auto,x-systemd.automount,x-systemd.mount-timeout=10,timeo=14,x-systemd.idle-timeout=1min,relatime,hard,rsize=1048576,wsize=1048576,vers=${local.protocol_version},tcp,namlen=255,retrans=2,sec=sys,local_lock=none",
           "0",
           "0"
       ])
