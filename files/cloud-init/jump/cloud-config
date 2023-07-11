@@ -43,12 +43,15 @@ runcmd:
       # mount the nfs
       #
   -   while [ `df -h | grep "${rwx_filestore_endpoint}:${rwx_filestore_path}" | wc -l` -eq 0 ]; do sleep 5 && mount -a ; done
-      #
-      # Change permissions and owner
-      #
-  -   mkdir -p ${jump_rwx_filestore_path}/pvs
-  -   $(chmod -fR 777 ${jump_rwx_filestore_path} ; echo)
-  -   $(chown -R nobody:nogroup ${jump_rwx_filestore_path} ; echo)
+  -   if ! [ -d "${jump_rwx_filestore_path}/pvs" ]
+  -   then
+        #
+        # Change permissions and owner
+        #
+  -     mkdir -p ${jump_rwx_filestore_path}/pvs
+  -     $(chmod -fR 777 ${jump_rwx_filestore_path} ; echo)
+  -     $(chown -R nobody:nogroup ${jump_rwx_filestore_path} ; echo)
+  -   fi
   - fi
   #
   # Update user for Docker, user=${vm_admin}
