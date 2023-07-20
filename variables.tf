@@ -451,9 +451,9 @@ variable "netapp_size_in_tb" {
 }
 
 variable "netapp_protocols" {
-  description = "The target volume protocol expressed as a list. Supported single value include CIFS, NFSv3, or NFSv4.1. If argument is not defined it will default to NFSv3. Changing this forces a new resource to be created and data will be lost."
+  description = "The target volume protocol expressed as a list. Supported single value include CIFS, NFSv3, or NFSv4.1. If argument is not defined it will default to NFSv4.1. Changing this forces a new resource to be created and data will be lost."
   type        = list(string)
-  default     = ["NFSv3"]
+  default     = ["NFSv4.1"]
 }
 
 variable "netapp_volume_path" {
@@ -740,4 +740,29 @@ variable "aks_identity" {
     condition     = contains(["sp", "uai"], var.aks_identity)
     error_message = "ERROR: Supported values for `aks_identity` are: uai, sp."
   }
+}
+
+## Message Broker - Azure Service Bus - Experimental
+variable "create_azure_message_broker" {
+  description = "Allows user to create a fully managed enterprise message broker: Azure Service Bus"
+  type        = bool
+  default     = false
+}
+
+variable "message_broker_sku" {
+  description = "Defines which tier to use. Options are Basic, Standard or Premium. SAS Viya Platform recommends using 'Premium'."
+  type        = string
+  default     = "Premium"
+}
+
+variable "message_broker_name" {
+  description = "Specifies the name of the message broker, also specified for the ServiceBus Namespace Authorization Rule resource. Changing this forces a new resource to be created."
+  type        = string
+  default     = "Arke"
+}
+
+variable "message_broker_capacity" {
+  description = "Specifies the capacity. When sku is Premium, capacity can be 1, 2, 4, 8 or 16. When sku is Basic or Standard, capacity can be 0 only."
+  type        = number
+  default     = 1
 }
