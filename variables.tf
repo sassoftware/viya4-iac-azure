@@ -320,16 +320,10 @@ variable "create_jump_public_ip" {
   default     = true
 }
 
-variable "jump_public_ip_allocation_method" {
-  description = "The allocation method for the public IP address of this Virtual Machine. Possible values are Static or Dynamic"
-  default = "Static"
-  type    = string
-}
-
-variable "jump_public_ip_domain_name_label" {
-  description = "Label for the domain name that is used to make up the FQDN for this Virtual Machine" 
-  default = null
-  type    = string
+variable "enable_jump_public_static_ip" {
+  description = "Enables `Static` allocation method for the public IP address of Jump Server. Setting false will enable `Dynamic` allocation method."
+  type        = bool
+  default     = true
 }
 
 variable "jump_vm_admin" {
@@ -373,16 +367,10 @@ variable "create_nfs_public_ip" {
   default     = false
 }
 
-variable "nfs_public_ip_allocation_method" {
-  description = "The allocation method for the public IP address of this Virtual Machine. Possible values are Static or Dynamic"
-  default = "Static"
-  type    = string
-}
-
-variable "nfs_public_ip_domain_name_label" {
-  description = "Label for the domain name that is used to make up the FQDN for this Virtual Machine"
-  default = null
-  type    = string
+variable "enable_nfs_public_static_ip" {
+  description = "Enables `Static` allocation method for the public IP address of NFS Server. Setting false will enable `Dynamic` allocation method."
+  type        = bool
+  default     = true
 }
 
 variable "nfs_vm_machine_type" {

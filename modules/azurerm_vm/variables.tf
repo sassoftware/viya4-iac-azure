@@ -151,16 +151,10 @@ variable "create_public_ip" {
   default     = false
 }
 
-variable public_ip_allocation_method {
-  description = "The allocation method for the public IP address. Possible values are Static or Dynamic."
-  default = "Static"
-  type    = string
-}
-
-variable public_ip_domain_name_label {
-  description = "Label for the domain name that is used to make up the FQDN. If a domain name label is specified, an A DNS record is created for the public IP in the Microsoft Azure DNS system."
-  default = null
-  type    = string
+variable "enable_public_static_ip" {
+  description = "Enables `Static` allocation method for the public IP address. Setting false will enable `Dynamic` allocation method."
+  type        = bool
+  default     = true
 }
 
 variable "proximity_placement_group_id" {
