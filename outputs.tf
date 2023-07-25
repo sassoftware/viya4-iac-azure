@@ -42,6 +42,7 @@ output "jump_public_ip" {
   value = var.create_jump_vm && var.create_jump_public_ip ? module.jump[0].public_ip_address : null
 }
 
+<<<<<<< HEAD
 output "jump_public_ip_fqdn" {
   value = var.create_jump_vm && var.create_jump_public_ip && var.jump_public_ip_domain_name_label != null ? module.jump[0].public_ip_fqdn : null
 }
@@ -50,6 +51,8 @@ output "jump_public_ip_fqdn" {
   value = var.create_jump_vm && var.create_jump_public_ip && var.jump_public_ip_domain_name_label != null ? module.jump[0].public_ip_fqdn : null
 }
 
+=======
+>>>>>>> feat: (IAC-1001) Updated public static IP allocation
 output "jump_admin_username" {
   value = var.create_jump_vm ? module.jump[0].admin_username : null
 }
@@ -67,6 +70,7 @@ output "nfs_public_ip" {
   value = var.storage_type == "standard" && var.create_nfs_public_ip ? module.nfs[0].public_ip_address : null
 }
 
+<<<<<<< HEAD
 output "nfs_public_ip_fqdn" {
   value = var.storage_type == "standard" && var.create_nfs_public_ip && var.nfs_public_ip_domain_name_label != null ? module.nfs[0].public_ip_fqdn : null
 }
@@ -75,6 +79,8 @@ output "nfs_public_ip_fqdn" {
   value = var.storage_type == "standard" && var.create_nfs_public_ip && var.nfs_public_ip_domain_name_label != null ? module.nfs[0].public_ip_fqdn : null
 }
 
+=======
+>>>>>>> feat: (IAC-1001) Updated public static IP allocation
 output "nfs_admin_username" {
   value = var.storage_type == "standard" ? module.nfs[0].admin_username : null
 }

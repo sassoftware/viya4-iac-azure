@@ -324,6 +324,7 @@ variable "enable_jump_public_static_ip" {
   description = "Enables `Static` allocation method for the public IP address of Jump Server. Setting false will enable `Dynamic` allocation method."
   type        = bool
   default     = true
+<<<<<<< HEAD
 }
 
 variable "jump_public_ip_allocation_method" {
@@ -348,6 +349,8 @@ variable "jump_public_ip_domain_name_label" {
   description = "Label for the domain name that is used to make up the FQDN for this Virtual Machine" 
   default = null
   type    = string
+=======
+>>>>>>> feat: (IAC-1001) Updated public static IP allocation
 }
 
 variable "jump_vm_admin" {
@@ -395,6 +398,7 @@ variable "enable_nfs_public_static_ip" {
   description = "Enables `Static` allocation method for the public IP address of NFS Server. Setting false will enable `Dynamic` allocation method."
   type        = bool
   default     = true
+<<<<<<< HEAD
 }
 
 variable "nfs_public_ip_allocation_method" {
@@ -419,6 +423,8 @@ variable "nfs_public_ip_domain_name_label" {
   description = "Label for the domain name that is used to make up the FQDN for this Virtual Machine"
   default = null
   type    = string
+=======
+>>>>>>> feat: (IAC-1001) Updated public static IP allocation
 }
 
 variable "nfs_vm_machine_type" {
