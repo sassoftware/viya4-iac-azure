@@ -185,8 +185,7 @@ Ubuntu 20.04 LTS is the operating system used on the Jump/NFS servers. Ubuntu cr
 | kubernetes_version | The AKS cluster Kubernetes version | string | "1.25" |Use of specific versions is still supported. If you need exact kubernetes version please use format `x.y.z`, where `x` is the major version, `y` is the minor version, and `z` is the patch version |
 | create_jump_vm | Create bastion host | bool | true | |
 | create_jump_public_ip | Add public IP address to the jump VM | bool | true | |
-| jump_public_ip_allocation_method | Defines the allocation method for the public IP address | string | "Static" | Possible values are "Static" or "Dynamic". Only used with `create_jump_public_ip=true` |
-| jump_public_ip_domain_name_label | Label for the Domain Name. Will be used to make up the FQDN. | string | null | If a domain name label is specified, an A DNS record is created for the public IP in the Microsoft Azure DNS system. Otherwise one is not created. Only used with `create_jump_public_ip=true` |
+| enable_jump_public_static_ip | Enables `Static` allocation method for the public IP address of Jump Server. Setting false will enable `Dynamic` allocation method. | bool | true | Only used with `create_jump_public_ip=true` |
 | jump_vm_admin | Operating system Admin User for the jump VM | string | "jumpuser" | |
 | jump_vm_machine_type | SKU to use for the jump VM | string | "Standard_B2s" | To check for valid types for your subscription, run: `az vm list-skus --resource-type virtualMachines --subscription $subscription --location $location -o table`|
 | jump_rwx_filestore_path | File store mount point on jump server | string | "/viya-share" | This location cannot include `/mnt` as its root location. This disk is ephemeral on Ubuntu, which is the operating system being used for the jump/NFS servers. |
@@ -302,8 +301,7 @@ When `storage_type=standard`, a NFS Server VM is created, only when these variab
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
 | create_nfs_public_ip | Add public ip to the NFS server VM | bool | false | |
-| nfs_public_ip_allocation_method | Defines the allocation method for the public IP address | string | "Static" | Possible values are "Static" or "Dynamic". Only used with `create_nfs_public_ip=true` |
-| nfs_public_ip_domain_name_label | Label for the Domain Name. Will be used to make up the FQDN. | string | null | If a domain name label is specified, an A DNS record is created for the public IP in the Microsoft Azure DNS system. Otherwise one is not created. Only used with `create_nfs_public_ip=true` |
+| enable_nfs_public_static_ip | Enables `Static` allocation method for the public IP address of NFS Server. Setting false will enable `Dynamic` allocation method | bool | true | Only used with `create_nfs_public_ip=true` |
 | nfs_vm_admin | OS Admin User for the NFS server VM | string | "nfsuser" | |
 | nfs_vm_machine_type | SKU to use for NFS server VM | string | "Standard_D8s_v4" | To check for valid types for your subscription, run: `az vm list-skus --resource-type virtualMachines --subscription $subscription --location $location -o table`|
 | nfs_vm_zone | Zone in which NFS server VM should be created | string | null | |
