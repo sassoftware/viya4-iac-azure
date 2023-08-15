@@ -40,7 +40,7 @@ Error: A resource with the ID "/subscriptions/REDACTED/resourcegroups/viya-tst-r
 ### Resolution:
 
 ```bash
-terraform import -var-file=sample-input.tfvars module.aks.azurerm_kubernetes_cluster.aks '/subscription/REDACTED/../../'
+terraform import -var-file=sample-input.tfvars -state=terraform.tfstate module.node_pools[\"stateless\"].azurerm_kubernetes_cluster_node_pool.autoscale_node_pool[0] "/subscriptions/REDACTED/resourceGroups/viya-tst-rg/providers/Microsoft.ContainerService/managedClusters/viya-tst-aks/agentPools/stateless"
 ```
 
 ## Not able to access AKS with kubectl
