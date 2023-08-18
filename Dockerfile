@@ -3,7 +3,7 @@ ARG AZURECLI_VERSION=2.48.1
 
 FROM hashicorp/terraform:$TERRAFORM_VERSION as terraform
 FROM mcr.microsoft.com/azure-cli:$AZURECLI_VERSION
-ARG KUBECTL_VERSION=1.25.8
+ARG KUBECTL_VERSION=1.26.3
 
 WORKDIR /viya4-iac-azure
 
