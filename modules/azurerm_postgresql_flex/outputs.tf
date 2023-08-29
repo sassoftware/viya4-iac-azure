@@ -1,3 +1,6 @@
+# Copyright © 2020-2023, SAS Institute Inc., Cary, NC, USA. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
 output "server_name" {
   description = "The name of the PostgreSQL server"
   value       = azurerm_postgresql_flexible_server.flexpsql.name
@@ -24,5 +27,5 @@ output "server_id" {
 
 output "firewall_rule_ids" {
   description = "The list of all firewall rule resource ids"
-  value       = [azurerm_postgresql_flexible_server_firewall_rule.flexpsql.*.id]
+  value       = [azurerm_postgresql_flexible_server_firewall_rule.flexpsql[*].id]
 }

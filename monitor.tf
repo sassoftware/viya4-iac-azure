@@ -1,3 +1,6 @@
+# Copyright © 2020-2023, SAS Institute Inc., Cary, NC, USA. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
 # Azure Monitor - https://azure.microsoft.com/en-gb/services/monitor/
 # Azure Docs 
 # - https://docs.microsoft.com/en-gb/azure/azure-monitor/log-query/log-analytics-overview
@@ -23,8 +26,8 @@ resource "azurerm_log_analytics_solution" "viya4" {
   solution_name       = var.log_analytics_solution_name
   location            = var.location
   resource_group_name = local.aks_rg.name
-  # workspace_resource_id = element(coalescelist(azurerm_log_analytics_workspace.viya4.*.id, [""]), 0)
-  # workspace_name        = element(coalescelist(azurerm_log_analytics_workspace.viya4.*.name, [""]), 0)
+  # workspace_resource_id = element(coalescelist(azurerm_log_analytics_workspace.viya4[*].id, [""]), 0)
+  # workspace_name        = element(coalescelist(azurerm_log_analytics_workspace.viya4[*].name, [""]), 0)
   workspace_resource_id = azurerm_log_analytics_workspace.viya4[0].id
   workspace_name        = azurerm_log_analytics_workspace.viya4[0].name
 

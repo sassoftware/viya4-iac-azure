@@ -1,3 +1,6 @@
+# Copyright © 2020-2023, SAS Institute Inc., Cary, NC, USA. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
 # Reference: https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster
 resource "azurerm_kubernetes_cluster" "aks" {
   name                               = var.aks_cluster_name
@@ -18,7 +21,8 @@ resource "azurerm_kubernetes_cluster" "aks" {
 
   network_profile {
     network_plugin = var.aks_network_plugin
-    network_policy = var.aks_network_plugin == "azure" ? var.aks_network_policy : null
+    network_policy = var.aks_network_plugin == "kubenet" && var.aks_network_policy == "azure" ? null : var.aks_network_policy
+
     # Docs on AKS Advanced Networking config
     # https://docs.microsoft.com/en-us/azure/architecture/aws-professional/networking
     # https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-vnet-plan-design-arm
@@ -27,10 +31,10 @@ resource "azurerm_kubernetes_cluster" "aks" {
     # https://docs.microsoft.com/en-us/azure/aks/load-balancer-standard
     # https://docs.microsoft.com/en-us/azure/aks/egress-outboundtype
 
-    service_cidr       = var.aks_network_plugin == "kubenet" ? "10.0.0.0/16" : var.aks_service_cidr
-    dns_service_ip     = var.aks_network_plugin == "kubenet" ? "10.0.0.10" : var.aks_dns_service_ip
-    pod_cidr           = var.aks_network_plugin == "kubenet" ? "10.244.0.0/16" : null
-    docker_bridge_cidr = var.aks_network_plugin == "kubenet" ? "172.17.0.1/16" : var.aks_docker_bridge_cidr
+    service_cidr       = var.aks_service_cidr
+    dns_service_ip     = var.aks_dns_service_ip
+    pod_cidr           = var.aks_network_plugin == "kubenet" ? var.aks_pod_cidr : null
+    docker_bridge_cidr = var.aks_docker_bridge_cidr
     outbound_type      = var.cluster_egress_type
     load_balancer_sku  = "standard"
   }
@@ -53,6 +57,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
     enable_node_public_ip = false
     node_labels           = {}
     node_taints           = []
+    fips_enabled          = var.fips_enabled
     max_pods              = var.aks_cluster_max_pods
     os_disk_size_gb       = var.aks_cluster_os_disk_size
     max_count             = var.aks_cluster_max_nodes
@@ -95,7 +100,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   lifecycle {
-    ignore_changes = [default_node_pool.0.node_count]
+    ignore_changes = [default_node_pool[0].node_count]
   }
 
   tags = var.aks_cluster_tags
