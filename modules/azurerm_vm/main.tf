@@ -7,7 +7,7 @@ resource "azurerm_public_ip" "vm_ip" {
   name                = "${var.name}-public_ip"
   location            = var.azure_rg_location
   resource_group_name = var.azure_rg_name
-  allocation_method   = "Static"
+  allocation_method   = var.enable_public_static_ip ? "Static" : "Dynamic"
   sku                 = var.vm_zone == null ? "Basic" : "Standard"
   zones               = var.vm_zone == null ? [] : [var.vm_zone]
   tags                = var.tags
@@ -93,9 +93,9 @@ resource "azurerm_linux_virtual_machine" "vm" {
   dynamic "plan" {
     for_each = var.fips_enabled ? [1] : []
     content {
-      name       = "pro-fips-20_04-gen2"
-      publisher  = "canonical"
-      product    = "0001-com-ubuntu-pro-focal-fips"
+      name      = "pro-fips-20_04-gen2"
+      publisher = "canonical"
+      product   = "0001-com-ubuntu-pro-focal-fips"
     }
   }
 

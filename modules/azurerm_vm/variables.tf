@@ -151,6 +151,12 @@ variable "create_public_ip" {
   default     = false
 }
 
+variable "enable_public_static_ip" {
+  description = "Enables `Static` allocation method for the public IP address. Setting false will enable `Dynamic` allocation method."
+  type        = bool
+  default     = true
+}
+
 variable "proximity_placement_group_id" {
   description = "The ID of the Proximity Placement Group which the Virtual Machine should be assigned to."
   type        = string

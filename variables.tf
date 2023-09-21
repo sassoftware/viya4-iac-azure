@@ -320,6 +320,12 @@ variable "create_jump_public_ip" {
   default     = true
 }
 
+variable "enable_jump_public_static_ip" {
+  description = "Enables `Static` allocation method for the public IP address of Jump Server. Setting false will enable `Dynamic` allocation method."
+  type        = bool
+  default     = true
+}
+
 variable "jump_vm_admin" {
   description = "OS Admin User for Jump VM"
   type        = string
@@ -359,6 +365,12 @@ variable "create_nfs_public_ip" {
   description = "Create public IP for the NFS VM"
   type        = bool
   default     = false
+}
+
+variable "enable_nfs_public_static_ip" {
+  description = "Enables `Static` allocation method for the public IP address of NFS Server. Setting false will enable `Dynamic` allocation method."
+  type        = bool
+  default     = true
 }
 
 variable "nfs_vm_machine_type" {
