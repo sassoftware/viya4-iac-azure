@@ -118,7 +118,7 @@ node_pools = {
   stateless = {
     "machine_type" = "Standard_D16s_v3"
     "os_disk_size" = 200
-    "min_nodes"    = 2
+    "min_nodes"    = 1
     "max_nodes"    = 2
     "max_pods"     = 110
     "node_taints"  = ["workload.sas.com/class=stateless:NoSchedule"]
@@ -129,7 +129,7 @@ node_pools = {
   stateful = {
     "machine_type" = "Standard_D8s_v3"
     "os_disk_size" = 200
-    "min_nodes"    = 3
+    "min_nodes"    = 1
     "max_nodes"    = 3
     "max_pods"     = 110
     "node_taints"  = ["workload.sas.com/class=stateful:NoSchedule"]
@@ -139,17 +139,16 @@ node_pools = {
   }
 }
 
-# Jump Box
+# Jump Server
 create_jump_public_ip = true
-jump_vm_admin         = "jumpuser"
+jump_vm_admin        = "jumpuser"
+jump_vm_machine_type = "Standard_B2s"
 
 # Storage for SAS Viya CAS/Compute
 storage_type = "standard"
 # required ONLY when storage_type is "standard" to create NFS Server VM
 create_nfs_public_ip = false
 nfs_vm_admin         = "nfsuser"
-nfs_vm_zone          = 1
-
-nfs_raid_disk_size  = 128
-nfs_raid_disk_type  = "Standard_LRS"
-nfs_raid_disk_zone = "1"
+nfs_vm_machine_type  = "Standard_D8s_v4"
+nfs_raid_disk_size   = 128
+nfs_raid_disk_type   = "Standard_LRS"
