@@ -223,3 +223,8 @@ variable "cluster_egress_type" {
   type        = string
   default     = "loadBalancer"
 }
+
+variable "aks_cluster_private_dns_zone_id" {
+  type = string
+  default = ""
+}
