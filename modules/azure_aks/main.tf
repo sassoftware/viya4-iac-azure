@@ -6,8 +6,9 @@ resource "azurerm_kubernetes_cluster" "aks" {
   name                               = var.aks_cluster_name
   location                           = var.aks_cluster_location
   resource_group_name                = var.aks_cluster_rg
-  dns_prefix                         = var.aks_private_cluster == false ? var.aks_cluster_dns_prefix : null
-  dns_prefix_private_cluster         = var.aks_private_cluster ? var.aks_cluster_dns_prefix : null
+  dns_prefix                         = var.aks_private_cluster == false || var.aks_cluster_private_dns_zone_id == "" ? var.aks_cluster_dns_prefix : null
+  dns_prefix_private_cluster         = var.aks_private_cluster && var.aks_cluster_private_dns_zone_id != "" ? var.aks_cluster_dns_prefix : null
+
   sku_tier                           = var.aks_cluster_sku_tier
   role_based_access_control_enabled  = true
   http_application_routing_enabled   = false
