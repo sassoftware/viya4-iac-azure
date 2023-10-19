@@ -754,6 +754,12 @@ variable "aks_identity" {
   }
 }
 
+variable "aks_cluster_private_dns_zone_id" {
+  description = "Specify private DNS zone resource ID for AKS private cluster to use."
+  type = string
+  default = ""
+}
+
 ## Message Broker - Azure Service Bus - Experimental
 variable "create_azure_message_broker" {
   description = "Allows user to create a fully managed enterprise message broker: Azure Service Bus"

@@ -9,7 +9,7 @@ In this document, we will focus on PostgreSQL server with Private access (VNet I
 
 You can deploy a flexible server into your Azure virtual network (VNet). Azure virtual networks provide private and secure network communication. Resources in a virtual network can communicate through private IP addresses that were assigned on this network. In Private access, the connections to the PostgreSQL server are restricted to only within your virtual network. To learn more about it, refer to [Private access (VNet Integration)](https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/concepts-networking#private-access-vnet-integration).
 
-To create PostgreSQL Flexible Server with the private access connectivity method use the example file provided [here](../../examples/sample-input-ppg.tfvars).
+To create PostgreSQL Flexible Server with the private access connectivity method use the example file provided [here](../../examples/sample-input-postgres.tfvars).
 
 # Connect Azure Database for PostgreSQL Flexible Server with the private access connectivity method
 

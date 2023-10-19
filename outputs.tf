@@ -26,6 +26,10 @@ output "aks_cluster_password" {
   sensitive = true
 }
 
+output "aks_pod_cidr" {
+  value = var.aks_pod_cidr
+}
+
 # postgres
 
 output "postgres_servers" {
