@@ -4,8 +4,13 @@
 locals {
 
   # Useful flags
+  # ssh_public_key = (var.create_jump_vm || var.storage_type == "standard"
+  #   ? file(var.ssh_public_key)
+  #   : null
+  # )
+
   ssh_public_key = (var.create_jump_vm || var.storage_type == "standard"
-    ? file(var.ssh_public_key)
+    ? can(file(var.ssh_public_key)) ? file(var.ssh_public_key) : var.ssh_public_key != null ? length(var.ssh_public_key) > 0 ? var.ssh_public_key : null : null
     : null
   )
 
