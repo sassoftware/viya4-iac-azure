@@ -10,7 +10,7 @@ output "netapp_pool_id" {
 }
 
 output "netapp_endpoint" {
-  value = azurerm_netapp_volume.anf.mount_ip_addresses.0
+  value = azurerm_netapp_volume.anf.mount_ip_addresses[0]
 }
 
 output "netapp_path" {

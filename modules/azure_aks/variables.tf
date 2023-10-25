@@ -11,10 +11,11 @@ variable "aks_cluster_rg" {
   type        = string
 }
 
-variable "aks_cluster_rg_id" {
-  description = "The `azurerm_kubernetes_cluster`'s id."
-  type        = string
-}
+## unused
+# variable "aks_cluster_rg_id" {
+#   description = "The `azurerm_kubernetes_cluster`'s id."
+#   type        = string
+# }
 
 variable "aks_cluster_dns_prefix" {
   description = "DNS prefix specified when creating the managed cluster."
