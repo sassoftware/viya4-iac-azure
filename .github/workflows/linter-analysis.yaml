@@ -59,4 +59,4 @@ jobs:
       run: TFLINT_LOG=info tflint --init -c "$(pwd)/linting-configs/.tflint.hcl" 
 
     - name: Run TFLint Action
-      run: TFLINT_LOG=info tflint -c "$(pwd)/linting-configs/.tflint.hcl"
+      run: TFLINT_LOG=info tflint -c "$(pwd)/linting-configs/.tflint.hcl" --recursive
