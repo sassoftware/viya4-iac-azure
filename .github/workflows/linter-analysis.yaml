@@ -52,6 +52,9 @@ jobs:
         tflint_version: latest
         github_token: ${{ secrets.LINTER_TOKEN }}
 
+    - name: Initializing viya4-iac-azure
+      run: terraform init
+
     - name: Initializing TFLint
       run: TFLINT_LOG=info tflint --init -c "$(pwd)/linting-configs/.tflint.hcl" 
 
