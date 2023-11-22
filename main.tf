@@ -31,6 +31,17 @@ provider "kubernetes" {
   cluster_ca_certificate = base64decode(module.aks.cluster_ca_certificate)
 }
 
+
+provider "helm" {
+  kubernetes {
+    host = module.aks.host
+
+    client_key             = base64decode(module.aks.client_key)
+    client_certificate     = base64decode(module.aks.client_certificate)
+    cluster_ca_certificate = base64decode(module.aks.cluster_ca_certificate)
+  }
+}
+
 data "azurerm_subscription" "current" {}
 
 data "azurerm_resource_group" "network_rg" {
@@ -179,7 +190,36 @@ module "kubeconfig" {
   client_crt               = module.aks.client_certificate
   client_key               = module.aks.client_key
   token                    = module.aks.cluster_password
-  depends_on               = [module.aks]
+  depends_on               = [helm_release.cilium]
+}
+
+resource "null_resource" "kube-proxy-remover" {
+  provisioner "local-exec" {
+    command = "az aks update -g ${azurerm_resource_group.aks_rg[0].name} -n ${module.aks.name} --kube-proxy-config ./files/cilium/kube-proxy.json"
+  }
+  depends_on = [module.aks, module.node_pools]
+}
+
+resource "helm_release" "cilium" {
+  name       = "cilium"
+  repository = "https://helm.cilium.io/"
+  chart      = "cilium"
+  namespace  = "kube-system"
+  version    = "v1.14.4"
+  depends_on = [null_resource.kube-proxy-remover]
+  values = [
+    "${file("files/cilium/byocni-values.yaml")}"
+  ]
+
+  set {
+    name  = "k8sServiceHost"
+    value = trimsuffix(trimprefix(module.aks.host, "https://"), ":443")
+  }
+
+  set {
+    name  = "hubble.metrics.enabled"
+    value = "{dns,drop,tcp,flow,port-distribution,icmp,httpV2:exemplars=true;labelsContext=source_ip\\,source_namespace\\,source_workload\\,destination_ip\\,destination_namespace\\,destination_workload\\,traffic_direction}"
+  }
 }
 
 module "node_pools" {

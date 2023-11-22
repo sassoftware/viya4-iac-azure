@@ -1,0 +1,46 @@
+version: "1.14.4"
+kube-version: "1.27.7"
+kubeProxyReplacement: "strict"
+namespace: "kube-system"
+aksbyocni:
+  enabled: true
+nodeinit:
+  enabled: true
+cluster:
+  name: "cilium-AKS-cluster"
+  id: 123
+gatewayAPI:
+  enabled: false
+pmtuDiscovery:
+  enabled: true
+healthPort: 9877
+ingressController:
+  enabled: true
+  loadbalancerMode: "shared"
+  ingressLBAnnotationPrefixes: "service.beta.kubernetes.io service.kubernetes.io cloud.google.com io.cilium"
+kubeProxyReplacementHealthzBindAddr: "0.0.0.0:10256"
+operator:
+  prometheus:
+    enabled: true
+installIptablesRules: true
+l7Proxy: true
+ipMasqAgent:
+  enabled: true
+socketLB:
+  hostNamespaceOnly: true
+enableCiliumEndpointSlice: true
+prometheus:
+  enabled: true
+hubble:
+  enabled: true
+  relay:
+    enabled: true
+  ui:
+    enabled: true
+cgroup:
+  hostRoot: "/sys/fs/cgroup"
+bpf:
+  masquerade: true
+  tproxy: true
+enableIPv4Masquerade: true
+k8sServicePort: 443

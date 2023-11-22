@@ -22,7 +22,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
 
   network_profile {
     network_plugin = var.aks_network_plugin
-    network_policy = var.aks_network_plugin == "kubenet" && var.aks_network_policy == "azure" ? null : var.aks_network_policy
+    network_policy = var.aks_network_plugin == "kubenet" && var.aks_network_policy == "azure" || var.aks_network_plugin == "none" ? null : var.aks_network_policy
 
     # Docs on AKS Advanced Networking config
     # https://docs.microsoft.com/en-us/azure/architecture/aws-professional/networking
