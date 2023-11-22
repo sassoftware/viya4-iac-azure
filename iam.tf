@@ -12,4 +12,5 @@ resource "azurerm_user_assigned_identity" "uai" {
   name                = "${var.prefix}-aks-identity"
   resource_group_name = local.aks_rg.name
   location            = var.location
+  tags                = var.tags
 }

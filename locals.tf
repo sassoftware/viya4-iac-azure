@@ -16,7 +16,7 @@ locals {
   cluster_endpoint_public_access_cidrs = var.cluster_api_mode == "private" ? [] : (var.cluster_endpoint_public_access_cidrs == null ? local.default_public_access_cidrs : var.cluster_endpoint_public_access_cidrs)
   postgres_public_access_cidrs         = var.postgres_public_access_cidrs == null ? local.default_public_access_cidrs : var.postgres_public_access_cidrs
 
-  subnets = { for k, v in var.subnets : k => v if !(k == "netapp" && var.storage_type == "standard") }
+  subnets = { for k, v in var.subnets : k => v if !(k == "netapp" && var.storage_type == "standard") && !(k == "gateway" && !var.create_app_gateway) }
 
   # Kubernetes
   kubeconfig_filename = "${var.prefix}-aks-kubeconfig.conf"
@@ -38,6 +38,11 @@ locals {
       "internal" : false
     }
   } : {}
+
+  # App Gateway
+  app_gateway_config = merge(var.app_gateway_defaults, var.app_gateway_config)
+  waf_policy_config  = var.waf_policy != null ? jsondecode(file(var.waf_policy)) : null
+  waf_policy_enabled = local.waf_policy_config != null ? length(local.waf_policy_config) != 0 ? true : false : false
 
   # Container Registry
   container_registry_sku = title(var.container_registry_sku)
