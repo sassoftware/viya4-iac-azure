@@ -761,6 +761,13 @@ variable "subnets" {
         }
       }
     }
+    gateway = {
+      "prefixes" : ["192.168.4.0/24"],
+      "service_endpoints" : [],
+      "private_endpoint_network_policies_enabled" : true,
+      "private_link_service_network_policies_enabled" : false,
+      "service_delegations" : {}
+    }
   }
 }
 
@@ -801,4 +808,47 @@ variable "aks_cluster_private_dns_zone_id" {
   description = "Specify private DNS zone resource ID for AKS private cluster to use."
   type        = string
   default     = ""
+}
+
+## Azure Application Gateway
+variable "create_app_gateway" {
+  description = "Allows user to create Azure Application Gateway"
+  type        = bool
+  default     = false
+}
+
+# Defaults
+variable "app_gateway_defaults" {
+  description = "Default config for Azure Application Gateway"
+  type        = any
+  default = {
+    sku                              = "Standard_v2"
+    port                             = "443"
+    protocol                         = "Https"
+    backend_host_name                = null
+    backend_trusted_root_certificate = null
+    ssl_certificate = [{
+      data                = null
+      password            = null
+      key_vault_secret_id = null
+    }]
+    identity_ids              = []
+    backend_address_pool_fqdn = []
+    probe = [{
+      name = "default-probe"
+      path = "/SASLogon/apiMeta"
+    }]
+  }
+}
+
+variable "app_gateway_config" {
+  description = "Map of Application Gateway configuration objects"
+  type        = any
+  default     = {}
+}
+
+variable "waf_policy" {
+  description = "A JSON file with all the WAF_Policy rules"
+  type        = string
+  default     = null
 }
