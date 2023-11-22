@@ -162,3 +162,12 @@ output "message_broker_primary_key" {
 output "message_broker_name" {
   value = var.create_azure_message_broker ? var.message_broker_name : null
 }
+
+## Application Gateway
+output "app_gateway_enabled" {
+  value = var.create_app_gateway ? var.create_app_gateway : null
+}
+
+output "app_gateway_frontend_ip" {
+  value = var.create_app_gateway ? module.app_gateway[0].gateway_frontend_ip : null
+}

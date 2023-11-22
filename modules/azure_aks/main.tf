@@ -3,22 +3,22 @@
 
 # Reference: https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster
 resource "azurerm_kubernetes_cluster" "aks" {
-  name                               = var.aks_cluster_name
-  location                           = var.aks_cluster_location
-  resource_group_name                = var.aks_cluster_rg
-  dns_prefix                         = var.aks_private_cluster == false || var.aks_cluster_private_dns_zone_id == "" ? var.aks_cluster_dns_prefix : null
-  dns_prefix_private_cluster         = var.aks_private_cluster && var.aks_cluster_private_dns_zone_id != "" ? var.aks_cluster_dns_prefix : null
+  name                       = var.aks_cluster_name
+  location                   = var.aks_cluster_location
+  resource_group_name        = var.aks_cluster_rg
+  dns_prefix                 = var.aks_private_cluster == false || var.aks_cluster_private_dns_zone_id == "" ? var.aks_cluster_dns_prefix : null
+  dns_prefix_private_cluster = var.aks_private_cluster && var.aks_cluster_private_dns_zone_id != "" ? var.aks_cluster_dns_prefix : null
 
-  sku_tier                           = var.aks_cluster_sku_tier
-  role_based_access_control_enabled  = true
-  http_application_routing_enabled   = false
-  
+  sku_tier                          = var.aks_cluster_sku_tier
+  role_based_access_control_enabled = true
+  http_application_routing_enabled  = false
+
   # https://docs.microsoft.com/en-us/azure/aks/supported-kubernetes-versions
   # az aks get-versions --location eastus -o table
-  kubernetes_version                 = var.kubernetes_version
-  api_server_authorized_ip_ranges    = var.aks_cluster_endpoint_public_access_cidrs
-  private_cluster_enabled            = var.aks_private_cluster
-  private_dns_zone_id                = var.aks_private_cluster && var.aks_cluster_private_dns_zone_id != "" ? var.aks_cluster_private_dns_zone_id : (var.aks_private_cluster ? "System" : null)
+  kubernetes_version              = var.kubernetes_version
+  api_server_authorized_ip_ranges = var.aks_cluster_endpoint_public_access_cidrs
+  private_cluster_enabled         = var.aks_private_cluster
+  private_dns_zone_id             = var.aks_private_cluster && var.aks_cluster_private_dns_zone_id != "" ? var.aks_cluster_private_dns_zone_id : (var.aks_private_cluster ? "System" : null)
 
   network_profile {
     network_plugin = var.aks_network_plugin
@@ -45,7 +45,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
     content {
       admin_username = var.aks_cluster_node_admin
       ssh_key {
-         key_data = var.aks_cluster_ssh_public_key
+        key_data = var.aks_cluster_ssh_public_key
       }
     }
   }
@@ -80,7 +80,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   dynamic "identity" {
     for_each = var.aks_uai_id == null ? [] : [1]
     content {
-      type = "UserAssigned"
+      type         = "UserAssigned"
       identity_ids = [var.aks_uai_id]
     }
   }
@@ -108,8 +108,8 @@ resource "azurerm_kubernetes_cluster" "aks" {
 
 }
 
- data "azurerm_public_ip" "cluster_public_ip" {
-  count               = var.cluster_egress_type == "loadBalancer" ? 1 : 0
+data "azurerm_public_ip" "cluster_public_ip" {
+  count = var.cluster_egress_type == "loadBalancer" ? 1 : 0
 
   # effective_outbound_ips is a set of strings, that needs to be converted to a list type
   name                = split("/", tolist(azurerm_kubernetes_cluster.aks.network_profile[0].load_balancer_profile[0].effective_outbound_ips)[0])[8]
