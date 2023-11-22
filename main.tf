@@ -266,6 +266,30 @@ module "message_broker" {
   tags                    = var.tags
 }
 
+module "app_gateway" {
+  source = "./modules/azurerm_app_gateway"
+  count  = var.create_app_gateway ? 1 : 0
+
+  prefix                           = var.prefix
+  resource_group_name              = local.aks_rg.name
+  location                         = var.location
+  sku                              = local.app_gateway_config.sku
+  port                             = local.app_gateway_config.port
+  protocol                         = local.app_gateway_config.protocol
+  waf_policy_enabled               = local.waf_policy_enabled
+  waf_policy_config                = local.waf_policy_config
+  backend_host_name                = local.app_gateway_config.backend_host_name
+  backend_trusted_root_certificate = local.app_gateway_config.backend_trusted_root_certificate
+  ssl_certificate                  = local.app_gateway_config.ssl_certificate
+  identity_ids                     = local.app_gateway_config.identity_ids
+  backend_address_pool_fqdn        = local.app_gateway_config.backend_address_pool_fqdn
+  probe                            = local.app_gateway_config.probe
+  subnet_id                        = module.vnet.subnets["gateway"].id
+  tags                             = var.tags
+
+  depends_on = [module.vnet]
+}
+
 data "external" "git_hash" {
   program = ["files/tools/iac_git_info.sh"]
 }

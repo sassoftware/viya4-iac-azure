@@ -146,7 +146,7 @@ variable "aks_dns_service_ip" {
   type        = string
   default     = "10.0.0.10"
   validation {
-    condition     = var.aks_dns_service_ip != null ? can(regex("^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",var.aks_dns_service_ip)) : false
+    condition     = var.aks_dns_service_ip != null ? can(regex("^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$", var.aks_dns_service_ip)) : false
     error_message = "ERROR: aks_dns_service_ip - value must not be null and must be a valid IP address."
   }
 
@@ -225,6 +225,6 @@ variable "cluster_egress_type" {
 }
 
 variable "aks_cluster_private_dns_zone_id" {
-  type = string
+  type    = string
   default = ""
 }
