@@ -388,3 +388,114 @@ postgres_servers = {
   }
 }
 ```
+
+## Azure Application Gateway with Azure Web Application Firewall (WAF)
+
+Azure Web Application Firewall (WAF) on Azure Application Gateway provides centralized protection of your web applications from common exploits and vulnerabilities. To enable Azure Application Gateway with WAF you need to provide all the required variables as discussed below:
+
+The variable has the following format:
+```
+create_app_gateway = true
+app_gateway_config = {
+  backend_trusted_root_certificate = "<path-to-root-cert>" ## .cer format required
+  ssl_certificate = [{
+    data     = "<path-to-listener-cert>"  ## .pfx format required
+    password = "<your-password>"
+  }]
+  backend_address_pool_fqdn = [<ingress-loadBalancer-fqdn>]
+}
+
+waf_policy = "<path-to-WAF-policy-file>"  ## .json format required
+```
+
+| Name | Description | Type | Default | Notes |
+| :--- | :--- | :--- | :--- | :--- |
+| create_app_gateway | Creates Azure Application Gateway | bool | false | |
+| app_gateway_config | Map of Application Gateway configuration objects | map | null | All the variables that can be defined in the `app_gateway_config` are described in table below. |
+| waf_policy | A JSON file with all the WAF_Policy rules | map | null | The WAF policy has few required components see the details below. |
+
+The `app_gateway_config` variable can contain none, some, or all of the parameters listed below:
+| Name | Description | Type | Required | Default | Notes |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| sku | The Name of the SKU to use for this Application Gateway. | string | false | "Standard_v2" | If WAF policy is enabled the default is `"WAF_v2"` |
+| port | The port which should be used for this Application Gateway. | string | false | "443" |  |
+| protocol | The Protocol which should be used. | string | false  | "Https" | Possible values are Http and Https.|
+| backend_host_name | FQDN for the Gateway | string | False | null |Set this variable when using custom DNS. Not setting this will use Azure Public DNS to set the FQDN for Application Gateway Public IP.|
+| backend_trusted_root_certificate | The Trusted Root Certificate to use. | string | True | null  | |
+| ssl_certificate |The associated SSL Certificate which should be used for this HTTP Listener. | map | True | null |List of data, password or key_vault_secret_id|
+| identity_ids | Specifies a list of User Assigned Managed Identity IDs to be assigned to this Application Gateway. | list | False | null | Required when specifying key_vault_secret_id |
+| backend_address_pool_fqdn | A list of FQDN's which should be part of the Backend Address Pool.  | list | True | null |Add the FQDN of your Ingress-Nginx. Note: You can specify the anticipated FQDN of your ingress without affecting the Gateway creation. This can also be manually updated later in Portal|
+| probe | Custom health probes to be created for the Application Gateway. | map | False | "default-probe" ||
+
+The `waf_policy` variable is json file which can contain none, some, or all of the parameters listed below:
+For the details of all the parameters that can be specified see: https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/web_application_firewall_policy
+| Name | Description | Type | Required | Default | Notes |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| custom_rules | Specifies one or more custom_rules blocks  | list(map) | False | | |
+| policy_settings | Specifies A policy_settings block | map | False |  |  |
+| managed_rules | A managed_rules blocks | list(map) | True  | | |
+
+Example WAF Policy:
+```
+{
+    "custom_rules": [
+        {
+            "name": "SASIPWhiteList",
+            "priority": 1,
+            "rule_type": "MatchRule",
+            "action": "Block",
+            "match_conditions": [
+                {
+                    "match_variables": [
+                        {
+                            "variable_name": "RemoteAddr"
+                        }
+                    ],
+                    "operator": "IPMatch",
+                    "negation_condition": true,
+                    "match_values": [
+                        "<your-IP-to-be-whitelisted>"
+                    ],
+                    "transforms": []
+                }
+            ],
+            "enabled": true
+        }
+    ],
+    "policy_settings": {
+        "request_body_check": true,
+        "max_request_body_size_in_kb": 2000,
+        "file_upload_limit_in_mb": 4000,
+        "enabled": true,
+        "mode": "Prevention",
+        "request_body_inspect_limit_in_kb": 2000
+    },
+    "managed_rules": {
+        "exclusion": [
+            {
+                "match_variable": "RequestHeaderNames",
+                "selector": "x-company-secret-header",
+                "selector_match_operator": "Equals"
+            }
+        ],
+        "managed_rule_set": [
+            {
+                "type": "OWASP",
+                "version": "3.2",
+                "rule_group_override": [
+                    {
+                        "rule_group_name": "REQUEST-920-PROTOCOL-ENFORCEMENT",
+                        "rule": [
+                            {
+                                "id": "920300",
+                                "enabled": true,
+                                "action": "Log"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}
+```
