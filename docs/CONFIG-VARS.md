@@ -70,7 +70,7 @@ You can use `default_public_access_cidrs` to set a default range for all created
 
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
-| default_public_access_cidrs | IP address ranges allowed to access all created cloud resources | list of strings | | Sets a default for all resources. |
+| default_public_access_cidrs | IP address ranges allowed to access all created cloud resources | list of strings | | Sets a default for all resources. Not setting the CIDR range creates a fully public site, this is not recommended for security reasons. |
 | cluster_endpoint_public_access_cidrs | IP address ranges allowed to access the AKS cluster API | list of strings | | For client admin access to the cluster api (by `kubectl`, for example). Only used with `cluster_api_mode=public`|
 | vm_public_access_cidrs | IP address ranges allowed to access the VMs | list of strings | | Opens port 22 for SSH access to the jump server and/or NFS VM by adding Ingress Rule on the NSG. Only used with `create_jump_public_ip=true` or `create_nfs_public_ip=true`   |
 | postgres_public_access_cidrs | IP address ranges allowed to access the Azure PostgreSQL Flexible Server | list of strings || Opens port 5432 by adding Ingress Rule on the NSG. Only used when creating postgres instances. |
