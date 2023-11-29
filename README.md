@@ -15,7 +15,7 @@ This project helps you to automate the cluster-provisioning phase of SAS Viya pl
 
 [<img src="./docs/images/viya4-iac-azure-diag.png" alt="Architecture Diagram" width="750"/>](./docs/images/viya4-iac-azure-diag.png?raw=true)
 
-This project addresses the first of three steps in [Steps for Getting Started]https://documentation.sas.com/?cdcId=itopscdc&cdcVersion=default&docsetId=itopscon&docsetTarget=n12fgslcw9swbsn10rva4bp0mr2w.htm) in _SAS&reg; Viya&reg; Platform Operations_:
+This project addresses the first of three steps in [Steps for Getting Started](https://documentation.sas.com/?cdcId=itopscdc&cdcVersion=default&docsetId=itopscon&docsetTarget=n12fgslcw9swbsn10rva4bp0mr2w.htm) in _SAS&reg; Viya&reg; Platform Operations_:
 
 1. Provision resources.
 1. Prepare for the deployment.
