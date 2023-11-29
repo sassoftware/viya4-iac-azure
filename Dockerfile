@@ -1,9 +1,9 @@
-ARG TERRAFORM_VERSION=1.4.5
-ARG AZURECLI_VERSION=2.53.0
+ARG TERRAFORM_VERSION=1.6.4
+ARG AZURECLI_VERSION=2.54.0
 
 FROM hashicorp/terraform:$TERRAFORM_VERSION as terraform
 FROM mcr.microsoft.com/azure-cli:$AZURECLI_VERSION
-ARG KUBECTL_VERSION=1.26.6
+ARG KUBECTL_VERSION=1.26.10
 
 WORKDIR /viya4-iac-azure
 
@@ -12,7 +12,7 @@ COPY . .
 
 RUN apk update \
   && apk upgrade \
-  && apk add --no-cache git openssh \
+  && apk add --no-cache git openssh curl\
   && curl -sLO https://storage.googleapis.com/kubernetes-release/release/v$KUBECTL_VERSION/bin/linux/amd64/kubectl \
   && chmod 755 ./kubectl /viya4-iac-azure/docker-entrypoint.sh \
   && mv ./kubectl /usr/local/bin/kubectl \
