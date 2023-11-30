@@ -149,11 +149,12 @@ resource "azurerm_application_gateway" "appgateway" {
   }
 
   dynamic "trusted_root_certificate" {
-    for_each = var.backend_trusted_root_certificate == null ? [] : [1]
+    for_each = var.backend_trusted_root_certificate == null ? [] : var.backend_trusted_root_certificate
 
     content {
-      name = "root-cert"
-      data = filebase64(var.backend_trusted_root_certificate)
+      name                = try(trusted_root_certificate.value.name, null)
+      data                = try(trusted_root_certificate.value.data, null) != null ? filebase64(trusted_root_certificate.value.data) : null
+      key_vault_secret_id = try(trusted_root_certificate.value.data, null) != null ? null : trusted_root_certificate.value.key_vault_secret_id
     }
   }
 
@@ -161,10 +162,19 @@ resource "azurerm_application_gateway" "appgateway" {
     for_each = var.ssl_certificate == null ? [] : var.ssl_certificate
 
     content {
-      name                = "ListenerCert"
-      data                = ssl_certificate.value.data != null ? filebase64(ssl_certificate.value.data) : null
-      password            = ssl_certificate.value.password
-      key_vault_secret_id = ssl_certificate.value.data != null ? null : ssl_certificate.value.key_vault_secret_id
+      name                = try(ssl_certificate.value.name, null)
+      data                = try(ssl_certificate.value.data, null) != null ? filebase64(ssl_certificate.value.data) : null
+      password            = try(ssl_certificate.value.password, null)
+      key_vault_secret_id = try(ssl_certificate.value.data, null) != null ? null : ssl_certificate.value.key_vault_secret_id
+    }
+  }
+
+  dynamic "identity" {
+    for_each = var.identity_ids == null ? [] : [1]
+
+    content {
+      type         = "UserAssigned"
+      identity_ids = var.identity_ids
     }
   }
 
@@ -174,9 +184,9 @@ resource "azurerm_application_gateway" "appgateway" {
     port                           = var.port
     protocol                       = var.protocol
     request_timeout                = 60
-    probe_name                     = var.probe != null ? "default-probe" : null
+    probe_name                     = var.probe != null ? try(var.probe[0].name, "default-probe") : null
     host_name                      = var.backend_host_name == null ? azurerm_public_ip.gateway_ip.fqdn : var.backend_host_name
-    trusted_root_certificate_names = var.backend_trusted_root_certificate == null ? null : ["root-cert"]
+    trusted_root_certificate_names = var.backend_trusted_root_certificate == null ? null : [var.backend_trusted_root_certificate[0].name]
   }
 
   http_listener {
@@ -184,7 +194,7 @@ resource "azurerm_application_gateway" "appgateway" {
     frontend_ip_configuration_name = local.frontend_ip_configuration_name
     frontend_port_name             = local.frontend_port_name
     protocol                       = var.protocol
-    ssl_certificate_name           = var.ssl_certificate == null ? null : "ListenerCert"
+    ssl_certificate_name           = var.ssl_certificate == null ? null : var.ssl_certificate[0].name
   }
 
   request_routing_rule {
