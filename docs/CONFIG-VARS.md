@@ -22,6 +22,7 @@ Supported configuration variables are listed in the tables below.  All variables
     - [Azure NetApp Files (only when `storage_type=ha`)](#azure-netapp-files-only-when-storage_typeha)
   - [Azure Container Registry (ACR)](#azure-container-registry-acr)
   - [Postgres Servers](#postgres-servers)
+  - [Azure Application Gateway with Azure Web Application Firewall (WAF)](#azure-application-gateway-with-azure-web-application-firewall-waf)
 
 Terraform input variables can be set in the following ways:
 
