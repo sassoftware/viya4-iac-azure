@@ -49,7 +49,7 @@ variable "backend_host_name" {
 
 variable "backend_trusted_root_certificate" {
   description = "The Trusted Root Certificate to use."
-  type        = string
+  type        = any
   default     = null
 }
 

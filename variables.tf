@@ -827,13 +827,9 @@ variable "app_gateway_defaults" {
     protocol                         = "Https"
     backend_host_name                = null
     backend_trusted_root_certificate = null
-    ssl_certificate = [{
-      data                = null
-      password            = null
-      key_vault_secret_id = null
-    }]
-    identity_ids              = []
-    backend_address_pool_fqdn = []
+    ssl_certificate                  = null
+    identity_ids                     = []
+    backend_address_pool_fqdn        = []
     probe = [{
       name = "default-probe"
       path = "/SASLogon/apiMeta"
