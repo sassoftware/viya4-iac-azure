@@ -420,7 +420,7 @@ For the details of all the parameters that can be specified see: https://registr
 | Name | Description | Type | Required | Default | Notes |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | custom_rules | Specifies one or more custom_rules blocks  | list(map) | false | | |
-| policy_settings | Specifies A policy_settings block | map | false |  |  |
+| policy_settings | Specifies a policy_settings block | map | false |  |  |
 | managed_rules | A managed_rules blocks | list(map) | true  | | |
 
 Example WAF Policy:
