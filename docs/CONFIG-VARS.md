@@ -413,7 +413,6 @@ Azure Web Application Firewall (WAF) on Azure Application Gateway provides centr
 | :--- | :--- | :--- | :--- | :--- |
 | create_app_gateway | Creates Azure Application Gateway | bool | false | |
 | app_gateway_config | Map of Application Gateway configuration objects | map | null | All the variables that can be defined in the `app_gateway_config` are described in table below. |
-| waf_policy | A JSON file with all the WAF_Policy rules | map | null | The WAF policy has few required components see the details below. |
 
 The `app_gateway_config` variable can contain none, some, or all of the parameters listed below:
 For the details of all the parameters that can be specified see: https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/application_gateway
@@ -423,6 +422,7 @@ For the details of all the parameters that can be specified see: https://registr
 | sku | The Name of the SKU to use for this Application Gateway. | string | false | "Standard_v2" | If WAF policy is enabled the default is `"WAF_v2"` |
 | port | The port which should be used for this Application Gateway. | string | false | "443" |  |
 | protocol | The Protocol which should be used. | string | false  | "Https" | Possible values are Http and Https.|
+| waf_policy | A JSON file with all the WAF_Policy rules | map | null | The WAF policy has few required components see the details below. |
 | backend_host_name | Hostname for the Application Gateway | string | false | null |Set this variable when using custom DNS. Not setting this will use Azure Public DNS to set the FQDN for Application Gateway Public IP.|
 | backend_trusted_root_certificate | The Trusted Root Certificate to use. | list(map(string)) | true | null  | List of map containing: name, data, or key_vault_secret_id. `key_vault_secret_id` is required if `data` is not set. |
 | ssl_certificate |The associated SSL Certificate which should be used for this HTTP Listener. | list(map(string)) | true | null | List of map containing: name, data, password or key_vault_secret_id. `key_vault_secret_id` is required if `data` is not set.|
@@ -439,7 +439,7 @@ For the details of all the parameters that can be specified see: https://registr
 | managed_rules | A managed_rules blocks | list(map) | true  | | |
 
 Example WAF Policy:
-```
+```json
 {
     "custom_rules": [
         {
