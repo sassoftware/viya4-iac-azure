@@ -810,8 +810,9 @@ variable "app_gateway_defaults" {
     backend_host_name                = null
     backend_trusted_root_certificate = null
     ssl_certificate                  = null
-    identity_ids                     = []
-    backend_address_pool_fqdn        = []
+    identity_ids                     = null
+    backend_address_pool_fqdn        = null
+    waf_policy                       = null
     probe = [{
       name = "default-probe"
       path = "/SASLogon/apiMeta"
@@ -823,10 +824,4 @@ variable "app_gateway_config" {
   description = "Map of Application Gateway configuration objects"
   type        = any
   default     = {}
-}
-
-variable "waf_policy" {
-  description = "A JSON file with all the WAF_Policy rules"
-  type        = string
-  default     = null
 }

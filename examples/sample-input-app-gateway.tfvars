@@ -32,6 +32,7 @@ postgres_servers = {
 create_app_gateway = true
 
 app_gateway_config = {
+  waf_policy = "<path-to-WAF-policy-json-file>"   ## Required to configure WAF with Application Gateway
   backend_host_name = "<your Application Gateway host name>"  ## leave empty to use Azure public DNS assigned host name
   backend_trusted_root_certificate = [{
     name = "<rootcert-name>"
@@ -48,8 +49,6 @@ app_gateway_config = {
   ## Example identity_ids value: `/subscriptions/12345678-1234-9876-4563-123456789012/resourceGroups/example-resource-group/providers/Microsoft.ManagedIdentity/userAssignedIdentities/userAssignedIdentityValue`
   backend_address_pool_fqdn = ["<your-ingress-nginx-loadBalancer-hostname>"]  ## Required to setup the backend pool. This list only accepts FQDN.
 }
-
-waf_policy = "<path-to-WAF-policy-json-file>"   ## Required to configure WAF with Application Gateway
 
 # AKS config
 kubernetes_version         = "1.26"
