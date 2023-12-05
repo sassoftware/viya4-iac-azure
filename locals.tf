@@ -41,7 +41,7 @@ locals {
 
   # App Gateway
   app_gateway_config = merge(var.app_gateway_defaults, var.app_gateway_config)
-  waf_policy_config  = var.waf_policy != null ? jsondecode(file(var.waf_policy)) : null
+  waf_policy_config  = local.app_gateway_config.waf_policy != null ? jsondecode(file(local.app_gateway_config.waf_policy)) : null
   waf_policy_enabled = local.waf_policy_config != null ? length(local.waf_policy_config) != 0 ? true : false : false
 
   # Container Registry
