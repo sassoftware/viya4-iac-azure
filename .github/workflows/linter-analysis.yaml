@@ -58,5 +58,8 @@ jobs:
     - name: Initializing TFLint
       run: TFLINT_LOG=info tflint --init -c "$(pwd)/linting-configs/.tflint.hcl" 
 
+    - name: Run TFLint Action - root
+      run: TFLINT_LOG=info tflint -c "$(pwd)/linting-configs/.tflint.hcl" --var='ssh_public_key=null'
+
     - name: Run TFLint Action
       run: TFLINT_LOG=info tflint -c "$(pwd)/linting-configs/.tflint.hcl" --recursive
