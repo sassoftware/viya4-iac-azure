@@ -356,8 +356,8 @@ variable "storage_type" {
   default     = "standard"
   # NOTE: storage_type=none is for internal use only
   validation {
-    condition     = contains(["standard", "ha", "none"], lower(var.storage_type))
-    error_message = "ERROR: Supported values for `storage_type` are - standard, ha, none."
+    condition     = contains(["standard", "ha", "zebclient", "none"], lower(var.storage_type))
+    error_message = "ERROR: Supported values for `storage_type` are - standard, ha, zebclient, none."
   }
 }
 
@@ -756,8 +756,8 @@ variable "aks_identity" {
 
 variable "aks_cluster_private_dns_zone_id" {
   description = "Specify private DNS zone resource ID for AKS private cluster to use."
-  type = string
-  default = ""
+  type        = string
+  default     = ""
 }
 
 ## Message Broker - Azure Service Bus - Experimental
@@ -783,4 +783,117 @@ variable "message_broker_capacity" {
   description = "Specifies the capacity. When sku is Premium, capacity can be 1, 2, 4, 8 or 16. When sku is Basic or Standard, capacity can be 0 only."
   type        = number
   default     = 1
+}
+
+
+## Zebclient Storage
+variable "zebclient_license_key" {
+  description = "ZebClient license key. If you don't have one you can contact Zebware.com to get one."
+  type        = string
+}
+
+variable "zebclient_deploy_mode" {
+  description = "Specifies the deployment mode for ZebClient storage option."
+  type        = string
+  default     = "direct"
+}
+
+variable "zebclient_k_value" {
+  description = "ZebClient K part of the K+M value."
+  type        = number
+  default     = 1
+}
+
+variable "zebclient_m_value" {
+  description = "ZebClient M part of the K+M value."
+  type        = number
+  default     = 0
+}
+
+variable "zebclient_agent_pod_sizes" {
+  description = "ZebClient agent pods settings"
+  type        = list(any)
+  default = [
+    {
+      node_selector_label   = "zebware.com/zebclient-agent-size"
+      node_selector_value   = "small"
+      zc_limit              = "2GiB"
+      zc_fs_cache_size      = "128MiB"
+      zc_fs_max_uploads     = 4
+      zc_fs_buffer_size     = "256MiB"
+      zc_fs_max_compactions = 2
+      pod_lim_cpu           = "0.5"
+      pod_lim_mem           = "2.2Gi"
+      pod_req_cpu           = "0.5"
+      pod_req_mem           = "2.2Gi"
+    },
+    {
+      node_selector_label   = "zebware.com/zebclient-agent-size"
+      node_selector_value   = "medium"
+      zc_limit              = "5GiB"
+      zc_fs_cache_size      = "1600MiB"
+      zc_fs_max_uploads     = 8
+      zc_fs_buffer_size     = "512MiB"
+      zc_fs_max_compactions = 4
+      pod_lim_cpu           = "2"
+      pod_lim_mem           = "5.2Gi"
+      pod_req_cpu           = "2"
+      pod_req_mem           = "5.2Gi"
+    },
+    {
+      node_selector_label   = "zebware.com/zebclient-agent-size"
+      node_selector_value   = "large"
+      zc_limit              = "8GiB"
+      zc_fs_cache_size      = "7600MiB"
+      zc_fs_max_uploads     = 16
+      zc_fs_buffer_size     = "1024MiB"
+      zc_fs_max_compactions = 8
+      pod_lim_cpu           = "4"
+      pod_lim_mem           = "8.2Gi"
+      pod_req_cpu           = "4"
+      pod_req_mem           = "8.2Gi"
+    }
+  ]
+}
+
+variable "zebclient_keydb_vm_size" {
+  description = "Keydb instance size"
+  type        = string
+  default     = "Standard_D4s_v3"
+}
+
+variable "zebclient_mgmt_vm_size" {
+  description = "Management node instance type. Used for SSH to Zebware Cluster."
+  type        = string
+  default     = "Standard_B2s"
+}
+
+variable "zebclient_tolerations" {
+  description = "Tolerations for zebclient controller and agent pods."
+  type        = list(any)
+  default = [
+    {
+      key      = "workload.sas.com/class",
+      operator = "Exists",
+      effect   = "NoSchedule"
+    },
+    {
+      key      = "zebware.com/zebclient-agent",
+      operator = "Exists",
+      effect   = "NoSchedule"
+    }
+  ]
+}
+
+### ZebClient monitoring with NetData Ref: https://www.netdata.cloud
+variable "zebclient_netdata_claim_token" {
+  description = "(Optional) In case of NetData enabled, set NetData's claim token to get ZebClient metrics pushed."
+  type        = string
+  default     = ""
+}
+
+variable "zebclient_netdata_claim_room" {
+  description = "(Optional) In case of NetData enabled, set NetData's claim token to get ZebClient metrics pushed."
+  type        = string
+  default     = ""
 }

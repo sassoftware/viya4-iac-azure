@@ -110,14 +110,14 @@ output "provider" {
 }
 
 output "rwx_filestore_endpoint" {
-  value = (var.storage_type == "none"
+  value = (var.storage_type == "none" || var.storage_type == "zebclient"
     ? null
     : var.storage_type == "ha" ? module.netapp[0].netapp_endpoint : module.nfs[0].private_ip_address
   )
 }
 
 output "rwx_filestore_path" {
-  value = (var.storage_type == "none"
+  value = (var.storage_type == "none" || var.storage_type == "zebclient"
     ? null
     : var.storage_type == "ha" ? module.netapp[0].netapp_path : "/export"
   )
@@ -161,4 +161,27 @@ output "message_broker_primary_key" {
 
 output "message_broker_name" {
   value = var.create_azure_message_broker ? var.message_broker_name : null
+}
+
+## Zebclient
+output "zebclient_management_node_public_ip" {
+  value = (var.storage_type == "zebclient"
+    ? module.zebclient_direct[0].mgmt_node_public_ip
+    : null
+  )
+}
+
+output "zebclient_management_ssh_user" {
+  value = (var.storage_type == "zebclient"
+    ? module.zebclient_direct[0].ssh_username
+    : null
+  )
+}
+
+output "zebclient_management_ssh_private_key" {
+  value = (var.storage_type == "zebclient"
+    ? module.zebclient_direct[0].ssh_private_key
+    : null
+  )
+  sensitive = true
 }

@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 locals {
-  rwx_filestore_endpoint = (var.storage_type == "none"
+  rwx_filestore_endpoint = (var.storage_type == "none" || var.storage_type == "zebclient"
     ? ""
     : var.storage_type == "ha" ? module.netapp[0].netapp_endpoint : module.nfs[0].private_ip_address
   )

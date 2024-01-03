@@ -31,6 +31,15 @@ provider "kubernetes" {
   cluster_ca_certificate = base64decode(module.aks.cluster_ca_certificate)
 }
 
+provider "helm" {
+  kubernetes {
+    host                   = module.aks.host
+    client_key             = base64decode(module.aks.client_key)
+    client_certificate     = base64decode(module.aks.client_certificate)
+    cluster_ca_certificate = base64decode(module.aks.cluster_ca_certificate)
+  }
+}
+
 data "azurerm_subscription" "current" {}
 
 data "azurerm_resource_group" "network_rg" {
@@ -292,4 +301,27 @@ EOT
   }
 
   depends_on = [module.aks]
+}
+
+module "zebclient_direct" {
+  count                              = (var.storage_type == "zebclient" && var.zebclient_deploy_mode == "direct") ? 1 : 0
+  source                             = "git::https://gitlab.com/zebware/public/terraform-module-zebclient-azure-direct-k8s.git?ref=1.3.0"
+  location                           = local.aks_rg.location
+  prefix                             = var.prefix
+  public_access_cidrs                = var.default_public_access_cidrs
+  resource_group_name                = local.aks_rg.name
+  subnet_id                          = module.vnet.subnets["aks"].id
+  zebclient_license_key              = var.zebclient_license_key
+  zebclient_k_value                  = var.zebclient_k_value
+  zebclient_m_value                  = var.zebclient_m_value
+  zebclient_agent_pod_sizes          = var.zebclient_agent_pod_sizes
+  aks_helm_zebclient_csi_tolerations = var.zebclient_tolerations
+  keydb_vm_size                      = var.zebclient_keydb_vm_size
+  mgmt_vm_size                       = var.zebclient_mgmt_vm_size
+
+  #NetData
+  netdata_claim_token = var.zebclient_netdata_claim_token
+  netdata_claim_room  = var.zebclient_netdata_claim_room
+
+  depends_on = [module.vnet, module.aks]
 }
