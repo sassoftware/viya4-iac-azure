@@ -10,6 +10,7 @@
 config {
   # Enables module inspection.
   module = true
+  variables = ["ssh_public_key=null"]
 }
 
 plugin "azurerm" {
