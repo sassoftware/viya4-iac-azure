@@ -21,8 +21,8 @@ locals {
     cluster_name = var.cluster_name
     endpoint     = var.endpoint
     name         = local.service_account_name
-    ca_crt       = base64encode(lookup(data.kubernetes_secret.sa_secret[0].data,"ca.crt", ""))
-    token        = lookup(data.kubernetes_secret.sa_secret[0].data,"token", "")
+    ca_crt       = base64encode(lookup(data.kubernetes_secret.sa_secret[0].data, "ca.crt", ""))
+    token        = lookup(data.kubernetes_secret.sa_secret[0].data, "token", "")
     namespace    = var.namespace
   }) : null
 }
@@ -33,7 +33,7 @@ data "kubernetes_secret" "sa_secret" {
     name      = kubernetes_secret.sa_secret[0].metadata[0].name
     namespace = var.namespace
   }
-  
+
   depends_on = [kubernetes_secret.sa_secret]
 }
 
@@ -66,7 +66,7 @@ resource "kubernetes_service_account" "kubernetes_sa" {
 resource "kubernetes_cluster_role_binding" "kubernetes_crb" {
   count = var.create_static_kubeconfig ? 1 : 0
   metadata {
-    name      = local.cluster_role_binding_name
+    name = local.cluster_role_binding_name
   }
   role_ref {
     api_group = "rbac.authorization.k8s.io"
