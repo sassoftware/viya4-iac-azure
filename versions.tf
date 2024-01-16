@@ -12,31 +12,31 @@ terraform {
     }
     azuread = {
       source  = "hashicorp/azuread"
-      version = "2.47.0"
+      version = "~>2.47"
     }
     external = {
       source  = "hashicorp/external"
-      version = "2.3.2"
+      version = "~>2.3"
     }
     local = {
       source  = "hashicorp/local"
-      version = "2.4.1"
+      version = "~>2.4"
     }
     null = {
       source  = "hashicorp/null"
-      version = "3.2.2"
+      version = "~>3.2"
     }
     tls = {
       source  = "hashicorp/tls"
-      version = "4.0.5"
+      version = "~>4.0"
     }
     cloudinit = {
       source  = "hashicorp/cloudinit"
-      version = "2.3.3"
+      version = "~>2.3"
     }
     kubernetes = {
       source  = "hashicorp/kubernetes"
-      version = "2.25.2"
+      version = "~>2.25"
     }
   }
 }
