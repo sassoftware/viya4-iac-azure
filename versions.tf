@@ -3,40 +3,40 @@
 
 terraform {
 
-  required_version = ">= 1.6.4"
+  required_version = ">= 1.6.6"
 
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "3.81.0"
+      version = "3.86.0"
     }
     azuread = {
       source  = "hashicorp/azuread"
-      version = "2.46.0"
+      version = "~>2.47"
     }
     external = {
       source  = "hashicorp/external"
-      version = "2.3.2"
+      version = "~>2.3"
     }
     local = {
       source  = "hashicorp/local"
-      version = "2.4.0"
+      version = "~>2.4"
     }
     null = {
       source  = "hashicorp/null"
-      version = "3.2.2"
+      version = "~>3.2"
     }
     tls = {
       source  = "hashicorp/tls"
-      version = "4.0.4"
+      version = "~>4.0"
     }
     cloudinit = {
       source  = "hashicorp/cloudinit"
-      version = "2.3.2"
+      version = "~>2.3"
     }
     kubernetes = {
       source  = "hashicorp/kubernetes"
-      version = "2.23.0"
+      version = "~>2.25"
     }
   }
 }
