@@ -131,7 +131,6 @@ module "aks" {
 
   aks_cluster_name                         = "${var.prefix}-aks"
   aks_cluster_rg                           = local.aks_rg.name
-  aks_cluster_rg_id                        = local.aks_rg.id
   aks_cluster_dns_prefix                   = "${var.prefix}-aks"
   aks_cluster_sku_tier                     = var.aks_cluster_sku_tier
   aks_cluster_location                     = var.location
@@ -241,7 +240,6 @@ module "netapp" {
   prefix              = var.prefix
   resource_group_name = local.aks_rg.name
   location            = var.location
-  vnet_name           = module.vnet.name
   subnet_id           = module.vnet.subnets["netapp"].id
   network_features    = var.netapp_network_features
   service_level       = var.netapp_service_level

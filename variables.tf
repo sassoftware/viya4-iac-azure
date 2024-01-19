@@ -121,7 +121,7 @@ variable "default_nodepool_vm_type" {
 variable "kubernetes_version" {
   description = "The AKS cluster K8s version"
   type        = string
-  default     = "1.26"
+  default     = "1.27"
 }
 
 variable "default_nodepool_max_nodes" {
@@ -756,8 +756,8 @@ variable "aks_identity" {
 
 variable "aks_cluster_private_dns_zone_id" {
   description = "Specify private DNS zone resource ID for AKS private cluster to use."
-  type = string
-  default = ""
+  type        = string
+  default     = ""
 }
 
 ## Message Broker - Azure Service Bus - Experimental

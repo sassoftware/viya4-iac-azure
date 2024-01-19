@@ -49,14 +49,14 @@ resource "azurerm_postgresql_flexible_server" "flexpsql" {
 }
 
 resource "azurerm_postgresql_flexible_server_configuration" "flexpsql" {
-  for_each   = {
-    for config in var.postgresql_configurations:
-      config.name => config
+  for_each = {
+    for config in var.postgresql_configurations :
+    config.name => config
   }
 
-  name       = each.value.name
-  server_id  = azurerm_postgresql_flexible_server.flexpsql.id
-  value      = each.value.value
+  name      = each.value.name
+  server_id = azurerm_postgresql_flexible_server.flexpsql.id
+  value     = each.value.value
 }
 
 resource "azurerm_postgresql_flexible_server_firewall_rule" "flexpsql" {

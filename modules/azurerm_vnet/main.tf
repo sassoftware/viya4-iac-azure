@@ -4,9 +4,9 @@
 # Sourced and modified from https://github.com/Azure/terraform-azurerm-vnet
 locals {
   vnet_name = coalesce(var.name, "${var.prefix}-vnet")
-  subnets = ( length(var.existing_subnets) == 0
-              ? [ for k, v in azurerm_subnet.subnet[*] :{ for kk, vv in v: kk => {"id": vv.id, "address_prefixes": vv.address_prefixes }}][0]
-              : [ for k, v in data.azurerm_subnet.subnet[*] :{for kk, vv in v: kk => {"id": vv.id, "address_prefixes": vv.address_prefixes }}][0]
+  subnets = (length(var.existing_subnets) == 0
+    ? [for k, v in azurerm_subnet.subnet[*] : { for kk, vv in v : kk => { "id" : vv.id, "address_prefixes" : vv.address_prefixes } }][0]
+    : [for k, v in data.azurerm_subnet.subnet[*] : { for kk, vv in v : kk => { "id" : vv.id, "address_prefixes" : vv.address_prefixes } }][0]
   )
 }
 
@@ -35,14 +35,14 @@ data "azurerm_subnet" "subnet" {
 }
 
 resource "azurerm_subnet" "subnet" {
-  for_each                                       = length(var.existing_subnets) == 0 ? var.subnets : {}
-  name                                           = "${var.prefix}-${each.key}-subnet"
-  resource_group_name                            = var.resource_group_name
-  virtual_network_name                           = local.vnet_name
-  address_prefixes                               = each.value.prefixes
-  service_endpoints                              = each.value.service_endpoints
-  private_endpoint_network_policies_enabled      = each.value.private_endpoint_network_policies_enabled
-  private_link_service_network_policies_enabled  = each.value.private_link_service_network_policies_enabled
+  for_each                                      = length(var.existing_subnets) == 0 ? var.subnets : {}
+  name                                          = "${var.prefix}-${each.key}-subnet"
+  resource_group_name                           = var.resource_group_name
+  virtual_network_name                          = local.vnet_name
+  address_prefixes                              = each.value.prefixes
+  service_endpoints                             = each.value.service_endpoints
+  private_endpoint_network_policies_enabled     = each.value.private_endpoint_network_policies_enabled
+  private_link_service_network_policies_enabled = each.value.private_link_service_network_policies_enabled
   dynamic "delegation" {
     for_each = each.value.service_delegations
     content {

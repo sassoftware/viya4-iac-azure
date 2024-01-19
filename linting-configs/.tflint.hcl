@@ -26,3 +26,14 @@ plugin "terraform" {
 rule "azurerm_kubernetes_cluster_default_node_pool_invalid_vm_size" {
   enabled = false
 }
+
+# We specify the versions and providers in the top level versions.tf.
+# This stops it from throwing a warning when scanning our modules
+# in viya4-iac-azure/modules/
+rule "terraform_required_version" {
+  enabled = false
+}
+
+rule "terraform_required_providers" {
+  enabled = false
+}

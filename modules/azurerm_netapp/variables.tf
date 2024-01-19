@@ -1,12 +1,6 @@
 # Copyright © 2020-2023, SAS Institute Inc., Cary, NC, USA. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-variable create_netapp {
-  description = "Boolean flag to create Azure NetApp Files"
-  type        = bool
-  default     = false
-}
-
 variable "prefix" {
   description = "A prefix used in the name for all the Azure resources created by this script."
   type        = string
@@ -19,11 +13,6 @@ variable "resource_group_name" {
 
 variable "location" {
   description = "The Azure Region to provision all resources in this script"
-  type        = string
-}
-
-variable "vnet_name" {
-  description = "Azure Virtual Network"
   type        = string
 }
 
