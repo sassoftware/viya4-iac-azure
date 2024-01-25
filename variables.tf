@@ -169,12 +169,13 @@ variable "aks_network_plugin" {
 variable "aks_network_policy" {
   description = "Sets up network policy to be used with Azure CNI. Network policy allows control of the traffic flow between pods. Currently supported values are calico and azure. Changing this forces a new resource to be created."
   type        = string
-  default     = "azure"
+  default     = null
+}
 
-  validation {
-    condition     = contains(["azure", "calico"], var.aks_network_policy)
-    error_message = "Error: Currently the supported values are 'calico' and 'azure'."
-  }
+variable "aks_network_plugin_mode" {
+  description = "Specifies the network plugin mode used for building the Kubernetes network. Possible value is `overlay`. Changing this forces a new resource to be created."
+  type        = string
+  default     = null
 }
 
 variable "aks_dns_service_ip" {
