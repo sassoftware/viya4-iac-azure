@@ -69,13 +69,13 @@ variable "aks_cluster_sku_tier" {
   }
 }
 
-variable "aks_support_plan" {
+variable "cluster_support_tier" {
   description = "Specifies the support plan which should be used for this Kubernetes Cluster. Possible values are 'KubernetesOfficial' and 'AKSLongTermSupport'. Defaults to 'KubernetesOfficial'."
   type        = string
   default     = "KubernetesOfficial"
 
   validation {
-    condition     = contains(["KubernetesOfficial", "AKSLongTermSupport"], var.aks_support_plan)
+    condition     = contains(["KubernetesOfficial", "AKSLongTermSupport"], var.cluster_support_tier)
     error_message = "ERROR: Valid types are \"KubernetesOfficial\" and \"AKSLongTermSupport\"!"
   }
 }

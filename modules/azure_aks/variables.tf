@@ -33,7 +33,7 @@ variable "aks_cluster_sku_tier" {
   }
 }
 
-variable "aks_support_plan" {
+variable "cluster_support_tier" {
   description = "Specifies the support plan which should be used for this Kubernetes Cluster. Possible values are 'KubernetesOfficial' and 'AKSLongTermSupport'. Defaults to 'KubernetesOfficial'."
   type        = string
   default     = "KubernetesOfficial"

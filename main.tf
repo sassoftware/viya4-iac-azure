@@ -134,7 +134,7 @@ module "aks" {
   aks_cluster_dns_prefix                   = "${var.prefix}-aks"
   aks_cluster_sku_tier                     = var.aks_cluster_sku_tier
   aks_cluster_location                     = var.location
-  aks_support_plan                         = var.aks_support_plan
+  cluster_support_tier                     = var.cluster_support_tier
   fips_enabled                             = var.fips_enabled
   aks_cluster_node_auto_scaling            = var.default_nodepool_min_nodes == var.default_nodepool_max_nodes ? false : true
   aks_cluster_node_count                   = var.default_nodepool_min_nodes
