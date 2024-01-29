@@ -23,14 +23,20 @@ variable "aks_cluster_location" {
 }
 
 variable "aks_cluster_sku_tier" {
-  description = "The SKU Tier that should be used for this Kubernetes Cluster. Possible values are Free and Standard (which includes the Uptime SLA). Defaults to Free"
+  description = "The SKU Tier that should be used for this Kubernetes Cluster. Possible values are Free, Standard (which includes the Uptime SLA) and Premium. Defaults to Free"
   type        = string
   default     = "Free"
 
   validation {
-    condition     = contains(["Free", "Standard"], var.aks_cluster_sku_tier)
-    error_message = "ERROR: Valid types are \"Free\" and \"Standard\"!"
+    condition     = contains(["Free", "Standard", "Premium"], var.aks_cluster_sku_tier)
+    error_message = "ERROR: Valid types are \"Free\", \"Standard\" and \"Premium\"!"
   }
+}
+
+variable "cluster_support_tier" {
+  description = "Specifies the support plan which should be used for this Kubernetes Cluster. Possible values are 'KubernetesOfficial' and 'AKSLongTermSupport'. Defaults to 'KubernetesOfficial'."
+  type        = string
+  default     = "KubernetesOfficial"
 }
 
 variable "fips_enabled" {
