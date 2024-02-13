@@ -53,7 +53,7 @@ locals {
   )
 
   nsg         = var.nsg_name == null ? azurerm_network_security_group.nsg[0] : data.azurerm_network_security_group.nsg[0]
-  nsg_rg_name = var.nsg_name == null ? local.aks_rg.name : local.network_rg.name
+  nsg_rg_name = local.network_rg.name
 
   # Use BYO UAI if given, else create a UAI
   aks_uai_id = (var.aks_identity == "uai"
