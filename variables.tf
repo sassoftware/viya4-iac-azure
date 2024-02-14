@@ -165,6 +165,12 @@ variable "default_nodepool_availability_zones" {
   default     = ["1"]
 }
 
+variable "enable_default_nodepool_host_encryption" {
+  description = "Enables host encryption on all the nodes in the Default Node Pool"
+  type        = bool
+  default     = false
+}
+
 # AKS advanced network config
 variable "aks_network_plugin" {
   description = "Network plugin to use for networking. Currently supported values are azure and kubenet. Changing this forces a new resource to be created."
@@ -362,6 +368,12 @@ variable "jump_rwx_filestore_path" {
   default     = "/viya-share"
 }
 
+variable "enable_jump_vm_host_encryption" {
+  description = "Setting this variable enables all of the disks (including the temp disk) attached to this Virtual Machine be encrypted by enabling Encryption at Host. Defaults to false"
+  type        = bool
+  default     = false
+}
+
 variable "storage_type" {
   description = "Type of Storage. Valid Values: `standard`, `ha` and `none`. `standard` creates NFS server VM, `ha` creates Azure Netapp Files"
   type        = string
@@ -424,6 +436,12 @@ variable "nfs_raid_disk_zone" {
   description = "Specifies the Availability Zone in which this Managed Disk should be located. Changing this property forces a new resource to be created."
   type        = string
   default     = null
+}
+
+variable "enable_nfs_vm_host_encryption" {
+  description = "Setting this variable enables all of the disks (including the temp disk) attached to this Virtual Machine be encrypted by enabling Encryption at Host. Defaults to false"
+  type        = bool
+  default     = false
 }
 
 ## Azure Container Registry (ACR)
@@ -511,6 +529,12 @@ variable "node_pools_availability_zones" {
 
 variable "node_pools_proximity_placement" {
   description = "Enables Node Pool Proximity Placement Group"
+  type        = bool
+  default     = false
+}
+
+variable "enable_nodepools_host_encryption" {
+  description = "Enables host encryption on all the nodes in the Node Pool. Changing this forces a new resource to be created."
   type        = bool
   default     = false
 }

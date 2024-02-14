@@ -23,6 +23,12 @@ variable "fips_enabled" {
   default     = false
 }
 
+variable "enable_host_encryption" {
+  description = "Enables host encryption on all the nodes in the Node Pool. Changing this forces a new resource to be created."
+  type        = bool
+  default     = false
+}
+
 variable "vnet_subnet_id" {
   description = "The ID of the Subnet where this Node Pool should exist. Changing this forces a new resource to be created."
   type        = string

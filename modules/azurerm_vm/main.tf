@@ -64,6 +64,7 @@ resource "azurerm_linux_virtual_machine" "vm" {
   size                         = var.machine_type
   admin_username               = var.vm_admin
   zone                         = var.vm_zone
+  encryption_at_host_enabled   = var.encryption_at_host_enabled
 
   #Cloud Init
   custom_data = (var.cloud_init != "" ? var.cloud_init : null)

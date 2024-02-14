@@ -113,6 +113,12 @@ variable "aks_cluster_max_pods" {
   default     = 110
 }
 
+variable "aks_cluster_enable_host_encryption" {
+  description = "Enables host encryption on all the nodes in the Default Node Pool"
+  type        = bool
+  default     = false
+}
+
 variable "kubernetes_version" {
   description = "The AKS cluster K8s version"
   type        = string
