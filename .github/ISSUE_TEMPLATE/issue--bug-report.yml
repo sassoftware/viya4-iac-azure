@@ -30,18 +30,6 @@ body:
     validations:
       required: false
   - type: textarea
-    id: iac_vars
-    attributes:
-      label: Ansible Variable File Details
-      description: |
-        Paste the relevant parts of your ansible-vars.yaml variables file or variable flag values here.
-
-        The relevant parts should come from your `ansible-vars.yaml` file or equivalent that seem to be causing the error.
-
-        For security reasons, do not copy and paste any sensitive information in this issue, like account information and passwords etc.
-    validations:
-      required: false
-  - type: textarea
     id: tf_steps_to_reproduce
     attributes:
       label: Steps to Reproduce
