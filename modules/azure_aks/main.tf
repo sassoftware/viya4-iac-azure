@@ -10,6 +10,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   dns_prefix_private_cluster = var.aks_private_cluster && var.aks_cluster_private_dns_zone_id != "" ? var.aks_cluster_dns_prefix : null
 
   sku_tier                          = var.aks_cluster_sku_tier
+  support_plan                      = var.cluster_support_tier
   role_based_access_control_enabled = true
   http_application_routing_enabled  = false
 
@@ -21,9 +22,6 @@ resource "azurerm_kubernetes_cluster" "aks" {
   private_dns_zone_id             = var.aks_private_cluster && var.aks_cluster_private_dns_zone_id != "" ? var.aks_cluster_private_dns_zone_id : (var.aks_private_cluster ? "System" : null)
 
   network_profile {
-    network_plugin = var.aks_network_plugin
-    network_policy = var.aks_network_plugin == "kubenet" && var.aks_network_policy == "azure" ? null : var.aks_network_policy
-
     # Docs on AKS Advanced Networking config
     # https://docs.microsoft.com/en-us/azure/architecture/aws-professional/networking
     # https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-vnet-plan-design-arm
@@ -32,12 +30,15 @@ resource "azurerm_kubernetes_cluster" "aks" {
     # https://docs.microsoft.com/en-us/azure/aks/load-balancer-standard
     # https://docs.microsoft.com/en-us/azure/aks/egress-outboundtype
 
-    service_cidr       = var.aks_service_cidr
-    dns_service_ip     = var.aks_dns_service_ip
-    pod_cidr           = var.aks_network_plugin == "kubenet" ? var.aks_pod_cidr : null
-    docker_bridge_cidr = var.aks_docker_bridge_cidr
-    outbound_type      = var.cluster_egress_type
-    load_balancer_sku  = "standard"
+    network_plugin      = var.aks_network_plugin
+    network_policy      = var.aks_network_policy
+    network_plugin_mode = var.aks_network_plugin_mode
+    service_cidr        = var.aks_service_cidr
+    dns_service_ip      = var.aks_dns_service_ip
+    pod_cidr            = var.aks_network_plugin == "kubenet" ? var.aks_pod_cidr : null
+    docker_bridge_cidr  = var.aks_docker_bridge_cidr
+    outbound_type       = var.cluster_egress_type
+    load_balancer_sku   = "standard"
   }
 
   dynamic "linux_profile" {
@@ -102,6 +103,14 @@ resource "azurerm_kubernetes_cluster" "aks" {
 
   lifecycle {
     ignore_changes = [default_node_pool[0].node_count]
+    precondition {
+      condition     = var.aks_network_policy != "azure" || var.aks_network_plugin == "azure"
+      error_message = "When aks_network_policy is set to `azure`, the aks_network_plugin field can only be set to `azure`."
+    }
+    precondition {
+      condition     = var.aks_network_plugin_mode != "overlay" || var.aks_network_plugin == "azure"
+      error_message = "When network_plugin_mode is set to `overlay`, the aks_network_plugin field can only be set to `azure`."
+    }
   }
 
   tags = var.aks_cluster_tags

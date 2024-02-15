@@ -51,9 +51,9 @@ variable "administrator_password" {
 }
 
 variable "server_version" {
-  description = "Specifies the version of PostgreSQL to use. The version of PostgreSQL Flexible Server to use. Possible values are 11, 12 and 13. Changing this forces a new PostgreSQL Flexible Server to be created."
+  description = "Specifies the version of PostgreSQL to use. The version of PostgreSQL Flexible Server to use. Possible values are from 12 - 15. Changing this forces a new PostgreSQL Flexible Server to be created."
   type        = string
-  default     = "13"
+  default     = "15"
 }
 
 variable "connectivity_method" {

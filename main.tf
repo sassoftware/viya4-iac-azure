@@ -134,6 +134,7 @@ module "aks" {
   aks_cluster_dns_prefix                   = "${var.prefix}-aks"
   aks_cluster_sku_tier                     = var.aks_cluster_sku_tier
   aks_cluster_location                     = var.location
+  cluster_support_tier                     = var.cluster_support_tier
   fips_enabled                             = var.fips_enabled
   aks_cluster_node_auto_scaling            = var.default_nodepool_min_nodes == var.default_nodepool_max_nodes ? false : true
   aks_cluster_node_count                   = var.default_nodepool_min_nodes
@@ -153,6 +154,7 @@ module "aks" {
   aks_log_analytics_workspace_id           = var.create_aks_azure_monitor ? azurerm_log_analytics_workspace.viya4[0].id : null
   aks_network_plugin                       = var.aks_network_plugin
   aks_network_policy                       = var.aks_network_policy
+  aks_network_plugin_mode                  = var.aks_network_plugin_mode
   aks_dns_service_ip                       = var.aks_dns_service_ip
   aks_docker_bridge_cidr                   = var.aks_docker_bridge_cidr
   cluster_egress_type                      = local.cluster_egress_type

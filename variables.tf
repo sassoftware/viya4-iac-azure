@@ -59,13 +59,24 @@ variable "location" {
 }
 
 variable "aks_cluster_sku_tier" {
-  description = "The SKU Tier that should be used for this Kubernetes Cluster. Possible values are Free and Standard (which includes the Uptime SLA). Defaults to Free"
+  description = "The SKU Tier that should be used for this Kubernetes Cluster. Possible values are Free, Standard (which includes the Uptime SLA) and Premium. Defaults to Free"
   type        = string
   default     = "Free"
 
   validation {
-    condition     = contains(["Free", "Standard"], var.aks_cluster_sku_tier)
-    error_message = "ERROR: Valid types are \"Free\" and \"Standard\"!"
+    condition     = contains(["Free", "Standard", "Premium"], var.aks_cluster_sku_tier)
+    error_message = "ERROR: Valid types are \"Free\", \"Standard\" and \"Premium\"!"
+  }
+}
+
+variable "cluster_support_tier" {
+  description = "Specifies the support plan which should be used for this Kubernetes Cluster. Possible values are 'KubernetesOfficial' and 'AKSLongTermSupport'. Defaults to 'KubernetesOfficial'."
+  type        = string
+  default     = "KubernetesOfficial"
+
+  validation {
+    condition     = contains(["KubernetesOfficial", "AKSLongTermSupport"], var.cluster_support_tier)
+    error_message = "ERROR: Valid types are \"KubernetesOfficial\" and \"AKSLongTermSupport\"!"
   }
 }
 
@@ -169,12 +180,13 @@ variable "aks_network_plugin" {
 variable "aks_network_policy" {
   description = "Sets up network policy to be used with Azure CNI. Network policy allows control of the traffic flow between pods. Currently supported values are calico and azure. Changing this forces a new resource to be created."
   type        = string
-  default     = "azure"
+  default     = null
+}
 
-  validation {
-    condition     = contains(["azure", "calico"], var.aks_network_policy)
-    error_message = "Error: Currently the supported values are 'calico' and 'azure'."
-  }
+variable "aks_network_plugin_mode" {
+  description = "Specifies the network plugin mode used for building the Kubernetes network. Possible value is `overlay`. Changing this forces a new resource to be created."
+  type        = string
+  default     = null
 }
 
 variable "aks_dns_service_ip" {
@@ -264,7 +276,7 @@ variable "postgres_server_defaults" {
     geo_redundant_backup_enabled = false
     administrator_login          = "pgadmin"
     administrator_password       = "my$up3rS3cretPassw0rd"
-    server_version               = "13"
+    server_version               = "15"
     ssl_enforcement_enabled      = true
     connectivity_method          = "public"
     postgresql_configurations    = []
