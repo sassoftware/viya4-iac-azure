@@ -17,7 +17,7 @@ commandTests:
   - name: "terraform version"
     command: "terraform"
     args: ["--version"]
-    expectedOutput: ["Terraform v1.6.6"]
+    expectedOutput: ["Terraform v1.7.3"]
   - name: "python version"
     command: "python3"
     args: ["--version"]
@@ -29,7 +29,7 @@ commandTests:
       - -c
       - |
         az version -o tsv
-    expectedOutput: ["2.56.0\t2.56.0\t1.1.0"]
+    expectedOutput: ["2.57.0\t2.57.0\t1.1.0"]
 
 metadataTest:
   workdir: "/viya4-iac-azure"
