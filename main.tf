@@ -62,7 +62,7 @@ resource "azurerm_network_security_group" "nsg" {
   count               = var.nsg_name == null ? 1 : 0
   name                = "${var.prefix}-nsg"
   location            = var.location
-  resource_group_name = local.aks_rg.name
+  resource_group_name = local.network_rg.name
   tags                = var.tags
 }
 

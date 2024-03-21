@@ -1,4 +1,4 @@
-name: Bug report
+name: Bug Report
 description: |
   Welcome, Thanks for opening an issue. The more information you provide, the easier it is for us to assess the problem, prioritize, assign, develop, then release a fix. The SAS Viya 4 IaC team.
 labels: [bug, new]
@@ -14,7 +14,7 @@ body:
 
         If you are not running the latest version of Terraform we support, please try upgrading because your issue may have already been fixed.
 
-        If you're not sure which versions are supported, here's a link : https://github.com/sassoftware/viya4-iac-aws#terraform to help.
+        If you're not sure which versions are supported, here's a link : https://github.com/sassoftware/viya4-iac-azure?tab=readme-ov-file#terraform-requirements to help.
     validations:
       required: false
   - type: textarea
@@ -23,10 +23,10 @@ body:
       label: Terraform Variable File Details
       description: |
         Paste the relevant parts of your Terraform variables here.
-        
+
         The relevant parts should come from your `terraform.tfvars` file or equivalent and small snippets of the `*.tf` file/files that seem to be causing the error.
-        
-        security reasons, do not copy and paste any sensitive information in this issue, like account information and passwords etc.
+
+        For security reasons, do not copy and paste any sensitive information in this issue, like account information and passwords etc.
     validations:
       required: false
   - type: textarea
@@ -75,4 +75,3 @@ body:
       options:
         - label: I agree to follow this project's Code of Conduct
           required: true
-          
