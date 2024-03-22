@@ -41,7 +41,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "static_node_pool" {
   vnet_subnet_id               = var.vnet_subnet_id
   zones                        = var.zones
   fips_enabled                 = var.fips_enabled
-  enable_host_encryption       = true
+  enable_host_encryption       = var.enable_host_encryption
   proximity_placement_group_id = var.proximity_placement_group_id == "" ? null : var.proximity_placement_group_id
   vm_size                      = var.machine_type
   os_disk_size_gb              = var.os_disk_size
