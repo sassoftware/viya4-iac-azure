@@ -162,3 +162,15 @@ variable "proximity_placement_group_id" {
   type        = string
   default     = ""
 }
+
+variable "encryption_at_host_enabled" {
+  description = "Enables all of the disks (including the temp disk) attached to this Virtual Machine be encrypted by enabling Encryption at Host. Defaults to false"
+  type        = bool
+  default     = false
+}
+
+variable "disk_encryption_set_id" {
+  description = "The ID of the Disk Encryption Set which should be used to Encrypt this OS Disk."
+  type        = string
+  default     = null
+}

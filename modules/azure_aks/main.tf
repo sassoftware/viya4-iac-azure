@@ -13,6 +13,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   support_plan                      = var.cluster_support_tier
   role_based_access_control_enabled = true
   http_application_routing_enabled  = false
+  disk_encryption_set_id            = var.aks_node_disk_encryption_set_id
 
   # https://docs.microsoft.com/en-us/azure/aks/supported-kubernetes-versions
   # az aks get-versions --location eastus -o table
@@ -52,22 +53,23 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   default_node_pool {
-    name                  = "system"
-    vm_size               = var.aks_cluster_node_vm_size
-    zones                 = var.aks_availability_zones
-    enable_auto_scaling   = var.aks_cluster_node_auto_scaling
-    enable_node_public_ip = false
-    node_labels           = {}
-    node_taints           = []
-    fips_enabled          = var.fips_enabled
-    max_pods              = var.aks_cluster_max_pods
-    os_disk_size_gb       = var.aks_cluster_os_disk_size
-    max_count             = var.aks_cluster_max_nodes
-    min_count             = var.aks_cluster_min_nodes
-    node_count            = var.aks_cluster_node_count
-    vnet_subnet_id        = var.aks_vnet_subnet_id
-    tags                  = var.aks_cluster_tags
-    orchestrator_version  = var.kubernetes_version
+    name                   = "system"
+    vm_size                = var.aks_cluster_node_vm_size
+    zones                  = var.aks_availability_zones
+    enable_auto_scaling    = var.aks_cluster_node_auto_scaling
+    enable_node_public_ip  = false
+    node_labels            = {}
+    node_taints            = []
+    fips_enabled           = var.fips_enabled
+    enable_host_encryption = var.aks_cluster_enable_host_encryption
+    max_pods               = var.aks_cluster_max_pods
+    os_disk_size_gb        = var.aks_cluster_os_disk_size
+    max_count              = var.aks_cluster_max_nodes
+    min_count              = var.aks_cluster_min_nodes
+    node_count             = var.aks_cluster_node_count
+    vnet_subnet_id         = var.aks_vnet_subnet_id
+    tags                   = var.aks_cluster_tags
+    orchestrator_version   = var.kubernetes_version
   }
 
   dynamic "service_principal" {

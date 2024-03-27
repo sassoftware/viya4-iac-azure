@@ -165,6 +165,18 @@ variable "default_nodepool_availability_zones" {
   default     = ["1"]
 }
 
+variable "aks_cluster_enable_host_encryption" {
+  description = "Enables host encryption on all the nodes in the Node Pool."
+  type        = bool
+  default     = false
+}
+
+variable "aks_node_disk_encryption_set_id" {
+  description = "The ID of the Disk Encryption Set which should be used for the Nodes and Volumes. Changing this forces a new resource to be created."
+  type        = string
+  default     = null
+}
+
 # AKS advanced network config
 variable "aks_network_plugin" {
   description = "Network plugin to use for networking. Currently supported values are azure and kubenet. Changing this forces a new resource to be created."
@@ -360,6 +372,18 @@ variable "jump_rwx_filestore_path" {
   description = "OS path used in cloud-init for NFS integration"
   type        = string
   default     = "/viya-share"
+}
+
+variable "enable_vm_host_encryption" {
+  description = "Setting this variable enables all of the disks (including the temp disk) attached to this Virtual Machine be encrypted by enabling Encryption at Host. This setting applies to both Jump and NFS VM. Defaults to false"
+  type        = bool
+  default     = false
+}
+
+variable "vm_disk_encryption_set_id" {
+  description = "The ID of the Disk Encryption Set which should be used to Encrypt this OS Disk. This setting applies to both Jump and NFS VM."
+  type        = string
+  default     = null
 }
 
 variable "storage_type" {
