@@ -165,10 +165,16 @@ variable "default_nodepool_availability_zones" {
   default     = ["1"]
 }
 
-variable "enable_default_nodepool_host_encryption" {
-  description = "Enables host encryption on all the nodes in the Default Node Pool"
+variable "aks_cluster_enable_host_encryption" {
+  description = "Enables host encryption on all the nodes in the Node Pool."
   type        = bool
   default     = false
+}
+
+variable "aks_node_disk_encryption_set_id" {
+  description = "The ID of the Disk Encryption Set which should be used for the Nodes and Volumes. Changing this forces a new resource to be created."
+  type        = string
+  default     = null
 }
 
 # AKS advanced network config
@@ -368,10 +374,16 @@ variable "jump_rwx_filestore_path" {
   default     = "/viya-share"
 }
 
-variable "enable_jump_vm_host_encryption" {
-  description = "Setting this variable enables all of the disks (including the temp disk) attached to this Virtual Machine be encrypted by enabling Encryption at Host. Defaults to false"
+variable "enable_vm_host_encryption" {
+  description = "Setting this variable enables all of the disks (including the temp disk) attached to this Virtual Machine be encrypted by enabling Encryption at Host. This setting applies to both Jump and NFS VM. Defaults to false"
   type        = bool
   default     = false
+}
+
+variable "vm_disk_encryption_set_id" {
+  description = "The ID of the Disk Encryption Set which should be used to Encrypt this OS Disk. This setting applies to both Jump and NFS VM."
+  type        = string
+  default     = null
 }
 
 variable "storage_type" {
@@ -436,12 +448,6 @@ variable "nfs_raid_disk_zone" {
   description = "Specifies the Availability Zone in which this Managed Disk should be located. Changing this property forces a new resource to be created."
   type        = string
   default     = null
-}
-
-variable "enable_nfs_vm_host_encryption" {
-  description = "Setting this variable enables all of the disks (including the temp disk) attached to this Virtual Machine be encrypted by enabling Encryption at Host. Defaults to false"
-  type        = bool
-  default     = false
 }
 
 ## Azure Container Registry (ACR)
@@ -529,12 +535,6 @@ variable "node_pools_availability_zones" {
 
 variable "node_pools_proximity_placement" {
   description = "Enables Node Pool Proximity Placement Group"
-  type        = bool
-  default     = false
-}
-
-variable "enable_nodepools_host_encryption" {
-  description = "Enables host encryption on all the nodes in the Node Pool. Changing this forces a new resource to be created."
   type        = bool
   default     = false
 }

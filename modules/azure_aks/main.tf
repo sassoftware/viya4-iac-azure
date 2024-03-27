@@ -13,6 +13,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   support_plan                      = var.cluster_support_tier
   role_based_access_control_enabled = true
   http_application_routing_enabled  = false
+  disk_encryption_set_id            = var.aks_node_disk_encryption_set_id
 
   # https://docs.microsoft.com/en-us/azure/aks/supported-kubernetes-versions
   # az aks get-versions --location eastus -o table

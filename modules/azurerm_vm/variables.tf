@@ -168,3 +168,9 @@ variable "encryption_at_host_enabled" {
   type        = bool
   default     = false
 }
+
+variable "disk_encryption_set_id" {
+  description = "The ID of the Disk Encryption Set which should be used to Encrypt this OS Disk."
+  type        = string
+  default     = null
+}

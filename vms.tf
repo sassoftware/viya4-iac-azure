@@ -69,7 +69,8 @@ module "jump" {
   cloud_init                 = data.cloudinit_config.jump[0].rendered
   create_public_ip           = var.create_jump_public_ip
   enable_public_static_ip    = var.enable_jump_public_static_ip
-  encryption_at_host_enabled = var.enable_jump_vm_host_encryption
+  encryption_at_host_enabled = var.enable_vm_host_encryption
+  disk_encryption_set_id     = var.vm_disk_encryption_set_id
 
   # Jump VM mounts NFS path hence dependency on 'module.nfs'
   depends_on = [module.vnet, module.nfs]
@@ -110,7 +111,8 @@ module "nfs" {
   data_disk_size                 = var.nfs_raid_disk_size
   data_disk_storage_account_type = var.nfs_raid_disk_type
   data_disk_zone                 = var.nfs_raid_disk_zone
-  encryption_at_host_enabled     = var.enable_nfs_vm_host_encryption
+  encryption_at_host_enabled     = var.enable_vm_host_encryption
+  disk_encryption_set_id         = var.vm_disk_encryption_set_id
   depends_on                     = [module.vnet]
 }
 
