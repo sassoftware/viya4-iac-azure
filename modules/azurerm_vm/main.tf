@@ -36,15 +36,16 @@ resource "azurerm_network_interface_security_group_association" "vm_nic_sg" {
 
 # https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/managed_disk
 resource "azurerm_managed_disk" "vm_data_disk" {
-  count                = var.data_disk_count
-  name                 = format("%s-disk%02d", var.name, count.index + 1)
-  location             = var.azure_rg_location
-  resource_group_name  = var.azure_rg_name
-  storage_account_type = var.data_disk_storage_account_type
-  create_option        = "Empty"
-  disk_size_gb         = var.data_disk_size
-  zone                 = var.data_disk_zone
-  tags                 = var.tags
+  count                  = var.data_disk_count
+  name                   = format("%s-disk%02d", var.name, count.index + 1)
+  location               = var.azure_rg_location
+  resource_group_name    = var.azure_rg_name
+  storage_account_type   = var.data_disk_storage_account_type
+  create_option          = "Empty"
+  disk_size_gb           = var.data_disk_size
+  zone                   = var.data_disk_zone
+  disk_encryption_set_id = var.disk_encryption_set_id
+  tags                   = var.tags
 }
 
 resource "azurerm_virtual_machine_data_disk_attachment" "vm_data_disk_attach" {
@@ -64,6 +65,7 @@ resource "azurerm_linux_virtual_machine" "vm" {
   size                         = var.machine_type
   admin_username               = var.vm_admin
   zone                         = var.vm_zone
+  encryption_at_host_enabled   = var.encryption_at_host_enabled
 
   #Cloud Init
   custom_data = (var.cloud_init != "" ? var.cloud_init : null)
@@ -78,9 +80,10 @@ resource "azurerm_linux_virtual_machine" "vm" {
   }
 
   os_disk {
-    caching              = var.os_disk_caching
-    storage_account_type = var.os_disk_storage_account_type
-    disk_size_gb         = var.os_disk_size
+    caching                = var.os_disk_caching
+    storage_account_type   = var.os_disk_storage_account_type
+    disk_size_gb           = var.os_disk_size
+    disk_encryption_set_id = var.disk_encryption_set_id
   }
 
   source_image_reference {
