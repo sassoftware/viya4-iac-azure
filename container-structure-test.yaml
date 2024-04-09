@@ -29,7 +29,7 @@ commandTests:
       - -c
       - |
         az version -o tsv
-    expectedOutput: ["2.57.0\t2.57.0\t1.1.0"]
+    expectedOutput: ["2.59.0\t2.59.0\t1.1.0"]
 
 metadataTest:
   workdir: "/viya4-iac-azure"
