@@ -1,4 +1,4 @@
-# Copyright © 2020-2023, SAS Institute Inc., Cary, NC, USA. All Rights Reserved.
+# Copyright © 2020-2024, SAS Institute Inc., Cary, NC, USA. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 ## Azure-AKS
@@ -49,6 +49,7 @@ data "azurerm_resource_group" "aks_rg" {
   count = var.resource_group_name == null ? 0 : 1
   name  = var.resource_group_name
 }
+
 resource "azurerm_proximity_placement_group" "proximity" {
   count = var.node_pools_proximity_placement ? 1 : 0
 
@@ -143,6 +144,8 @@ module "aks" {
   aks_cluster_max_pods                     = var.default_nodepool_max_pods
   aks_cluster_os_disk_size                 = var.default_nodepool_os_disk_size
   aks_cluster_node_vm_size                 = var.default_nodepool_vm_type
+  aks_cluster_enable_host_encryption       = var.aks_cluster_enable_host_encryption
+  aks_node_disk_encryption_set_id          = var.aks_node_disk_encryption_set_id
   aks_cluster_node_admin                   = var.node_vm_admin
   aks_cluster_ssh_public_key               = try(file(var.ssh_public_key), "")
   aks_cluster_private_dns_zone_id          = var.aks_cluster_private_dns_zone_id
@@ -206,6 +209,7 @@ module "node_pools" {
   zones                        = (var.node_pools_availability_zone == "" || var.node_pools_proximity_placement == true) ? [] : (var.node_pools_availability_zones != null) ? var.node_pools_availability_zones : [var.node_pools_availability_zone]
   proximity_placement_group_id = element(coalescelist(azurerm_proximity_placement_group.proximity[*].id, [""]), 0)
   orchestrator_version         = var.kubernetes_version
+  enable_host_encryption       = var.aks_cluster_enable_host_encryption
   tags                         = var.tags
 }
 

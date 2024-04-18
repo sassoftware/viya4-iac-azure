@@ -1,4 +1,4 @@
-# Copyright © 2020-2023, SAS Institute Inc., Cary, NC, USA. All Rights Reserved.
+# Copyright © 2020-2024, SAS Institute Inc., Cary, NC, USA. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 variable "node_pool_name" {
@@ -19,6 +19,12 @@ variable "zones" {
 
 variable "fips_enabled" {
   description = "Should the nodes in this Node Pool have Federal Information Processing Standard enabled? Changing this forces a new resource to be created."
+  type        = bool
+  default     = false
+}
+
+variable "enable_host_encryption" {
+  description = "Enables host encryption on all the nodes in the Node Pool. Changing this forces a new resource to be created."
   type        = bool
   default     = false
 }

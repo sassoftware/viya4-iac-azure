@@ -1,4 +1,4 @@
-# Copyright © 2020-2023, SAS Institute Inc., Cary, NC, USA. All Rights Reserved.
+# Copyright © 2020-2024, SAS Institute Inc., Cary, NC, USA. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 variable "aks_cluster_name" {
@@ -113,10 +113,22 @@ variable "aks_cluster_max_pods" {
   default     = 110
 }
 
+variable "aks_cluster_enable_host_encryption" {
+  description = "Enables host encryption on all the nodes in the Default Node Pool"
+  type        = bool
+  default     = false
+}
+
+variable "aks_node_disk_encryption_set_id" {
+  description = "The ID of the Disk Encryption Set which should be used for the Nodes and Volumes. Changing this forces a new resource to be created."
+  type        = string
+  default     = null
+}
+
 variable "kubernetes_version" {
   description = "The AKS cluster K8s version"
   type        = string
-  default     = "1.27"
+  default     = "1.28"
 }
 
 variable "aks_cluster_endpoint_public_access_cidrs" {

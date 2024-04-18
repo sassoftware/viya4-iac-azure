@@ -1,4 +1,4 @@
-# Copyright © 2020-2023, SAS Institute Inc., Cary, NC, USA. All Rights Reserved.
+# Copyright © 2020-2024, SAS Institute Inc., Cary, NC, USA. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 variable "azure_rg_name" {
@@ -161,4 +161,16 @@ variable "proximity_placement_group_id" {
   description = "The ID of the Proximity Placement Group which the Virtual Machine should be assigned to."
   type        = string
   default     = ""
+}
+
+variable "encryption_at_host_enabled" {
+  description = "Enables all of the disks (including the temp disk) attached to this Virtual Machine be encrypted by enabling Encryption at Host. Defaults to false"
+  type        = bool
+  default     = false
+}
+
+variable "disk_encryption_set_id" {
+  description = "The ID of the Disk Encryption Set which should be used to Encrypt this OS Disk."
+  type        = string
+  default     = null
 }

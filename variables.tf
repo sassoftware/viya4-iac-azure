@@ -1,4 +1,4 @@
-# Copyright © 2020-2023, SAS Institute Inc., Cary, NC, USA. All Rights Reserved.
+# Copyright © 2020-2024, SAS Institute Inc., Cary, NC, USA. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 ## Global
@@ -132,7 +132,7 @@ variable "default_nodepool_vm_type" {
 variable "kubernetes_version" {
   description = "The AKS cluster K8s version"
   type        = string
-  default     = "1.27"
+  default     = "1.28"
 }
 
 variable "default_nodepool_max_nodes" {
@@ -163,6 +163,18 @@ variable "default_nodepool_availability_zones" {
   description = "A list of Availability Zones across which the Node Pool should be spread. Changing this forces a new resource to be created."
   type        = list(string)
   default     = ["1"]
+}
+
+variable "aks_cluster_enable_host_encryption" {
+  description = "Enables host encryption on all the nodes in the Node Pool."
+  type        = bool
+  default     = false
+}
+
+variable "aks_node_disk_encryption_set_id" {
+  description = "The ID of the Disk Encryption Set which should be used for the Nodes and Volumes. Changing this forces a new resource to be created."
+  type        = string
+  default     = null
 }
 
 # AKS advanced network config
@@ -360,6 +372,18 @@ variable "jump_rwx_filestore_path" {
   description = "OS path used in cloud-init for NFS integration"
   type        = string
   default     = "/viya-share"
+}
+
+variable "enable_vm_host_encryption" {
+  description = "Setting this variable enables all of the disks (including the temp disk) attached to this Virtual Machine be encrypted by enabling Encryption at Host. This setting applies to both Jump and NFS VM. Defaults to false"
+  type        = bool
+  default     = false
+}
+
+variable "vm_disk_encryption_set_id" {
+  description = "The ID of the Disk Encryption Set which should be used to Encrypt this OS Disk. This setting applies to both Jump and NFS VM."
+  type        = string
+  default     = null
 }
 
 variable "storage_type" {
