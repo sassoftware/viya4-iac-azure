@@ -542,13 +542,15 @@ variable "node_pools_proximity_placement" {
 variable "node_pools" {
   description = "Node pool definitions"
   type = map(object({
-    machine_type = string
-    os_disk_size = number
-    min_nodes    = string
-    max_nodes    = string
-    max_pods     = string
-    node_taints  = list(string)
-    node_labels  = map(string)
+    machine_type      = string
+    os_disk_size      = number
+    kubelet_disk_type = optional(string)
+    os_disk_type      = optional(string)
+    min_nodes         = string
+    max_nodes         = string
+    max_pods          = string
+    node_taints       = list(string)
+    node_labels       = map(string)
   }))
 
   default = {

@@ -8,12 +8,12 @@
 #
 provider "azurerm" {
 
-  subscription_id = var.subscription_id
-  client_id       = var.client_id
-  client_secret   = var.client_secret
-  tenant_id       = var.tenant_id
-  partner_id      = var.partner_id
-  use_msi         = var.use_msi
+   subscription_id = var.subscription_id
+   client_id       = var.client_id
+   client_secret   = var.client_secret
+   tenant_id       = var.tenant_id
+   partner_id      = var.partner_id
+   use_msi         = var.use_msi
 
   features {}
 }
@@ -197,8 +197,8 @@ module "node_pools" {
   machine_type   = each.value.machine_type
   fips_enabled   = var.fips_enabled
   os_disk_size   = each.value.os_disk_size
-  # TODO: enable with azurerm v2.37.0
-  #  os_disk_type                 = each.value.os_disk_type
+  os_disk_type                 = each.value.os_disk_type
+  kubelet_disk_type            = each.value.kubelet_disk_type
   enable_auto_scaling          = each.value.min_nodes == each.value.max_nodes ? false : true
   node_count                   = each.value.min_nodes
   min_nodes                    = each.value.min_nodes == each.value.max_nodes ? null : each.value.min_nodes
@@ -271,11 +271,11 @@ module "message_broker" {
 }
 
 data "external" "git_hash" {
-  program = ["files/tools/iac_git_info.sh"]
+  program = ["${path.module}/files/tools/iac_git_info.sh"]
 }
 
 data "external" "iac_tooling_version" {
-  program = ["files/tools/iac_tooling_version.sh"]
+  program = ["${path.module}/files/tools/iac_tooling_version.sh"]
 }
 
 resource "kubernetes_config_map" "sas_iac_buildinfo" {
