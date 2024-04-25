@@ -271,11 +271,11 @@ module "message_broker" {
 }
 
 data "external" "git_hash" {
-  program = ["files/tools/iac_git_info.sh"]
+  program = ["${path.module}/files/tools/iac_git_info.sh"]
 }
 
 data "external" "iac_tooling_version" {
-  program = ["files/tools/iac_tooling_version.sh"]
+  program = ["${path.module}/files/tools/iac_tooling_version.sh"]
 }
 
 resource "kubernetes_config_map" "sas_iac_buildinfo" {
