@@ -8,6 +8,7 @@ Supported configuration variables are listed in the tables below.  All variables
   - [Table of Contents](#table-of-contents)
   - [Required Variables](#required-variables)
     - [Azure Authentication](#azure-authentication)
+  - [Role Based Access Control](#role-based-access-control)
   - [Admin Access](#admin-access)
   - [Security](#security)
   - [Networking](#networking)
@@ -52,6 +53,20 @@ For details on how to retrieve that information, see [Azure Help Topics](./user/
 **NOTE:** Values for `subscription_id` and `tenant_id` are always required. `client_id` and `client_secret` are required when using a Service Principal. `use_msi=true` is required when using an Azure VM Managed Identity.
 
 For recommendations on how to set these variables in your environment, see [Authenticating Terraform to Access Azure](./user/TerraformAzureAuthentication.md).
+
+## Role Based Access Control
+
+The ability to manage RBAC for Kubernetes resources from Azure gives you the choice to manage RBAC for the cluster resources either using Azure or native Kubernetes mechanisms. For details see [Azure role-based access control](https://docs.microsoft.com/en-us/azure/aks/concepts-identity#azure-rbac-for-kubernetes-authorization).
+
+Following are the possible ways to configure Authentication and Authorization in an AKS cluster:
+1. Authentication using local accounts with Kubernetes RBAC. This is traditionally used and current default, see details [here](https://learn.microsoft.com/en-us/azure/aks/concepts-identity#kubernetes-rbac)
+2. Microsoft Entra authentication with Kubernetes RBAC. See details [here](https://learn.microsoft.com/en-us/azure/aks/azure-ad-rbac)
+
+| Name | Description | Type | Default |
+| :--- | ---: | ---: | ---: |
+| rbac_aad_enabled | Enables Azure Active Directory integration with Kubernetes RBAC. | bool  | false |
+| rbac_aad_admin_group_object_ids | A list of Object IDs of Azure Active Directory Groups which should have Admin Role on the Cluster. | list(string) | null |
+| rbac_aad_tenant_id | (Optional) The Tenant ID used for Azure Active Directory Application. If this isn't specified the Tenant ID of the current Subscription is used.| string  | |
 
 ## Admin Access
 
