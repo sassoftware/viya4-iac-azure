@@ -52,6 +52,16 @@ resource "azurerm_kubernetes_cluster" "aks" {
     }
   }
 
+  dynamic "azure_active_directory_role_based_access_control" {
+    for_each = var.rbac_aad_enabled ? [1] : []
+    content {
+      managed                 = true
+      tenant_id               = var.rbac_aad_tenant_id
+      admin_group_object_ids  = var.rbac_aad_admin_group_object_ids
+      azure_rbac_enabled      = false
+    }
+  }
+
   default_node_pool {
     name                   = "system"
     vm_size                = var.aks_cluster_node_vm_size
