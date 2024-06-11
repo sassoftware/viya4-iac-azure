@@ -219,7 +219,7 @@ Ubuntu 20.04 LTS is the operating system used on the Jump/NFS servers. Ubuntu cr
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
 | node_vm_admin | Operating system Admin User for VMs of AKS cluster nodes | string | "azureuser" | |
-| default_nodepool_vm_type | Type of the default node pool VMs | string | "Standard_D8s_v4" | |
+| default_nodepool_vm_type | Type of the default node pool VMs | string | "Standard_E8s_v5" | |
 | default_nodepool_os_disk_size | Disk size for default node pool VMs in GB | number | 128 ||
 | default_nodepool_max_pods | Maximum number of pods that can run on each | number | 110 | Changing this forces a new resource to be created. |
 | default_nodepool_min_nodes | Minimum and initial number of nodes for the default node pool | number | 1 |  Value must be between 0 and 100. Setting min and max node counts the same disables autoscaling. |
@@ -247,7 +247,7 @@ The default values for the `node_pools` variable are as follows:
 ```yaml
 {
   cas = {
-    "machine_type"          = "Standard_E16s_v3"
+    "machine_type"          = "Standard_E16ds_v5"
     "os_disk_size"          = 200
     "min_nodes"             = 0
     "max_nodes"             = 5
@@ -258,7 +258,7 @@ The default values for the `node_pools` variable are as follows:
     }
   },
   compute = {
-    "machine_type"          = "Standard_E16s_v3"
+    "machine_type"          = "Standard_D4ds_v5"
     "os_disk_size"          = 200
     "min_nodes"             = 1
     "max_nodes"             = 5
@@ -270,7 +270,7 @@ The default values for the `node_pools` variable are as follows:
     }
   },
   stateless = {
-    "machine_type"          = "Standard_D16s_v3"
+    "machine_type"          = "Standard_D4s_v5"
     "os_disk_size"          = 200
     "min_nodes"             = 0
     "max_nodes"             = 5
@@ -281,7 +281,7 @@ The default values for the `node_pools` variable are as follows:
     }
   },
   stateful = {
-    "machine_type"          = "Standard_D8s_v3"
+    "machine_type"          = "Standard_D4s_v5"
     "os_disk_size"          = 200
     "min_nodes"             = 0
     "max_nodes"             = 3
@@ -320,10 +320,10 @@ When `storage_type=standard`, a NFS Server VM is created, only when these variab
 | create_nfs_public_ip | Add public ip to the NFS server VM | bool | false | |
 | enable_nfs_public_static_ip | Enables `Static` allocation method for the public IP address of NFS Server. Setting false will enable `Dynamic` allocation method | bool | true | Only used with `create_nfs_public_ip=true` |
 | nfs_vm_admin | OS Admin User for the NFS server VM | string | "nfsuser" | |
-| nfs_vm_machine_type | SKU to use for NFS server VM | string | "Standard_D8s_v4" | To check for valid types for your subscription, run: `az vm list-skus --resource-type virtualMachines --subscription $subscription --location $location -o table`|
+| nfs_vm_machine_type | SKU to use for NFS server VM | string | "Standard_D4s_v4" | To check for valid types for your subscription, run: `az vm list-skus --resource-type virtualMachines --subscription $subscription --location $location -o table`|
 | nfs_vm_zone | Zone in which NFS server VM should be created | string | null | |
 | nfs_raid_disk_type | Managed disk types | string | "Standard_LRS" | Supported values: Standard_LRS, Premium_LRS, StandardSSD_LRS or UltraSSD_LRS. When using `UltraSSD_LRS`, `nfs_vm_zone` and `nfs_raid_disk_zone` must be specified. See the [Azure documentation](https://docs.microsoft.com/en-us/azure/virtual-machines/disks-enable-ultra-ssd) for limitations on Availability Zones and VM types. |
-| nfs_raid_disk_size | Size in Gb for each disk of the RAID5 cluster on the NFS server VM | number | 128 | |
+| nfs_raid_disk_size | Size in Gb for each disk of the RAID5 cluster on the NFS server VM | number | 256 | |
 | nfs_raid_disk_zone | The Availability Zone in which the Managed Disk should be located. Changing this property forces a new resource to be created. | string | null | |
 
 ### Azure NetApp Files (only when `storage_type=ha`)
@@ -368,8 +368,8 @@ Each server element, like `foo = {}`, can contain none, some, or all of the para
 
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
-| sku_name| The SKU Name for the PostgreSQL Flexible Server | string | "GP_Standard_D16s_v3" | The name pattern is the SKU, followed by the tier + family + cores (e.g. B_Standard_B1ms, GP_Standard_D2s_v3, MO_Standard_E4s_v3).|
-| storage_mb | The max storage allowed for the PostgreSQL Flexible Server | number | 65536 | Possible values are 32768, 65536, 131072, 262144, 524288, 1048576, 2097152, 4194304, 8388608, 16777216, and 33554432. |
+| sku_name| The SKU Name for the PostgreSQL Flexible Server | string | "GP_Standard_D4ds_v5" | The name pattern is the SKU, followed by the tier + family + cores (e.g. B_Standard_B1ms, GP_Standard_D2s_v3, MO_Standard_E4s_v3).|
+| storage_mb | The max storage allowed for the PostgreSQL Flexible Server | number | 131072 | Possible values are 32768, 65536, 131072, 262144, 524288, 1048576, 2097152, 4194304, 8388608, 16777216, and 33554432. |
 | backup_retention_days | Backup retention days for the PostgreSQL Flexible server | number | 7 | Supported values are between 7 and 35 days. |
 | geo_redundant_backup_enabled | Enable Geo-redundant or not for server backup | bool | false | Not supported for the basic tier. |
 | administrator_login | The Administrator Login for the PostgreSQL Flexible Server. Changing this forces a new resource to be created. | string | "pgadmin" | The admin login name cannot be azure_superuser, azure_pg_admin, admin, administrator, root, guest, or public. It cannot start with pg_. See: [Microsoft Quickstart Server Database](https://docs.microsoft.com/en-us/azure/postgresql/flexible-server/quickstart-create-server-portal) |
@@ -395,8 +395,8 @@ postgres_servers = {
       ]
   },
   cds-postgres = {
-    sku_name                     = "GP_Standard_D16s_v3"
-    storage_mb                   = 65536
+    sku_name                     = "GP_Standard_D4ds_v5"
+    storage_mb                   = 131072
     backup_retention_days        = 7
     administrator_login          = "pgadmin"
     administrator_password       = "1tsAB3aut1fulDay"
