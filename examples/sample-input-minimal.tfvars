@@ -76,5 +76,5 @@ storage_type = "standard"
 create_nfs_public_ip = false
 nfs_vm_admin         = "nfsuser"
 nfs_vm_machine_type  = "Standard_D4s_v4"
-nfs_raid_disk_size   = 128
+nfs_raid_disk_size   = 256
 nfs_raid_disk_type   = "Standard_LRS"
