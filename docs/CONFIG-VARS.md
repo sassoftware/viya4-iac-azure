@@ -320,7 +320,7 @@ When `storage_type=standard`, a NFS Server VM is created, only when these variab
 | create_nfs_public_ip | Add public ip to the NFS server VM | bool | false | |
 | enable_nfs_public_static_ip | Enables `Static` allocation method for the public IP address of NFS Server. Setting false will enable `Dynamic` allocation method | bool | true | Only used with `create_nfs_public_ip=true` |
 | nfs_vm_admin | OS Admin User for the NFS server VM | string | "nfsuser" | |
-| nfs_vm_machine_type | SKU to use for NFS server VM | string | "Standard_D4s_v4" | To check for valid types for your subscription, run: `az vm list-skus --resource-type virtualMachines --subscription $subscription --location $location -o table`|
+| nfs_vm_machine_type | SKU to use for NFS server VM | string | "Standard_D4s_v5" | To check for valid types for your subscription, run: `az vm list-skus --resource-type virtualMachines --subscription $subscription --location $location -o table`|
 | nfs_vm_zone | Zone in which NFS server VM should be created | string | null | |
 | nfs_raid_disk_type | Managed disk types | string | "Standard_LRS" | Supported values: Standard_LRS, Premium_LRS, StandardSSD_LRS or UltraSSD_LRS. When using `UltraSSD_LRS`, `nfs_vm_zone` and `nfs_raid_disk_zone` must be specified. See the [Azure documentation](https://docs.microsoft.com/en-us/azure/virtual-machines/disks-enable-ultra-ssd) for limitations on Availability Zones and VM types. |
 | nfs_raid_disk_size | Size in Gb for each disk of the RAID5 cluster on the NFS server VM | number | 256 | |

@@ -431,7 +431,7 @@ variable "enable_nfs_public_static_ip" {
 variable "nfs_vm_machine_type" {
   description = "SKU which should be used for this Virtual Machine"
   type        = string
-  default     = "Standard_D4s_v4"
+  default     = "Standard_D4s_v5"
 }
 
 variable "nfs_vm_admin" {
