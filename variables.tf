@@ -31,7 +31,7 @@ variable "use_msi" {
 }
 
 variable "skip_provider_registration" {
-  description = "Set Azure Provider to skip automatic registeration all of the Resource Providers which it supports on launch"
+  description = "Set Azure Provider to skip automatic registration all of the Resource Providers which it supports on launch"
   type        = bool
   default     = false
 }
