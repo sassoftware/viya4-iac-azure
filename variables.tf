@@ -196,6 +196,12 @@ variable "aks_node_disk_encryption_set_id" {
   default     = null
 }
 
+variable "aks_azure_policy_enabled" {
+  description = "Enables the Azure Policy Add-On for Azure Kubernetes Service."
+  type        = bool
+  default     = false
+}
+
 # AKS advanced network config
 variable "aks_network_plugin" {
   description = "Network plugin to use for networking. Currently supported values are azure and kubenet. Changing this forces a new resource to be created."

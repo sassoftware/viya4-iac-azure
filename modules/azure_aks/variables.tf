@@ -143,6 +143,12 @@ variable "aks_node_disk_encryption_set_id" {
   default     = null
 }
 
+variable "aks_azure_policy_enabled" {
+  description = "Enables the Azure Policy Add-On for Azure Kubernetes Service."
+  type        = bool
+  default     = false
+}
+
 variable "kubernetes_version" {
   description = "The AKS cluster K8s version"
   type        = string
