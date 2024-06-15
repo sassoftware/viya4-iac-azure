@@ -30,6 +30,12 @@ variable "use_msi" {
   default     = false
 }
 
+variable "skip_provider_registration" {
+  description = "Set Azure Provider to skip automatic registeration all of the Resource Providers which it supports on launch"
+  type        = bool
+  default     = false
+}
+
 variable "iac_tooling" {
   description = "Value used to identify the tooling used to generate this providers infrastructure."
   type        = string
