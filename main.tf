@@ -138,6 +138,7 @@ module "aks" {
   aks_cluster_dns_prefix                   = "${var.prefix}-aks"
   aks_cluster_sku_tier                     = var.aks_cluster_sku_tier
   aks_cluster_location                     = var.location
+  node_resource_group_name                 = var.node_resource_group_name != "" ? var.node_resource_group_name : "MC_${local.aks_rg.name}_${var.prefix}-aks_${var.location}"
   cluster_support_tier                     = var.cluster_support_tier
   fips_enabled                             = var.fips_enabled
   aks_cluster_node_auto_scaling            = var.default_nodepool_min_nodes == var.default_nodepool_max_nodes ? false : true

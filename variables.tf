@@ -814,3 +814,8 @@ variable "aks_cluster_run_command_enabled" {
   type        = bool
   default     = false
 }
+
+variable "node_resource_group_name" {
+  type    = string
+  default = ""
+}
