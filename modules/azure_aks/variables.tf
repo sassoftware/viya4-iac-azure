@@ -265,3 +265,8 @@ variable "aks_cluster_private_dns_zone_id" {
   type    = string
   default = ""
 }
+
+variable "node_resource_group_name" {
+  type    = string
+  default = ""
+}
