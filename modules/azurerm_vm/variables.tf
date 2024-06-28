@@ -94,7 +94,7 @@ variable "data_disk_count" {
 variable "data_disk_size" {
   description = "Specifies the size of the managed disk to create in GB."
   type        = number
-  default     = 128
+  default     = 256
 }
 
 variable "data_disk_caching" {
