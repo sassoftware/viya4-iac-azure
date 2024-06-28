@@ -839,3 +839,8 @@ variable "message_broker_capacity" {
   type        = number
   default     = 1
 }
+
+variable "node_resource_group_name" {
+  type    = string
+  default = ""
+}

@@ -6,6 +6,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   name                       = var.aks_cluster_name
   location                   = var.aks_cluster_location
   resource_group_name        = var.aks_cluster_rg
+  node_resource_group        = var.node_resource_group_name != "" ? var.node_resource_group_name : "MC_${var.aks_cluster_rg}_${var.aks_cluster_name}_${var.aks_cluster_location}"
   dns_prefix                 = var.aks_private_cluster == false || var.aks_cluster_private_dns_zone_id == "" ? var.aks_cluster_dns_prefix : null
   dns_prefix_private_cluster = var.aks_private_cluster && var.aks_cluster_private_dns_zone_id != "" ? var.aks_cluster_dns_prefix : null
 
@@ -134,7 +135,7 @@ data "azurerm_public_ip" "cluster_public_ip" {
 
   # effective_outbound_ips is a set of strings, that needs to be converted to a list type
   name                = split("/", tolist(azurerm_kubernetes_cluster.aks.network_profile[0].load_balancer_profile[0].effective_outbound_ips)[0])[8]
-  resource_group_name = "MC_${var.aks_cluster_rg}_${var.aks_cluster_name}_${var.aks_cluster_location}"
+  resource_group_name = var.node_resource_group_name != "" ? var.node_resource_group_name : "MC_${var.aks_cluster_rg}_${var.aks_cluster_name}_${var.aks_cluster_location}"
 
   depends_on = [azurerm_kubernetes_cluster.aks]
 }
