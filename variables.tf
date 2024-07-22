@@ -151,7 +151,7 @@ variable "default_nodepool_vm_type" {
 variable "kubernetes_version" {
   description = "The AKS cluster K8s version"
   type        = string
-  default     = "1.28"
+  default     = "1.29"
 }
 
 variable "default_nodepool_max_nodes" {
