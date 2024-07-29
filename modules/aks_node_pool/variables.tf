@@ -115,3 +115,33 @@ variable "proximity_placement_group_id" {
   type        = string
   default     = ""
 }
+
+# For future - https://docs.microsoft.com/en-us/azure/aks/spot-node-pool
+#
+# variable "priority" {
+#   description = "The Priority for Virtual Machines within the Virtual Machine Scale Set that powers this Node Pool. Possible values are Regular and Spot. Defaults to Regular. Changing this forces a new resource to be created."
+#   type        = string
+#   default     = "Regular"
+# }
+
+# variable "eviction_policy" {
+#   description = "The Eviction Policy which should be used for Virtual Machines within the Virtual Machine Scale Set powering this Node Pool. Possible values are Deallocate and Delete. Changing this forces a new resource to be created. An Eviction Policy can only be configured when priority is set to Spot"
+#   type        = string
+#   default     = null
+# }
+
+# variable "spot_max_price" {
+#   description = "The maximum price you're willing to pay in USD per Virtual Machine. Valid values are -1 (the current on-demand price for a Virtual Machine) or a positive value with up to five decimal places. Changing this forces a new resource to be created."
+#   type        = number
+#   default     = -1
+# }
+
+variable "linux_os_config"{
+  description = "Specifications of linux os config. Changing this forces a new resource to be created."
+  type = object({
+      sysctl_config = optional(object({
+        vm_max_map_count = optional(number)
+        }))
+      })
+  default = {}
+}

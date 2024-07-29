@@ -562,6 +562,11 @@ variable "node_pools" {
     max_pods     = string
     node_taints  = list(string)
     node_labels  = map(string)
+    linux_os_config = optional(object({
+      sysctl_config = optional(object({
+        vm_max_map_count = optional(number)
+      }))
+    }))
   }))
 
   default = {
