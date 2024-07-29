@@ -215,6 +215,7 @@ module "node_pools" {
   orchestrator_version         = var.kubernetes_version
   enable_host_encryption       = var.aks_cluster_enable_host_encryption
   tags                         = var.tags
+  linux_os_config              = each.value.linux_os_config
 }
 
 # https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/postgresql_flexible_server
