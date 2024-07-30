@@ -58,6 +58,25 @@ variable "location" {
   default     = "eastus"
 }
 
+## Azure AD
+variable "rbac_aad_enabled" {
+  type        = bool
+  description = "Enables Azure Active Directory integration with Kubernetes RBAC."
+  default     = false
+}
+
+variable "rbac_aad_admin_group_object_ids" {
+  type        = list(string)
+  description = "A list of Object IDs of Azure Active Directory Groups which should have Admin Role on the Cluster."
+  default     = null
+}
+
+variable "rbac_aad_tenant_id" {
+  type        = string
+  description = "(Optional) The Tenant ID used for Azure Active Directory Application. If this isn't specified the Tenant ID of the current Subscription is used."
+  default     = null
+}
+
 variable "aks_cluster_sku_tier" {
   description = "The SKU Tier that should be used for this Kubernetes Cluster. Possible values are Free, Standard (which includes the Uptime SLA) and Premium. Defaults to Free"
   type        = string
@@ -126,7 +145,7 @@ variable "postgres_public_access_cidrs" {
 variable "default_nodepool_vm_type" {
   description = "The default virtual machine size for the Kubernetes agents"
   type        = string
-  default     = "Standard_D8s_v4"
+  default     = "Standard_E8s_v5"
 }
 
 variable "kubernetes_version" {
@@ -282,8 +301,8 @@ variable "postgres_server_defaults" {
   description = ""
   type        = any
   default = {
-    sku_name                     = "GP_Standard_D16s_v3"
-    storage_mb                   = 65536
+    sku_name                     = "GP_Standard_D4ds_v5"
+    storage_mb                   = 131072
     backup_retention_days        = 7
     geo_redundant_backup_enabled = false
     administrator_login          = "pgadmin"
@@ -412,7 +431,7 @@ variable "enable_nfs_public_static_ip" {
 variable "nfs_vm_machine_type" {
   description = "SKU which should be used for this Virtual Machine"
   type        = string
-  default     = "Standard_D8s_v4"
+  default     = "Standard_D4s_v5"
 }
 
 variable "nfs_vm_admin" {
@@ -430,7 +449,7 @@ variable "nfs_vm_zone" {
 variable "nfs_raid_disk_size" {
   description = "Size in Gb for each disk of the RAID5 cluster, when storage_type=standard"
   type        = number
-  default     = 128
+  default     = 256
 }
 
 variable "nfs_raid_disk_type" {
@@ -553,7 +572,7 @@ variable "node_pools" {
 
   default = {
     cas = {
-      "machine_type" = "Standard_E16s_v3"
+      "machine_type" = "Standard_E16ds_v5"
       "os_disk_size" = 200
       "min_nodes"    = 0
       "max_nodes"    = 5
@@ -564,7 +583,7 @@ variable "node_pools" {
       }
     },
     compute = {
-      "machine_type" = "Standard_E16s_v3"
+      "machine_type" = "Standard_D4ds_v5"
       "os_disk_size" = 200
       "min_nodes"    = 1
       "max_nodes"    = 5
@@ -576,7 +595,7 @@ variable "node_pools" {
       }
     },
     stateless = {
-      "machine_type" = "Standard_D16s_v3"
+      "machine_type" = "Standard_D4s_v5"
       "os_disk_size" = 200
       "min_nodes"    = 0
       "max_nodes"    = 5
@@ -587,7 +606,7 @@ variable "node_pools" {
       }
     },
     stateful = {
-      "machine_type" = "Standard_D8s_v3"
+      "machine_type" = "Standard_D4s_v5"
       "os_disk_size" = 200
       "min_nodes"    = 0
       "max_nodes"    = 3

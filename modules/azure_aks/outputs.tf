@@ -2,15 +2,15 @@
 # SPDX-License-Identifier: Apache-2.0
 
 output "client_key" {
-  value = azurerm_kubernetes_cluster.aks.kube_config[0].client_key
+  value = var.rbac_aad_enabled ? azurerm_kubernetes_cluster.aks.kube_admin_config[0].client_key : azurerm_kubernetes_cluster.aks.kube_config[0].client_key
 }
 
 output "client_certificate" {
-  value = azurerm_kubernetes_cluster.aks.kube_config[0].client_certificate
+  value = var.rbac_aad_enabled ? azurerm_kubernetes_cluster.aks.kube_admin_config[0].client_certificate : azurerm_kubernetes_cluster.aks.kube_config[0].client_certificate
 }
 
 output "cluster_ca_certificate" {
-  value = azurerm_kubernetes_cluster.aks.kube_config[0].cluster_ca_certificate
+  value = var.rbac_aad_enabled ? azurerm_kubernetes_cluster.aks.kube_admin_config[0].cluster_ca_certificate : azurerm_kubernetes_cluster.aks.kube_config[0].cluster_ca_certificate
 }
 
 output "cluster_username" {
@@ -18,7 +18,7 @@ output "cluster_username" {
 }
 
 output "cluster_password" {
-  value = azurerm_kubernetes_cluster.aks.kube_config[0].password
+  value = var.rbac_aad_enabled ? azurerm_kubernetes_cluster.aks.kube_admin_config[0].password : azurerm_kubernetes_cluster.aks.kube_config[0].password
 }
 
 output "kube_config" {
