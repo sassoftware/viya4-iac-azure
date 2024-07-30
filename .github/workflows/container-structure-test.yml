@@ -15,7 +15,7 @@ jobs:
       run: docker build . --file Dockerfile --tag sas-iac-aks:local
 
     - name: Container Structure Test Action
-      uses: plexsystems/container-structure-test-action@v0.2.0
+      uses: plexsystems/container-structure-test-action@v0.3.0
       with:
         image: sas-iac-aks:local
         config: container-structure-test.yaml
