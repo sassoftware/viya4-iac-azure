@@ -58,7 +58,7 @@ Access to an **Azure Subscription** and an [**Identity**](./docs/user/TerraformA
 
 #### Terraform Requirements:
 - [Terraform](https://www.terraform.io/downloads.html) - v1.8.2
-- [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl) - v1.28.7
+- [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl) - v1.29.7
 - [jq](https://stedolan.github.io/jq/) - v1.6
 - [Azure CLI](https://docs.microsoft.com/en-us/cli/azure) - (optional - useful as an alternative to the Azure Portal) - v2.59.0
 
