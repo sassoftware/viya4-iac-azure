@@ -146,7 +146,7 @@ variable "aks_node_disk_encryption_set_id" {
 variable "kubernetes_version" {
   description = "The AKS cluster K8s version"
   type        = string
-  default     = "1.28"
+  default     = "1.29"
 }
 
 variable "aks_cluster_endpoint_public_access_cidrs" {
