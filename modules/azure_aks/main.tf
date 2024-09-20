@@ -17,10 +17,9 @@ resource "azurerm_kubernetes_cluster" "aks" {
 
   # https://docs.microsoft.com/en-us/azure/aks/supported-kubernetes-versions
   # az aks get-versions --location eastus -o table
-  kubernetes_version              = var.kubernetes_version
-  api_server_authorized_ip_ranges = var.aks_cluster_endpoint_public_access_cidrs
-  private_cluster_enabled         = var.aks_private_cluster
-  private_dns_zone_id             = var.aks_private_cluster && var.aks_cluster_private_dns_zone_id != "" ? var.aks_cluster_private_dns_zone_id : (var.aks_private_cluster ? "System" : null)
+  kubernetes_version      = var.kubernetes_version
+  private_cluster_enabled = var.aks_private_cluster
+  private_dns_zone_id     = var.aks_private_cluster && var.aks_cluster_private_dns_zone_id != "" ? var.aks_cluster_private_dns_zone_id : (var.aks_private_cluster ? "System" : null)
 
   network_profile {
     # Docs on AKS Advanced Networking config
@@ -37,9 +36,15 @@ resource "azurerm_kubernetes_cluster" "aks" {
     service_cidr        = var.aks_service_cidr
     dns_service_ip      = var.aks_dns_service_ip
     pod_cidr            = var.aks_network_plugin == "kubenet" ? var.aks_pod_cidr : null
-    docker_bridge_cidr  = var.aks_docker_bridge_cidr
     outbound_type       = var.cluster_egress_type
     load_balancer_sku   = "standard"
+  }
+
+  dynamic "api_server_access_profile" {
+    for_each = length(var.aks_cluster_endpoint_public_access_cidrs) > 0 ? [1] : []
+    content {
+      authorized_ip_ranges = var.aks_cluster_endpoint_public_access_cidrs
+    }
   }
 
   dynamic "linux_profile" {
@@ -55,31 +60,29 @@ resource "azurerm_kubernetes_cluster" "aks" {
   dynamic "azure_active_directory_role_based_access_control" {
     for_each = var.rbac_aad_enabled ? [1] : []
     content {
-      managed                 = true
-      tenant_id               = var.rbac_aad_tenant_id
-      admin_group_object_ids  = var.rbac_aad_admin_group_object_ids
-      azure_rbac_enabled      = false
+      tenant_id              = var.rbac_aad_tenant_id
+      admin_group_object_ids = var.rbac_aad_admin_group_object_ids
+      azure_rbac_enabled     = false
     }
   }
 
   default_node_pool {
-    name                   = "system"
-    vm_size                = var.aks_cluster_node_vm_size
-    zones                  = var.aks_availability_zones
-    enable_auto_scaling    = var.aks_cluster_node_auto_scaling
-    enable_node_public_ip  = false
-    node_labels            = {}
-    node_taints            = []
-    fips_enabled           = var.fips_enabled
-    enable_host_encryption = var.aks_cluster_enable_host_encryption
-    max_pods               = var.aks_cluster_max_pods
-    os_disk_size_gb        = var.aks_cluster_os_disk_size
-    max_count              = var.aks_cluster_max_nodes
-    min_count              = var.aks_cluster_min_nodes
-    node_count             = var.aks_cluster_node_count
-    vnet_subnet_id         = var.aks_vnet_subnet_id
-    tags                   = var.aks_cluster_tags
-    orchestrator_version   = var.kubernetes_version
+    name                    = "system"
+    vm_size                 = var.aks_cluster_node_vm_size
+    zones                   = var.aks_availability_zones
+    auto_scaling_enabled    = var.aks_cluster_node_auto_scaling
+    node_public_ip_enabled  = false
+    node_labels             = {}
+    fips_enabled            = var.fips_enabled
+    host_encryption_enabled = var.aks_cluster_host_encryption_enabled
+    max_pods                = var.aks_cluster_max_pods
+    os_disk_size_gb         = var.aks_cluster_os_disk_size
+    max_count               = var.aks_cluster_max_nodes
+    min_count               = var.aks_cluster_min_nodes
+    node_count              = var.aks_cluster_node_count
+    vnet_subnet_id          = var.aks_vnet_subnet_id
+    tags                    = var.aks_cluster_tags
+    orchestrator_version    = var.kubernetes_version
   }
 
   dynamic "service_principal" {

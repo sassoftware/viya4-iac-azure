@@ -144,7 +144,7 @@ module "aks" {
   aks_cluster_max_pods                     = var.default_nodepool_max_pods
   aks_cluster_os_disk_size                 = var.default_nodepool_os_disk_size
   aks_cluster_node_vm_size                 = var.default_nodepool_vm_type
-  aks_cluster_enable_host_encryption       = var.aks_cluster_enable_host_encryption
+  aks_cluster_host_encryption_enabled      = var.aks_cluster_host_encryption_enabled
   aks_node_disk_encryption_set_id          = var.aks_node_disk_encryption_set_id
   aks_cluster_node_admin                   = var.node_vm_admin
   aks_cluster_ssh_public_key               = try(file(var.ssh_public_key), "")
@@ -159,7 +159,6 @@ module "aks" {
   aks_network_policy                       = var.aks_network_policy
   aks_network_plugin_mode                  = var.aks_network_plugin_mode
   aks_dns_service_ip                       = var.aks_dns_service_ip
-  aks_docker_bridge_cidr                   = var.aks_docker_bridge_cidr
   cluster_egress_type                      = local.cluster_egress_type
   aks_pod_cidr                             = var.aks_pod_cidr
   aks_service_cidr                         = var.aks_service_cidr
@@ -202,7 +201,7 @@ module "node_pools" {
   os_disk_size   = each.value.os_disk_size
   # TODO: enable with azurerm v2.37.0
   #  os_disk_type                 = each.value.os_disk_type
-  enable_auto_scaling          = each.value.min_nodes == each.value.max_nodes ? false : true
+  auto_scaling_enabled         = each.value.min_nodes == each.value.max_nodes ? false : true
   node_count                   = each.value.min_nodes
   min_nodes                    = each.value.min_nodes == each.value.max_nodes ? null : each.value.min_nodes
   max_nodes                    = each.value.min_nodes == each.value.max_nodes ? null : each.value.max_nodes
@@ -212,7 +211,7 @@ module "node_pools" {
   zones                        = (var.node_pools_availability_zone == "" || var.node_pools_proximity_placement == true) ? [] : (var.node_pools_availability_zones != null) ? var.node_pools_availability_zones : [var.node_pools_availability_zone]
   proximity_placement_group_id = element(coalescelist(azurerm_proximity_placement_group.proximity[*].id, [""]), 0)
   orchestrator_version         = var.kubernetes_version
-  enable_host_encryption       = var.aks_cluster_enable_host_encryption
+  host_encryption_enabled      = var.aks_cluster_host_encryption_enabled
   tags                         = var.tags
 }
 

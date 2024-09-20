@@ -184,7 +184,7 @@ variable "default_nodepool_availability_zones" {
   default     = ["1"]
 }
 
-variable "aks_cluster_enable_host_encryption" {
+variable "aks_cluster_host_encryption_enabled" {
   description = "Enables host encryption on all the nodes in the Node Pool."
   type        = bool
   default     = false
@@ -229,18 +229,6 @@ variable "aks_dns_service_ip" {
     condition     = var.aks_dns_service_ip != null ? can(regex("^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$", var.aks_dns_service_ip)) : false
     error_message = "ERROR: aks_dns_service_ip - value must not be null and must be a valid IP address."
   }
-}
-
-variable "aks_docker_bridge_cidr" {
-  description = "IP address (in CIDR notation) used as the Docker bridge IP address on nodes. Changing this forces a new resource to be created."
-  type        = string
-  default     = "172.17.0.1/16"
-
-  validation {
-    condition     = var.aks_docker_bridge_cidr != null ? can(cidrnetmask(var.aks_docker_bridge_cidr)) : false
-    error_message = "ERROR: aks_docker_bridge_cidr - value must not be null and must be valid CIDR."
-  }
-
 }
 
 variable "aks_pod_cidr" {
@@ -739,7 +727,7 @@ variable "subnets" {
   type = map(object({
     prefixes                                      = list(string)
     service_endpoints                             = list(string)
-    private_endpoint_network_policies_enabled     = bool
+    private_endpoint_network_policies             = string
     private_link_service_network_policies_enabled = bool
     service_delegations = map(object({
       name    = string
@@ -750,21 +738,21 @@ variable "subnets" {
     aks = {
       "prefixes" : ["192.168.0.0/23"],
       "service_endpoints" : ["Microsoft.Sql"],
-      "private_endpoint_network_policies_enabled" : true,
+      "private_endpoint_network_policies" : "Enabled",
       "private_link_service_network_policies_enabled" : false,
       "service_delegations" : {},
     }
     misc = {
       "prefixes" : ["192.168.2.0/24"],
       "service_endpoints" : ["Microsoft.Sql"],
-      "private_endpoint_network_policies_enabled" : true,
+      "private_endpoint_network_policies" : "Enabled",
       "private_link_service_network_policies_enabled" : false,
       "service_delegations" : {},
     }
     netapp = {
       "prefixes" : ["192.168.3.0/24"],
       "service_endpoints" : [],
-      "private_endpoint_network_policies_enabled" : false,
+      "private_endpoint_network_policies" : "Disabled",
       "private_link_service_network_policies_enabled" : false,
       "service_delegations" : {
         netapp = {
