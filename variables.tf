@@ -568,6 +568,11 @@ variable "node_pools" {
     max_pods     = string
     node_taints  = list(string)
     node_labels  = map(string)
+    linux_os_config = optional(object({
+      sysctl_config = optional(object({
+        vm_max_map_count = optional(number)
+      }))
+    }))
   }))
 
   default = {
@@ -838,4 +843,9 @@ variable "message_broker_capacity" {
   description = "Specifies the capacity. When sku is Premium, capacity can be 1, 2, 4, 8 or 16. When sku is Basic or Standard, capacity can be 0 only."
   type        = number
   default     = 1
+}
+
+variable "node_resource_group_name" {
+  type    = string
+  default = ""
 }
