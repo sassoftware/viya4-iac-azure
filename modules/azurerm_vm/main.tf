@@ -8,7 +8,7 @@ resource "azurerm_public_ip" "vm_ip" {
   location            = var.azure_rg_location
   resource_group_name = var.azure_rg_name
   allocation_method   = var.enable_public_static_ip ? "Static" : "Dynamic"
-  sku                 = var.vm_zone == null ? "Basic" : "Standard"
+  sku                 = "Standard"
   zones               = var.vm_zone == null ? [] : [var.vm_zone]
   tags                = var.tags
 }
