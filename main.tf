@@ -193,12 +193,12 @@ module "node_pools" {
 
   for_each = var.node_pools
 
-  node_pool_name = each.key
-  aks_cluster_id = module.aks.cluster_id
-  vnet_subnet_id = module.vnet.subnets["aks"].id
-  machine_type   = each.value.machine_type
-  fips_enabled   = var.fips_enabled
-  os_disk_size   = each.value.os_disk_size
+  node_pool_name               = each.key
+  aks_cluster_id               = module.aks.cluster_id
+  vnet_subnet_id               = module.vnet.subnets["aks"].id
+  machine_type                 = each.value.machine_type
+  fips_enabled                 = var.fips_enabled
+  os_disk_size                 = each.value.os_disk_size
   auto_scaling_enabled         = each.value.min_nodes == each.value.max_nodes ? false : true
   node_count                   = each.value.min_nodes
   min_nodes                    = each.value.min_nodes == each.value.max_nodes ? null : each.value.min_nodes

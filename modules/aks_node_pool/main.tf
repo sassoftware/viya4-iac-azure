@@ -14,17 +14,17 @@ resource "azurerm_kubernetes_cluster_node_pool" "autoscale_node_pool" {
   proximity_placement_group_id = var.proximity_placement_group_id == "" ? null : var.proximity_placement_group_id
   vm_size                      = var.machine_type
   os_disk_size_gb              = var.os_disk_size
-  os_type                = var.os_type
-  auto_scaling_enabled   = var.auto_scaling_enabled
-  node_public_ip_enabled = var.node_public_ip_enabled
-  node_count             = var.node_count
-  max_count              = var.max_nodes
-  min_count              = var.min_nodes
-  max_pods               = var.max_pods
-  node_labels            = var.node_labels
-  node_taints            = var.node_taints
-  orchestrator_version   = var.orchestrator_version
-  tags                   = var.tags
+  os_type                      = var.os_type
+  auto_scaling_enabled         = var.auto_scaling_enabled
+  node_public_ip_enabled       = var.node_public_ip_enabled
+  node_count                   = var.node_count
+  max_count                    = var.max_nodes
+  min_count                    = var.min_nodes
+  max_pods                     = var.max_pods
+  node_labels                  = var.node_labels
+  node_taints                  = var.node_taints
+  orchestrator_version         = var.orchestrator_version
+  tags                         = var.tags
 
   lifecycle {
     ignore_changes = [node_count]
@@ -42,14 +42,14 @@ resource "azurerm_kubernetes_cluster_node_pool" "static_node_pool" {
   proximity_placement_group_id = var.proximity_placement_group_id == "" ? null : var.proximity_placement_group_id
   vm_size                      = var.machine_type
   os_disk_size_gb              = var.os_disk_size
-  os_type              = var.os_type
-  auto_scaling_enabled = var.auto_scaling_enabled
-  node_count           = var.node_count
-  max_count            = var.max_nodes
-  min_count            = var.min_nodes
-  max_pods             = var.max_pods
-  node_labels          = var.node_labels
-  node_taints          = var.node_taints
-  orchestrator_version = var.orchestrator_version
-  tags                 = var.tags
+  os_type                      = var.os_type
+  auto_scaling_enabled         = var.auto_scaling_enabled
+  node_count                   = var.node_count
+  max_count                    = var.max_nodes
+  min_count                    = var.min_nodes
+  max_pods                     = var.max_pods
+  node_labels                  = var.node_labels
+  node_taints                  = var.node_taints
+  orchestrator_version         = var.orchestrator_version
+  tags                         = var.tags
 }
