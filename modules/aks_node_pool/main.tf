@@ -14,8 +14,6 @@ resource "azurerm_kubernetes_cluster_node_pool" "autoscale_node_pool" {
   proximity_placement_group_id = var.proximity_placement_group_id == "" ? null : var.proximity_placement_group_id
   vm_size                      = var.machine_type
   os_disk_size_gb              = var.os_disk_size
-  # TODO: enable after azurerm v2.37.0
-  # os_disk_type                 = var.os_disk_type
   os_type                = var.os_type
   auto_scaling_enabled   = var.auto_scaling_enabled
   node_public_ip_enabled = var.node_public_ip_enabled
@@ -44,8 +42,6 @@ resource "azurerm_kubernetes_cluster_node_pool" "static_node_pool" {
   proximity_placement_group_id = var.proximity_placement_group_id == "" ? null : var.proximity_placement_group_id
   vm_size                      = var.machine_type
   os_disk_size_gb              = var.os_disk_size
-  # TODO: enable after azurerm v2.37.0
-  # os_disk_type                 = var.os_disk_type
   os_type              = var.os_type
   auto_scaling_enabled = var.auto_scaling_enabled
   node_count           = var.node_count

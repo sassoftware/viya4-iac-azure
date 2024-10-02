@@ -46,13 +46,6 @@ variable "os_disk_size" {
   default     = 100
 }
 
-# TODO: enable after azurerm v2.37.0
-# variable "os_disk_type" {
-#   description = "The type of disk which should be used for the Operating System. Possible values are Ephemeral and Managed. Defaults to Managed. Changing this forces a new resource to be created"
-#   type = string
-#   default = "Managed"
-# }
-
 variable "os_type" {
   description = "The Operating System which should be used for this Node Pool. Changing this forces a new resource to be created. Possible values are Linux and Windows. Defaults to Linux"
   type        = string
