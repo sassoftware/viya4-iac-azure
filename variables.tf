@@ -184,7 +184,7 @@ variable "default_nodepool_availability_zones" {
   default     = ["1"]
 }
 
-variable "aks_cluster_host_encryption_enabled" {
+variable "aks_cluster_enable_host_encryption" {
   description = "Enables host encryption on all the nodes in the Node Pool."
   type        = bool
   default     = false

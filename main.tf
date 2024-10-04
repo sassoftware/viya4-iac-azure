@@ -144,7 +144,7 @@ module "aks" {
   aks_cluster_max_pods                     = var.default_nodepool_max_pods
   aks_cluster_os_disk_size                 = var.default_nodepool_os_disk_size
   aks_cluster_node_vm_size                 = var.default_nodepool_vm_type
-  aks_cluster_host_encryption_enabled      = var.aks_cluster_host_encryption_enabled
+  aks_cluster_enable_host_encryption       = var.aks_cluster_enable_host_encryption
   aks_node_disk_encryption_set_id          = var.aks_node_disk_encryption_set_id
   aks_cluster_node_admin                   = var.node_vm_admin
   aks_cluster_ssh_public_key               = try(file(var.ssh_public_key), "")
@@ -209,7 +209,7 @@ module "node_pools" {
   zones                        = (var.node_pools_availability_zone == "" || var.node_pools_proximity_placement == true) ? [] : (var.node_pools_availability_zones != null) ? var.node_pools_availability_zones : [var.node_pools_availability_zone]
   proximity_placement_group_id = element(coalescelist(azurerm_proximity_placement_group.proximity[*].id, [""]), 0)
   orchestrator_version         = var.kubernetes_version
-  host_encryption_enabled      = var.aks_cluster_host_encryption_enabled
+  host_encryption_enabled      = var.aks_cluster_enable_host_encryption
   tags                         = var.tags
 }
 

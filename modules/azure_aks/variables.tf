@@ -131,7 +131,7 @@ variable "aks_cluster_max_pods" {
   default     = 110
 }
 
-variable "aks_cluster_host_encryption_enabled" {
+variable "aks_cluster_enable_host_encryption" {
   description = "Enables host encryption on all the nodes in the Default Node Pool"
   type        = bool
   default     = false
