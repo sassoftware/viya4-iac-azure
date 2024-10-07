@@ -1,5 +1,3 @@
-FROM alpine:latest
-
 ARG TERRAFORM_VERSION=1.9.6
 ARG AZURECLI_VERSION=2.64.0
 
@@ -12,9 +10,8 @@ WORKDIR /viya4-iac-azure
 COPY --from=terraform /bin/terraform /bin/terraform
 COPY . .
 
-RUN apk update \
-  && apk upgrade \
-  && apk add --no-cache git openssh curl\
+RUN yum -y install git openssh jq curl \
+  && yum clean all && rm -rf /var/cache/yum \
   && curl -sLO https://storage.googleapis.com/kubernetes-release/release/v$KUBECTL_VERSION/bin/linux/amd64/kubectl \
   && chmod 755 ./kubectl /viya4-iac-azure/docker-entrypoint.sh \
   && mv ./kubectl /usr/local/bin/kubectl \
