@@ -136,7 +136,7 @@ output "rwx_filestore_config" {
     "virtualNetwork" : module.vnet.name,
     "subnet" : module.vnet.subnets["netapp"],
     "defaults" : {
-      "exportRule" : element(module.vnet.address_space, 0),
+      "exportRule" : element(tolist(module.vnet.address_space), 0),
     }
   }) : null
 }

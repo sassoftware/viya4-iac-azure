@@ -43,21 +43,21 @@ postgres_servers = {
 #   aks = {
 #     "prefixes" : ["192.168.0.0/23"],
 #     "service_endpoints" : ["Microsoft.Sql"],
-#     "private_endpoint_network_policies_enabled" : true,
+#     "private_endpoint_network_policies" : "Enabled",
 #     "private_link_service_network_policies_enabled" : false,
 #     "service_delegations" : {},
 #   }
 #   misc = {
 #     "prefixes" : ["192.168.2.0/24"],
 #     "service_endpoints" : ["Microsoft.Sql"],
-#     "private_endpoint_network_policies_enabled" : true,
+#     "private_endpoint_network_policies" : "Enabled",
 #     "private_link_service_network_policies_enabled" : false,
 #     "service_delegations" : {},
 #   }
 #   netapp = {
 #     "prefixes" : ["192.168.3.0/24"],
 #     "service_endpoints" : [],
-#     "private_endpoint_network_policies_enabled" : false,
+#     "private_endpoint_network_policies" : "Disabled",
 #     "private_link_service_network_policies_enabled" : false,
 #     "service_delegations" : {
 #       netapp = {
@@ -69,7 +69,7 @@ postgres_servers = {
 #   postgresql = {
 #     "prefixes": ["192.168.4.0/24"],
 #     "service_endpoints": ["Microsoft.Sql"],
-#     "private_endpoint_network_policies_enabled": true,
+#     "private_endpoint_network_policies": "Enabled",
 #     "private_link_service_network_policies_enabled": false,
 #     "service_delegations": {
 #       flexpostgres = {
