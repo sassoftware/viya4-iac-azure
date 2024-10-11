@@ -495,13 +495,13 @@ variable "netapp_service_level" {
 }
 
 variable "netapp_size_in_tb" {
-  description = "When storage_type=ha, Provisioned size of the pool in TB. Value must be between 4 and 500"
+  description = "When storage_type=ha, Provisioned size of the pool in TB. Value must be between 1 and 2048. You can only take advantage of the 1-TiB minimum if all the volumes in the capacity pool are using Standard network features."
   type        = number
   default     = 4
 
   validation {
-    condition     = var.netapp_size_in_tb != null ? var.netapp_size_in_tb >= 4 && var.netapp_size_in_tb <= 500 : null
-    error_message = "ERROR: netapp_size_in_tb - value must be between 4 and 500."
+    condition     = var.netapp_size_in_tb != null ? var.netapp_size_in_tb >= 1 && var.netapp_size_in_tb <= 2048 : null
+    error_message = "ERROR: netapp_size_in_tb - value must be between 1 and 2048."
   }
 }
 
