@@ -4,7 +4,7 @@ variables {
     prefix = "foobar"
 }
 
-run "default_cluster_sku_tier" {
+run "cluster_sku_tier_should_default_to_Free" {
 
   command = plan
   
@@ -17,7 +17,7 @@ run "default_cluster_sku_tier" {
   }
 }
 
-run "default_cluster_support_tier" {
+run "cluster_support_tier_should_default_to_KubernetesOfficial" {
 
   command = plan
   
@@ -30,7 +30,7 @@ run "default_cluster_support_tier" {
   }
 }
 
-run "aks_network_plugin" {
+run "aks_network_plugin_should_default_to_kubenet" {
 
   command = plan
   
@@ -43,7 +43,7 @@ run "aks_network_plugin" {
   }
 }
 
-run "cluster_egress_type" {
+run "cluster_egress_type_should_default_to_What" {
 
   command = plan
   
@@ -59,7 +59,7 @@ run "cluster_egress_type" {
 
 }
 
-run "storage_type" {
+run "storage_type_should_default_to_standard" {
 
   command = plan
   
@@ -72,7 +72,7 @@ run "storage_type" {
   }
 }
 
-run "netapp_size_in_tb" {
+run "netapp_size_in_tb_should_default_to_4tb" {
 
   command = plan
   
@@ -85,7 +85,7 @@ run "netapp_size_in_tb" {
   }
 }
 
-run "netapp_network_features" {
+run "netapp_network_features_should_default_to_Basic" {
 
   command = plan
   
@@ -98,7 +98,7 @@ run "netapp_network_features" {
   }
 }
 
-run "metrics_category" {
+run "metrics_category_should_default_to_AllMetrics" {
 
   command = plan
   
@@ -111,7 +111,7 @@ run "metrics_category" {
   }
 }
 
-run "cluster_api_mode" {
+run "cluster_api_mode_should_default_to_public" {
 
   command = plan
   
@@ -124,7 +124,7 @@ run "cluster_api_mode" {
   }
 }
 
-run "aks_identity" {
+run "aks_identity_should_default_to_uai" {
 
   command = plan
   

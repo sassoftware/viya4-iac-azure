@@ -2,7 +2,7 @@ variables {
   location = "eastus2"
 }
 
-run "prefix_length_too_short" {
+run "prefix_length_should_not_be_too_short" {
 
   command = plan
   
@@ -15,7 +15,7 @@ run "prefix_length_too_short" {
   ]
 }
 
-run "prefix_disallowed_char" {
+run "prefix_should_not_include_disallowed_char" {
 
   command = plan
   
@@ -28,7 +28,7 @@ run "prefix_disallowed_char" {
   ]
 }
 
-run "prefix_dissallowed_uppercase" {
+run "prefix_should_not_include_dissallowed_uppercase" {
 
   command = plan
   
@@ -41,7 +41,7 @@ run "prefix_dissallowed_uppercase" {
   ]
 }
 
-run "prefix_cannot_start_with_dash" {
+run "prefix_should_not_start_with_dash" {
 
   command = plan
   
@@ -54,7 +54,7 @@ run "prefix_cannot_start_with_dash" {
   ]
 }
 
-run "prefix_cannot_end_with_dash" {
+run "prefix_should_not_end_with_dash" {
 
   command = plan
   
@@ -67,7 +67,7 @@ run "prefix_cannot_end_with_dash" {
   ]
 }
 
-run "prefix_length_ok_internal_dash" {
+run "prefix_length_is_ok_with_internal_dash" {
 
   command = plan
   
@@ -77,7 +77,7 @@ run "prefix_length_ok_internal_dash" {
 }
 
 
-run "prefix_length_ok_with_number" {
+run "prefix_length_is_ok_and_includes_a_number" {
 
   command = plan
   
