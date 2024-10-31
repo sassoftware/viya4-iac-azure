@@ -23,7 +23,7 @@ resource "azurerm_netapp_pool" "anf" {
 
   lifecycle {
     precondition {
-      condition     = var.size_in_tb == 1 && var.network_features != "Standard"
+      condition     = var.size_in_tb != 1 || var.network_features == "Standard"
       error_message = "You can only take advantage of the 1-TiB minimum if all the volumes in the capacity pool are using Standard network features. If any volume is using Basic network features, the minimum size is 4 TiB."
     }
   }
