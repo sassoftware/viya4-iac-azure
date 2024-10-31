@@ -231,18 +231,6 @@ variable "aks_dns_service_ip" {
   }
 }
 
-variable "aks_docker_bridge_cidr" {
-  description = "IP address (in CIDR notation) used as the Docker bridge IP address on nodes. Changing this forces a new resource to be created."
-  type        = string
-  default     = "172.17.0.1/16"
-
-  validation {
-    condition     = var.aks_docker_bridge_cidr != null ? can(cidrnetmask(var.aks_docker_bridge_cidr)) : false
-    error_message = "ERROR: aks_docker_bridge_cidr - value must not be null and must be valid CIDR."
-  }
-
-}
-
 variable "aks_pod_cidr" {
   description = "The CIDR to use for pod IP addresses. This field can only be set when network_plugin is set to kubenet. Changing this forces a new resource to be created."
   type        = string
@@ -301,7 +289,7 @@ variable "postgres_server_defaults" {
   description = ""
   type        = any
   default = {
-    sku_name                     = "GP_Standard_D4ds_v5"
+    sku_name                     = "GP_Standard_D4s_v3"
     storage_mb                   = 131072
     backup_retention_days        = 7
     geo_redundant_backup_enabled = false
@@ -739,7 +727,7 @@ variable "subnets" {
   type = map(object({
     prefixes                                      = list(string)
     service_endpoints                             = list(string)
-    private_endpoint_network_policies_enabled     = bool
+    private_endpoint_network_policies             = string
     private_link_service_network_policies_enabled = bool
     service_delegations = map(object({
       name    = string
@@ -750,21 +738,21 @@ variable "subnets" {
     aks = {
       "prefixes" : ["192.168.0.0/23"],
       "service_endpoints" : ["Microsoft.Sql"],
-      "private_endpoint_network_policies_enabled" : true,
+      "private_endpoint_network_policies" : "Enabled",
       "private_link_service_network_policies_enabled" : false,
       "service_delegations" : {},
     }
     misc = {
       "prefixes" : ["192.168.2.0/24"],
       "service_endpoints" : ["Microsoft.Sql"],
-      "private_endpoint_network_policies_enabled" : true,
+      "private_endpoint_network_policies" : "Enabled",
       "private_link_service_network_policies_enabled" : false,
       "service_delegations" : {},
     }
     netapp = {
       "prefixes" : ["192.168.3.0/24"],
       "service_endpoints" : [],
-      "private_endpoint_network_policies_enabled" : false,
+      "private_endpoint_network_policies" : "Disabled",
       "private_link_service_network_policies_enabled" : false,
       "service_delegations" : {
         netapp = {
@@ -813,29 +801,4 @@ variable "aks_cluster_private_dns_zone_id" {
   description = "Specify private DNS zone resource ID for AKS private cluster to use."
   type        = string
   default     = ""
-}
-
-## Message Broker - Azure Service Bus - Experimental
-variable "create_azure_message_broker" {
-  description = "Allows user to create a fully managed enterprise message broker: Azure Service Bus"
-  type        = bool
-  default     = false
-}
-
-variable "message_broker_sku" {
-  description = "Defines which tier to use. Options are Basic, Standard or Premium. SAS Viya Platform recommends using 'Premium'."
-  type        = string
-  default     = "Premium"
-}
-
-variable "message_broker_name" {
-  description = "Specifies the name of the message broker, also specified for the ServiceBus Namespace Authorization Rule resource. Changing this forces a new resource to be created."
-  type        = string
-  default     = "Arke"
-}
-
-variable "message_broker_capacity" {
-  description = "Specifies the capacity. When sku is Premium, capacity can be 1, 2, 4, 8 or 16. When sku is Basic or Standard, capacity can be 0 only."
-  type        = number
-  default     = 1
 }

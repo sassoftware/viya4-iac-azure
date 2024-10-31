@@ -19,7 +19,7 @@ variable "server_name" {
 variable "sku_name" {
   description = "The SKU Name for the PostgreSQL Flexible Server. The name of the SKU, follows the tier + name pattern (e.g. B_Standard_B1ms, GP_Standard_D2s_v3, MO_Standard_E4s_v3)."
   type        = string
-  default     = "GP_Standard_D4ds_v5"
+  default     = "GP_Standard_D4s_v3"
 }
 
 variable "storage_mb" {

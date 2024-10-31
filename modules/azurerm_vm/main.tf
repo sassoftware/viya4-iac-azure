@@ -8,16 +8,16 @@ resource "azurerm_public_ip" "vm_ip" {
   location            = var.azure_rg_location
   resource_group_name = var.azure_rg_name
   allocation_method   = var.enable_public_static_ip ? "Static" : "Dynamic"
-  sku                 = var.vm_zone == null ? "Basic" : "Standard"
+  sku                 = "Standard"
   zones               = var.vm_zone == null ? [] : [var.vm_zone]
   tags                = var.tags
 }
 
 resource "azurerm_network_interface" "vm_nic" {
-  name                          = "${var.name}-nic"
-  location                      = var.azure_rg_location
-  resource_group_name           = var.azure_rg_name
-  enable_accelerated_networking = length(regexall("-nfs", var.name)) > 0 ? true : var.enable_accelerated_networking
+  name                           = "${var.name}-nic"
+  location                       = var.azure_rg_location
+  resource_group_name            = var.azure_rg_name
+  accelerated_networking_enabled = length(regexall("-nfs", var.name)) > 0 ? true : var.accelerated_networking_enabled
 
   ip_configuration {
     name                          = "${var.name}-ip_config"
@@ -28,7 +28,6 @@ resource "azurerm_network_interface" "vm_nic" {
   tags = var.tags
 }
 
-# TODO : requires specific permissions
 resource "azurerm_network_interface_security_group_association" "vm_nic_sg" {
   network_interface_id      = azurerm_network_interface.vm_nic.id
   network_security_group_id = var.azure_nsg_id

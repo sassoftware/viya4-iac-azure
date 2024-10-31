@@ -133,7 +133,7 @@ variable "os_disk_caching" {
   default     = "ReadOnly"
 }
 
-variable "enable_accelerated_networking" {
+variable "accelerated_networking_enabled" {
   description = "Enables network accelaration for VMs. By default enabled for the nfs and jump VMs. For any other VM the default is false"
   type        = bool
   default     = false
