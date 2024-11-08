@@ -34,12 +34,9 @@ commandTests:
         az version -o tsv
     expectedOutput: ["2.64.0\t2.64.0\t1.1.0"]
   - name: "kubectl version"
-    command: "bash"
-    args:
-      - -c
-      - |
-        kubectl version --client
-    expectedOutput: ["Client Version:\tv1.30.6\nKustomize Version:\tv5.0.4*"]
+    command: "kubectl"
+    args: ["version", "--client"]
+    expectedOutput: ["Client Version: v1.30.6"]
 
 metadataTest:
   workdir: "/viya4-iac-azure"
