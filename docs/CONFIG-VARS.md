@@ -61,10 +61,12 @@ The ability to manage RBAC for Kubernetes resources from Azure gives you the cho
 Following are the possible ways to configure Authentication and Authorization in an AKS cluster:
 1. Authentication using local accounts with Kubernetes RBAC. This is traditionally used and current default, see details [here](https://learn.microsoft.com/en-us/azure/aks/concepts-identity#kubernetes-rbac)
 2. Microsoft Entra authentication with Kubernetes RBAC. See details [here](https://learn.microsoft.com/en-us/azure/aks/azure-ad-rbac)
+3. Microsoft Entra authentication with Azure RBAC. See details [here](https://learn.microsoft.com/en-us/azure/aks/manage-azure-rbac)
 
 | Name | Description | Type | Default |
 | :--- | ---: | ---: | ---: |
 | rbac_aad_enabled | Enables Azure Active Directory integration with Kubernetes RBAC. | bool  | false |
+| rbac_aad_azure_rbac_enabled | Enables Azure RBAC.  If false, Kubernetes RBAC is used.  Only relevant if rbac_aad_enabled is true. | bool  | false |
 | rbac_aad_admin_group_object_ids | A list of Object IDs of Azure Active Directory Groups which should have Admin Role on the Cluster. | list(string) | null |
 | rbac_aad_tenant_id | (Optional) The Tenant ID used for Azure Active Directory Application. If this isn't specified the Tenant ID of the current Subscription is used.| string  | |
 

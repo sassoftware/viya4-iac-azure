@@ -65,7 +65,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
     content {
       tenant_id              = var.rbac_aad_tenant_id
       admin_group_object_ids = var.rbac_aad_admin_group_object_ids
-      azure_rbac_enabled     = false
+      azure_rbac_enabled     = var.rbac_aad_azure_rbac_enabled
     }
   }
 
