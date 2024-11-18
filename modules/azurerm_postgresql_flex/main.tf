@@ -37,7 +37,8 @@ resource "azurerm_postgresql_flexible_server" "flexpsql" {
   tags                         = var.tags
   delegated_subnet_id          = var.delegated_subnet_id
   private_dns_zone_id          = try(azurerm_private_dns_zone.flexpsql[0].id, null)
-
+  public_network_access_enabled = var.connectivity_method == "public" ? true : false
+  
   depends_on = [azurerm_private_dns_zone_virtual_network_link.flexpsql]
 
   lifecycle {
