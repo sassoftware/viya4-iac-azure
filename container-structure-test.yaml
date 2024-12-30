@@ -9,7 +9,7 @@ fileExistenceTests:
     shouldExist: true
     permissions: '-rwxr-xr-x'
   - name: 'azure-cli'
-    path: '/usr/local/bin/az'
+    path: '/usr/bin/az'
     shouldExist: true
     permissions: '-rwxr-xr-x'
 
@@ -17,7 +17,7 @@ commandTests:
   - name: "terraform version"
     command: "terraform"
     args: ["--version"]
-    expectedOutput: ["Terraform v1.8.2"]
+    expectedOutput: ["Terraform v1.9.6"]
   - name: "python version"
     command: "python3"
     args: ["--version"]
@@ -29,7 +29,7 @@ commandTests:
       - -c
       - |
         az version -o tsv
-    expectedOutput: ["2.59.0\t2.59.0\t1.1.0"]
+    expectedOutput: ["2.64.0\t2.64.0\t1.1.0"]
 
 metadataTest:
   workdir: "/viya4-iac-azure"

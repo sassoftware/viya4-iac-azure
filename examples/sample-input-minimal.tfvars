@@ -32,7 +32,7 @@ container_registry_sku              = "Standard"
 container_registry_admin_enabled    = false
 
 # AKS config
-kubernetes_version         = "1.28"
+kubernetes_version         = "1.29"
 default_nodepool_min_nodes = 2
 default_nodepool_vm_type   = "Standard_D4_v3"
 #v3 still has local temp storage
@@ -75,6 +75,6 @@ storage_type = "standard"
 # required ONLY when storage_type is "standard" to create NFS Server VM
 create_nfs_public_ip = false
 nfs_vm_admin         = "nfsuser"
-nfs_vm_machine_type  = "Standard_D4s_v4"
-nfs_raid_disk_size   = 128
+nfs_vm_machine_type  = "Standard_D4s_v5"
+nfs_raid_disk_size   = 256
 nfs_raid_disk_type   = "Standard_LRS"

@@ -146,7 +146,7 @@ variable "aks_node_disk_encryption_set_id" {
 variable "kubernetes_version" {
   description = "The AKS cluster K8s version"
   type        = string
-  default     = "1.28"
+  default     = "1.29"
 }
 
 variable "aks_cluster_endpoint_public_access_cidrs" {
@@ -186,18 +186,6 @@ variable "aks_dns_service_ip" {
     condition     = var.aks_dns_service_ip != null ? can(regex("^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$", var.aks_dns_service_ip)) : false
     error_message = "ERROR: aks_dns_service_ip - value must not be null and must be a valid IP address."
   }
-
-}
-
-variable "aks_docker_bridge_cidr" {
-  description = "IP address (in CIDR notation) used as the Docker bridge IP address on nodes. Changing this forces a new resource to be created."
-  type        = string
-  default     = "172.17.0.1/16"
-  validation {
-    condition     = var.aks_docker_bridge_cidr != null ? can(cidrnetmask(var.aks_docker_bridge_cidr)) : false
-    error_message = "ERROR: aks_docker_bridge_cidr - value must not be null and must be valid CIDR."
-  }
-
 }
 
 variable "aks_pod_cidr" {

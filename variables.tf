@@ -145,13 +145,13 @@ variable "postgres_public_access_cidrs" {
 variable "default_nodepool_vm_type" {
   description = "The default virtual machine size for the Kubernetes agents"
   type        = string
-  default     = "Standard_D8s_v4"
+  default     = "Standard_E8s_v5"
 }
 
 variable "kubernetes_version" {
   description = "The AKS cluster K8s version"
   type        = string
-  default     = "1.28"
+  default     = "1.29"
 }
 
 variable "default_nodepool_max_nodes" {
@@ -231,18 +231,6 @@ variable "aks_dns_service_ip" {
   }
 }
 
-variable "aks_docker_bridge_cidr" {
-  description = "IP address (in CIDR notation) used as the Docker bridge IP address on nodes. Changing this forces a new resource to be created."
-  type        = string
-  default     = "172.17.0.1/16"
-
-  validation {
-    condition     = var.aks_docker_bridge_cidr != null ? can(cidrnetmask(var.aks_docker_bridge_cidr)) : false
-    error_message = "ERROR: aks_docker_bridge_cidr - value must not be null and must be valid CIDR."
-  }
-
-}
-
 variable "aks_pod_cidr" {
   description = "The CIDR to use for pod IP addresses. This field can only be set when network_plugin is set to kubenet. Changing this forces a new resource to be created."
   type        = string
@@ -301,8 +289,8 @@ variable "postgres_server_defaults" {
   description = ""
   type        = any
   default = {
-    sku_name                     = "GP_Standard_D16s_v3"
-    storage_mb                   = 65536
+    sku_name                     = "GP_Standard_D4s_v3"
+    storage_mb                   = 131072
     backup_retention_days        = 7
     geo_redundant_backup_enabled = false
     administrator_login          = "pgadmin"
@@ -431,7 +419,7 @@ variable "enable_nfs_public_static_ip" {
 variable "nfs_vm_machine_type" {
   description = "SKU which should be used for this Virtual Machine"
   type        = string
-  default     = "Standard_D8s_v4"
+  default     = "Standard_D4s_v5"
 }
 
 variable "nfs_vm_admin" {
@@ -449,7 +437,7 @@ variable "nfs_vm_zone" {
 variable "nfs_raid_disk_size" {
   description = "Size in Gb for each disk of the RAID5 cluster, when storage_type=standard"
   type        = number
-  default     = 128
+  default     = 256
 }
 
 variable "nfs_raid_disk_type" {
@@ -574,7 +562,7 @@ variable "node_pools" {
 
   default = {
     cas = {
-      "machine_type" = "Standard_E16s_v3"
+      "machine_type" = "Standard_E16ds_v5"
       "os_disk_size" = 200
       "min_nodes"    = 0
       "max_nodes"    = 5
@@ -585,7 +573,7 @@ variable "node_pools" {
       }
     },
     compute = {
-      "machine_type" = "Standard_E16s_v3"
+      "machine_type" = "Standard_D4ds_v5"
       "os_disk_size" = 200
       "min_nodes"    = 1
       "max_nodes"    = 5
@@ -597,7 +585,7 @@ variable "node_pools" {
       }
     },
     stateless = {
-      "machine_type" = "Standard_D16s_v3"
+      "machine_type" = "Standard_D4s_v5"
       "os_disk_size" = 200
       "min_nodes"    = 0
       "max_nodes"    = 5
@@ -608,7 +596,7 @@ variable "node_pools" {
       }
     },
     stateful = {
-      "machine_type" = "Standard_D8s_v3"
+      "machine_type" = "Standard_D4s_v5"
       "os_disk_size" = 200
       "min_nodes"    = 0
       "max_nodes"    = 3
@@ -741,7 +729,7 @@ variable "subnets" {
   type = map(object({
     prefixes                                      = list(string)
     service_endpoints                             = list(string)
-    private_endpoint_network_policies_enabled     = bool
+    private_endpoint_network_policies             = string
     private_link_service_network_policies_enabled = bool
     service_delegations = map(object({
       name    = string
@@ -752,21 +740,21 @@ variable "subnets" {
     aks = {
       "prefixes" : ["192.168.0.0/23"],
       "service_endpoints" : ["Microsoft.Sql"],
-      "private_endpoint_network_policies_enabled" : true,
+      "private_endpoint_network_policies" : "Enabled",
       "private_link_service_network_policies_enabled" : false,
       "service_delegations" : {},
     }
     misc = {
       "prefixes" : ["192.168.2.0/24"],
       "service_endpoints" : ["Microsoft.Sql"],
-      "private_endpoint_network_policies_enabled" : true,
+      "private_endpoint_network_policies" : "Enabled",
       "private_link_service_network_policies_enabled" : false,
       "service_delegations" : {},
     }
     netapp = {
       "prefixes" : ["192.168.3.0/24"],
       "service_endpoints" : [],
-      "private_endpoint_network_policies_enabled" : false,
+      "private_endpoint_network_policies" : "Disabled",
       "private_link_service_network_policies_enabled" : false,
       "service_delegations" : {
         netapp = {
@@ -815,29 +803,4 @@ variable "aks_cluster_private_dns_zone_id" {
   description = "Specify private DNS zone resource ID for AKS private cluster to use."
   type        = string
   default     = ""
-}
-
-## Message Broker - Azure Service Bus - Experimental
-variable "create_azure_message_broker" {
-  description = "Allows user to create a fully managed enterprise message broker: Azure Service Bus"
-  type        = bool
-  default     = false
-}
-
-variable "message_broker_sku" {
-  description = "Defines which tier to use. Options are Basic, Standard or Premium. SAS Viya Platform recommends using 'Premium'."
-  type        = string
-  default     = "Premium"
-}
-
-variable "message_broker_name" {
-  description = "Specifies the name of the message broker, also specified for the ServiceBus Namespace Authorization Rule resource. Changing this forces a new resource to be created."
-  type        = string
-  default     = "Arke"
-}
-
-variable "message_broker_capacity" {
-  description = "Specifies the capacity. When sku is Premium, capacity can be 1, 2, 4, 8 or 16. When sku is Basic or Standard, capacity can be 0 only."
-  type        = number
-  default     = 1
 }

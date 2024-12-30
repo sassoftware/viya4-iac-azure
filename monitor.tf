@@ -50,18 +50,12 @@ resource "azurerm_monitor_diagnostic_setting" "audit" {
   target_resource_id         = module.aks.cluster_id
   log_analytics_workspace_id = azurerm_log_analytics_workspace.viya4[0].id
 
-  dynamic "log" {
+  dynamic "enabled_log" {
     iterator = log_category
     for_each = var.resource_log_category
 
     content {
       category = log_category.value
-      enabled  = true
-
-      retention_policy {
-        enabled = true
-        days    = var.log_retention_in_days
-      }
     }
   }
 
@@ -72,11 +66,6 @@ resource "azurerm_monitor_diagnostic_setting" "audit" {
     content {
       category = metric_category.value
       enabled  = true
-
-      retention_policy {
-        enabled = true
-        days    = var.log_retention_in_days
-      }
     }
   }
 }

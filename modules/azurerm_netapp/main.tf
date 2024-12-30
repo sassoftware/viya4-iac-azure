@@ -5,13 +5,6 @@
 # Terraform Registry - https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/netapp_volume
 # Azure docs - https://docs.microsoft.com/en-us/azure/azure-netapp-files/
 
-
-# TODO: changer after upgrading to v0.13 
-# https://github.com/terraform-providers/terraform-provider-azurerm/issues/5233
-# data "azurerm_resource_group" "anf" {
-#   name = var.resource_group_name
-# }
-
 resource "azurerm_netapp_account" "anf" {
   name                = "${var.prefix}-netappaccount"
   location            = var.location
