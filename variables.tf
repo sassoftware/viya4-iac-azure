@@ -764,7 +764,7 @@ variable "subnets" {
     gateway = {
       "prefixes" : ["192.168.4.0/24"],
       "service_endpoints" : [],
-      "private_endpoint_network_policies_enabled" : true,
+      "private_endpoint_network_policies" : "Enabled"
       "private_link_service_network_policies_enabled" : false,
       "service_delegations" : {}
     }
