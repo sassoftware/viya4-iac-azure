@@ -259,7 +259,7 @@ module "netapp" {
   resource_group_name = local.aks_rg.name
   location            = var.location
   subnet_id           = module.vnet.subnets["netapp"].id
-  network_features    = var.netapp_network_features
+  network_features    = var.netapp_enable_cmk_encryption ? "Standard" : var.netapp_network_features
   service_level       = var.netapp_service_level
   size_in_tb          = var.netapp_size_in_tb
   protocols           = var.netapp_protocols
@@ -269,6 +269,10 @@ module "netapp" {
   depends_on          = [module.vnet]
 
   community_netapp_volume_size = var.community_netapp_volume_size
+
+  netapp_enable_cmk_encryption  = var.netapp_enable_cmk_encryption
+  netapp_cmk_encryption_key_id  = var.netapp_cmk_encryption_key_id
+  netapp_cmk_encryption_key_uai = var.netapp_cmk_encryption_key_uai
 }
 
 data "external" "git_hash" {
