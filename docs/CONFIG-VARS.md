@@ -392,7 +392,7 @@ postgres_servers = {
     postgresql_configurations    = [
        {
          name  = "azure.extensions"
-         value = "PLPGSQL,LTREE"
+         value = "LTREE,TABLEFUNC"
        }
       ]
   },
