@@ -12,6 +12,10 @@ fileExistenceTests:
     path: '/usr/bin/az'
     shouldExist: true
     permissions: '-rwxr-xr-x'
+  - name: 'kubectl'
+    path: '/usr/local/bin/kubectl'
+    shouldExist: true
+    permissions: '-rwxr-xr-x'
 
 commandTests:
   - name: "terraform version"
@@ -22,7 +26,6 @@ commandTests:
     command: "python3"
     args: ["--version"]
     expectedOutput: ["Python 3.*"]
-
   - name: "az-cli version"
     command: "bash"
     args:
@@ -30,6 +33,10 @@ commandTests:
       - |
         az version -o tsv
     expectedOutput: ["2.64.0\t2.64.0\t1.1.0"]
+  - name: "kubectl version"
+    command: "kubectl"
+    args: ["version", "--client"]
+    expectedOutput: ["Client Version: v1.30.6"]
 
 metadataTest:
   workdir: "/viya4-iac-azure"
