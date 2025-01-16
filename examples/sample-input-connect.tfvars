@@ -64,7 +64,7 @@ node_pools = {
     }
   },
   connect = {
-    "machine_type" = "Standard_E16s_v3"
+    "machine_type" = "Standard_E16s_v5"
     "os_disk_size" = 200
     "min_nodes"    = 1
     "max_nodes"    = 1
