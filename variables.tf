@@ -289,7 +289,7 @@ variable "postgres_server_defaults" {
   description = ""
   type        = any
   default = {
-    sku_name                     = "GP_Standard_D4s_v5"
+    sku_name                     = "GP_Standard_D4s_v3"
     storage_mb                   = 131072
     backup_retention_days        = 7
     geo_redundant_backup_enabled = false
