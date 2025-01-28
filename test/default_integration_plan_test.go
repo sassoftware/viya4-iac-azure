@@ -1,9 +1,6 @@
-//go:build integration_plan_tests
-
 package test
 
 import (
-	"encoding/json"
 	"os"
 	"path/filepath"
 	"strings"
@@ -12,6 +9,7 @@ import (
 	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	test_structure "github.com/gruntwork-io/terratest/modules/test-structure"
+	tfjson "github.com/hashicorp/terraform-json"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -51,18 +49,6 @@ func TestGeneral(t *testing.T) {
 	}
 
 	plan := terraform.InitAndPlanAndShowWithStruct(t, terraformOptions)
-
-	// Add this logging for NetApp resources as JSON
-	for _, resource := range plan.ResourceChangesMap {
-		if strings.Contains(resource.Address, "azurerm_netapp") {
-			jsonBytes, err := json.MarshalIndent(resource, "", "  ")
-			if err != nil {
-				t.Errorf("Failed to marshal resource to JSON: %v", err)
-				continue
-			}
-			t.Logf("\nNetApp Resource JSON:\n%s\n", string(jsonBytes))
-		}
-	}
 
 	// Get resources from plan
 	cluster := plan.ResourcePlannedValuesMap["module.aks.azurerm_kubernetes_cluster.aks"]
@@ -106,15 +92,40 @@ func TestGeneral(t *testing.T) {
 	assert.NotNil(t, userAssignedIdentity, "The User Identity should exist.")
 
 	// ssh_public_key
-	// TODO figure this out
-	assert.NotNil(t, cluster.AttributeValues["linux_profile[0]"], "SSH Key should exist")
+	assert.True(t, testSSHKey(t, cluster), "SSH Key should exist")
 
-	// cluster_api_mode
+	// cluster_api_mode - in the output but not the tfplan?
 
-	// aks_cluster_private_dns_zone_id
+	// aks_cluster_private_dns_zone_id - defaults to empty, only known after apply
 
 	// aks_cluster_sku_tier
+	skuTier := cluster.AttributeValues["sku_tier"]
+	assert.Equal(t, skuTier, "Free", "Unexpected aks_cluster_sku_tier")
 
 	// cluster_support_tier
+	supportPlan := cluster.AttributeValues["support_plan"]
+	assert.Equal(t, supportPlan, "KubernetesOfficial", "Unexpected cluster_support_tier")
 
+}
+
+func testSSHKey(t *testing.T, cluster *tfjson.StateResource) bool {
+	// Get the linux profile object and cast it to map[string]interface{}
+	linuxProfile, ok := cluster.AttributeValues["linux_profile"].([]interface{})[0].(map[string]interface{})
+	if !ok {
+		t.Log("linux_profile not found in cluster resources. Failing test")
+		return false
+	}
+	// Get the ssh_key object and cast it to interface{}(string)
+	keyData, ok := linuxProfile["ssh_key"].([]interface{})[0].(map[string]interface{})["key_data"]
+	if !ok {
+		t.Log("ssh_key not found in linux_profile. Failing test")
+		return false
+	}
+	// Finally cast the key to a string and verify that it is not empty
+	key, ok := keyData.(string)
+	if !ok {
+		t.Log("Raw ssh key not found in ssh_key object. Failing test")
+		return false
+	}
+	return key != ""
 }
