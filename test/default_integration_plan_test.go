@@ -51,15 +51,11 @@ func TestGeneral(t *testing.T) {
 	}
 
 	plan := terraform.InitAndPlanAndShowWithStruct(t, terraformOptions)
-
-	// Get resources from plan
 	cluster := plan.ResourcePlannedValuesMap["module.aks.azurerm_kubernetes_cluster.aks"]
-	// pool := plan.ResourcePlannedValuesMap["module.netapp[0].azurerm_netapp_pool.anf"]
-	// volume := plan.ResourcePlannedValuesMap["module.netapp[0].azurerm_netapp_volume.anf"]
 
 	// partner_id - Not present in tfplan
 
-	//create_static_kubeconfig - Not present in tfplan
+	// create_static_kubeconfig - Not present in tfplan
 
 	// kubernetes_version
 	k8sVersion := cluster.AttributeValues["kubernetes_version"]
@@ -107,6 +103,36 @@ func TestGeneral(t *testing.T) {
 	// cluster_support_tier
 	supportPlan := cluster.AttributeValues["support_plan"]
 	assert.Equal(t, supportPlan, "KubernetesOfficial", "Unexpected cluster_support_tier")
+
+	/* Additional Node Pools */
+	statelessNodePool := plan.ResourcePlannedValuesMap["module.node_pools[\"stateless\"].azurerm_kubernetes_cluster_node_pool.autoscale_node_pool[0]"]
+	// machine_type
+	machineType := statelessNodePool.AttributeValues["vm_size"]
+	assert.Equal(t, "Standard_D4s_v5", machineType, "Unexpected machine_type.")
+
+	// os_disk_size
+	osDiskSize := statelessNodePool.AttributeValues["os_disk_size_gb"]
+	assert.Equal(t, float64(200), osDiskSize, "Unexpected os_disk_size.")
+
+	// min_nodes
+	minNodes := statelessNodePool.AttributeValues["min_count"]
+	assert.Equal(t, float64(0), minNodes, "Unexpected min_nodes.")
+
+	// max_nodes
+	maxNodes := statelessNodePool.AttributeValues["max_count"]
+	assert.Equal(t, float64(5), maxNodes, "Unexpected max_nodes.")
+
+	// max_pods
+	maxPods := statelessNodePool.AttributeValues["max_pods"]
+	assert.Equal(t, float64(110), maxPods, "Unexpected max_pods.")
+
+	// node_taints
+
+	// node_labels
+
+	// node_pools_availability_zone
+
+	// node_pools_proximity_placement
 
 }
 
