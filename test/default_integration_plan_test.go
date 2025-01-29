@@ -1,5 +1,3 @@
-//go:build integration_plan_tests
-
 package test
 
 import (
@@ -10,10 +8,20 @@ import (
 
 	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/terraform"
-	test_structure "github.com/gruntwork-io/terratest/modules/test-structure"
 	tfjson "github.com/hashicorp/terraform-json"
 	"github.com/stretchr/testify/assert"
 )
+
+type NodePool struct {
+	Name        string
+	MachineType string
+	OsDiskSize  float64
+	MinNodes    float64
+	MaxNodes    float64
+	MaxPods     float64
+	NodeTaints  []string
+	NodeLabels  map[string]string
+}
 
 func TestGeneral(t *testing.T) {
 	t.Parallel()
@@ -35,19 +43,18 @@ func TestGeneral(t *testing.T) {
 	defer os.Remove(planFilePath) // Ensure file is removed on exit
 	os.Create(planFilePath)
 
-	// Copy the terraform folder to a temp folder
-	tempTestFolder := test_structure.CopyTerraformFolderToTemp(t, "../", "")
-
 	// Configure Terraform setting up a path to Terraform code.
 	terraformOptions := &terraform.Options{
 		// The path to where our Terraform code is located.
-		TerraformDir: tempTestFolder,
+		TerraformDir: "../",
 
 		// Variables to pass to our Terraform code using -var options.
 		Vars: variables,
 
 		// Configure a plan file path so we can introspect the plan and make assertions about it.
 		PlanFilePath: planFilePath,
+
+		NoColor: true,
 	}
 
 	plan := terraform.InitAndPlanAndShowWithStruct(t, terraformOptions)
@@ -59,7 +66,7 @@ func TestGeneral(t *testing.T) {
 
 	// kubernetes_version
 	k8sVersion := cluster.AttributeValues["kubernetes_version"]
-	assert.Equal(t, k8sVersion, "1.30", "Unexpected Kubernetes version")
+	assert.Equal(t, "1.30", k8sVersion, "Unexpected Kubernetes version")
 
 	// create_jump_vm
 	// Verify that the jump vm has been created
@@ -71,13 +78,13 @@ func TestGeneral(t *testing.T) {
 	assert.NotNil(t, jumpPublicIP, "Jump VM public IP should exist")
 
 	// enable_jump_public_static_ip
-	assert.Equal(t, jumpPublicIP.AttributeValues["allocation_method"], "Static", "Jump VM should use static IP")
+	assert.Equal(t, "Static", jumpPublicIP.AttributeValues["allocation_method"], "Jump VM should use static IP")
 
 	// jump_vm_admin
-	assert.Equal(t, jumpVM.AttributeValues["admin_username"], "jumpuser", "Unexpected jump VM admin username")
+	assert.Equal(t, "jumpuser", jumpVM.AttributeValues["admin_username"], "Unexpected jump VM admin username")
 
 	// jump_vm_machine_type
-	assert.Equal(t, jumpVM.AttributeValues["size"], "Standard_B2s", "Unexpected jump VM machine type")
+	assert.Equal(t, "Standard_B2s", jumpVM.AttributeValues["size"], "Unexpected jump VM machine type")
 
 	// jump_rwx_filestore_path - in the output but not the tfplan?
 
@@ -92,7 +99,7 @@ func TestGeneral(t *testing.T) {
 	// ssh_public_key
 	assert.True(t, testSSHKey(t, cluster), "SSH Key should exist")
 
-	// cluster_api_mode - in the output but not the tfplan?
+	// cluster_api_mode - in the output but not the tfplan
 
 	// aks_cluster_private_dns_zone_id - defaults to empty, only known after apply
 
@@ -106,34 +113,48 @@ func TestGeneral(t *testing.T) {
 
 	/* Additional Node Pools */
 	statelessNodePool := plan.ResourcePlannedValuesMap["module.node_pools[\"stateless\"].azurerm_kubernetes_cluster_node_pool.autoscale_node_pool[0]"]
-	// machine_type
-	machineType := statelessNodePool.AttributeValues["vm_size"]
-	assert.Equal(t, "Standard_D4s_v5", machineType, "Unexpected machine_type.")
+	statelessStruct := NodePool{
+		MachineType: "Standard_D4s_v5",
+		OsDiskSize:  200,
+		MinNodes:    0,
+		MaxNodes:    5,
+		MaxPods:     110,
+		NodeTaints:  []string{"workload.sas.com/class=stateless:NoSchedule"},
+		NodeLabels: map[string]string{
+			"workload.sas.com/class": "stateless",
+		},
+	}
+	testNodePools(t, statelessNodePool, statelessStruct)
 
-	// os_disk_size
-	osDiskSize := statelessNodePool.AttributeValues["os_disk_size_gb"]
-	assert.Equal(t, float64(200), osDiskSize, "Unexpected os_disk_size.")
+	statefulNodePool := plan.ResourcePlannedValuesMap["module.node_pools[\"stateful\"].azurerm_kubernetes_cluster_node_pool.autoscale_node_pool[0]"]
+	statefulStruct := NodePool{
+		MachineType: "Standard_D4s_v5",
+		OsDiskSize:  200,
+		MinNodes:    0,
+		MaxNodes:    3,
+		MaxPods:     110,
+	}
+	testNodePools(t, statefulNodePool, statefulStruct)
 
-	// min_nodes
-	minNodes := statelessNodePool.AttributeValues["min_count"]
-	assert.Equal(t, float64(0), minNodes, "Unexpected min_nodes.")
+	casNodePool := plan.ResourcePlannedValuesMap["module.node_pools[\"cas\"].azurerm_kubernetes_cluster_node_pool.autoscale_node_pool[0]"]
+	casStruct := NodePool{
+		MachineType: "Standard_E16ds_v5",
+		OsDiskSize:  200,
+		MinNodes:    0,
+		MaxNodes:    5,
+		MaxPods:     110,
+	}
+	testNodePools(t, casNodePool, casStruct)
 
-	// max_nodes
-	maxNodes := statelessNodePool.AttributeValues["max_count"]
-	assert.Equal(t, float64(5), maxNodes, "Unexpected max_nodes.")
-
-	// max_pods
-	maxPods := statelessNodePool.AttributeValues["max_pods"]
-	assert.Equal(t, float64(110), maxPods, "Unexpected max_pods.")
-
-	// node_taints
-
-	// node_labels
-
-	// node_pools_availability_zone
-
-	// node_pools_proximity_placement
-
+	computeNodePool := plan.ResourcePlannedValuesMap["module.node_pools[\"compute\"].azurerm_kubernetes_cluster_node_pool.autoscale_node_pool[0]"]
+	computeStruct := NodePool{
+		MachineType: "Standard_D4ds_v5",
+		OsDiskSize:  200,
+		MinNodes:    1,
+		MaxNodes:    5,
+		MaxPods:     110,
+	}
+	testNodePools(t, computeNodePool, computeStruct)
 }
 
 func testSSHKey(t *testing.T, cluster *tfjson.StateResource) bool {
@@ -156,4 +177,35 @@ func testSSHKey(t *testing.T, cluster *tfjson.StateResource) bool {
 		return false
 	}
 	return key != ""
+}
+
+func testNodePools(t *testing.T, nodePool *tfjson.StateResource, expectedValues NodePool) {
+	// machine_type
+	assert.Equal(t, expectedValues.MachineType, nodePool.AttributeValues["vm_size"], "Unexpected machine_type.")
+
+	// os_disk_size
+	assert.Equal(t, expectedValues.OsDiskSize, nodePool.AttributeValues["os_disk_size_gb"], "Unexpected os_disk_size.")
+
+	// min_nodes
+	assert.Equal(t, expectedValues.MinNodes, nodePool.AttributeValues["min_count"], "Unexpected min_nodes.")
+
+	// max_nodes
+	assert.Equal(t, expectedValues.MaxNodes, nodePool.AttributeValues["max_count"], "Unexpected max_nodes.")
+
+	// max_pods
+	assert.Equal(t, expectedValues.MaxPods, nodePool.AttributeValues["max_pods"], "Unexpected max_pods.")
+
+	// node_taints
+	for index, nodeTaint := range expectedValues.NodeTaints {
+		assert.Equal(t, nodeTaint, nodePool.AttributeValues["node_taints"].([]interface{})[index].(string), "Unexpected Node Taints")
+	}
+
+	// node_labels
+	// TODO
+	assert.Equal(t, expectedValues.NodeLabels, nodePool.AttributeValues["node_labels"], "Unexpected Node Labels")
+
+	// node_pools_availability_zone
+
+	// node_pools_proximity_placement
+
 }
