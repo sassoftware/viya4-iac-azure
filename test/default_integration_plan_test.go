@@ -1,8 +1,10 @@
 package test
 
 import (
+	"encoding/json"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"testing"
 
@@ -13,14 +15,15 @@ import (
 )
 
 type NodePool struct {
-	Name        string
-	MachineType string
-	OsDiskSize  float64
-	MinNodes    float64
-	MaxNodes    float64
-	MaxPods     float64
-	NodeTaints  []string
-	NodeLabels  map[string]string
+	Name              string
+	MachineType       string
+	OsDiskSize        float64
+	MinNodes          float64
+	MaxNodes          float64
+	MaxPods           float64
+	NodeTaints        []string
+	NodeLabels        map[string]string
+	AvailabilityZones []string
 }
 
 func TestGeneral(t *testing.T) {
@@ -123,6 +126,7 @@ func TestGeneral(t *testing.T) {
 		NodeLabels: map[string]string{
 			"workload.sas.com/class": "stateless",
 		},
+		AvailabilityZones: []string{"1"},
 	}
 	testNodePools(t, statelessNodePool, statelessStruct)
 
@@ -133,6 +137,11 @@ func TestGeneral(t *testing.T) {
 		MinNodes:    0,
 		MaxNodes:    3,
 		MaxPods:     110,
+		NodeTaints:  []string{"workload.sas.com/class=stateful:NoSchedule"},
+		NodeLabels: map[string]string{
+			"workload.sas.com/class": "stateful",
+		},
+		AvailabilityZones: []string{"1"},
 	}
 	testNodePools(t, statefulNodePool, statefulStruct)
 
@@ -143,6 +152,11 @@ func TestGeneral(t *testing.T) {
 		MinNodes:    0,
 		MaxNodes:    5,
 		MaxPods:     110,
+		NodeTaints:  []string{"workload.sas.com/class=cas:NoSchedule"},
+		NodeLabels: map[string]string{
+			"workload.sas.com/class": "cas",
+		},
+		AvailabilityZones: []string{"1"},
 	}
 	testNodePools(t, casNodePool, casStruct)
 
@@ -153,6 +167,12 @@ func TestGeneral(t *testing.T) {
 		MinNodes:    1,
 		MaxNodes:    5,
 		MaxPods:     110,
+		NodeTaints:  []string{"workload.sas.com/class=compute:NoSchedule"},
+		NodeLabels: map[string]string{
+			"workload.sas.com/class":        "compute",
+			"launcher.sas.com/prepullImage": "sas-programming-environment",
+		},
+		AvailabilityZones: []string{"1"},
 	}
 	testNodePools(t, computeNodePool, computeStruct)
 }
@@ -201,11 +221,33 @@ func testNodePools(t *testing.T, nodePool *tfjson.StateResource, expectedValues 
 	}
 
 	// node_labels
-	// TODO
-	assert.Equal(t, expectedValues.NodeLabels, nodePool.AttributeValues["node_labels"], "Unexpected Node Labels")
+	nodeLabelsStatus := true
+	nodeLabels := nodePool.AttributeValues["node_labels"]
+	// Convert the interface {}(map[string]interface {}) to JSON string
+	j, err := json.Marshal(nodeLabels)
+	if err != nil {
+		t.Log("Error parsing tfplan's Node Labels: ", err)
+		nodeLabelsStatus = false
+	}
+	// Unmarshal the JSON string into the map
+	var result map[string]string
+	err = json.Unmarshal(j, &result)
+	if err != nil {
+		t.Log("Error unmarshaling Node Labels Json string: ", err)
+		nodeLabelsStatus = false
+	}
+	// If no previous errors, verify that the maps are equal
+	if nodeLabelsStatus {
+		assert.True(t, reflect.DeepEqual(expectedValues.NodeLabels, result), "Unexpected Node Labels")
+	} else {
+		assert.Fail(t, "Unexpected errors parsing Node Labels")
+	}
 
 	// node_pools_availability_zone
+	for index, az := range expectedValues.AvailabilityZones {
+		assert.Equal(t, az, nodePool.AttributeValues["zones"].([]interface{})[index].(string), "Unexpected Availability Zones")
+	}
 
-	// node_pools_proximity_placement
+	// node_pools_proximity_placement - Can't find in tfplan
 
 }
