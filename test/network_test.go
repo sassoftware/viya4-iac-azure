@@ -17,7 +17,7 @@ func TestNetworkingVariables(t *testing.T) {
 
 	// Generate a unique test prefix
 	uniquePrefix := strings.ToLower(random.UniqueId())
-	p := "../examples/sample-input-networking.tfvars" // Path to your tfvars file
+	p := "../examples/sample-input-defaults.tfvars" // Path to your tfvars file
 
 	var variables map[string]interface{}
 	terraform.GetAllVariablesFromVarFile(t, p, &variables)
