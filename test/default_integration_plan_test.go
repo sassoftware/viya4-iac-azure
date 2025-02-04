@@ -28,7 +28,9 @@ type NodePool struct {
 	AvailabilityZones []string
 }
 
-func TestGeneral(t *testing.T) {
+// Test the default variables when using the sample-input-defaults.tfvars file.
+// Verify that the tfplan is using the default variables from the CONFIG-VARS
+func TestDefaults(t *testing.T) {
 	t.Parallel()
 
 	uniquePrefix := strings.ToLower(random.UniqueId())
@@ -59,6 +61,7 @@ func TestGeneral(t *testing.T) {
 		// Configure a plan file path so we can introspect the plan and make assertions about it.
 		PlanFilePath: planFilePath,
 
+		// Remove color codes to clean up output
 		NoColor: true,
 	}
 
@@ -91,7 +94,8 @@ func TestGeneral(t *testing.T) {
 	// jump_vm_machine_type
 	assert.Equal(t, "Standard_B2s", jumpVM.AttributeValues["size"], "Unexpected jump VM machine type")
 
-	// jump_rwx_filestore_path - in the output but not the tfplan?
+	// jump_rwx_filestore_path
+	assert.Equal(t, "/viya-share", plan.RawPlan.OutputChanges["jump_rwx_filestore_path"].After.(string))
 
 	// tags - defaults to empty so there is nothing to test. If we wanted to test it, this is how we would
 	// aksTags := cluster.AttributeValues["tags"]
@@ -104,7 +108,8 @@ func TestGeneral(t *testing.T) {
 	// ssh_public_key
 	assert.True(t, testSSHKey(t, cluster), "SSH Key should exist")
 
-	// cluster_api_mode - in the output but not the tfplan
+	// cluster_api_mode
+	assert.Equal(t, "public", plan.RawPlan.OutputChanges["cluster_api_mode"].After.(string))
 
 	// aks_cluster_private_dns_zone_id - defaults to empty, only known after apply
 
@@ -116,9 +121,9 @@ func TestGeneral(t *testing.T) {
 	supportPlan := cluster.AttributeValues["support_plan"]
 	assert.Equal(t, supportPlan, "KubernetesOfficial", "Unexpected cluster_support_tier")
 
-	/* Additional Node Pools */
+	// Additional Node Pools
 	statelessNodePool := plan.ResourcePlannedValuesMap["module.node_pools[\"stateless\"].azurerm_kubernetes_cluster_node_pool.autoscale_node_pool[0]"]
-	statelessStruct := NodePool{
+	statelessStruct := &NodePool{
 		MachineType: "Standard_D4s_v5",
 		OsDiskSize:  200,
 		MinNodes:    0,
@@ -130,10 +135,10 @@ func TestGeneral(t *testing.T) {
 		},
 		AvailabilityZones: []string{"1"},
 	}
-	testNodePools(t, statelessNodePool, statelessStruct)
+	verifyNodePools(t, statelessNodePool, statelessStruct)
 
 	statefulNodePool := plan.ResourcePlannedValuesMap["module.node_pools[\"stateful\"].azurerm_kubernetes_cluster_node_pool.autoscale_node_pool[0]"]
-	statefulStruct := NodePool{
+	statefulStruct := &NodePool{
 		MachineType: "Standard_D4s_v5",
 		OsDiskSize:  200,
 		MinNodes:    0,
@@ -145,10 +150,9 @@ func TestGeneral(t *testing.T) {
 		},
 		AvailabilityZones: []string{"1"},
 	}
-	testNodePools(t, statefulNodePool, statefulStruct)
-
+	verifyNodePools(t, statefulNodePool, statefulStruct)
 	casNodePool := plan.ResourcePlannedValuesMap["module.node_pools[\"cas\"].azurerm_kubernetes_cluster_node_pool.autoscale_node_pool[0]"]
-	casStruct := NodePool{
+	casStruct := &NodePool{
 		MachineType: "Standard_E16ds_v5",
 		OsDiskSize:  200,
 		MinNodes:    0,
@@ -160,10 +164,10 @@ func TestGeneral(t *testing.T) {
 		},
 		AvailabilityZones: []string{"1"},
 	}
-	testNodePools(t, casNodePool, casStruct)
+	verifyNodePools(t, casNodePool, casStruct)
 
 	computeNodePool := plan.ResourcePlannedValuesMap["module.node_pools[\"compute\"].azurerm_kubernetes_cluster_node_pool.autoscale_node_pool[0]"]
-	computeStruct := NodePool{
+	computeStruct := &NodePool{
 		MachineType: "Standard_D4ds_v5",
 		OsDiskSize:  200,
 		MinNodes:    1,
@@ -176,7 +180,7 @@ func TestGeneral(t *testing.T) {
 		},
 		AvailabilityZones: []string{"1"},
 	}
-	testNodePools(t, computeNodePool, computeStruct)
+	verifyNodePools(t, computeNodePool, computeStruct)
 }
 
 func testSSHKey(t *testing.T, cluster *tfjson.StateResource) bool {
@@ -201,7 +205,7 @@ func testSSHKey(t *testing.T, cluster *tfjson.StateResource) bool {
 	return key != ""
 }
 
-func testNodePools(t *testing.T, nodePool *tfjson.StateResource, expectedValues NodePool) {
+func verifyNodePools(t *testing.T, nodePool *tfjson.StateResource, expectedValues *NodePool) {
 	// machine_type
 	assert.Equal(t, expectedValues.MachineType, nodePool.AttributeValues["vm_size"], "Unexpected machine_type.")
 
