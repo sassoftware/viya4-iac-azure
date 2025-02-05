@@ -56,7 +56,22 @@ jobs:
       run: terraform init
 
     - name: Initializing TFLint
-      run: TFLINT_LOG=info tflint --init -c "$(pwd)/linting-configs/.tflint.hcl" 
+      run: TFLINT_LOG=info tflint --init -c "$(pwd)/linting-configs/.tflint.hcl"
 
     - name: Run TFLint Action
       run: TFLINT_LOG=info tflint -c "$(pwd)/linting-configs/.tflint.hcl" --recursive
+
+  # Gitleaks Job-4
+  Gitleaks:
+    name: gitleaks
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Repo
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: Run Gitleaks Action
+      uses: gitleaks/gitleaks-action@v2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
