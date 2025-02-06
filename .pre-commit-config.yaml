@@ -6,7 +6,7 @@ repos:
     hooks:
       - id: gitleaks
 
-#ci:
-#  autofix_prs: false
-#  autoupdate_commit_msg: "chore: auto-update of pre-commit hooks"
-#  skip: [gitleaks]
+ci:
+  autofix_prs: false
+  autoupdate_commit_msg: "chore: auto-update of pre-commit hooks"
+  skip: [gitleaks]
