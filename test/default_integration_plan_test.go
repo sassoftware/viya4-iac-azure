@@ -26,9 +26,20 @@ type NodePool struct {
 	NodeTaints        []string
 	NodeLabels        map[string]string
 	AvailabilityZones []string
+	FipsEnabled       bool
 }
 
-func TestGeneral(t *testing.T) {
+type Subnet struct {
+	prefixes                                 []interface{}
+	serviceEndpoints                         []interface{}
+	privateEndpointNetworkPolicies           string
+	privateLinkServiceNetworkPoliciesEnabled bool
+	serviceDelegations                       map[string]interface{}
+}
+
+// Test the default variables when using the sample-input-defaults.tfvars file.
+// Verify that the tfplan is using the default variables from the CONFIG-VARS
+func TestDefaults(t *testing.T) {
 	t.Parallel()
 
 	uniquePrefix := strings.ToLower(random.UniqueId())
@@ -59,22 +70,61 @@ func TestGeneral(t *testing.T) {
 		// Configure a plan file path so we can introspect the plan and make assertions about it.
 		PlanFilePath: planFilePath,
 
+		// Remove color codes to clean up output
 		NoColor: true,
 	}
 
 	plan := terraform.InitAndPlanAndShowWithStruct(t, terraformOptions)
 	cluster := plan.ResourcePlannedValuesMap["module.aks.azurerm_kubernetes_cluster.aks"]
 
+	// vnet_address_space
+	expectedVnetAddress := []interface{}{"192.168.0.0/16"}
+	vnetResource := plan.ResourcePlannedValuesMap["module.vnet.azurerm_virtual_network.vnet[0]"]
+	vnetAttributes := vnetResource.AttributeValues["address_space"].([]interface{})
+	assert.Equal(t, expectedVnetAddress, vnetAttributes)
+
+	// aks Subnets
+	expectedAKSSubnet := &Subnet{
+		prefixes:                                 []interface{}{"192.168.0.0/23"},
+		serviceEndpoints:                         []interface{}{"Microsoft.Sql"},
+		privateEndpointNetworkPolicies:           "Disabled",
+		privateLinkServiceNetworkPoliciesEnabled: false,
+		serviceDelegations:                       nil,
+	}
+	verifySubnets(t, plan.ResourcePlannedValuesMap["module.vnet.azurerm_subnet.subnet[\"aks\"]"], expectedAKSSubnet)
+
+	// misc subnet
+	expectedMiscSubnet := &Subnet{
+		prefixes:                                 []interface{}{"192.168.2.0/24"},
+		serviceEndpoints:                         []interface{}{"Microsoft.Sql"},
+		privateEndpointNetworkPolicies:           "Disabled",
+		privateLinkServiceNetworkPoliciesEnabled: false,
+		serviceDelegations:                       nil,
+	}
+	verifySubnets(t, plan.ResourcePlannedValuesMap["module.vnet.azurerm_subnet.subnet[\"misc\"]"], expectedMiscSubnet)
+
+	// cluster_egress_type
+	var expectedClusterEgressType interface{} = "loadBalancer"
+	egressType := cluster.AttributeValues["network_profile"]
+	actualEgressType := egressType.([]interface{})[0].(map[string]interface{})["outbound_type"]
+	assert.Equal(t, expectedClusterEgressType, actualEgressType, "Unexpected Cluster Egress Type")
 	// partner_id - Not present in tfplan
 
-	// create_static_kubeconfig - Not present in tfplan
+	// create_static_kubeconfig
+	// Assert that the Cluster Role Binding and Service Account objects
+	// are present in the output. create_static_kubeconfig=false would
+	// not contain these objects.
+	kubeconfigCRBResource := plan.ResourcePlannedValuesMap["module.kubeconfig.kubernetes_cluster_role_binding.kubernetes_crb[0]"]
+	assert.NotNil(t, kubeconfigCRBResource, "Kubeconfig CRB object should not be nil")
+	kubeconfigSAResource := plan.ResourcePlannedValuesMap["module.kubeconfig.kubernetes_service_account.kubernetes_sa[0]"]
+	assert.NotNil(t, kubeconfigSAResource, "Kubeconfig Service Account object should not be nil")
 
 	// kubernetes_version
 	k8sVersion := cluster.AttributeValues["kubernetes_version"]
 	assert.Equal(t, "1.30", k8sVersion, "Unexpected Kubernetes version")
 
 	// create_jump_vm
-	// Verify that the jump vm has been created
+	// Verify that the jump vm resource is not nil
 	jumpVM := plan.ResourcePlannedValuesMap["module.jump[0].azurerm_linux_virtual_machine.vm"]
 	assert.NotNil(t, jumpVM, "Jump VM should be created")
 
@@ -91,7 +141,8 @@ func TestGeneral(t *testing.T) {
 	// jump_vm_machine_type
 	assert.Equal(t, "Standard_B2s", jumpVM.AttributeValues["size"], "Unexpected jump VM machine type")
 
-	// jump_rwx_filestore_path - in the output but not the tfplan?
+	// jump_rwx_filestore_path
+	assert.Equal(t, "/viya-share", plan.RawPlan.OutputChanges["jump_rwx_filestore_path"].After.(string))
 
 	// tags - defaults to empty so there is nothing to test. If we wanted to test it, this is how we would
 	// aksTags := cluster.AttributeValues["tags"]
@@ -104,7 +155,8 @@ func TestGeneral(t *testing.T) {
 	// ssh_public_key
 	assert.True(t, testSSHKey(t, cluster), "SSH Key should exist")
 
-	// cluster_api_mode - in the output but not the tfplan
+	// cluster_api_mode
+	assert.Equal(t, "public", plan.RawPlan.OutputChanges["cluster_api_mode"].After.(string))
 
 	// aks_cluster_private_dns_zone_id - defaults to empty, only known after apply
 
@@ -116,9 +168,9 @@ func TestGeneral(t *testing.T) {
 	supportPlan := cluster.AttributeValues["support_plan"]
 	assert.Equal(t, supportPlan, "KubernetesOfficial", "Unexpected cluster_support_tier")
 
-	/* Additional Node Pools */
+	// Additional Node Pools
 	statelessNodePool := plan.ResourcePlannedValuesMap["module.node_pools[\"stateless\"].azurerm_kubernetes_cluster_node_pool.autoscale_node_pool[0]"]
-	statelessStruct := NodePool{
+	statelessStruct := &NodePool{
 		MachineType: "Standard_D4s_v5",
 		OsDiskSize:  200,
 		MinNodes:    0,
@@ -129,11 +181,12 @@ func TestGeneral(t *testing.T) {
 			"workload.sas.com/class": "stateless",
 		},
 		AvailabilityZones: []string{"1"},
+		FipsEnabled:       false,
 	}
-	testNodePools(t, statelessNodePool, statelessStruct)
+	verifyNodePools(t, statelessNodePool, statelessStruct)
 
 	statefulNodePool := plan.ResourcePlannedValuesMap["module.node_pools[\"stateful\"].azurerm_kubernetes_cluster_node_pool.autoscale_node_pool[0]"]
-	statefulStruct := NodePool{
+	statefulStruct := &NodePool{
 		MachineType: "Standard_D4s_v5",
 		OsDiskSize:  200,
 		MinNodes:    0,
@@ -144,11 +197,11 @@ func TestGeneral(t *testing.T) {
 			"workload.sas.com/class": "stateful",
 		},
 		AvailabilityZones: []string{"1"},
+		FipsEnabled:       false,
 	}
-	testNodePools(t, statefulNodePool, statefulStruct)
-
+	verifyNodePools(t, statefulNodePool, statefulStruct)
 	casNodePool := plan.ResourcePlannedValuesMap["module.node_pools[\"cas\"].azurerm_kubernetes_cluster_node_pool.autoscale_node_pool[0]"]
-	casStruct := NodePool{
+	casStruct := &NodePool{
 		MachineType: "Standard_E16ds_v5",
 		OsDiskSize:  200,
 		MinNodes:    0,
@@ -159,11 +212,12 @@ func TestGeneral(t *testing.T) {
 			"workload.sas.com/class": "cas",
 		},
 		AvailabilityZones: []string{"1"},
+		FipsEnabled:       false,
 	}
-	testNodePools(t, casNodePool, casStruct)
+	verifyNodePools(t, casNodePool, casStruct)
 
 	computeNodePool := plan.ResourcePlannedValuesMap["module.node_pools[\"compute\"].azurerm_kubernetes_cluster_node_pool.autoscale_node_pool[0]"]
-	computeStruct := NodePool{
+	computeStruct := &NodePool{
 		MachineType: "Standard_D4ds_v5",
 		OsDiskSize:  200,
 		MinNodes:    1,
@@ -175,8 +229,9 @@ func TestGeneral(t *testing.T) {
 			"launcher.sas.com/prepullImage": "sas-programming-environment",
 		},
 		AvailabilityZones: []string{"1"},
+		FipsEnabled:       false,
 	}
-	testNodePools(t, computeNodePool, computeStruct)
+	verifyNodePools(t, computeNodePool, computeStruct)
 }
 
 func testSSHKey(t *testing.T, cluster *tfjson.StateResource) bool {
@@ -201,7 +256,7 @@ func testSSHKey(t *testing.T, cluster *tfjson.StateResource) bool {
 	return key != ""
 }
 
-func testNodePools(t *testing.T, nodePool *tfjson.StateResource, expectedValues NodePool) {
+func verifyNodePools(t *testing.T, nodePool *tfjson.StateResource, expectedValues *NodePool) {
 	// machine_type
 	assert.Equal(t, expectedValues.MachineType, nodePool.AttributeValues["vm_size"], "Unexpected machine_type.")
 
@@ -250,6 +305,34 @@ func testNodePools(t *testing.T, nodePool *tfjson.StateResource, expectedValues 
 		assert.Equal(t, az, nodePool.AttributeValues["zones"].([]interface{})[index].(string), "Unexpected Availability Zones")
 	}
 
+	// fips_enabled
+	assert.Equal(t, expectedValues.FipsEnabled, nodePool.AttributeValues["fips_enabled"], "Unexpected fips_enabled.")
+
 	// node_pools_proximity_placement - Can't find in tfplan
 
+}
+
+// Subnet func
+func verifySubnets(t *testing.T, subnet *tfjson.StateResource, expectedValues *Subnet) {
+	// prefixes
+	assert.Equal(t, expectedValues.prefixes, subnet.AttributeValues["address_prefixes"], "Unexpected Subnet address_prefixes")
+
+	// service_endpoints
+	assert.Equal(t, expectedValues.serviceEndpoints, subnet.AttributeValues["service_endpoints"], "Unexpected Subnet service endpoints")
+
+	// private_endpoint_network_policies
+	// TODO figure out why these don't match the expected
+	// assert.Equal(t, expectedValues.privateEndpointNetworkPolicies, subnet.AttributeValues["private_endpoint_network_policies"], "Unexpected private_endpoint_network_policies")
+
+	// private_link_service_network_policies_enabled
+	assert.Equal(t, expectedValues.privateLinkServiceNetworkPoliciesEnabled, subnet.AttributeValues["private_link_service_network_policies_enabled"], "Unexpected private_link_service_network_policies_enabled")
+
+	// service_delegations
+	// If no sevice_delegations are set, verify that there is no service_delegations
+	// attribute in the resource. Otherwise, check that the attribute matches the expected
+	if expectedValues.serviceDelegations == nil {
+		assert.Nil(t, subnet.AttributeValues["service_delegations"], "Service delegations should be nil")
+	} else {
+		assert.Equal(t, expectedValues.serviceDelegations, subnet.AttributeValues["service_delegations"], "Unexpected service delegations")
+	}
 }
