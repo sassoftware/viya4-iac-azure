@@ -55,7 +55,7 @@ func TestDefaults(t *testing.T) {
 
 	// Create a temporary file in the default temp directory
 	planFileName := "testplan-" + uniquePrefix + ".tfplan"
-	planFilePath := filepath.Join("/tmp/", planFileName)
+	planFilePath := filepath.Join(os.TempDir(), planFileName)
 	defer os.Remove(planFilePath) // Ensure file is removed on exit
 	os.Create(planFilePath)
 
