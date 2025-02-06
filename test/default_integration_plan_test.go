@@ -102,6 +102,11 @@ func TestDefaults(t *testing.T) {
 	}
 	verifySubnets(t, plan.ResourcePlannedValuesMap["module.vnet.azurerm_subnet.subnet[\"misc\"]"], expectedMiscSubnet)
 
+	// cluster_egress_type
+	var expectedClusterEgressType interface{} = "loadBalancer"
+	egressType := cluster.AttributeValues["network_profile"]
+	actualEgressType := egressType.([]interface{})[0].(map[string]interface{})["outbound_type"]
+	assert.Equal(t, expectedClusterEgressType, actualEgressType, "Unexpected Cluster Egress Type")
 	// partner_id - Not present in tfplan
 
 	// create_static_kubeconfig
