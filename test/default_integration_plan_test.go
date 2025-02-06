@@ -108,6 +108,25 @@ func TestDefaults(t *testing.T) {
 	egressType := cluster.AttributeValues["network_profile"]
 	actualEgressType := egressType.([]interface{})[0].(map[string]interface{})["outbound_type"]
 	assert.Equal(t, expectedClusterEgressType, actualEgressType, "Unexpected Cluster Egress Type")
+
+	//aks_network_plugin
+	var expectedNetworkPlugin interface{} = "kubenet"
+	networkPlugin := cluster.AttributeValues["network_profile"]
+	actualNetworkPlugin := networkPlugin.([]interface{})[0].(map[string]interface{})["network_plugin"]
+	assert.Equal(t, expectedNetworkPlugin, actualNetworkPlugin, "Unexpected Network Plugin")
+
+	// aks_network_policy cannot be tested since it is set after the apply.
+	/*var expectedNetworkPolicy interface{} = "calico"
+	networkPolicy := cluster.AttributeValues["network_profile"]
+	actualNetworkPolicy := networkPolicy.([]interface{})[0].(map[string]interface{})["network_policy"]
+	assert.Equal(t, expectedNetworkPolicy, actualNetworkPolicy, "Unexpected Network Policy")
+
+	// aks_network_plugin_mode this cannot be tested since it defaults to null
+	/*var expectedNetworkPluginMode interface{} = "overlay"
+	networkPluginMode := cluster.AttributeValues["network_profile"]
+	actualNetworkPluginMode := networkPluginMode.([]interface{})[0].(map[string]interface{})["network_plugin_mode"]
+	assert.Equal(t, expectedNetworkPluginMode, actualNetworkPluginMode, "Unexpected Network Plugin Mode") */
+
 	// partner_id - Not present in tfplan
 
 	// create_static_kubeconfig
