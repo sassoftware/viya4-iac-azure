@@ -26,6 +26,7 @@ type NodePool struct {
 	NodeTaints        []string
 	NodeLabels        map[string]string
 	AvailabilityZones []string
+	FipsEnabled       bool
 }
 
 type Subnet struct {
@@ -180,6 +181,7 @@ func TestDefaults(t *testing.T) {
 			"workload.sas.com/class": "stateless",
 		},
 		AvailabilityZones: []string{"1"},
+		FipsEnabled:       false,
 	}
 	verifyNodePools(t, statelessNodePool, statelessStruct)
 
@@ -195,6 +197,7 @@ func TestDefaults(t *testing.T) {
 			"workload.sas.com/class": "stateful",
 		},
 		AvailabilityZones: []string{"1"},
+		FipsEnabled:       false,
 	}
 	verifyNodePools(t, statefulNodePool, statefulStruct)
 	casNodePool := plan.ResourcePlannedValuesMap["module.node_pools[\"cas\"].azurerm_kubernetes_cluster_node_pool.autoscale_node_pool[0]"]
@@ -209,6 +212,7 @@ func TestDefaults(t *testing.T) {
 			"workload.sas.com/class": "cas",
 		},
 		AvailabilityZones: []string{"1"},
+		FipsEnabled:       false,
 	}
 	verifyNodePools(t, casNodePool, casStruct)
 
@@ -225,6 +229,7 @@ func TestDefaults(t *testing.T) {
 			"launcher.sas.com/prepullImage": "sas-programming-environment",
 		},
 		AvailabilityZones: []string{"1"},
+		FipsEnabled:       false,
 	}
 	verifyNodePools(t, computeNodePool, computeStruct)
 }
@@ -299,6 +304,9 @@ func verifyNodePools(t *testing.T, nodePool *tfjson.StateResource, expectedValue
 	for index, az := range expectedValues.AvailabilityZones {
 		assert.Equal(t, az, nodePool.AttributeValues["zones"].([]interface{})[index].(string), "Unexpected Availability Zones")
 	}
+
+	// fips_enabled
+	assert.Equal(t, expectedValues.FipsEnabled, nodePool.AttributeValues["fips_enabled"], "Unexpected fips_enabled.")
 
 	// node_pools_proximity_placement - Can't find in tfplan
 
