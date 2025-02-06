@@ -9,4 +9,3 @@ repos:
 ci:
   autofix_prs: false
   autoupdate_commit_msg: "chore: auto-update of pre-commit hooks"
-  skip: [gitleaks]
