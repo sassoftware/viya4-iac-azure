@@ -251,6 +251,19 @@ func TestDefaults(t *testing.T) {
 		FipsEnabled:       false,
 	}
 	verifyNodePools(t, computeNodePool, computeStruct)
+
+	// storage_type
+	// when storage_type is standard, we should have nfs stuff
+	// make sure module.nfs[0].azurerm_linux_virtual_machine.vm exists
+	nfsVM := plan.ResourcePlannedValuesMap["module.nfs[0].azurerm_linux_virtual_machine.vm"]
+	assert.NotNil(t, nfsVM, "NFS VM should be created")
+
+	// create_nfs_public_ip
+	nfsPublicIP := plan.ResourcePlannedValuesMap["module.nfs[0].azurerm_public_ip.vm_ip[0]"]
+	assert.Nil(t, nfsPublicIP, "NFS Public IP should not be created when create_nfs_public_ip=false")
+
+	// enable_nfs_public_static_ip
+	// only used with create_nfs_public_ip=true
 }
 
 func testSSHKey(t *testing.T, cluster *tfjson.StateResource) bool {
