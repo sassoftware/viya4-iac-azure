@@ -48,4 +48,4 @@ jobs:
       - name: Check Results
         working-directory: test/test_output
         run: |
-          go run parse_results
+          go run parse_results.go
