@@ -26,7 +26,7 @@ jobs:
         working-directory: test
         run: |
           mkdir ~/.ssh
-          echo "${{ terraformSecrets.SSH_GITHUB }}" > ~/.ssh/id_rsa.pub
+          echo "${{ env.SSH_GITHUB }}" > ~/.ssh/id_rsa.pub
           chmod 600 ~/.ssh/id_rsa.pub
       - name: Run Tests
         working-directory: test
@@ -35,11 +35,11 @@ jobs:
           terratest_log_parser -testlog test_output.log -outputdir test_output
         env:
           # TF ENVIRONMENT
-          TF_VAR_subscription_id: "${{ terraformSecrets.TF_VAR_SUBSCRIPTION_ID }}"
-          TF_VAR_tenant_id: "${{ terraformSecrets.TF_VAR_TENANT_ID }}"
-          TF_VAR_client_id: "${{ terraformSecrets.TF_VAR_CLIENT_ID }}"
-          TF_VAR_client_secret: "${{ terraformSecrets.TF_VAR_CLIENT_SECRET }}"
-          TF_VAR_public_cidrs: "${{ terraformSecrets.TF_VAR_PUBLIC_ACCESS_CIDRS }}"
+          TF_VAR_subscription_id: "${{ env.TF_VAR_SUBSCRIPTION_ID }}"
+          TF_VAR_tenant_id: "${{ env.TF_VAR_TENANT_ID }}"
+          TF_VAR_client_id: "${{ env.TF_VAR_CLIENT_ID }}"
+          TF_VAR_client_secret: "${{ env.TF_VAR_CLIENT_SECRET }}"
+          TF_VAR_public_cidrs: "${{ env.TF_VAR_PUBLIC_ACCESS_CIDRS }}"
       - name: Show Test Results log
         working-directory: test
         run: |
