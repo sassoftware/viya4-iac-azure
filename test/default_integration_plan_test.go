@@ -163,6 +163,9 @@ func TestDefaults(t *testing.T) {
 	// jump_rwx_filestore_path
 	assert.Equal(t, "/viya-share", plan.RawPlan.OutputChanges["jump_rwx_filestore_path"].After.(string))
 
+	// prefix
+	assert.Equal(t, variables["prefix"], plan.RawPlan.OutputChanges["prefix"].After.(string))
+
 	// tags - defaults to empty so there is nothing to test. If we wanted to test it, this is how we would
 	// aksTags := cluster.AttributeValues["tags"]
 	// assert.Equal(t, aksTags, map[string]interface{}(map[string]interface{}{"test": "test"}), "Unexpected AKS Tags")
