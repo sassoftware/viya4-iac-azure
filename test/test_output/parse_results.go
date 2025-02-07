@@ -62,15 +62,6 @@ func main() {
 	for _, suite := range testSuites.TestSuites {
 		fmt.Printf("Suite: %s | Failures: %d\n", suite.Name, suite.Failures)
 		totalFailures += suite.Failures
-
-		for _, test := range suite.TestCases {
-			if test.Failure != nil {
-				fmt.Printf("[FAIL] %s - %s: %s\n", test.ClassName, test.Name, test.Failure.Message)
-			}
-			if test.Error != nil {
-				fmt.Printf("[ERROR] %s - %s: %s\n", test.ClassName, test.Name, test.Error.Message)
-			}
-		}
 	}
 
 	// If no failures, report success
