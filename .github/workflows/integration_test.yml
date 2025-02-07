@@ -7,6 +7,7 @@ jobs:
   go-tests:
     name: Integration Tests
     runs-on: ubuntu-latest
+    environment: terraformSecrets
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
@@ -26,20 +27,20 @@ jobs:
         working-directory: test
         run: |
           mkdir ~/.ssh
-          echo "${{ env.SSH_GITHUB }}" > ~/.ssh/id_rsa.pub
+          echo "${{ secrets.SSH_GITHUB }}" > ~/.ssh/id_rsa.pub
           chmod 600 ~/.ssh/id_rsa.pub
       - name: Run Tests
         working-directory: test
         run: |
-          go test -tags=integration_plan_tests -v -timeout 30m | tee test_output.log
+          go test default_integration_plan_test.go -v -timeout 30m | tee test_output.log
           terratest_log_parser -testlog test_output.log -outputdir test_output
         env:
           # TF ENVIRONMENT
-          TF_VAR_subscription_id: "${{ env.TF_VAR_SUBSCRIPTION_ID }}"
-          TF_VAR_tenant_id: "${{ env.TF_VAR_TENANT_ID }}"
-          TF_VAR_client_id: "${{ env.TF_VAR_CLIENT_ID }}"
-          TF_VAR_client_secret: "${{ env.TF_VAR_CLIENT_SECRET }}"
-          TF_VAR_public_cidrs: "${{ env.TF_VAR_PUBLIC_ACCESS_CIDRS }}"
+          TF_VAR_subscription_id: "${{ secrets.TF_VAR_SUBSCRIPTION_ID }}"
+          TF_VAR_tenant_id: "${{ secrets.TF_VAR_TENANT_ID }}"
+          TF_VAR_client_id: "${{ secrets.TF_VAR_CLIENT_ID }}"
+          TF_VAR_client_secret: "${{ secrets.TF_VAR_CLIENT_SECRET }}"
+          TF_VAR_public_cidrs: "${{ secrets.TF_VAR_PUBLIC_ACCESS_CIDRS }}"
       - name: Show Test Results log
         working-directory: test
         run: |
