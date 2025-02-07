@@ -77,6 +77,8 @@ func TestDefaults(t *testing.T) {
 	plan := terraform.InitAndPlanAndShowWithStruct(t, terraformOptions)
 	cluster := plan.ResourcePlannedValuesMap["module.aks.azurerm_kubernetes_cluster.aks"]
 
+	assert.False(t, true, "Dummy test failure")
+
 	// vnet_address_space
 	expectedVnetAddress := []interface{}{"192.168.0.0/16"}
 	vnetResource := plan.ResourcePlannedValuesMap["module.vnet.azurerm_virtual_network.vnet[0]"]
