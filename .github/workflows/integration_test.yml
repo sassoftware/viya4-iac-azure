@@ -32,8 +32,7 @@ jobs:
       - name: Run Tests
         working-directory: test
         run: |
-          go test default_integration_plan_test.go -timeout 30m >> test_output.log
-          cat test_output.log
+          go test default_integration_plan_test.go -timeout 30m | tee test_output.log
           terratest_log_parser -testlog test_output.log -outputdir test_output
         env:
           # TF ENVIRONMENT
@@ -46,3 +45,7 @@ jobs:
         working-directory: test
         run: |
           cat test_output/summary.log
+      - name: Check Results
+        working-directory: test/test_output
+        run: |
+          go run parse_results
