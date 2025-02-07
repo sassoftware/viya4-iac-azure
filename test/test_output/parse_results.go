@@ -67,7 +67,8 @@ func main() {
 	// If no failures, report success
 	if totalFailures == 0 {
 		fmt.Println("All tests passed successfully!")
+	} else {
+		// Send a non-zero exit code
+		os.Exit(1)
 	}
-	// Send a non-zero exit code
-	os.Exit(1)
 }
