@@ -1,0 +1,46 @@
+name: Integration Tests
+on:
+  push:
+    branches: ['**'] # '*' will cause the workflow to run on all commits to all branches.
+
+jobs:
+  go-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: 1.22
+      - uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.9.6
+          terraform_wrapper: false
+      - name: Install terratest_log_parser
+        run: |
+          go install github.com/gruntwork-io/terratest/cmd/terratest_log_parser@latest
+      - name: Download Go Modules
+        working-directory: test
+        run: go mod download
+      - name: Set ssh keys for github remote download
+        working-directory: test
+        run: |
+          mkdir ~/.ssh
+          echo "${{ terraformSecrets.SSH_GITHUB }}" > ~/.ssh/id_rsa.pub
+          chmod 600 ~/.ssh/id_rsa.pub
+      - name: Run Tests
+        working-directory: test
+        run: |
+          go test -tags=integration_plan_tests -v -timeout 30m | tee test_output.log
+          terratest_log_parser -testlog test_output.log -outputdir test_output
+        env:
+          # TF ENVIRONMENT
+          TF_VAR_subscription_id: "${{ terraformSecrets.TF_VAR_SUBSCRIPTION_ID }}"
+          TF_VAR_tenant_id: "${{ terraformSecrets.TF_VAR_TENANT_ID }}"
+          TF_VAR_client_id: "${{ terraformSecrets.TF_VAR_CLIENT_ID }}"
+          TF_VAR_client_secret: "${{ terraformSecrets.TF_VAR_CLIENT_SECRET }}"
+          TF_VAR_public_cidrs: "${{ terraformSecrets.TF_VAR_PUBLIC_ACCESS_CIDRS }}"
+      - name: Show Test Results log
+        working-directory: test
+        run: |
+          cat test_output/summary.log

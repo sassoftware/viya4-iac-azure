@@ -10,3 +10,6 @@ terraform.tfvars
 .DS_Store
 sas_iac_buildinfo.yaml
 .vscode
+test/bin
+test/pkg
+test/test_output
