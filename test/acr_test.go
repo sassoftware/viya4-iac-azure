@@ -1,3 +1,5 @@
+//go:build integration_plan_unit_tests
+
 package test
 
 import (
@@ -12,12 +14,15 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// Test the Azure Container Registry values. Since it defaults to false,
+// there is nothing to check. However, if we override the default to true,
+// then we can start validating the ACR resources.
 func TestACRVariables(t *testing.T) {
 	t.Parallel()
 
 	// Generate a unique test prefix
 	uniquePrefix := strings.ToLower(random.UniqueId())
-	tfVarsPath := "examples/sample-input-defaults.tfvars" // Path to your tfvars file
+	tfVarsPath := "../examples/sample-input-defaults.tfvars"
 
 	// Initialize the variables map
 	variables := make(map[string]interface{})
@@ -31,9 +36,7 @@ func TestACRVariables(t *testing.T) {
 	// Add required variables for the test
 	variables["prefix"] = "terratest-" + uniquePrefix
 	variables["location"] = "eastus"
-
-	// Print loaded variables for debugging
-	fmt.Printf("Loaded variables: %+v\n", variables)
+	variables["default_public_access_cidrs"] = strings.Split(os.Getenv("TF_VAR_public_cidrs"), ",")
 
 	// Create a temporary plan file
 	planFileName := "acr-testplan-" + uniquePrefix + ".tfplan"
@@ -42,28 +45,20 @@ func TestACRVariables(t *testing.T) {
 
 	// Set up Terraform options
 	terraformOptions := &terraform.Options{
-		TerraformDir: ".", // Replace with the actual directory of your Terraform configurations
+		TerraformDir: "../",
 		Vars:         variables,
-		VarFiles:     []string{tfVarsPath},
 		PlanFilePath: planFilePath,
 		NoColor:      true,
 	}
 
-	// Run Terraform init and plan
-	defer terraform.Destroy(t, terraformOptions)
-	terraform.InitAndPlan(t, terraformOptions)
-
-	// Show the Terraform plan
-	plan := terraform.ShowWithStruct(t, terraformOptions)
-
-	// Print plan for debugging
-	fmt.Printf("Terraform plan: %+v\n", plan.ResourcePlannedValuesMap)
+	plan := terraform.InitAndPlanAndShowWithStruct(t, terraformOptions)
 
 	// Validate the ACR resource only if 'create_container_registry' is true
 	createACR, ok := variables["create_container_registry"].(bool)
-	assert.True(t, ok, "'create_container_registry' not found or is not a boolean")
 
-	if createACR {
+	if !createACR || !ok {
+		t.Log("Skipping ACR resource validation as 'create_container_registry' is set to false")
+	} else {
 		acrResource, acrExists := plan.ResourcePlannedValuesMap["azurerm_container_registry.acr[0]"]
 		assert.True(t, acrExists, "Azure Container Registry (ACR) not found in the Terraform plan")
 

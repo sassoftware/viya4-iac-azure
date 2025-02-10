@@ -1,4 +1,4 @@
-// go:build integration_plan_unit_tests
+//go:build integration_plan_unit_tests
 
 package test
 
