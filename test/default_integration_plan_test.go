@@ -14,6 +14,7 @@ import (
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	tfjson "github.com/hashicorp/terraform-json"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 type NodePool struct {
@@ -56,8 +57,9 @@ func TestDefaults(t *testing.T) {
 	// Create a temporary file in the default temp directory
 	planFileName := "testplan-" + uniquePrefix + ".tfplan"
 	planFilePath := filepath.Join(os.TempDir(), planFileName)
+	_, err := os.Create(planFilePath)
+	require.Nil(t, err)
 	defer os.Remove(planFilePath) // Ensure file is removed on exit
-	os.Create(planFilePath)
 
 	// Configure Terraform setting up a path to Terraform code.
 	terraformOptions := &terraform.Options{
@@ -285,6 +287,7 @@ func TestDefaults(t *testing.T) {
 	// make sure module.nfs[0].azurerm_linux_virtual_machine.vm exists
 	nfsVM := plan.ResourcePlannedValuesMap["module.nfs[0].azurerm_linux_virtual_machine.vm"]
 	assert.NotNil(t, nfsVM, "NFS VM should be created")
+	assert.Equal(t, "nfsuser", nfsVM.AttributeValues["admin_username"], "Unexpected NFS Admin Username")
 
 	// create_nfs_public_ip
 	nfsPublicIP := plan.ResourcePlannedValuesMap["module.nfs[0].azurerm_public_ip.vm_ip[0]"]
@@ -292,6 +295,11 @@ func TestDefaults(t *testing.T) {
 
 	// enable_nfs_public_static_ip
 	// only used with create_nfs_public_ip=true
+
+	// aks
+	aks := plan.ResourcePlannedValuesMap["module.aks.azurerm_kubernetes_cluster.aks"]
+	aad_rbac := aks.AttributeValues["azure_active_directory_role_based_access_control"]
+	assert.Empty(t, aad_rbac, "Unexpected azure_active_directory_role_based_access_control; should be empty by default")
 }
 
 func testSSHKey(t *testing.T, cluster *tfjson.StateResource) bool {
