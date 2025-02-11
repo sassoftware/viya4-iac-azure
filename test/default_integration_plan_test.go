@@ -52,7 +52,8 @@ func TestDefaults(t *testing.T) {
 	//  add the required variables
 	variables["prefix"] = "terratest-" + uniquePrefix
 	variables["location"] = "eastus2"
-	variables["default_public_access_cidrs"] = strings.Split(os.Getenv("TF_VAR_public_cidrs"), ",")
+	// Using a dummy CIDR for testing purposes
+	variables["default_public_access_cidrs"] = []string{"123.45.67.89/16"}
 
 	// Create a temporary file in the default temp directory
 	planFileName := "testplan-" + uniquePrefix + ".tfplan"

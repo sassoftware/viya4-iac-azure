@@ -1,11 +1,11 @@
-name: Integration Tests
+name: Default Plan Unit Tests
 on:
   push:
     branches: ['**'] # '*' will cause the workflow to run on all commits to all branches.
 
 jobs:
   go-tests:
-    name: Integration Tests
+    name: Default Plan Unit Tests
     runs-on: ubuntu-latest
     environment: terraformSecrets
     steps:
@@ -41,7 +41,6 @@ jobs:
           TF_VAR_tenant_id: "${{ secrets.TF_VAR_TENANT_ID }}"
           TF_VAR_client_id: "${{ secrets.TF_VAR_CLIENT_ID }}"
           TF_VAR_client_secret: "${{ secrets.TF_VAR_CLIENT_SECRET }}"
-          TF_VAR_public_cidrs: "${{ secrets.TF_VAR_PUBLIC_ACCESS_CIDRS }}"
       - name: Show Test Results log
         working-directory: test
         run: |
