@@ -288,7 +288,7 @@ func TestDefaults(t *testing.T) {
 	nfsVM := plan.ResourcePlannedValuesMap["module.nfs[0].azurerm_linux_virtual_machine.vm"]
 	assert.NotNil(t, nfsVM, "NFS VM should be created")
 	assert.Equal(t, "nfsuser", nfsVM.AttributeValues["admin_username"], "Unexpected NFS Admin Username")
-	assert.Equal(t, "Standard_D4s_v5", nfsVM.AttributeValues["size"], "Unexpected NFS VM Type")
+	assert.Equal(t, "Standard_D4s_v5", nfsVM.AttributeValues["size"], "Unexpected NFS VM Size")
 
 	// create_nfs_public_ip
 	nfsPublicIP := plan.ResourcePlannedValuesMap["module.nfs[0].azurerm_public_ip.vm_ip[0]"]
