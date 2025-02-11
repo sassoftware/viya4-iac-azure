@@ -55,8 +55,6 @@ func TestDefaults(t *testing.T) {
 	// Using a dummy CIDR for testing purposes
 	variables["default_public_access_cidrs"] = []string{"123.45.67.89/16"}
 
-	assert.False(t, true, "Expected failure")
-
 	// Create a temporary file in the default temp directory
 	planFileName := "testplan-" + uniquePrefix + ".tfplan"
 	planFilePath := filepath.Join(os.TempDir(), planFileName)
