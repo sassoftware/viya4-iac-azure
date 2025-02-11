@@ -166,6 +166,31 @@ func TestDefaults(t *testing.T) {
 	// prefix
 	assert.Equal(t, variables["prefix"], plan.RawPlan.OutputChanges["prefix"].After.(string))
 
+	// location
+	// module.aks.data.azurerm_public_ip.cluster_public_ip[0] location is set after apply.
+	locationResources := []string{
+		"azurerm_network_security_group.nsg[0]",
+		"azurerm_resource_group.aks_rg[0]",
+		"azurerm_user_assigned_identity.uai[0]",
+		"module.aks.azurerm_kubernetes_cluster.aks",
+		"module.jump[0].azurerm_linux_virtual_machine.vm",
+		"module.jump[0].azurerm_network_interface.vm_nic",
+		"module.jump[0].azurerm_public_ip.vm_ip[0]",
+		"module.nfs[0].azurerm_linux_virtual_machine.vm",
+		"module.nfs[0].azurerm_managed_disk.vm_data_disk[0]",
+		"module.nfs[0].azurerm_managed_disk.vm_data_disk[1]",
+		"module.nfs[0].azurerm_managed_disk.vm_data_disk[2]",
+		"module.nfs[0].azurerm_managed_disk.vm_data_disk[3]",
+		"module.nfs[0].azurerm_network_interface.vm_nic",
+		"module.vnet.azurerm_virtual_network.vnet[0]",
+	}
+	for _, value := range locationResources {
+		locationResource := plan.ResourcePlannedValuesMap[value]
+		locationAttributes := locationResource.AttributeValues["location"]
+		assert.Equal(t, variables["location"], locationAttributes, "Unexpected location")
+	}
+	assert.Equal(t, variables["location"], plan.RawPlan.OutputChanges["location"].After.(string), "Unexpected location")
+
 	// tags - defaults to empty so there is nothing to test. If we wanted to test it, this is how we would
 	// aksTags := cluster.AttributeValues["tags"]
 	// assert.Equal(t, aksTags, map[string]interface{}(map[string]interface{}{"test": "test"}), "Unexpected AKS Tags")
