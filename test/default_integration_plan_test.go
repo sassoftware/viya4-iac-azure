@@ -4,6 +4,7 @@ package test
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -294,6 +295,22 @@ func TestDefaults(t *testing.T) {
 	// create_nfs_public_ip
 	nfsPublicIP := plan.ResourcePlannedValuesMap["module.nfs[0].azurerm_public_ip.vm_ip[0]"]
 	assert.Nil(t, nfsPublicIP, "NFS Public IP should not be created when create_nfs_public_ip=false")
+
+	// nfs_raid_disk_type
+	// when storage_type is standard, we should have four nfs data disks
+	// make sure all four module.nfs[0].azurerm_managed_disk.vm_data_disk[i] resources exist
+	for i := 0; i < 4; i++ {
+	    nfsDataDisk := plan.ResourcePlannedValuesMap[fmt.Sprintf("module.nfs[0].azurerm_managed_disk.vm_data_disk[%d]", i)]
+	    assert.NotNil(t, nfsDataDisk, fmt.Sprintf("NFS Data Disk %d should be created for NFS VM", i))
+
+	// make sure all four disks are using raid disk type Standard_LRS by default
+	    nfsDataDisk = plan.ResourcePlannedValuesMap[fmt.Sprintf("module.nfs[0].azurerm_managed_disk.vm_data_disk[%d]", i)]
+	    assert.Equal(t, "Standard_LRS", nfsDataDisk.AttributeValues["storage_account_type"], fmt.Sprintf("Unexpected NFS Raid Disk Type for disk %d", i))
+
+	// make sure all four disks have default disk size of 256 gb
+	    nfsDataDisk = plan.ResourcePlannedValuesMap[fmt.Sprintf("module.nfs[0].azurerm_managed_disk.vm_data_disk[%d]", i)]
+	    assert.Equal(t, float64(256), nfsDataDisk.AttributeValues["disk_size_gb"], fmt.Sprintf("Unexpected NFS Raid Disk Size in GB for disk %d", i))
+	}
 
 	// enable_nfs_public_static_ip
 	// only used with create_nfs_public_ip=true
