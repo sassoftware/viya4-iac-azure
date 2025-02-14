@@ -1,0 +1,7 @@
+services:
+  test:
+    build: .
+    volumes:
+      - ./../:/root/viya4iacazure
+    working_dir: /root/viya4iacazure/test
+    command: "go test default_integration_plan_test.go -timeout 30m"
