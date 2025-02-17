@@ -1,7 +1,10 @@
 FROM golang:1.23
 
-# todo download keyring from hashicorp and use it to verify
-# --mount=type=bind,source=hashicorp-gpg-keyring,target=/tmp/hashicorp-gpg-keyring
+# Create working directory and copy context into it
+WORKDIR /viya4-iac-azure
+COPY . .
+
+# Install terraform from apt repository
 RUN \
     apt-get update \
     && apt-get install -y jq lsb-release \
@@ -11,4 +14,13 @@ RUN \
         | tee /etc/apt/sources.list.d/hashicorp.list \
     && apt update \
     && apt install terraform \
-    && ssh-keygen -f ~/.ssh/id_rsa -P ""
+    && ssh-keygen -f ~/.ssh/id_rsa -P "" \
+    && chmod 755 /viya4-iac-azure/test/terratest_docker_entrypoint.sh \
+    && chmod g=u -R /etc/passwd /etc/group /viya4-iac-azure
+
+WORKDIR /viya4-iac-azure/test
+# Install go modules
+RUN go mod tidy
+
+# ENV terraform_docker_creds=${TF_VAR_docker_creds}
+ENTRYPOINT ["/viya4-iac-azure/test/terratest_docker_entrypoint.sh"]
