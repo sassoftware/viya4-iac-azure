@@ -15,7 +15,7 @@ jobs:
       - name: Run Tests
         working-directory: test
         run: |
-          docker run -v .azure_docker_creds:/.azure_docker_creds viya4-iac-azure:terratest
+          docker run viya4-iac-azure:terratest
         env:
           # TF ENVIRONMENT
           TF_VAR_subscription_id: "${{ secrets.TF_VAR_SUBSCRIPTION_ID }}"
