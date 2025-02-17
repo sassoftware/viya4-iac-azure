@@ -10,10 +10,12 @@ jobs:
     environment: terraformSecrets
     steps:
       - uses: actions/checkout@v4
+      - name: Build Docker Image
+        run: docker build -t viya4-iac-azure:terratest -f Dockerfile.terratest .
       - name: Run Tests
         working-directory: test
         run: |
-          docker compose run test
+          docker run -v .azure_docker_creds:/.azure_docker_creds viya4-iac-azure:terratest
         env:
           # TF ENVIRONMENT
           TF_VAR_subscription_id: "${{ secrets.TF_VAR_SUBSCRIPTION_ID }}"
