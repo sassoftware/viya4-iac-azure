@@ -15,7 +15,12 @@ jobs:
       - name: Run Tests
         working-directory: test
         run: |
-          docker run viya4-iac-azure:terratest
+          docker run \
+            -e TF_VAR_subscription_id=$TF_VAR_subscription_id \
+            -e TF_VAR_tenant_id=$TF_VAR_tenant_id \
+            -e TF_VAR_client_id=$TF_VAR_client_id \
+            -e TF_VAR_client_secret=$TF_VAR_client_secret \
+            viya4-iac-azure:terratest
         env:
           # TF ENVIRONMENT
           TF_VAR_subscription_id: "${{ secrets.TF_VAR_SUBSCRIPTION_ID }}"
