@@ -21,4 +21,7 @@ export TF_VAR_subscription_id=$TF_VAR_subscription_id
 # package - default to .
 # test name - default to *
 # build tags - default to integration_plan_unit_tests (name pending)
-exec go test -v . -run TestDefaults -tags integration_plan_unit_tests
+exec go test -v . -run TestDefaults -tags integration_plan_unit_tests | tee test_output.log
+terratest_log_parser -testlog test_output.log -outputdir test_output
+cd test_output
+go run parse_results.go
