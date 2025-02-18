@@ -25,7 +25,6 @@ func TestPlanACRDisabled(t *testing.T) {
 	assert.False(t, acrExists, "Azure Container Registry (ACR) present when it should not be")
 }
 
-// Test the Azure Container Registry values for the standard plan.
 func TestPlanACRStandard(t *testing.T) {
 	t.Parallel()
 
