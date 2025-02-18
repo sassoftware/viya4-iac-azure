@@ -1,7 +1,8 @@
+//go:build integration_plan_unit_tests
+
 package test
 
 import (
-	tfjson "github.com/hashicorp/terraform-json"
 	"os"
 	"path/filepath"
 	"strings"
@@ -9,6 +10,7 @@ import (
 
 	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/terraform"
+	tfjson "github.com/hashicorp/terraform-json"
 	"github.com/stretchr/testify/assert"
 )
 
