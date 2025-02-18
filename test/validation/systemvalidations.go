@@ -6,19 +6,13 @@
 package validation
 
 import (
-	//"fmt"
 	"os"
 	"path/filepath"
 	"testing"
 
-	//"github.com/spf13/afero"
+	"github.com/gruntwork-io/terratest/modules/terraform"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	//"sassoftware.io/viya/orchestration/internal/cmd"
-	//"sassoftware.io/viya/orchestration/pkg/constants"
-	//"sassoftware.io/viya/orchestration/pkg/library/filesystem"
-	//"sassoftware.io/viya/orchestration/pkg/library/test/common"
-	//"sassoftware.io/viya/orchestration/pkg/library/test/console"
-	//"sassoftware.io/viya/orchestration/pkg/library/utilities/hash"
 )
 
 // SystemValidations are the definitions for validating the result of
@@ -26,6 +20,8 @@ import (
 type SystemValidations struct {
 	// Args are the command line arguments to issue.
 	Args []string
+
+	Plan *terraform.PlanStruct
 
 	// ExecutionError indicates the validations to run against
 	// the golang error returned by the command execution. For
@@ -63,29 +59,6 @@ type SystemValidations struct {
 	// PreExecute is an array of functions to call, in order, after
 	// test setup but prior to the command execution.
 	PreExecute []func()
-
-	// ExternallyManagedDI indicates whether the dependency injection framework
-	// is being handled automatically as part of the standard command execution
-	// (false, the default), or is handled externally by the calling test
-	// (true).
-	ExternallyManagedDI bool
-}
-
-func systemValidationSetup(t *testing.T) func() {
-	//suffix := fmt.Sprintf("%v", hash.Hex16(t.Name()))
-	//workdir := filepath.Join(os.TempDir(), "system-validation", suffix)
-	//exists, err := pathExists(workdir)
-	//require.NoError(t, err)
-	//if exists == true {
-	//	err = os.RemoveAll(workdir)
-	//	require.NoError(t, err, "Context: attempting to remove '%s'", workdir)
-	//}
-	//vb := common.NewVariableBag()
-	//vb = vb.WithVariable(constants.OperatorWorkDirectoryKey, workdir)
-	//vb.SetEnvironment(t)
-	return func() {
-		//vb.ResetEnvironment(t)
-	}
 }
 
 func pathExists(path string) (bool, error) {
@@ -102,39 +75,13 @@ func pathExists(path string) (bool, error) {
 
 // Execute runs the test.
 func (sv *SystemValidations) Execute(t *testing.T) {
-	cleanup := systemValidationSetup(t)
-	defer cleanup()
-	//err := common.CleanTestOutputDir(t.Name())
-	//if err != nil {
-	//	t.Fatal(err.Error())
-	//	return
-	//}
-	//common.TestSetup()
-	//defer common.TestTeardown()
-	for _, f := range sv.PreExecute {
-		f()
-	}
-	os.Args = sv.Args
-	//err = console.BeginCapture()
-	//if err != nil {
-	//	t.Fatal(err.Error())
-	//	return
-	//}
-	//if sv.ExternallyManagedDI == true {
-	//	err = cmd.ExecuteOnly(constants.DefaultBuildVersion)
-	//} else {
-	//	err = cmd.Execute(constants.DefaultBuildVersion)
-	//}
-	//stdout, stderr, captureErr := console.EndCapture()
-	//if captureErr != nil {
-	//	t.Fatal(captureErr.Error())
-	//	return
-	//}
-	//sv.ExecutionError.Execute(t, err, "Context: execution error")
-	//sv.Stdout.Execute(t, stdout, "Context: stdout")
-	//sv.Stderr.Execute(t, stderr, "Context: stderr")
-	//
-	//sv.runFsChecks(t, stdout)
+	cluster := sv.Plan.ResourcePlannedValuesMap["module.aks.azurerm_kubernetes_cluster.aks"]
+	assert.NotNil(t, cluster)
+	// vnet_address_space
+	expectedVnetAddress := []interface{}{"192.168.0.0/16"}
+	vnetResource := sv.Plan.ResourcePlannedValuesMap["module.vnet.azurerm_virtual_network.vnet[0]"]
+	vnetAttributes := vnetResource.AttributeValues["address_space"].([]interface{})
+	assert.Equal(t, expectedVnetAddress, vnetAttributes)
 }
 
 func (sv *SystemValidations) runFsChecks(t *testing.T, stdout string) {
