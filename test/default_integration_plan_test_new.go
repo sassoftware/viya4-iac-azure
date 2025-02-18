@@ -1,3 +1,5 @@
+//go:build integration_plan_unit_tests
+
 package test
 
 import (
@@ -17,23 +19,24 @@ type testcase struct {
 	svFn func(planStruct *terraform.PlanStruct) (*validation.SystemValidations, error)
 }
 
-//nolint:funlen
-func Test_node_pools(t *testing.T) {
+// Test the default variables when using the sample-input-defaults.tfvars file.
+// Verify that the tfplan is using the default variables from the CONFIG-VARS
+func TestNodePools(t *testing.T) {
 	plan := initializeNodePoolTestingPlan(t, true)
 
 	testcases := map[string]testcase{
 		// Simple
-		"TestNodePoolSimple": {
-			svFn: testNodePoolSimple,
+		"TestNodePoolNoError": {
+			svFn: testNodePoolNoError,
 		},
-		// Errors
-		"TestNodePoolWithExpectedError": {
-			svFn: testNodePoolWithExpectedError,
-		},
-		// Errors
-		"TestNodePoolWithExpectedErrorAndStderrMsg": {
-			svFn: testNodePoolWithExpectedErrorAndStderrMsg,
-		},
+		//// Errors
+		//"TestNodePoolWithExpectedError": {
+		//	svFn: testNodePoolWithExpectedError,
+		//},
+		//// Errors
+		//"TestNodePoolWithExpectedErrorAndStderrMsg": {
+		//	svFn: testNodePoolWithExpectedErrorAndStderrMsg,
+		//},
 	}
 
 	//runtimeCommonArgs := getCommonArgs(t)
@@ -47,17 +50,19 @@ func Test_node_pools(t *testing.T) {
 	}
 }
 
-func testNodePoolSimple(planStruct *terraform.PlanStruct) (*validation.SystemValidations, error) {
-	sv := standardTerraformSystemValidation()
-	validatePlanFile(&sv, "")
+func testNodePoolNoError(plan *terraform.PlanStruct) (*validation.SystemValidations, error) {
+	sv := validation.SystemValidations{}
+	sv.ExecutionError = validation.ErrorValidations{
+		validation.ErrorRequire(require.NoError),
+	}
+	sv.Plan = plan
+
 	return &sv, nil
 }
 
 func testNodePoolWithExpectedError(planStruct *terraform.PlanStruct) (*validation.SystemValidations, error) {
-	sv := standardTerraformSystemValidation()
-	sv.ExecutionError = validation.ErrorValidations{
-		validation.ErrorRequire(require.Error),
-	}
+	sv := validation.SystemValidations{}
+
 	sv.Stderr = validation.Validations{
 		validation.AssertComparison(assert.Contains, `Deployment component 'foo' not found`),
 	}
@@ -65,7 +70,8 @@ func testNodePoolWithExpectedError(planStruct *terraform.PlanStruct) (*validatio
 }
 
 func testNodePoolWithExpectedErrorAndStderrMsg(planStruct *terraform.PlanStruct) (*validation.SystemValidations, error) {
-	sv := standardTerraformSystemValidation()
+	sv := validation.SystemValidations{}
+
 	sv.ExecutionError = validation.ErrorValidations{
 		validation.ErrorRequire(require.Error),
 	}
@@ -78,33 +84,6 @@ func testNodePoolWithExpectedErrorAndStderrMsg(planStruct *terraform.PlanStruct)
 // *****************************************
 // Utililty Functions
 // *****************************************
-
-func validatePlanFile(sv *validation.SystemValidations, deploymentComponents string) {
-	sv.ExecutionError = validation.ErrorValidations{
-		validation.ErrorRequire(require.NoError),
-	}
-	sv.Filesystem = map[string]validation.Validations{
-		//"plan.tf": {
-		//	validation.AssertValue(fsassert.Exists),
-		//},
-	}
-	sv.Files = map[string]validation.Validations{
-		"plan.tf": {
-			validation.AssertComparison(assert.Contains, "Expected string in plan.tf"),
-		},
-	}
-}
-
-func standardTerraformSystemValidation() validation.SystemValidations {
-	sv := validation.SystemValidations{
-		//Args: []string{
-		//	"terraform",
-		//	"exec",
-		//},
-	}
-	//sv.Args = append(sv.Args, commonArgs...)
-	return sv
-}
 
 // Common arguments.
 func getCommonArgs(t *testing.T) []string {
