@@ -1,5 +1,3 @@
-//go:build integration_plan_unit_tests
-
 package test
 
 import (
@@ -19,6 +17,30 @@ type testcase struct {
 	svFn func(planStruct *terraform.PlanStruct) (*validation.SystemValidations, error)
 }
 
+// *****************************************
+// Registered Test Functions
+// *****************************************
+
+func VnetCompareFunc(t *testing.T, actual interface{}, messages ...interface{}) {
+	// vnet_address_space
+	expectedVnetAddress := []interface{}{"192.168.0.0/16"}
+	plan := actual.(*terraform.PlanStruct)
+	vnetResource := plan.ResourcePlannedValuesMap["module.vnet.azurerm_virtual_network.vnet[0]"]
+	vnetAttributes := vnetResource.AttributeValues["address_space"].([]interface{})
+	//t.Log(actualVnet, expectedVnet, messages)
+	assert.Equal(t, expectedVnetAddress, vnetAttributes)
+}
+
+func NodeVmAdminCompareFunc(t *testing.T, actual interface{}, messages ...interface{}) {
+	expectedNodeVMAdmin := "azureuser"
+	plan := actual.(*terraform.PlanStruct)
+	cluster := plan.ResourcePlannedValuesMap["module.aks.azurerm_kubernetes_cluster.aks"]
+	nodeVMAdmin := cluster.AttributeValues["linux_profile"]
+	actualNodeVMAdmin := nodeVMAdmin.([]interface{})[0].(map[string]interface{})["admin_username"]
+	//t.Log(actualNodeVMAdmin, expectedNodeVMAdmin, messages)
+	assert.Equal(t, expectedNodeVMAdmin, actualNodeVMAdmin, "Unexpected Node VM Admin User")
+}
+
 // Test the default variables when using the sample-input-defaults.tfvars file.
 // Verify that the tfplan is using the default variables from the CONFIG-VARS
 func TestNodePools(t *testing.T) {
@@ -26,8 +48,8 @@ func TestNodePools(t *testing.T) {
 
 	testcases := map[string]testcase{
 		// Simple
-		"TestNodePoolNoError": {
-			svFn: testNodePoolNoError,
+		"TestPlan": {
+			svFn: testPlan,
 		},
 		//// Errors
 		//"TestNodePoolWithExpectedError": {
@@ -43,6 +65,7 @@ func TestNodePools(t *testing.T) {
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
+			// create a SystemValidation instance with actual values
 			sv, err := tc.svFn(plan)
 			require.NoError(t, err)
 			sv.Execute(t)
@@ -50,22 +73,25 @@ func TestNodePools(t *testing.T) {
 	}
 }
 
-func testNodePoolNoError(plan *terraform.PlanStruct) (*validation.SystemValidations, error) {
+func testPlan(plan *terraform.PlanStruct) (*validation.SystemValidations, error) {
 	sv := validation.SystemValidations{}
 	sv.ExecutionError = validation.ErrorValidations{
 		validation.ErrorRequire(require.NoError),
 	}
 	sv.Plan = plan
 
+	//sv.PlanValidations = validation.Validations{
+	//	validation.AssertComparison(assert.Equal, expectedVnetAddress),
+	//}
+	sv.PlanValidations = validation.Validations{
+		VnetCompareFunc,
+		NodeVmAdminCompareFunc,
+	}
 	return &sv, nil
 }
 
 func testNodePoolWithExpectedError(planStruct *terraform.PlanStruct) (*validation.SystemValidations, error) {
 	sv := validation.SystemValidations{}
-
-	sv.Stderr = validation.Validations{
-		validation.AssertComparison(assert.Contains, `Deployment component 'foo' not found`),
-	}
 	return &sv, nil
 }
 
@@ -74,9 +100,6 @@ func testNodePoolWithExpectedErrorAndStderrMsg(planStruct *terraform.PlanStruct)
 
 	sv.ExecutionError = validation.ErrorValidations{
 		validation.ErrorRequire(require.Error),
-	}
-	sv.Stderr = validation.Validations{
-		//validation.AssertComparison(assert.Contains, `Expected error message`),
 	}
 	return &sv, nil
 }
