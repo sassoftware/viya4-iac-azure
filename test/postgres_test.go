@@ -125,6 +125,17 @@ func TestPostgresServers(t *testing.T) {
 	// Validate the inferred connectivity method
 	assert.Equal(t, expectedConnectivity, actualConnectivity, "Mismatch in inferred Connectivity Method")
 
-	// Validate PostgreSQL Configuration
+	//validate postgresql_configurations
+	postgresConfig := plan.ResourcePlannedValuesMap["module.flex_postgresql[\"default\"].azurerm_postgresql_flexible_server_configuration.flexpsql[\"max_prepared_transactions\"]"]
+	assert.NotNil(t, postgresConfig, "PostgreSQL Configuration for max_prepared_transactions should exist")
 
+	// Validate name attribute
+	expectedConfigName := "max_prepared_transactions"
+	actualConfigName := postgresConfig.AttributeValues["name"].(string)
+	assert.Equal(t, expectedConfigName, actualConfigName, "Mismatch in PostgreSQL Configuration Name")
+
+	// Validate value attribute
+	expectedConfigValue := "1024"
+	actualConfigValue := postgresConfig.AttributeValues["value"].(string)
+	assert.Equal(t, expectedConfigValue, actualConfigValue, "Mismatch in max_prepared_transactions configuration value")
 }
