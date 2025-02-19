@@ -43,13 +43,13 @@ func NodeVmAdminCompareFunc(t *testing.T, actual interface{}, messages ...interf
 
 // Test the default variables when using the sample-input-defaults.tfvars file.
 // Verify that the tfplan is using the default variables from the CONFIG-VARS
-func TestNodePools(t *testing.T) {
-	plan := initializeNodePoolTestingPlan(t, true)
+func TestPlanDefaults(t *testing.T) {
+	plan := initializeDefaultTestingPlan(t, true)
 
 	testcases := map[string]testcase{
 		// Simple
-		"TestPlan": {
-			svFn: testPlan,
+		"TestPlanDefaults": {
+			svFn: testPlanDefaults,
 		},
 		//// Errors
 		//"TestNodePoolWithExpectedError": {
@@ -61,28 +61,28 @@ func TestNodePools(t *testing.T) {
 		//},
 	}
 
-	//runtimeCommonArgs := getCommonArgs(t)
-
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
 			// create a SystemValidation instance with actual values
+			// and validation functions to be called by the 'sv.Execute()'
 			sv, err := tc.svFn(plan)
 			require.NoError(t, err)
+			// run the registered validation functions
 			sv.Execute(t)
 		})
 	}
 }
 
-func testPlan(plan *terraform.PlanStruct) (*validation.SystemValidations, error) {
+// Create a SystemValidations instance for defaults testing.
+// Add the validation functions to the SystemValidations
+// to validate the many expected default values
+func testPlanDefaults(plan *terraform.PlanStruct) (*validation.SystemValidations, error) {
 	sv := validation.SystemValidations{}
 	sv.ExecutionError = validation.ErrorValidations{
 		validation.ErrorRequire(require.NoError),
 	}
 	sv.Plan = plan
 
-	//sv.PlanValidations = validation.Validations{
-	//	validation.AssertComparison(assert.Equal, expectedVnetAddress),
-	//}
 	sv.PlanValidations = validation.Validations{
 		VnetCompareFunc,
 		NodeVmAdminCompareFunc,
@@ -113,7 +113,7 @@ func getCommonArgs(t *testing.T) []string {
 	return []string{}
 }
 
-func initializeNodePoolTestingPlan(t *testing.T, setVariable bool) *terraform.PlanStruct {
+func initializeDefaultTestingPlan(t *testing.T, setVariable bool) *terraform.PlanStruct {
 	uniquePrefix := strings.ToLower(random.UniqueId())
 	p := "../examples/sample-input-defaults.tfvars"
 
