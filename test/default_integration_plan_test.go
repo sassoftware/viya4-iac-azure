@@ -77,7 +77,7 @@ func TestDefaults(t *testing.T) {
 		// Remove color codes to clean up output
 		NoColor: true,
 	}
-	assert.False(t, true, "expected failure")
+
 	plan := terraform.InitAndPlanAndShowWithStruct(t, terraformOptions)
 	cluster := plan.ResourcePlannedValuesMap["module.aks.azurerm_kubernetes_cluster.aks"]
 
