@@ -9,16 +9,21 @@ import (
 	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/gruntwork-io/terratest/modules/testing"
+	tfjson "github.com/hashicorp/terraform-json"
 	"k8s.io/client-go/util/jsonpath"
 )
 
 func getJsonPathFromResourcePlannedValuesMap(plan *terraform.PlanStruct, resourceMapName string, jsonPath string) string {
+	valuesMap := plan.ResourcePlannedValuesMap[resourceMapName]
+	return getJsonPathFromStateResource(valuesMap, jsonPath)
+}
+
+func getJsonPathFromStateResource(resource *tfjson.StateResource, jsonPath string) string {
 	j := jsonpath.New("PlanParser")
 	j.AllowMissingKeys(true)
-	valuesMap := plan.ResourcePlannedValuesMap[resourceMapName]
 	j.Parse(jsonPath)
 	buf := new(bytes.Buffer)
-	j.Execute(buf, valuesMap.AttributeValues)
+	j.Execute(buf, resource.AttributeValues)
 	out := buf.String()
 	return out
 }
