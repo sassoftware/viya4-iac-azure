@@ -77,7 +77,7 @@ func TestDefaults(t *testing.T) {
 		// Remove color codes to clean up output
 		NoColor: true,
 	}
-
+	assert.False(t, true, "expected failure")
 	plan := terraform.InitAndPlanAndShowWithStruct(t, terraformOptions)
 	cluster := plan.ResourcePlannedValuesMap["module.aks.azurerm_kubernetes_cluster.aks"]
 
@@ -321,6 +321,7 @@ func TestDefaults(t *testing.T) {
 
 	// aks
 	aks := plan.ResourcePlannedValuesMap["module.aks.azurerm_kubernetes_cluster.aks"]
+
 	aad_rbac := aks.AttributeValues["azure_active_directory_role_based_access_control"]
 	assert.Empty(t, aad_rbac, "Unexpected azure_active_directory_role_based_access_control; should be empty by default")
 }
