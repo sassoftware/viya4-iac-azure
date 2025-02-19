@@ -26,6 +26,10 @@ func TestPostgresServers(t *testing.T) {
 	// Add required test variables
 	variables["prefix"] = "terratest-" + uniquePrefix
 	variables["location"] = "eastus2"
+	variables["postgres_servers"] = map[string]interface{}{
+		"default": map[string]interface{}{},
+	}
+	variables["default_public_access_cidrs"] = []string{"123.45.67.89/16"}
 
 	// Create a temporary Terraform plan file
 	planFileName := "testplan-" + uniquePrefix + ".tfplan"
@@ -117,11 +121,6 @@ func TestPostgresServers(t *testing.T) {
 	if vnetExists && vnetAttr != nil {
 		actualConnectivity = "private"
 	}
-
-	// Debugging output
-	//fmt.Println("virtual_network_id Exists:", vnetExists)
-	//fmt.Println("Inferred Connectivity Method:", actualConnectivity)
-
 	// Validate the inferred connectivity method
 	assert.Equal(t, expectedConnectivity, actualConnectivity, "Mismatch in inferred Connectivity Method")
 
