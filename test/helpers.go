@@ -53,7 +53,7 @@ func getDefaultPlanVars(t *testing.T) map[string]interface{} {
 
 	variables["prefix"] = "terratest-" + uniquePrefix
 	variables["location"] = "eastus"
-	variables["default_public_access_cidrs"] = strings.Split(os.Getenv("TF_VAR_public_cidrs"), ",")
+	variables["default_public_access_cidrs"] = "111.111.111.111/16"
 
 	return variables
 }
