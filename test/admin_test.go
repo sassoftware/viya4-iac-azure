@@ -1,7 +1,6 @@
 package test
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -26,6 +25,8 @@ func TestAdminAccess(t *testing.T) {
 	// Add required test variables
 	variables["prefix"] = "terratest-" + uniquePrefix
 	variables["location"] = "eastus2"
+	// Using a dummy CIDR for testing purposes
+	variables["default_public_access_cidrs"] = []string{"123.45.67.89/16"}
 
 	// Create a temporary Terraform plan file
 	planFileName := "testplan-" + uniquePrefix + ".tfplan"
@@ -41,11 +42,6 @@ func TestAdminAccess(t *testing.T) {
 	}
 
 	plan := terraform.InitAndPlanAndShowWithStruct(t, terraformOptions)
-
-	// Debugging: Print the keys of ResourcePlannedValuesMap
-	for key := range plan.ResourcePlannedValuesMap {
-		fmt.Println("Resource key:", key)
-	}
 
 	actualDefaultCidr, hasDefaultCidr := plan.RawPlan.Variables["default_public_access_cidrs"]
 	actualClusterCidr, hasClusterCidr := plan.RawPlan.Variables["cluster_endpoint_public_access_cidrs"]
