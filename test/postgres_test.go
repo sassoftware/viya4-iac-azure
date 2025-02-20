@@ -1,7 +1,6 @@
 package test
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -45,11 +44,6 @@ func TestPostgresServers(t *testing.T) {
 	}
 
 	plan := terraform.InitAndPlanAndShowWithStruct(t, terraformOptions)
-
-	// Print the keys of ResourcePlannedValuesMap for debugging
-	for key := range plan.ResourcePlannedValuesMap {
-		fmt.Println("Resource key:", key)
-	}
 
 	// Validate PostgreSQL servers in Terraform plan
 	postgresDefault := plan.ResourcePlannedValuesMap["module.flex_postgresql[\"default\"].azurerm_postgresql_flexible_server.flexpsql"]
