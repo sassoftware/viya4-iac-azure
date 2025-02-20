@@ -10,8 +10,8 @@ terratest_help() {
   echo "Usage: terratest_docker_entrypoint.sh [OPTIONS]"
   echo "Options:"
   echo "  -p, --package=PACKAGE        The package to test. Default is '.'"
-  echo "  -t, --testname=TEST          The name of the test to run. Default is 'TestDefaults'"
-  echo "  -b, --build-tags=TAGS        The build tags to use. Default is 'integration_plan_unit_tests'"
+  echo "  -n, --testname=TEST          The name of the test to run. Default is 'TestDefaults'"
+  echo "  -t, --build-tags=TAGS        The tags to use when running the tests. Default is 'integration_plan_unit_tests'"
   echo "  -v, --verbose                Run the tests in verbose mode"
   echo "  -h, --help                   Display this help message"
 }
@@ -26,11 +26,11 @@ for i in "$@"; do
       PACKAGE="${i#*=}"
       shift # past argument=value
       ;;
-    -t=*|--testname=*)
+    -n=*|--testname=*)
       TEST="${i#*=}"
       shift # past argument=value
       ;;
-    -b=*|--build-tags=*)
+    -t=*|--build-tags=*)
       TAGS="${i#*=}"
       shift # past argument=value
       ;;
@@ -64,12 +64,6 @@ if [ -z "$TAGS" ]; then
 fi
 if [ -z "$VERBOSE" ]; then
   VERBOSE=""
-fi
-
-# If the credentials file exists, source it. Otherwise, the environment variables
-# will be set by the command line arguments.
-if [ -f "/.azure_docker_creds.env" ]; then
-    . /.azure_docker_creds.env
 fi
 
 # Export the varibles that were sourced
