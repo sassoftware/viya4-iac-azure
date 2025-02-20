@@ -13,32 +13,36 @@ import (
 	"test/validation"
 )
 
-type testcase struct {
-	svFn func(planStruct *terraform.PlanStruct) (*validation.SystemValidations, error)
+type TestParams struct {
+	Expected  interface{}
+	Retriever Retriever
 }
 
+// A Retriever is a function that retrieves a value from a plan.
+type Retriever func(*terraform.PlanStruct) interface{}
+
+var (
+	tests = map[string]TestParams{
+		"vnetTest":        {Expected: "192.168.0.0/16", Retriever: vnetRetriever},
+		"nodeVmAdminTest": {Expected: "azureuser", Retriever: nodeVmAdminRetriever},
+	}
+)
+
 // *****************************************
-// Registered Test Functions
+// Retriever Functions
 // *****************************************
 
-func VnetCompareFunc(t *testing.T, actual interface{}, messages ...interface{}) {
-	// vnet_address_space
-	expectedVnetAddress := []interface{}{"192.168.0.0/16"}
-	plan := actual.(*terraform.PlanStruct)
+func vnetRetriever(plan *terraform.PlanStruct) interface{} {
 	vnetResource := plan.ResourcePlannedValuesMap["module.vnet.azurerm_virtual_network.vnet[0]"]
 	vnetAttributes := vnetResource.AttributeValues["address_space"].([]interface{})
-	//t.Log(actualVnet, expectedVnet, messages)
-	assert.Equal(t, expectedVnetAddress, vnetAttributes)
+	return vnetAttributes[0]
 }
 
-func NodeVmAdminCompareFunc(t *testing.T, actual interface{}, messages ...interface{}) {
-	expectedNodeVMAdmin := "azureuser"
-	plan := actual.(*terraform.PlanStruct)
+func nodeVmAdminRetriever(plan *terraform.PlanStruct) interface{} {
 	cluster := plan.ResourcePlannedValuesMap["module.aks.azurerm_kubernetes_cluster.aks"]
 	nodeVMAdmin := cluster.AttributeValues["linux_profile"]
-	actualNodeVMAdmin := nodeVMAdmin.([]interface{})[0].(map[string]interface{})["admin_username"]
-	//t.Log(actualNodeVMAdmin, expectedNodeVMAdmin, messages)
-	assert.Equal(t, expectedNodeVMAdmin, actualNodeVMAdmin, "Unexpected Node VM Admin User")
+	actualNodeVmAdmin := nodeVMAdmin.([]interface{})[0].(map[string]interface{})["admin_username"]
+	return actualNodeVmAdmin
 }
 
 // Test the default variables when using the sample-input-defaults.tfvars file.
@@ -46,72 +50,20 @@ func NodeVmAdminCompareFunc(t *testing.T, actual interface{}, messages ...interf
 func TestPlanDefaults(t *testing.T) {
 	plan := initializeDefaultTestingPlan(t, true)
 
-	testcases := map[string]testcase{
-		// Simple
-		"TestPlanDefaults": {
-			svFn: testPlanDefaults,
-		},
-		//// Errors
-		//"TestNodePoolWithExpectedError": {
-		//	svFn: testNodePoolWithExpectedError,
-		//},
-		//// Errors
-		//"TestNodePoolWithExpectedErrorAndStderrMsg": {
-		//	svFn: testNodePoolWithExpectedErrorAndStderrMsg,
-		//},
-	}
-
-	for name, tc := range testcases {
+	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
-			// create a SystemValidation instance with actual values
-			// and validation functions to be called by the 'sv.Execute()'
-			sv, err := tc.svFn(plan)
-			require.NoError(t, err)
-			// run the registered validation functions
-			sv.Execute(t)
+			validateFn := validation.AssertComparison(assert.Equal, tc.Expected)
+			retrieverFn := tc.Retriever
+			actual := retrieverFn(plan)
+			validateFn(t, actual)
 		})
 	}
-}
 
-// Create a SystemValidations instance for defaults testing.
-// Add the validation functions to the SystemValidations
-// to validate the many expected default values
-func testPlanDefaults(plan *terraform.PlanStruct) (*validation.SystemValidations, error) {
-	sv := validation.SystemValidations{}
-	sv.ExecutionError = validation.ErrorValidations{
-		validation.ErrorRequire(require.NoError),
-	}
-	sv.Plan = plan
-
-	sv.PlanValidations = validation.Validations{
-		VnetCompareFunc,
-		NodeVmAdminCompareFunc,
-	}
-	return &sv, nil
-}
-
-func testNodePoolWithExpectedError(planStruct *terraform.PlanStruct) (*validation.SystemValidations, error) {
-	sv := validation.SystemValidations{}
-	return &sv, nil
-}
-
-func testNodePoolWithExpectedErrorAndStderrMsg(planStruct *terraform.PlanStruct) (*validation.SystemValidations, error) {
-	sv := validation.SystemValidations{}
-
-	sv.ExecutionError = validation.ErrorValidations{
-		validation.ErrorRequire(require.Error),
-	}
-	return &sv, nil
 }
 
 // *****************************************
 // Utililty Functions
 // *****************************************
-
-// Common arguments.
-func getCommonArgs(t *testing.T) []string {
-	return []string{}
-}
 
 func initializeDefaultTestingPlan(t *testing.T, setVariable bool) *terraform.PlanStruct {
 	uniquePrefix := strings.ToLower(random.UniqueId())
