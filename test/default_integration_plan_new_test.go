@@ -14,8 +14,9 @@ import (
 )
 
 type TestParams struct {
-	Expected  interface{}
-	Retriever Retriever
+	Expected       interface{}
+	Retriever      Retriever
+	AssertFunction assert.ComparisonAssertionFunc
 }
 
 // A Retriever is a function that retrieves a value from a plan.
@@ -23,8 +24,8 @@ type Retriever func(*terraform.PlanStruct) interface{}
 
 var (
 	tests = map[string]TestParams{
-		"vnetTest":        {Expected: "192.168.0.0/16", Retriever: vnetRetriever},
-		"nodeVmAdminTest": {Expected: "azureuser", Retriever: nodeVmAdminRetriever},
+		"vnetTest":        {Expected: "192.168.0.0/16", Retriever: vnetRetriever, AssertFunction: assert.Equal},
+		"nodeVmAdminTest": {Expected: "azureuser", Retriever: nodeVmAdminRetriever, AssertFunction: assert.Equal},
 	}
 )
 
@@ -52,7 +53,7 @@ func TestPlanDefaults(t *testing.T) {
 
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
-			validateFn := validation.AssertComparison(assert.Equal, tc.Expected)
+			validateFn := validation.AssertComparison(tc.AssertFunction, tc.Expected)
 			retrieverFn := tc.Retriever
 			actual := retrieverFn(plan)
 			validateFn(t, actual)
