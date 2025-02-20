@@ -1,5 +1,3 @@
-//go:build integration_plan_unit_tests
-
 package test
 
 import (
@@ -326,24 +324,8 @@ func TestDefaults(t *testing.T) {
 }
 
 func testSSHKey(t *testing.T, cluster *tfjson.StateResource) bool {
-	// Get the linux profile object and cast it to map[string]interface{}
-	linuxProfile, ok := cluster.AttributeValues["linux_profile"].([]interface{})[0].(map[string]interface{})
-	if !ok {
-		t.Log("linux_profile not found in cluster resources. Failing test")
-		return false
-	}
-	// Get the ssh_key object and cast it to interface{}(string)
-	keyData, ok := linuxProfile["ssh_key"].([]interface{})[0].(map[string]interface{})["key_data"]
-	if !ok {
-		t.Log("ssh_key not found in linux_profile. Failing test")
-		return false
-	}
-	// Finally cast the key to a string and verify that it is not empty
-	key, ok := keyData.(string)
-	if !ok {
-		t.Log("Raw ssh key not found in ssh_key object. Failing test")
-		return false
-	}
+	key, err := getJsonPathFromStateResource(t, cluster, "{$.linux_profile.ssh_key}")
+	assert.NoError(t, err)
 	return key != ""
 }
 
