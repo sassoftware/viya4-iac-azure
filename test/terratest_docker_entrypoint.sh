@@ -74,10 +74,9 @@ export TF_VAR_subscription_id=$TF_VAR_subscription_id
 
 # Run the tests
 echo "Running 'go test $VERBOSE $PACKAGE -run $TEST -tags $TAGS'"
-exec go test $VERBOSE $PACKAGE -run $TEST -tags $TAGS | tee test_output.log | go-junit-report > /results/junit-report.xml
-
+exec go test $VERBOSE $PACKAGE -run $TEST -tags $TAGS | tee test_output.log
 
 # Parse the results
-terratest_log_parser -testlog test_output.log -outputdir results
-cd results
+terratest_log_parser -testlog test_output.log -outputdir test_output
+cd test_output
 go run parse_results.go

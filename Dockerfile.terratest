@@ -23,8 +23,7 @@ WORKDIR /viya4-iac-azure/test
 # Install go modules and terratest_log_parser
 RUN \
     go mod tidy \
-    && go install github.com/gruntwork-io/terratest/cmd/terratest_log_parser@latest \
-    && go install github.com/jstemmer/go-junit-report/v2@latest
+    && go install github.com/gruntwork-io/terratest/cmd/terratest_log_parser@latest
 
 # ENV terraform_docker_creds=${TF_VAR_docker_creds}
 ENTRYPOINT ["/viya4-iac-azure/test/terratest_docker_entrypoint.sh"]
