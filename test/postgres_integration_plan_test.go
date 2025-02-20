@@ -24,7 +24,7 @@ func TestPostgreSQLIntegrationPlan(t *testing.T) {
 	//  add the required variables
 	variables["prefix"] = "terratest-" + uniquePrefix
 	variables["location"] = "eastus2"
-	variables["default_public_access_cidrs"] = strings.Split(os.Getenv("TF_VAR_public_cidrs"), ",")
+	variables["default_public_access_cidrs"] = "111.111.111.111/16"
 
 	// Create a temporary file in the default temp directory
 	planFileName := "testplan-" + uniquePrefix + ".tfplan"
