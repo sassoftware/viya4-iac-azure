@@ -30,13 +30,8 @@ jobs:
           TF_VAR_tenant_id: "${{ secrets.TF_VAR_TENANT_ID }}"
           TF_VAR_client_id: "${{ secrets.TF_VAR_CLIENT_ID }}"
           TF_VAR_client_secret: "${{ secrets.TF_VAR_CLIENT_SECRET }}"
-      - name: Convert to JUnit XML
-        uses: jstemmer/go-junit-report@v0.9.1
-        with:
-          input: test/results/report.xml
-          output: test/junit/junit-report.xml
       - name: Report JUnit Results
         uses: mikepenz/action-junit-report@v2
         if: success() || failure() # always run even if the previous step fails
         with:
-          report_paths: test/junit/junit-report.xml
+          report_paths: test/results/junit-report.xml
