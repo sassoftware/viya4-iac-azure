@@ -25,7 +25,7 @@ func TestMinimalInputVMIntegrationPlan(t *testing.T) {
 	variables["nfs_vm_admin"] = "testuser"
 	variables["prefix"] = "terratest-" + uniquePrefix
 	variables["location"] = "eastus2"
-	variables["default_public_access_cidrs"] = "111.111.111.111/16"
+	variables["default_public_access_cidrs"] = []string{"123.45.67.89/16"}
 
 	// Create a temporary file in the default temp directory
 	planFileName := "testplan-" + uniquePrefix + ".tfplan"
