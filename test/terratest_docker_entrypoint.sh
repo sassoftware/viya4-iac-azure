@@ -77,6 +77,6 @@ echo "Running 'go test $VERBOSE $PACKAGE -run $TEST -tags $TAGS'"
 exec go test $VERBOSE $PACKAGE -run $TEST -tags $TAGS | tee test_output.log
 
 # Parse the results
-terratest_log_parser -testlog test_output.log -outputdir test_output
-cd test_output
+terratest_log_parser -testlog test_output.log -outputdir results
+cd results
 go run parse_results.go
