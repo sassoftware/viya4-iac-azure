@@ -3,102 +3,67 @@
 package test
 
 import (
-	"os"
-	"path/filepath"
 	"strings"
 	"testing"
 
-	"github.com/gruntwork-io/terratest/modules/random"
-	"github.com/gruntwork-io/terratest/modules/terraform"
 	tfjson "github.com/hashicorp/terraform-json"
 	"github.com/stretchr/testify/assert"
 )
 
+const ACR_STATEFUL_SOURCE = "azurerm_container_registry.acr[0]"
+
 func TestPlanACRDisabled(t *testing.T) {
 	t.Parallel()
 
-	variables := initializeDefaultVariables(t)
+	// Initialize the default variables map
+	variables := getDefaultPlanVars(t)
 	variables["create_container_registry"] = false
-	plan := createTestPlan(t, variables)
+	variables["container_registry_admin_enabled"] = true
+	plan, err := initPlanWithVariables(t, variables)
+	assert.NoError(t, err)
 
-	_, acrExists := plan.ResourcePlannedValuesMap["azurerm_container_registry.acr[0]"]
+	_, acrExists := plan.ResourcePlannedValuesMap[ACR_STATEFUL_SOURCE]
 	assert.False(t, acrExists, "Azure Container Registry (ACR) present when it should not be")
 }
 
 func TestPlanACRStandard(t *testing.T) {
 	t.Parallel()
 
-	variables := initializeDefaultVariables(t)
+	// Initialize the default variables map
+	variables := getDefaultPlanVars(t)
+	variables["create_container_registry"] = true
+	variables["container_registry_admin_enabled"] = true
 	variables["container_registry_sku"] = "Standard"
-	plan := createTestPlan(t, variables)
+	plan, err := initPlanWithVariables(t, variables)
+	assert.NoError(t, err)
 
-	acrResource := plan.ResourcePlannedValuesMap["azurerm_container_registry.acr[0]"]
+	acrResource := plan.ResourcePlannedValuesMap[ACR_STATEFUL_SOURCE]
 	commonAssertions(t, variables, acrResource)
 
-	geoReplications := acrResource.AttributeValues["georeplications"].([]interface{})
-	assert.Empty(t, geoReplications, "Geo-replications found when they should not be present")
+	geoReplications, err := getJsonPathFromStateResource(t, acrResource, "{$.georeplications}")
+	assert.NoError(t, err)
+	assert.Equal(t, "[]", geoReplications, "Geo-replications found when they should not be present")
 }
 
 func TestPlanACRPremium(t *testing.T) {
 	t.Parallel()
 
-	variables := initializeDefaultVariables(t)
+	variables := getDefaultPlanVars(t)
+	variables["create_container_registry"] = true
+	variables["container_registry_admin_enabled"] = true
 	variables["container_registry_sku"] = "Premium"
 	variables["container_registry_geo_replica_locs"] = []string{"southeastus5", "southeastus3"}
-	plan := createTestPlan(t, variables)
+	plan, err := initPlanWithVariables(t, variables)
+	assert.NoError(t, err)
 
-	acrResource := plan.ResourcePlannedValuesMap["azurerm_container_registry.acr[0]"]
+	acrResource := plan.ResourcePlannedValuesMap[ACR_STATEFUL_SOURCE]
 	commonAssertions(t, variables, acrResource)
 
 	// Validate geo-replication locations
-	geoReplications := acrResource.AttributeValues["georeplications"].([]interface{})
-	assert.NotEmpty(t, geoReplications, "Geo-replications should not be empty for Premium SKU")
-	var actualGeoReplications []string
-	for _, geo := range geoReplications {
-		geoMap := geo.(map[string]interface{})
-		actualGeoReplications = append(actualGeoReplications, geoMap["location"].(string))
-	}
+	actualGeoReplications, err := getJsonPathFromStateResource(t, acrResource, "{$.georeplications[*].location}")
+	assert.NoError(t, err)
 	expectedGeoReplications := variables["container_registry_geo_replica_locs"].([]string)
-	assert.ElementsMatch(t, expectedGeoReplications, actualGeoReplications, "Geo-replications do not match expected values")
-}
-
-func initializeDefaultVariables(t *testing.T) map[string]interface{} {
-	// Generate a unique test prefix
-	uniquePrefix := strings.ToLower(random.UniqueId())
-	tfVarsPath := "../examples/sample-input-defaults.tfvars"
-
-	variables := make(map[string]interface{})
-
-	// Load variables from the tfvars file
-	err := terraform.GetAllVariablesFromVarFileE(t, tfVarsPath, &variables)
-	if err != nil {
-		t.Fatalf("Failed to load variables from tfvars file: %v", err)
-	}
-
-	// Add required variables for the test
-	variables["prefix"] = "terratest-" + uniquePrefix
-	variables["location"] = "eastus"
-	variables["default_public_access_cidrs"] = strings.Split(os.Getenv("TF_VAR_public_cidrs"), ",")
-	variables["create_container_registry"] = true
-	variables["container_registry_admin_enabled"] = true
-	return variables
-}
-
-func createTestPlan(t *testing.T, variables map[string]interface{}) *terraform.PlanStruct {
-	// Create a temporary plan file
-	planFileName := "acr-plan-" + variables["prefix"].(string) + ".tfplan"
-	planFilePath := filepath.Join("/tmp/", planFileName)
-	defer os.Remove(planFilePath)
-
-	// Set up Terraform options
-	terraformOptions := &terraform.Options{
-		TerraformDir: "../",
-		Vars:         variables,
-		PlanFilePath: planFilePath,
-		NoColor:      true,
-	}
-
-	return terraform.InitAndPlanAndShowWithStruct(t, terraformOptions)
+	assert.ElementsMatch(t, expectedGeoReplications, strings.Fields(actualGeoReplications), "Geo-replications do not match expected values")
 }
 
 func commonAssertions(t *testing.T, variables map[string]interface{}, acrResource *tfjson.StateResource) {

@@ -326,7 +326,8 @@ func TestDefaults(t *testing.T) {
 }
 
 func testSSHKey(t *testing.T, cluster *tfjson.StateResource) bool {
-	key := getJsonPathFromStateResource(cluster, "{$.linux_profile.ssh_key}")
+	key, err := getJsonPathFromStateResource(t, cluster, "{$.linux_profile.ssh_key}")
+	assert.NoError(t, err)
 	return key != ""
 }
 

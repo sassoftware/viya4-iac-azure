@@ -5,56 +5,63 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"testing"
 
 	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/terraform"
-	"github.com/gruntwork-io/terratest/modules/testing"
 	tfjson "github.com/hashicorp/terraform-json"
+	"github.com/stretchr/testify/assert"
 	"k8s.io/client-go/util/jsonpath"
 )
 
-func getJsonPathFromResourcePlannedValuesMap(plan *terraform.PlanStruct, resourceMapName string, jsonPath string) string {
+// getJsonPathFromResourcePlannedValuesMap retrieves the value of a jsonpath query on a given *terraform.PlanStruct
+func getJsonPathFromResourcePlannedValuesMap(t *testing.T, plan *terraform.PlanStruct, resourceMapName string, jsonPath string) (string, error) {
 	valuesMap := plan.ResourcePlannedValuesMap[resourceMapName]
-	return getJsonPathFromStateResource(valuesMap, jsonPath)
+	return getJsonPathFromStateResource(t, valuesMap, jsonPath)
 }
 
-func getJsonPathFromStateResource(resource *tfjson.StateResource, jsonPath string) string {
+// getJsonPathFromResourcePlannedValuesMap retrieves the value of a jsonpath query on a given *tfjson.StateResource
+// map is visited in random order
+func getJsonPathFromStateResource(t *testing.T, resource *tfjson.StateResource, jsonPath string) (string, error) {
 	j := jsonpath.New("PlanParser")
 	j.AllowMissingKeys(true)
-	j.Parse(jsonPath)
+	err := j.Parse(jsonPath)
+	if err != nil {
+		return "", err
+	}
 	buf := new(bytes.Buffer)
-	j.Execute(buf, resource.AttributeValues)
+	err = j.Execute(buf, resource.AttributeValues)
+	if err != nil {
+		return "", err
+	}
 	out := buf.String()
-	return out
+	return out, nil
 }
 
-func getDefaultPlanVars(t testing.TestingT) map[string]interface{} {
-	// Generate a unique test prefix
-
+// getDefaultPlanVars returns a map of default terratest variables
+func getDefaultPlanVars(t *testing.T) map[string]interface{} {
 	tfVarsPath := "../examples/sample-input-defaults.tfvars"
 
 	// Initialize the variables map
 	variables := make(map[string]interface{})
-
 	// Load variables from the tfvars file
 	err := terraform.GetAllVariablesFromVarFileE(t, tfVarsPath, &variables)
-	if err != nil {
-		t.Fatalf("Failed to load variables from tfvars file: %v", err)
-	}
+	assert.NoError(t, err)
 
 	// Add required variables for the test
+	uniquePrefix := strings.ToLower(random.UniqueId())
+
+	variables["prefix"] = "terratest-" + uniquePrefix
 	variables["location"] = "eastus"
 	variables["default_public_access_cidrs"] = strings.Split(os.Getenv("TF_VAR_public_cidrs"), ",")
 
 	return variables
 }
 
-func initPlanWithVariables(t testing.TestingT, variables map[string]interface{}) *terraform.PlanStruct {
-	uniquePrefix := strings.ToLower(random.UniqueId())
-	variables["prefix"] = "terratest-" + uniquePrefix
-
+// initPlanWithVariables returns a *terraform.PlanStruct
+func initPlanWithVariables(t *testing.T, variables map[string]interface{}) (*terraform.PlanStruct, error) {
 	// Create a temporary plan file
-	planFileName := "acr-testplan-" + uniquePrefix + ".tfplan"
+	planFileName := "acr-testplan-" + variables["prefix"].(string) + ".tfplan"
 	planFilePath := filepath.Join("/tmp/", planFileName)
 	defer os.Remove(planFilePath)
 
@@ -66,5 +73,5 @@ func initPlanWithVariables(t testing.TestingT, variables map[string]interface{})
 		NoColor:      true,
 	}
 
-	return terraform.InitAndPlanAndShowWithStruct(t, terraformOptions)
+	return terraform.InitAndPlanAndShowWithStructE(t, terraformOptions)
 }
