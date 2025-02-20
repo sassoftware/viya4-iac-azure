@@ -1,5 +1,3 @@
-//go:build integration_plan_tests
-
 package test
 
 import (
