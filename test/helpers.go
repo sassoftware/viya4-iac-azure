@@ -9,6 +9,7 @@ import (
 
 	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/terraform"
+	test_structure "github.com/gruntwork-io/terratest/modules/test-structure"
 	tfjson "github.com/hashicorp/terraform-json"
 	"github.com/stretchr/testify/assert"
 	"k8s.io/client-go/util/jsonpath"
@@ -65,9 +66,13 @@ func initPlanWithVariables(t *testing.T, variables map[string]interface{}) (*ter
 	planFilePath := filepath.Join("/tmp/", planFileName)
 	defer os.Remove(planFilePath)
 
+	// Copy the terraform folder to a temp folder
+	tempTestFolder := test_structure.CopyTerraformFolderToTemp(t, "../", "")
+	defer os.RemoveAll(tempTestFolder)
+
 	// Set up Terraform options
 	terraformOptions := &terraform.Options{
-		TerraformDir: "../",
+		TerraformDir: tempTestFolder,
 		Vars:         variables,
 		PlanFilePath: planFilePath,
 		NoColor:      true,

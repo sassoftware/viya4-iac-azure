@@ -8,6 +8,7 @@ import (
 
 	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/terraform"
+	test_structure "github.com/gruntwork-io/terratest/modules/test-structure"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -17,7 +18,7 @@ func TestNodeVMAdmin(t *testing.T) {
 	t.Parallel()
 
 	uniquePrefix := strings.ToLower(random.UniqueId())
-	p := "examples/sample-input-defaults.tfvars"
+	p := "../examples/sample-input-defaults.tfvars"
 
 	var variables map[string]interface{}
 	terraform.GetAllVariablesFromVarFile(t, p, &variables)
@@ -33,10 +34,14 @@ func TestNodeVMAdmin(t *testing.T) {
 	defer os.Remove(planFilePath) // Ensure file is removed on exit
 	os.Create(planFilePath)
 
+	// Copy the terraform folder to a temp folder
+	tempTestFolder := test_structure.CopyTerraformFolderToTemp(t, "../", "")
+	defer os.RemoveAll(tempTestFolder)
+
 	// Configure Terraform setting up a path to Terraform code.
 	terraformOptions := &terraform.Options{
 		// The path to where our Terraform code is located.
-		TerraformDir: ".",
+		TerraformDir: tempTestFolder,
 
 		// Variables to pass to our Terraform code using -var options.
 		Vars: variables,

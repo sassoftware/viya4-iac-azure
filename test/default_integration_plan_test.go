@@ -11,6 +11,7 @@ import (
 
 	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/terraform"
+	test_structure "github.com/gruntwork-io/terratest/modules/test-structure"
 	tfjson "github.com/hashicorp/terraform-json"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -61,10 +62,14 @@ func TestDefaults(t *testing.T) {
 	require.NoError(t, err)
 	defer os.Remove(planFilePath) // Ensure file is removed on exit
 
+	// Copy the terraform folder to a temp folder
+	tempTestFolder := test_structure.CopyTerraformFolderToTemp(t, "../", "")
+	defer os.RemoveAll(tempTestFolder)
+
 	// Configure Terraform setting up a path to Terraform code.
 	terraformOptions := &terraform.Options{
 		// The path to where our Terraform code is located.
-		TerraformDir: "../",
+		TerraformDir: tempTestFolder,
 
 		// Variables to pass to our Terraform code using -var options.
 		Vars: variables,

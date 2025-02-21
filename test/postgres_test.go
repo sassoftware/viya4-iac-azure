@@ -8,6 +8,7 @@ import (
 
 	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/terraform"
+	test_structure "github.com/gruntwork-io/terratest/modules/test-structure"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -35,9 +36,13 @@ func TestPostgresServers(t *testing.T) {
 	planFilePath := filepath.Join("/tmp/", planFileName)
 	defer os.Remove(planFilePath) // Ensure cleanup after test execution
 
+	// Copy the terraform folder to a temp folder
+	tempTestFolder := test_structure.CopyTerraformFolderToTemp(t, "../", "")
+	defer os.RemoveAll(tempTestFolder)
+
 	// Configure Terraform options
 	terraformOptions := &terraform.Options{
-		TerraformDir: "../",
+		TerraformDir: tempTestFolder,
 		Vars:         variables,
 		PlanFilePath: planFilePath,
 		NoColor:      true,
