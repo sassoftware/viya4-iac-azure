@@ -16,14 +16,14 @@ import (
 )
 
 // getJsonPathFromResourcePlannedValuesMap retrieves the value of a jsonpath query on a given *terraform.PlanStruct
-func getJsonPathFromResourcePlannedValuesMap(t *testing.T, plan *terraform.PlanStruct, resourceMapName string, jsonPath string) (string, error) {
+func getJsonPathFromResourcePlannedValuesMap(plan *terraform.PlanStruct, resourceMapName string, jsonPath string) (string, error) {
 	valuesMap := plan.ResourcePlannedValuesMap[resourceMapName]
-	return getJsonPathFromStateResource(t, valuesMap, jsonPath)
+	return getJsonPathFromStateResource(valuesMap, jsonPath)
 }
 
 // getJsonPathFromResourcePlannedValuesMap retrieves the value of a jsonpath query on a given *tfjson.StateResource
 // map is visited in random order
-func getJsonPathFromStateResource(t *testing.T, resource *tfjson.StateResource, jsonPath string) (string, error) {
+func getJsonPathFromStateResource(resource *tfjson.StateResource, jsonPath string) (string, error) {
 	j := jsonpath.New("PlanParser")
 	j.AllowMissingKeys(true)
 	err := j.Parse(jsonPath)
@@ -62,7 +62,7 @@ func getDefaultPlanVars(t *testing.T) map[string]interface{} {
 // initPlanWithVariables returns a *terraform.PlanStruct
 func initPlanWithVariables(t *testing.T, variables map[string]interface{}) (*terraform.PlanStruct, error) {
 	// Create a temporary plan file
-	planFileName := "acr-testplan-" + variables["prefix"].(string) + ".tfplan"
+	planFileName := "testplan-" + variables["prefix"].(string) + ".tfplan"
 	planFilePath := filepath.Join("/tmp/", planFileName)
 	defer os.Remove(planFilePath)
 
