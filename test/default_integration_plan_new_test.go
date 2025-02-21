@@ -67,7 +67,7 @@ func resourceMapAttributeRetriever(plan *terraform.PlanStruct, resourceMapName s
 
 func stateResourceRetriever(plan *terraform.PlanStruct, resourceMapName string,
 	attributeJsonPath string) interface{} {
-	cluster := plan.ResourcePlannedValuesMap[resourceMapName]
-	actualNodeVmAdmin, _ := getJsonPathFromStateResource(cluster, attributeJsonPath)
+	stateResource := plan.ResourcePlannedValuesMap[resourceMapName]
+	actualNodeVmAdmin, _ := getJsonPathFromStateResource(stateResource, attributeJsonPath)
 	return actualNodeVmAdmin
 }
