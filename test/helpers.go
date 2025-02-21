@@ -15,14 +15,14 @@ import (
 )
 
 // getJsonPathFromResourcePlannedValuesMap retrieves the value of a jsonpath query on a given *terraform.PlanStruct
-func getJsonPathFromResourcePlannedValuesMap(t *testing.T, plan *terraform.PlanStruct, resourceMapName string, jsonPath string) (string, error) {
+func getJsonPathFromResourcePlannedValuesMap(plan *terraform.PlanStruct, resourceMapName string, jsonPath string) (string, error) {
 	valuesMap := plan.ResourcePlannedValuesMap[resourceMapName]
-	return getJsonPathFromStateResource(t, valuesMap, jsonPath)
+	return getJsonPathFromStateResource(valuesMap, jsonPath)
 }
 
 // getJsonPathFromResourcePlannedValuesMap retrieves the value of a jsonpath query on a given *tfjson.StateResource
 // map is visited in random order
-func getJsonPathFromStateResource(t *testing.T, resource *tfjson.StateResource, jsonPath string) (string, error) {
+func getJsonPathFromStateResource(resource *tfjson.StateResource, jsonPath string) (string, error) {
 	j := jsonpath.New("PlanParser")
 	j.AllowMissingKeys(true)
 	err := j.Parse(jsonPath)

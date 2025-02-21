@@ -38,7 +38,7 @@ func TestPlanACRStandard(t *testing.T) {
 	acrResource := plan.ResourcePlannedValuesMap[ACR_STATEFUL_SOURCE]
 	commonAssertions(t, variables, acrResource)
 
-	geoReplications, err := getJsonPathFromStateResource(t, acrResource, "{$.georeplications}")
+	geoReplications, err := getJsonPathFromStateResource(acrResource, "{$.georeplications}")
 	assert.NoError(t, err)
 	assert.Equal(t, "[]", geoReplications, "Geo-replications found when they should not be present")
 }
@@ -58,7 +58,7 @@ func TestPlanACRPremium(t *testing.T) {
 	commonAssertions(t, variables, acrResource)
 
 	// Validate geo-replication locations
-	actualGeoReplications, err := getJsonPathFromStateResource(t, acrResource, "{$.georeplications[*].location}")
+	actualGeoReplications, err := getJsonPathFromStateResource(acrResource, "{$.georeplications[*].location}")
 	assert.NoError(t, err)
 	expectedGeoReplications := variables["container_registry_geo_replica_locs"].([]string)
 	assert.ElementsMatch(t, expectedGeoReplications, strings.Fields(actualGeoReplications), "Geo-replications do not match expected values")
