@@ -12,7 +12,9 @@ import (
 	test_structure "github.com/gruntwork-io/terratest/modules/test-structure"
 	tfjson "github.com/hashicorp/terraform-json"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"k8s.io/client-go/util/jsonpath"
+	"test/validation"
 )
 
 // getJsonPathFromResourcePlannedValuesMap retrieves the value of a jsonpath query on a given *terraform.PlanStruct
@@ -80,3 +82,32 @@ func initPlanWithVariables(t *testing.T, variables map[string]interface{}) (*ter
 
 	return terraform.InitAndPlanAndShowWithStructE(t, terraformOptions)
 }
+
+// testCase struct defines the attributes for a test case
+type testCase struct {
+	expected          interface{}
+	retriever         Retriever
+	resourceMapName   string
+	attributeJsonPath string
+	assertFunction    assert.ComparisonAssertionFunc
+}
+
+// runTest runs a test case
+func runTest(t *testing.T, tc testCase, plan *terraform.PlanStruct) {
+	retrieverFn := tc.retriever
+	if retrieverFn == nil {
+		retrieverFn = getJsonPathFromResourcePlannedValuesMap
+	}
+	actual, err := retrieverFn(plan, tc.resourceMapName, tc.attributeJsonPath)
+	require.NoError(t, err)
+	assertFn := tc.assertFunction
+	if assertFn == nil {
+		assertFn = assert.Equal
+	}
+	validateFn := validation.AssertComparison(assertFn, tc.expected)
+	validateFn(t, actual)
+}
+
+// A Retriever retrieves the value from a *terraform.PlanStruct plan,
+// given a resource map name and json path
+type Retriever func(plan *terraform.PlanStruct, resourceMapName string, jsonPath string) (string, error)
