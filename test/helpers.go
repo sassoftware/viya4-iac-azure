@@ -44,7 +44,11 @@ func getJsonPathFromStateResource(resource *tfjson.StateResource, jsonPath strin
 // getDefaultPlanVars returns a map of default terratest variables
 func getDefaultPlanVars(t *testing.T) map[string]interface{} {
 	tfVarsPath := "../examples/sample-input-defaults.tfvars"
+	return getPlanVars(t, tfVarsPath)
+}
 
+// getPlanVars returns a map of terratest variables
+func getPlanVars(t *testing.T, tfVarsPath string) map[string]interface{} {
 	// Initialize the variables map
 	variables := make(map[string]interface{})
 	// Load variables from the tfvars file
