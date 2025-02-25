@@ -50,6 +50,11 @@ func TestPlanDefaults(t *testing.T) {
 			attributeJsonPath: "{$}",
 			assertFunction:    assert.NotEqual,
 		},
+		"rbacTest": {
+			expected:          `[]`,
+			resourceMapName:   "module.aks.azurerm_kubernetes_cluster.aks",
+			attributeJsonPath: "{$.azure_active_directory_role_based_access_control}",
+		},
 	}
 
 	variables := getDefaultPlanVars(t)

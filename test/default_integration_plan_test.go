@@ -331,10 +331,10 @@ func TestDefaults(t *testing.T) {
 	// enable_nfs_public_static_ip
 	// only used with create_nfs_public_ip=true
 
-	// aks
-	aks := plan.ResourcePlannedValuesMap["module.aks.azurerm_kubernetes_cluster.aks"]
-	aad_rbac := aks.AttributeValues["azure_active_directory_role_based_access_control"]
-	assert.Empty(t, aad_rbac, "Unexpected azure_active_directory_role_based_access_control; should be empty by default")
+	// aks - TEST MOVED TO TEST TABLE
+	// aks := plan.ResourcePlannedValuesMap["module.aks.azurerm_kubernetes_cluster.aks"]
+	// aad_rbac := aks.AttributeValues["azure_active_directory_role_based_access_control"]
+	// assert.Empty(t, aad_rbac, "Unexpected azure_active_directory_role_based_access_control; should be empty by default")
 }
 
 func testSSHKey(t *testing.T, cluster *tfjson.StateResource) bool {
