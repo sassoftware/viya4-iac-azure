@@ -1,19 +1,27 @@
 # How to Contribute
-We'd love to accept your patches and contributions to this project.
-We just ask that you follow our contribution guidelines when you do.
+This project is community driven and we'd love to accept your patches and contributions.
+We just ask that you follow our contribution guidelines when you do. Please refer
+to the [Contributor Handbook](https://sassoftware.github.io/contributor-handbook.html)
+for guidance.
 
 ## Contributor License Agreement
 Contributions to this project must be accompanied by a signed [Contributor Agreement](ContributorAgreement.txt).
-You (or your employer) retain the copyright to your contribution; this simply grants us permission to use and redistribute your contributions as part of the project.
+You (or your employer) retain the copyright to your contribution; this simply grants
+us permission to use and redistribute your contributions as part of the project.
 
 ## Code reviews
-All submissions to this project—including submissions from project members—require review.
-Our review process typically involves performing unit tests, development tests, integration tests, and security scans using internal SAS infrastructure.
-For this reason, we don’t often merge pull requests directly from GitHub.
+All submissions to this project—including submissions from project members—require
+review. Our review process typically involves performing unit tests, development
+tests, integration tests, and security scans
 
-Instead, we work with submissions internally first, vetting them to ensure they meet our security and quality standards.
-We’ll do our best to work with contributors in public issues and pull requests; however, to ensure our code meets our internal compliance standards, we may need to incorporate your submission into a solution we push ourselves.
+## Pull Request Requirement
+All contributions (PRs) must be accompanied with passing unit and/or integration
+tests, following our testing philosophy. If you are unfamiliar with this process,
+we are happy to help through continuous collaboration within the pull request.
+All pull requests must also pass our linter analysis checks.  Contributiions may
+be subjected to security scans before acceptance.
 
-This does not mean we don’t value or appreciate your contribution.
-We simply need to review your code internally before merging it.
-We work to ensure all contributors receive appropriate recognition for their contributions, at least by acknowledging them in our release notes.
+## Security Scans
+To ensure all submissions meet our security and quality standards, we perform security
+scans using internal SAS infrastructure. Detected Common Vulnerabilities and Exposures
+(CVEs) are not available through this project at this time.
