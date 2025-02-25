@@ -1,104 +1,85 @@
-//go:build integration_plan_unit_tests
-
 package test
 
 import (
-	"fmt"
-	"os"
-	"path/filepath"
 	"strings"
 	"testing"
 
-	"github.com/gruntwork-io/terratest/modules/random"
-	"github.com/gruntwork-io/terratest/modules/terraform"
+	tfjson "github.com/hashicorp/terraform-json"
 	"github.com/stretchr/testify/assert"
 )
 
-// Test the Azure Container Registry values. Since it defaults to false,
-// there is nothing to check. However, if we override the default to true,
-// then we can start validating the ACR resources.
-func TestACRVariables(t *testing.T) {
+const ACR_STATEFUL_SOURCE = "azurerm_container_registry.acr[0]"
+
+func TestPlanACRDisabled(t *testing.T) {
 	t.Parallel()
 
-	// Generate a unique test prefix
-	uniquePrefix := strings.ToLower(random.UniqueId())
-	tfVarsPath := "../examples/sample-input-defaults.tfvars"
+	// Initialize the default variables map
+	variables := getDefaultPlanVars(t)
+	variables["create_container_registry"] = false
+	variables["container_registry_admin_enabled"] = true
+	plan, err := initPlanWithVariables(t, variables)
+	assert.NoError(t, err)
 
-	// Initialize the variables map
-	variables := make(map[string]interface{})
+	_, acrExists := plan.ResourcePlannedValuesMap[ACR_STATEFUL_SOURCE]
+	assert.False(t, acrExists, "Azure Container Registry (ACR) present when it should not be")
+}
 
-	// Load variables from the tfvars file
-	err := terraform.GetAllVariablesFromVarFileE(t, tfVarsPath, &variables)
-	if err != nil {
-		t.Fatalf("Failed to load variables from tfvars file: %v", err)
-	}
+func TestPlanACRStandard(t *testing.T) {
+	t.Parallel()
 
-	// Add required variables for the test
-	variables["prefix"] = "terratest-" + uniquePrefix
-	variables["location"] = "eastus"
-	variables["default_public_access_cidrs"] = strings.Split(os.Getenv("TF_VAR_public_cidrs"), ",")
+	// Initialize the default variables map
+	variables := getDefaultPlanVars(t)
+	variables["create_container_registry"] = true
+	variables["container_registry_admin_enabled"] = true
+	variables["container_registry_sku"] = "Standard"
+	plan, err := initPlanWithVariables(t, variables)
+	assert.NoError(t, err)
 
-	// Create a temporary plan file
-	planFileName := "acr-testplan-" + uniquePrefix + ".tfplan"
-	planFilePath := filepath.Join("/tmp/", planFileName)
-	defer os.Remove(planFilePath)
+	acrResource := plan.ResourcePlannedValuesMap[ACR_STATEFUL_SOURCE]
+	commonAssertions(t, variables, acrResource)
 
-	// Set up Terraform options
-	terraformOptions := &terraform.Options{
-		TerraformDir: "../",
-		Vars:         variables,
-		PlanFilePath: planFilePath,
-		NoColor:      true,
-	}
+	geoReplications, err := getJsonPathFromStateResource(acrResource, "{$.georeplications}")
+	assert.NoError(t, err)
+	assert.Equal(t, "[]", geoReplications, "Geo-replications found when they should not be present")
+}
 
-	plan := terraform.InitAndPlanAndShowWithStruct(t, terraformOptions)
+func TestPlanACRPremium(t *testing.T) {
+	t.Parallel()
 
-	// Validate the ACR resource only if 'create_container_registry' is true
-	createACR, ok := variables["create_container_registry"].(bool)
+	variables := getDefaultPlanVars(t)
+	variables["create_container_registry"] = true
+	variables["container_registry_admin_enabled"] = true
+	variables["container_registry_sku"] = "Premium"
+	variables["container_registry_geo_replica_locs"] = []string{"southeastus5", "southeastus3"}
+	plan, err := initPlanWithVariables(t, variables)
+	assert.NoError(t, err)
 
-	if !createACR || !ok {
-		t.Log("Skipping ACR resource validation as 'create_container_registry' is set to false")
-	} else {
-		acrResource, acrExists := plan.ResourcePlannedValuesMap["azurerm_container_registry.acr[0]"]
-		assert.True(t, acrExists, "Azure Container Registry (ACR) not found in the Terraform plan")
+	acrResource := plan.ResourcePlannedValuesMap[ACR_STATEFUL_SOURCE]
+	commonAssertions(t, variables, acrResource)
 
-		if acrExists {
-			// Check ACR name
-			acrName, nameExists := acrResource.AttributeValues["name"].(string)
-			assert.True(t, nameExists, "ACR name not found or is not a string")
-			assert.Contains(t, acrName, "acr", "ACR name does not contain 'acr'")
+	// Validate geo-replication locations
+	actualGeoReplications, err := getJsonPathFromStateResource(acrResource, "{$.georeplications[*].location}")
+	assert.NoError(t, err)
+	expectedGeoReplications := variables["container_registry_geo_replica_locs"].([]string)
+	assert.ElementsMatch(t, expectedGeoReplications, strings.Fields(actualGeoReplications), "Geo-replications do not match expected values")
+}
 
-			// Check the ACR SKU
-			acrSKU, skuExists := acrResource.AttributeValues["sku"].(string)
-			assert.True(t, skuExists, "ACR SKU not found or is not a string")
-			expectedSKU, ok := variables["container_registry_sku"].(string)
-			assert.True(t, ok, "'container_registry_sku' not found or is not a string")
-			fmt.Printf("Expected SKU: %s, Actual SKU: %s\n", expectedSKU, acrSKU)
-			assert.Equal(t, expectedSKU, acrSKU, "Unexpected ACR SKU value")
+func commonAssertions(t *testing.T, variables map[string]interface{}, acrResource *tfjson.StateResource) {
+	assert.True(t, acrResource != nil, "Azure Container Registry (ACR) not found in the Terraform plan")
 
-			// Check if admin is enabled
-			adminEnabled, adminExists := acrResource.AttributeValues["admin_enabled"].(bool)
-			assert.True(t, adminExists, "ACR admin_enabled not found or is not a boolean")
-			expectedAdminEnabled, ok := variables["container_registry_admin_enabled"].(bool)
-			assert.True(t, ok, "'container_registry_admin_enabled' not found or is not a boolean")
-			assert.Equal(t, expectedAdminEnabled, adminEnabled, "Unexpected ACR admin_enabled value")
+	acrName, nameExists := acrResource.AttributeValues["name"].(string)
+	assert.True(t, nameExists, "ACR name not found or is not a string")
+	assert.Contains(t, acrName, "acr", "ACR name does not contain 'acr'")
 
-			// Check geo-replications for Premium SKU
-			if acrSKU == "Premium" {
-				geoReplications, geoExists := acrResource.AttributeValues["georeplications"].([]interface{})
-				assert.True(t, geoExists, "Geo-replications not found for Premium SKU")
-				assert.NotEmpty(t, geoReplications, "Geo-replications list should not be empty for Premium SKU")
+	acrSKU, skuExists := acrResource.AttributeValues["sku"].(string)
+	assert.True(t, skuExists, "ACR SKU not found or is not a string")
+	expectedSKU, ok := variables["container_registry_sku"].(string)
+	assert.True(t, ok, "'container_registry_sku' not found or is not a string")
+	assert.Equal(t, expectedSKU, acrSKU, "Unexpected ACR SKU value")
 
-				// Validate geo-replication locations
-				expectedGeoReplications, ok := variables["container_registry_geo_replica_locs"].([]string)
-				assert.True(t, ok, "'container_registry_geo_replica_locs' not found or is not a list of strings")
-				var actualGeoReplications []string
-				for _, geo := range geoReplications {
-					geoMap := geo.(map[string]interface{})
-					actualGeoReplications = append(actualGeoReplications, geoMap["location"].(string))
-				}
-				assert.ElementsMatch(t, expectedGeoReplications, actualGeoReplications, "Geo-replications do not match expected values")
-			}
-		}
-	}
+	adminEnabled, adminExists := acrResource.AttributeValues["admin_enabled"].(bool)
+	assert.True(t, adminExists, "ACR admin_enabled not found or is not a boolean")
+	expectedAdminEnabled, ok := variables["container_registry_admin_enabled"].(bool)
+	assert.True(t, ok, "'container_registry_admin_enabled' not found or is not a boolean")
+	assert.Equal(t, expectedAdminEnabled, adminEnabled, "Unexpected ACR admin_enabled value")
 }
