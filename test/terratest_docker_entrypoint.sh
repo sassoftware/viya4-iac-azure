@@ -54,13 +54,13 @@ done
 
 # Set the defaults if the variables are not set
 if [ -z "$PACKAGE" ]; then
-  PACKAGE="."
+  PACKAGE="./..."
 fi
 if [ -z "$TEST" ]; then
-  TEST="TestDefaults"
+  TEST=".*"
 fi
 if [ -z "$TAGS" ]; then
-  TAGS="integration_plan_unit_tests"
+  TAGS=".*"
 fi
 if [ -z "$VERBOSE" ]; then
   VERBOSE=""
