@@ -130,3 +130,54 @@ func TestPlanStorage(t *testing.T) {
 		})
 	}
 }
+
+func TestPlanNodePoolsNew(t *testing.T) {
+	nodePoolTests := map[string]testCase{
+		"nodeVmAdminTest": {
+			expected:          "azureuser",
+			resourceMapName:   "module.aks.azurerm_kubernetes_cluster.aks",
+			attributeJsonPath: "{$.linux_profile[0].admin_username}",
+		},
+		"defaultNodepoolVmTypeTest": {
+			expected:          "Standard_E8s_v5",
+			resourceMapName:   "module.aks.azurerm_kubernetes_cluster.aks",
+			attributeJsonPath: "{$.default_node_pool[0].vm_size}",
+		},
+		"defaultNodepoolOsDiskSizeTest": {
+			expected:          128,
+			resourceMapName:   "module.aks.azurerm_kubernetes_cluster.aks",
+			attributeJsonPath: "{$.default_node_pool[0].os_disk_size_gb}",
+		},
+		"defaultNodepoolMaxPodsTest": {
+			expected:          110,
+			resourceMapName:   "module.aks.azurerm_kubernetes_cluster.aks",
+			attributeJsonPath: "{$.default_node_pool[0].max_pods}",
+		},
+		"defaultNodepoolMinNodesTest": {
+			expected:          1,
+			resourceMapName:   "module.aks.azurerm_kubernetes_cluster.aks",
+			attributeJsonPath: "{$.default_node_pool[0].min_count}",
+		},
+		"defaultNodepoolMaxNodesTest": {
+			expected:          5,
+			resourceMapName:   "module.aks.azurerm_kubernetes_cluster.aks",
+			attributeJsonPath: "{$.default_node_pool[0].max_count}",
+		},
+		"defaultNodepoolAvailabilityZonesTest": {
+			expected:          []string{"1"},
+			resourceMapName:   "module.aks.azurerm_kubernetes_cluster.aks",
+			attributeJsonPath: "{$.default_node_pool[0].zones}",
+		},
+	}
+
+	variables := getDefaultPlanVars(t)
+	plan, err := initPlanWithVariables(t, variables)
+	require.NotNil(t, plan)
+	require.NoError(t, err)
+
+	for name, tc := range nodePoolTests {
+		t.Run(name, func(t *testing.T) {
+			runTest(t, tc, plan)
+		})
+	}
+}
