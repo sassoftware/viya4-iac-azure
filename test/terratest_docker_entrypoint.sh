@@ -66,15 +66,15 @@ if [ -z "$VERBOSE" ]; then
   VERBOSE=""
 fi
 
-# Export the varibles that were sourced
+# Export the variables that were sourced
 export TF_VAR_client_id=$TF_VAR_client_id
 export TF_VAR_client_secret=$TF_VAR_client_secret
 export TF_VAR_tenant_id=$TF_VAR_tenant_id
 export TF_VAR_subscription_id=$TF_VAR_subscription_id
 
 # Run the tests
-echo "Running 'go test $VERBOSE $PACKAGE -run $TEST -tags $TAGS'"
-exec go test $VERBOSE $PACKAGE -run $TEST -tags $TAGS | tee test_output.log
+echo "Running 'go test $VERBOSE $PACKAGE -run $TEST -tags $TAGS -timeout 60m'"
+exec go test $VERBOSE $PACKAGE -run $TEST -tags $TAGS -timeout 60m | tee test_output.log
 
 # Parse the results
 terratest_log_parser -testlog test_output.log -outputdir test_output

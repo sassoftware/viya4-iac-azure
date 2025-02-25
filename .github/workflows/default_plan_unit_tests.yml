@@ -21,7 +21,7 @@ jobs:
             -e TF_VAR_tenant_id=$TF_VAR_tenant_id \
             -e TF_VAR_client_id=$TF_VAR_client_id \
             -e TF_VAR_client_secret=$TF_VAR_client_secret \
-            viya4-iac-azure:terratest
+            viya4-iac-azure:terratest -v
         env:
           # TF ENVIRONMENT
           TF_VAR_subscription_id: "${{ secrets.TF_VAR_SUBSCRIPTION_ID }}"
