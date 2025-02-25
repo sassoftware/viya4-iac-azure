@@ -11,6 +11,7 @@ import (
 
 	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/terraform"
+	test_structure "github.com/gruntwork-io/terratest/modules/test-structure"
 	tfjson "github.com/hashicorp/terraform-json"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -61,10 +62,14 @@ func TestDefaults(t *testing.T) {
 	require.NoError(t, err)
 	defer os.Remove(planFilePath) // Ensure file is removed on exit
 
+	// Copy the terraform folder to a temp folder
+	tempTestFolder := test_structure.CopyTerraformFolderToTemp(t, "../", "")
+	defer os.RemoveAll(tempTestFolder)
+
 	// Configure Terraform setting up a path to Terraform code.
 	terraformOptions := &terraform.Options{
 		// The path to where our Terraform code is located.
-		TerraformDir: "../",
+		TerraformDir: tempTestFolder,
 
 		// Variables to pass to our Terraform code using -var options.
 		Vars: variables,
@@ -79,11 +84,12 @@ func TestDefaults(t *testing.T) {
 	plan := terraform.InitAndPlanAndShowWithStruct(t, terraformOptions)
 	cluster := plan.ResourcePlannedValuesMap["module.aks.azurerm_kubernetes_cluster.aks"]
 
-	// vnet_address_space
-	expectedVnetAddress := []interface{}{"192.168.0.0/16"}
-	vnetResource := plan.ResourcePlannedValuesMap["module.vnet.azurerm_virtual_network.vnet[0]"]
-	vnetAttributes := vnetResource.AttributeValues["address_space"].([]interface{})
-	assert.Equal(t, expectedVnetAddress, vnetAttributes)
+	// VAI: TEST MOVED TO TEST TABLE
+	//// vnet_address_space
+	//expectedVnetAddress := []interface{}{"192.168.0.0/16"}
+	//vnetResource := plan.ResourcePlannedValuesMap["module.vnet.azurerm_virtual_network.vnet[0]"]
+	//vnetAttributes := vnetResource.AttributeValues["address_space"].([]interface{})
+	//assert.Equal(t, expectedVnetAddress, vnetAttributes)
 
 	// aks Subnets
 	expectedAKSSubnet := &Subnet{
@@ -105,17 +111,19 @@ func TestDefaults(t *testing.T) {
 	}
 	verifySubnets(t, plan.ResourcePlannedValuesMap["module.vnet.azurerm_subnet.subnet[\"misc\"]"], expectedMiscSubnet)
 
-	// cluster_egress_type
-	var expectedClusterEgressType interface{} = "loadBalancer"
-	egressType := cluster.AttributeValues["network_profile"]
-	actualEgressType := egressType.([]interface{})[0].(map[string]interface{})["outbound_type"]
-	assert.Equal(t, expectedClusterEgressType, actualEgressType, "Unexpected Cluster Egress Type")
+	// VAI: TEST MOVED TO TEST TABLE
+	//// cluster_egress_type
+	//var expectedClusterEgressType interface{} = "loadBalancer"
+	//egressType := cluster.AttributeValues["network_profile"]
+	//actualEgressType := egressType.([]interface{})[0].(map[string]interface{})["outbound_type"]
+	//assert.Equal(t, expectedClusterEgressType, actualEgressType, "Unexpected Cluster Egress Type")
 
-	//aks_network_plugin
-	var expectedNetworkPlugin interface{} = "kubenet"
-	networkPlugin := cluster.AttributeValues["network_profile"]
-	actualNetworkPlugin := networkPlugin.([]interface{})[0].(map[string]interface{})["network_plugin"]
-	assert.Equal(t, expectedNetworkPlugin, actualNetworkPlugin, "Unexpected Network Plugin")
+	// VAI: TEST MOVED TO TEST TABLE
+	//// aks_network_plugin
+	//var expectedNetworkPlugin interface{} = "kubenet"
+	//networkPlugin := cluster.AttributeValues["network_profile"]
+	//actualNetworkPlugin := networkPlugin.([]interface{})[0].(map[string]interface{})["network_plugin"]
+	//assert.Equal(t, expectedNetworkPlugin, actualNetworkPlugin, "Unexpected Network Plugin")
 
 	// aks_network_policy cannot be tested since it is set after the apply.
 	/*var expectedNetworkPolicy interface{} = "calico"
@@ -140,9 +148,10 @@ func TestDefaults(t *testing.T) {
 	kubeconfigSAResource := plan.ResourcePlannedValuesMap["module.kubeconfig.kubernetes_service_account.kubernetes_sa[0]"]
 	assert.NotNil(t, kubeconfigSAResource, "Kubeconfig Service Account object should not be nil")
 
-	// kubernetes_version
-	k8sVersion := cluster.AttributeValues["kubernetes_version"]
-	assert.Equal(t, "1.30", k8sVersion, "Unexpected Kubernetes version")
+	// VAI: TEST MOVED TO TEST TABLE
+	//// kubernetes_version
+	//k8sVersion := cluster.AttributeValues["kubernetes_version"]
+	//assert.Equal(t, "1.30", k8sVersion, "Unexpected Kubernetes version")
 
 	// create_jump_vm
 	// Verify that the jump vm resource is not nil
@@ -197,9 +206,10 @@ func TestDefaults(t *testing.T) {
 	// aksTags := cluster.AttributeValues["tags"]
 	// assert.Equal(t, aksTags, map[string]interface{}(map[string]interface{}{"test": "test"}), "Unexpected AKS Tags")
 
-	// aks_identity
-	userAssignedIdentity := plan.ResourcePlannedValuesMap["azurerm_user_assigned_identity.uai[0]"]
-	assert.NotNil(t, userAssignedIdentity, "The User Identity should exist.")
+	// VAI: TEST MOVED TO TEST TABLE
+	//// aks_identity
+	//userAssignedIdentity := plan.ResourcePlannedValuesMap["azurerm_user_assigned_identity.uai[0]"]
+	//assert.NotNil(t, userAssignedIdentity, "The User Identity should exist.")
 
 	// ssh_public_key
 	assert.True(t, testSSHKey(t, cluster), "SSH Key should exist")
@@ -209,13 +219,15 @@ func TestDefaults(t *testing.T) {
 
 	// aks_cluster_private_dns_zone_id - defaults to empty, only known after apply
 
-	// aks_cluster_sku_tier
-	skuTier := cluster.AttributeValues["sku_tier"]
-	assert.Equal(t, skuTier, "Free", "Unexpected aks_cluster_sku_tier")
+	// VAI: TEST MOVED TO TEST TABLE
+	//// aks_cluster_sku_tier
+	//skuTier := cluster.AttributeValues["sku_tier"]
+	//assert.Equal(t, skuTier, "Free", "Unexpected aks_cluster_sku_tier")
 
-	// cluster_support_tier
-	supportPlan := cluster.AttributeValues["support_plan"]
-	assert.Equal(t, supportPlan, "KubernetesOfficial", "Unexpected cluster_support_tier")
+	// VAI: TEST MOVED TO TEST TABLE
+	//// cluster_support_tier
+	//supportPlan := cluster.AttributeValues["support_plan"]
+	//assert.Equal(t, supportPlan, "KubernetesOfficial", "Unexpected cluster_support_tier")
 
 	// Additional Node Pools
 	statelessNodePool := plan.ResourcePlannedValuesMap["module.node_pools[\"stateless\"].azurerm_kubernetes_cluster_node_pool.autoscale_node_pool[0]"]
@@ -282,13 +294,14 @@ func TestDefaults(t *testing.T) {
 	}
 	verifyNodePools(t, computeNodePool, computeStruct)
 
-	// storage_type
-	// when storage_type is standard, we should have nfs stuff
-	// make sure module.nfs[0].azurerm_linux_virtual_machine.vm exists
-	nfsVM := plan.ResourcePlannedValuesMap["module.nfs[0].azurerm_linux_virtual_machine.vm"]
-	assert.NotNil(t, nfsVM, "NFS VM should be created")
-	assert.Equal(t, "nfsuser", nfsVM.AttributeValues["admin_username"], "Unexpected NFS Admin Username")
-	assert.Equal(t, "Standard_D4s_v5", nfsVM.AttributeValues["size"], "Unexpected NFS VM Size")
+	// VAI: TEST MOVED TO TEST TABLE
+	//// storage_type
+	//// when storage_type is standard, we should have nfs stuff
+	//// make sure module.nfs[0].azurerm_linux_virtual_machine.vm exists
+	//nfsVM := plan.ResourcePlannedValuesMap["module.nfs[0].azurerm_linux_virtual_machine.vm"]
+	//assert.NotNil(t, nfsVM, "NFS VM should be created")
+	//assert.Equal(t, "nfsuser", nfsVM.AttributeValues["admin_username"], "Unexpected NFS Admin Username")
+	//assert.Equal(t, "Standard_D4s_v5", nfsVM.AttributeValues["size"], "Unexpected NFS VM Size")
 
 	// create_nfs_public_ip
 	nfsPublicIP := plan.ResourcePlannedValuesMap["module.nfs[0].azurerm_public_ip.vm_ip[0]"]
@@ -310,9 +323,10 @@ func TestDefaults(t *testing.T) {
 		assert.Equal(t, float64(256), nfsDataDisk.AttributeValues["disk_size_gb"], fmt.Sprintf("Unexpected NFS Raid Disk Size in GB for disk %d", i))
 	}
 
-	// nfs_vm_zone
-	// defaults to null
-	assert.Nil(t, nfsVM.AttributeValues["vm_zone"], "Unexpected NFS VM_Zone; should default to null ")
+	// VAI: TEST MOVED TO TEST TABLE
+	//// nfs_vm_zone
+	//// defaults to null
+	//assert.Nil(t, nfsVM.AttributeValues["vm_zone"], "Unexpected NFS VM_Zone; should default to null ")
 
 	// enable_nfs_public_static_ip
 	// only used with create_nfs_public_ip=true
@@ -324,7 +338,7 @@ func TestDefaults(t *testing.T) {
 }
 
 func testSSHKey(t *testing.T, cluster *tfjson.StateResource) bool {
-	key, err := getJsonPathFromStateResource(t, cluster, "{$.linux_profile.ssh_key}")
+	key, err := getJsonPathFromStateResource(cluster, "{$.linux_profile[0].ssh_key[0].key_data}")
 	assert.NoError(t, err)
 	return key != ""
 }

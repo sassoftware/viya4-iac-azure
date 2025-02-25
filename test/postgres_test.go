@@ -1,14 +1,8 @@
 package test
 
 import (
-	"fmt"
-	"os"
-	"path/filepath"
-	"strings"
 	"testing"
 
-	"github.com/gruntwork-io/terratest/modules/random"
-	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -16,40 +10,12 @@ import (
 func TestPostgresServers(t *testing.T) {
 	t.Parallel()
 
-	// Generate a unique prefix for isolation
-	uniquePrefix := strings.ToLower(random.UniqueId())
-	p := "../examples/sample-input-defaults.tfvars"
-
-	var variables map[string]interface{}
-	terraform.GetAllVariablesFromVarFile(t, p, &variables)
-
-	// Add required test variables
-	variables["prefix"] = "terratest-" + uniquePrefix
-	variables["location"] = "eastus2"
+	variables := getDefaultPlanVars(t)
 	variables["postgres_servers"] = map[string]interface{}{
 		"default": map[string]interface{}{},
 	}
-	variables["default_public_access_cidrs"] = []string{"123.45.67.89/16"}
-
-	// Create a temporary Terraform plan file
-	planFileName := "testplan-" + uniquePrefix + ".tfplan"
-	planFilePath := filepath.Join("/tmp/", planFileName)
-	defer os.Remove(planFilePath) // Ensure cleanup after test execution
-
-	// Configure Terraform options
-	terraformOptions := &terraform.Options{
-		TerraformDir: "../",
-		Vars:         variables,
-		PlanFilePath: planFilePath,
-		NoColor:      true,
-	}
-
-	plan := terraform.InitAndPlanAndShowWithStruct(t, terraformOptions)
-
-	// Print the keys of ResourcePlannedValuesMap for debugging
-	for key := range plan.ResourcePlannedValuesMap {
-		fmt.Println("Resource key:", key)
-	}
+	plan, err := initPlanWithVariables(t, variables)
+	assert.NoError(t, err)
 
 	// Validate PostgreSQL servers in Terraform plan
 	postgresDefault := plan.ResourcePlannedValuesMap["module.flex_postgresql[\"default\"].azurerm_postgresql_flexible_server.flexpsql"]
@@ -86,28 +52,10 @@ func TestPostgresServers(t *testing.T) {
 	assert.Equal(t, expectedServerVersion, postgresDefault.AttributeValues["version"], "Mismatch in PostgreSQL Server Version")
 
 	// Validate SSL Enforcement
-	const expectedSSLEnforcement = false
-
-	sslEnforcementDisabled := false
-
-	configurationsAttr, exists := postgresDefault.AttributeValues["postgresql_configurations"]
-
-	var configurationsList []interface{}
-	if exists && configurationsAttr != nil {
-		configurationsList, _ = configurationsAttr.([]interface{})
-		for _, config := range configurationsList {
-			configMap, isMap := config.(map[string]interface{})
-			if isMap {
-				if name, ok := configMap["name"].(string); ok && name == "require_secure_transport" {
-					if value, ok := configMap["value"].(string); ok && value == "OFF" {
-						sslEnforcementDisabled = true
-						break
-					}
-				}
-			}
-		}
-	}
-
+	expectedSSLEnforcement := false
+	requireSecureTransport, err := getJsonPathFromStateResource(postgresDefault, "{$.postgresql_configurations[*].require_secure_transport}")
+	assert.NoError(t, err)
+	sslEnforcementDisabled := requireSecureTransport == "OFF"
 	assert.Equal(t, expectedSSLEnforcement, sslEnforcementDisabled, "Mismatch in SSL Enforcement: Expected False")
 
 	//validate connectivity_method

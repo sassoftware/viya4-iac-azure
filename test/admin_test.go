@@ -1,7 +1,6 @@
 package test
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -9,6 +8,7 @@ import (
 
 	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/terraform"
+	test_structure "github.com/gruntwork-io/terratest/modules/test-structure"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -26,26 +26,27 @@ func TestAdminAccess(t *testing.T) {
 	// Add required test variables
 	variables["prefix"] = "terratest-" + uniquePrefix
 	variables["location"] = "eastus2"
+	// Using a dummy CIDR for testing purposes
+	variables["default_public_access_cidrs"] = []interface{}{"123.45.67.89/16"}
 
 	// Create a temporary Terraform plan file
 	planFileName := "testplan-" + uniquePrefix + ".tfplan"
 	planFilePath := filepath.Join("/tmp/", planFileName)
 	defer os.Remove(planFilePath) // Cleanup after test execution
 
+	// Copy the terraform folder to a temp folder
+	tempTestFolder := test_structure.CopyTerraformFolderToTemp(t, "../", "")
+	defer os.RemoveAll(tempTestFolder)
+
 	// Configure Terraform options
 	terraformOptions := &terraform.Options{
-		TerraformDir: "../",
+		TerraformDir: tempTestFolder,
 		Vars:         variables,
 		PlanFilePath: planFilePath,
 		NoColor:      true,
 	}
 
 	plan := terraform.InitAndPlanAndShowWithStruct(t, terraformOptions)
-
-	// Debugging: Print the keys of ResourcePlannedValuesMap
-	for key := range plan.ResourcePlannedValuesMap {
-		fmt.Println("Resource key:", key)
-	}
 
 	actualDefaultCidr, hasDefaultCidr := plan.RawPlan.Variables["default_public_access_cidrs"]
 	actualClusterCidr, hasClusterCidr := plan.RawPlan.Variables["cluster_endpoint_public_access_cidrs"]

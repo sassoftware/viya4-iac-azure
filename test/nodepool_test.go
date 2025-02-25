@@ -1,13 +1,8 @@
 package test
 
 import (
-	"os"
-	"path/filepath"
-	"strings"
 	"testing"
 
-	"github.com/gruntwork-io/terratest/modules/random"
-	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -16,76 +11,51 @@ import (
 func TestNodeVMAdmin(t *testing.T) {
 	t.Parallel()
 
-	uniquePrefix := strings.ToLower(random.UniqueId())
-	p := "examples/sample-input-defaults.tfvars"
+	variables := getDefaultPlanVars(t)
+	plan, err := initPlanWithVariables(t, variables)
+	assert.NoError(t, err)
 
-	var variables map[string]interface{}
-	terraform.GetAllVariablesFromVarFile(t, p, &variables)
-
-	//  add the required variables
-	variables["prefix"] = "terratest-" + uniquePrefix
-	variables["location"] = "eastus2"
-	variables["default_public_access_cidrs"] = "111.111.111.111/16"
-
-	// Create a temporary file in the default temp directory
-	planFileName := "testplan-" + uniquePrefix + ".tfplan"
-	planFilePath := filepath.Join("/tmp/", planFileName)
-	defer os.Remove(planFilePath) // Ensure file is removed on exit
-	os.Create(planFilePath)
-
-	// Configure Terraform setting up a path to Terraform code.
-	terraformOptions := &terraform.Options{
-		// The path to where our Terraform code is located.
-		TerraformDir: ".",
-
-		// Variables to pass to our Terraform code using -var options.
-		Vars: variables,
-
-		// Configure a plan file path so we can introspect the plan and make assertions about it.
-		PlanFilePath: planFilePath,
-
-		// Remove color codes to clean up output
-		NoColor: false,
-	}
-
-	plan := terraform.InitAndPlanAndShowWithStruct(t, terraformOptions)
 	cluster := plan.ResourcePlannedValuesMap["module.aks.azurerm_kubernetes_cluster.aks"]
 
 	// node_vm_admin
 	expectedNodeVMAdmin := "azureuser"
-	nodeVMAdmin := cluster.AttributeValues["linux_profile"]
-	actualNodeVMAdmin := nodeVMAdmin.([]interface{})[0].(map[string]interface{})["admin_username"]
+	actualNodeVMAdmin, err := getJsonPathFromStateResource(cluster, "{$.linux_profile[0].admin_username}")
+	assert.NoError(t, err)
 	assert.Equal(t, expectedNodeVMAdmin, actualNodeVMAdmin, "Unexpected Node VM Admin User")
 
 	//default_nodepool_vm_type
 	expectedNodepoolVMType := "Standard_E8s_v5"
-	nodePool := cluster.AttributeValues["default_node_pool"]
-	actualNodepoolVMType := nodePool.([]interface{})[0].(map[string]interface{})["vm_size"]
+	actualNodepoolVMType, err := getJsonPathFromStateResource(cluster, "{$.default_node_pool[0].vm_size}")
+	assert.NoError(t, err)
 	assert.Equal(t, expectedNodepoolVMType, actualNodepoolVMType, "Unexpected Default Node Pool VM Type")
 
 	//default_nodepool_os_disk_size
-	expectedNodepoolOSDiskSize := float64(128)
-	actualNodepoolOSDiskSize := nodePool.([]interface{})[0].(map[string]interface{})["os_disk_size_gb"]
+	expectedNodepoolOSDiskSize := "128"
+	actualNodepoolOSDiskSize, err := getJsonPathFromStateResource(cluster, "{$.default_node_pool[0].os_disk_size_gb}")
+	assert.NoError(t, err)
 	assert.Equal(t, expectedNodepoolOSDiskSize, actualNodepoolOSDiskSize, "Unexpected Default Node Pool OS Disk Size")
 
 	//default_nodepool_max_pods
-	expectedNodepoolMaxPods := float64(110)
-	actualNodepoolMaxPods := nodePool.([]interface{})[0].(map[string]interface{})["max_pods"]
+	expectedNodepoolMaxPods := "110"
+	actualNodepoolMaxPods, err := getJsonPathFromStateResource(cluster, "{$.default_node_pool[0].max_pods}")
+	assert.NoError(t, err)
 	assert.Equal(t, expectedNodepoolMaxPods, actualNodepoolMaxPods, "Unexpected Default Node Pool Max Pods")
 
 	//default_nodepool_min_nodes
-	expectedNodepoolMinNodes := float64(1)
-	actualNodepoolMinNodes := nodePool.([]interface{})[0].(map[string]interface{})["min_count"]
+	expectedNodepoolMinNodes := "1"
+	actualNodepoolMinNodes, err := getJsonPathFromStateResource(cluster, "{$.default_node_pool[0].min_count}")
+	assert.NoError(t, err)
 	assert.Equal(t, expectedNodepoolMinNodes, actualNodepoolMinNodes, "Unexpected Default Node Pool Min Nodes")
 
 	//default_nodepool_max_nodes
-	expectedNodepoolMaxNodes := float64(5)
-	actualNodepoolMaxNodes := nodePool.([]interface{})[0].(map[string]interface{})["max_count"]
+	expectedNodepoolMaxNodes := "5"
+	actualNodepoolMaxNodes, err := getJsonPathFromStateResource(cluster, "{$.default_node_pool[0].max_count}")
+	assert.NoError(t, err)
 	assert.Equal(t, expectedNodepoolMaxNodes, actualNodepoolMaxNodes, "Unexpected Default Node Pool Max Nodes")
 
 	//default_nodepool_availability_zones
-	expectedNodepoolAvailability := []interface{}{"1"}
-	actualNodepoolAvailability := nodePool.([]interface{})[0].(map[string]interface{})["zones"]
+	expectedNodepoolAvailability := "1"
+	actualNodepoolAvailability, err := getJsonPathFromStateResource(cluster, "{$.default_node_pool[0].zones[*]}")
+	assert.NoError(t, err)
 	assert.Equal(t, expectedNodepoolAvailability, actualNodepoolAvailability, "Unexpected Default Node Pool Zones")
-
 }
