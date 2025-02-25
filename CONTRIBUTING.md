@@ -16,7 +16,7 @@ tests, integration tests, and security scans
 
 ## Pull Request Requirement
 All contributions (PRs) must be accompanied with passing unit and/or integration
-tests, following our [testing philosophy](./test/TestingPhilosophy.md). If you are unfamiliar with this process,
+tests, following our [testing philosophy](./docs/user/TestingPhilosophy.md). If you are unfamiliar with this process,
 we are happy to help through continuous collaboration within the pull request.
 All pull requests must also pass our linter analysis checks.  Contributiions may
 be subjected to security scans before acceptance.
