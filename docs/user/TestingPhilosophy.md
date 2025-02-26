@@ -13,7 +13,7 @@ The unit tests are designed to quickly and efficiently verify the codebase witho
 
 ### Unit Testing Structure
 
-The unit tests are written as [Table-Driven tests](https://go.dev/wiki/TableDrivenTests) so they are easier to read, understand, and expand. The tests are be broken up into two files, [default_unit_test.go](../../test/default_unit_test.go) and [non_default_unit_test.go](../../test/non_default_test.go). 
+The unit tests are written as [Table-Driven tests](https://go.dev/wiki/TableDrivenTests) so they are easier to read, understand, and expand. The tests are be broken up into two files, [default_unit_test.go](../../test/default_unit_test.go) and [non_default_unit_test.go](../../test/non_default_unit_test.go).
 
 `default_unit_test.go` validates the default values of a terraform plan. This ensures that there are no regressions in the default behavior. `non_default_unit_test.go` modifies the input values before running the `terraform plan`. After generating the plan file, the test verifies that it contains the expected values. Both files are written as Table-Driven tests. Each resource type has an associated Test function.
 
@@ -56,6 +56,9 @@ func TestPlanStorageDefaults(t *testing.T) {
     }
 }
 ```
+### Adding Unit Tests
+
+To create a unit test, you can add an entry to an existing test table in the [default_unit_test.go](../../test/default_unit_test.go) or [non_default_unit_test.go](../../test/non_default_unit_test.go), depending on the test type. If there isn't an existing test table that fits your needs, you are welcome to create a new function in a similar Table-Driven test format.
 
 ### Integration Testing
 
