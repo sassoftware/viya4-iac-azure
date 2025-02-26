@@ -181,3 +181,49 @@ func TestPlanNodePoolsNew(t *testing.T) {
 		})
 	}
 }
+
+// networking variables
+func TestPlanNetworkingNew(t *testing.T) {
+	networkingTests := map[string]testCase{
+		"vnet_address_spaceTest": {
+			expected:          "192.168.0.0/16",
+			resourceMapName:   "module.vnet.azurerm_virtual_network.vnet[0]",
+			attributeJsonPath: "{$.address_space[0]}",
+		},
+		"vnet_subnetTest": {
+			expected:          "",
+			resourceMapName:   "module.vnet.azurerm_virtual_network.vnet[0]",
+			attributeJsonPath: "{$.subnet[0].name}",
+		},
+		"clusterEgressTypeTest": {
+			expected:          "loadBalancer",
+			resourceMapName:   "module.aks.azurerm_kubernetes_cluster.aks",
+			attributeJsonPath: "{$.network_profile[0].outbound_type}",
+		},
+		"networkPluginTest": {
+			expected:          "kubenet",
+			resourceMapName:   "module.aks.azurerm_kubernetes_cluster.aks",
+			attributeJsonPath: "{$.network_profile[0].network_plugin}",
+		},
+		"aksNetworkPolicyTest": {
+			expected:          "",
+			resourceMapName:   "module.aks.azurerm_kubernetes_cluster.aks",
+			attributeJsonPath: "{$.expressions.aks_network_policy.reference[0]}",
+		},
+		"aksNetworkPluginModeTest": {
+			expected:          "",
+			resourceMapName:   "module.aks.azurerm_kubernetes_cluster.aks",
+			attributeJsonPath: "{$.expressions.aks_network_plugin_mode.reference[0]}",
+		},
+	}
+	variables := getDefaultPlanVars(t)
+	plan, err := initPlanWithVariables(t, variables)
+	require.NotNil(t, plan)
+	require.NoError(t, err)
+
+	for name, tc := range networkingTests {
+		t.Run(name, func(t *testing.T) {
+			runTest(t, tc, plan)
+		})
+	}
+}
