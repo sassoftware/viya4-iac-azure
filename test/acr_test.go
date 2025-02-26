@@ -5,10 +5,14 @@
 package test
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 	"testing"
 
+	"github.com/gruntwork-io/terratest/modules/terraform"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -22,8 +26,11 @@ func TestPlanACRDisabled(t *testing.T) {
 	require.NotNil(t, plan)
 	require.NoError(t, err)
 
-	tests := map[string]TestCase{
-		"ACRDoesNotExist": ACRDoesNotExist(),
+	tests := map[string]ACRTestCase{
+		"ACRDoesNotExist": &StateResourceDoesNotExistTestCase{
+			path:    []string{"azurerm_container_registry.acr[0]"},
+			message: "Azure Container Registry (ACR) present when it should not be",
+		},
 	}
 
 	for name, tc := range tests {
@@ -44,12 +51,11 @@ func TestPlanACRStandard(t *testing.T) {
 	require.NotNil(t, plan)
 	require.NoError(t, err)
 
-	tests := map[string]TestCase{
-		"ACRExists":                    ACRExists(),
-		"ACRNameContains":              ACRNameContains("acr"),
-		"ACRSkuMatches":                ACRSkuMatches("Standard"),
-		"ACRAdminMatches":              ACRAdminMatches(true),
-		"ACRGeoReplicationsDoNotExist": ACRGeoReplicationsDoNotExist(),
+	tests := defaultACRTests(variables)
+	tests["ACRGeoReplicationsDoNotExist"] = &StringCompareTestCase{
+		expected: "[]",
+		path:     []string{"azurerm_container_registry.acr[0]", "{$.georeplications}"},
+		message:  "Geo-replications found when they should not be present",
 	}
 
 	for name, tc := range tests {
@@ -73,12 +79,11 @@ func TestPlanACRPremium(t *testing.T) {
 	require.NotNil(t, plan)
 	require.NoError(t, err)
 
-	tests := map[string]TestCase{
-		"ACRExists":                         ACRExists(),
-		"ACRNameContains":                   ACRNameContains("acr"),
-		"ACRSkuMatches":                     ACRSkuMatches("Premium"),
-		"ACRAdminMatches":                   ACRAdminMatches(true),
-		"ACRGeoReplicationLocationsMatches": ACRGeoReplicationLocationsMatches(defaultGeoLocs),
+	tests := defaultACRTests(variables)
+	tests["ACRGeoReplicationLocationsMatches"] = &ElementsMatchTestCase{
+		expected: defaultGeoLocs,
+		path:     []string{"azurerm_container_registry.acr[0]", "{$.georeplications[*].location}"},
+		message:  "Geo-replications do not match expected values",
 	}
 
 	for name, tc := range tests {
@@ -88,56 +93,120 @@ func TestPlanACRPremium(t *testing.T) {
 	}
 }
 
-func ACRDoesNotExist() TestCase {
-	return &StateResourceDoesNotExistTestCase{
-		path:    []string{"azurerm_container_registry.acr[0]"},
-		message: "Azure Container Registry (ACR) present when it should not be",
+func defaultACRTests(variables map[string]interface{}) map[string]ACRTestCase {
+	name := "acr"
+	sku := variables["container_registry_sku"].(string)
+	adminEnabled := variables["container_registry_admin_enabled"].(bool)
+
+	return map[string]ACRTestCase{
+		"ACRExists": &StateResourceExistsTestCase{
+			path:    []string{"azurerm_container_registry.acr[0]"},
+			message: "Azure Container Registry (ACR) not found in the Terraform plan",
+		},
+		"ACRNameContains": &StringContainsTestCase{
+			expected: name,
+			path:     []string{"azurerm_container_registry.acr[0]", "{$.name}"},
+			message:  fmt.Sprintf("ACR name does not contain %s", name),
+		},
+		"ACRSkuMatches": &StringCompareTestCase{
+			expected: sku,
+			path:     []string{"azurerm_container_registry.acr[0]", "{$.sku}"},
+			message:  "Unexpected ACR SKU value",
+		},
+		"ACRAdminMatches": &StringCompareTestCase{
+			expected: strconv.FormatBool(adminEnabled),
+			path:     []string{"azurerm_container_registry.acr[0]", "{$.admin_enabled}"},
+			message:  "Unexpected ACR admin_enabled value",
+		},
 	}
 }
 
-func ACRExists() TestCase {
-	return &StateResourceExistsTestCase{
-		path:    []string{"azurerm_container_registry.acr[0]"},
-		message: "Azure Container Registry (ACR) not found in the Terraform plan",
-	}
+const (
+	STRING = iota
+	STRING_ARRAY
+)
+
+// ACRTestCase this is an experimental design for testing.  Keeping this tucked in the acr test for now
+// with the option to adopt it later.
+type ACRTestCase interface {
+	RunTest(t *testing.T, plan *terraform.PlanStruct)
 }
 
-func ACRNameContains(name string) TestCase {
-	return &StringContainsTestCase{
-		expected: name,
-		path:     []string{"azurerm_container_registry.acr[0]", "{$.name}"},
-		message:  fmt.Sprintf("ACR name does not contain %s", name),
-	}
+// StringCompareTestCase tests that a string value in the plan matches what is expected.
+type StringCompareTestCase struct {
+	expected string
+	path     []string
+	message  string
 }
 
-func ACRSkuMatches(sku string) TestCase {
-	return &StringCompareTestCase{
-		expected: sku,
-		path:     []string{"azurerm_container_registry.acr[0]", "{$.sku}"},
-		message:  "Unexpected ACR SKU value",
-	}
+func (testCase *StringCompareTestCase) RunTest(t *testing.T, plan *terraform.PlanStruct) {
+	actual, err := getExpectedFromPlan(plan, testCase.path, STRING)
+	require.NoError(t, err)
+	assert.Equal(t, testCase.expected, actual, testCase.message)
 }
 
-func ACRAdminMatches(enabled bool) TestCase {
-	return &StringCompareTestCase{
-		expected: strconv.FormatBool(enabled),
-		path:     []string{"azurerm_container_registry.acr[0]", "{$.admin_enabled}"},
-		message:  "Unexpected ACR admin_enabled value",
-	}
+// StringContainsTestCase tests that a string value in the plan contains the expected sub string.
+type StringContainsTestCase struct {
+	expected string
+	path     []string
+	message  string
 }
 
-func ACRGeoReplicationsDoNotExist() TestCase {
-	return &StringCompareTestCase{
-		expected: "[]",
-		path:     []string{"azurerm_container_registry.acr[0]", "{$.georeplications}"},
-		message:  "Geo-replications found when they should not be present",
-	}
+func (testCase *StringContainsTestCase) RunTest(t *testing.T, plan *terraform.PlanStruct) {
+	actual, err := getExpectedFromPlan(plan, testCase.path, STRING)
+	require.NoError(t, err)
+	assert.Contains(t, actual, testCase.expected, testCase.message)
 }
 
-func ACRGeoReplicationLocationsMatches(expected []string) TestCase {
-	return &ElementsMatchTestCase{
-		expected: expected,
-		path:     []string{"azurerm_container_registry.acr[0]", "{$.georeplications[*].location}"},
-		message:  "Geo-replications do not match expected values",
+// StateResourceExistsTestCase tests that a state resource exists at the specified path.
+type StateResourceExistsTestCase struct {
+	path    []string
+	message string
+}
+
+func (testCase *StateResourceExistsTestCase) RunTest(t *testing.T, plan *terraform.PlanStruct) {
+	_, exists := plan.ResourcePlannedValuesMap[testCase.path[0]]
+	assert.True(t, exists, testCase.message)
+}
+
+// StateResourceDoesNotExistTestCase tests that a state resources does not exist at the specified path.
+type StateResourceDoesNotExistTestCase struct {
+	path    []string
+	message string
+}
+
+func (testCase *StateResourceDoesNotExistTestCase) RunTest(t *testing.T, plan *terraform.PlanStruct) {
+	_, exists := plan.ResourcePlannedValuesMap[testCase.path[0]]
+	assert.False(t, exists, testCase.message)
+}
+
+// ElementsMatchTestCase tests that the elements between two arrays match.
+type ElementsMatchTestCase struct {
+	expected []string
+	path     []string
+	message  string
+}
+
+func (testCase *ElementsMatchTestCase) RunTest(t *testing.T, plan *terraform.PlanStruct) {
+	actual, err := getExpectedFromPlan(plan, testCase.path, STRING_ARRAY)
+	require.NoError(t, err)
+	assert.ElementsMatch(t, actual, testCase.expected, testCase.message)
+}
+
+// Note: implement changes here if the path array changes
+func getExpectedFromPlan(plan *terraform.PlanStruct, path []string, expectedType int) (any, error) {
+	valuesMap := plan.ResourcePlannedValuesMap[path[0]]
+
+	switch expectedType {
+	case STRING:
+		return getJsonPathFromStateResource(valuesMap, path[1])
+	case STRING_ARRAY:
+		expected, err := getJsonPathFromStateResource(valuesMap, path[1])
+		if err != nil {
+			return nil, err
+		}
+		return strings.Fields(expected), nil
+	default:
+		return nil, errors.New("unknown return type")
 	}
 }
