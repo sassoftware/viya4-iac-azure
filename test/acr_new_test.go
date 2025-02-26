@@ -43,11 +43,10 @@ func TestPlanACRStandardNew(t *testing.T) {
 			resourceMapName:   "azurerm_container_registry.acr[0]",
 			attributeJsonPath: "{$.georeplications}",
 		},
-		//"nameTest": {
-		//	expected:          "terratestfyppteacr",
-		//	resourceMapName:   "azurerm_container_registry.acr[0]",
-		//	attributeJsonPath: "{$.name}",
-		//},
+		"nameTest": {
+			resourceMapName:   "azurerm_container_registry.acr[0]",
+			attributeJsonPath: "{$.name}",
+		},
 		"skuTest": {
 			expected:          "Standard",
 			resourceMapName:   "azurerm_container_registry.acr[0]",
@@ -68,6 +67,14 @@ func TestPlanACRStandardNew(t *testing.T) {
 	require.NotNil(t, plan)
 	require.NoError(t, err)
 
+	resource, resourceExists := plan.ResourcePlannedValuesMap["azurerm_container_registry.acr[0]"]
+	require.True(t, resourceExists)
+	acrName, nameExists := resource.AttributeValues["name"].(string)
+	require.True(t, nameExists)
+	nameTestCase := acrStandardTests["nameTest"]
+	nameTestCase.expected = acrName
+	acrStandardTests["nameTest"] = nameTestCase
+
 	for name, tc := range acrStandardTests {
 		t.Run(name, func(t *testing.T) {
 			runTest(t, tc, plan)
@@ -83,11 +90,10 @@ func TestPlanACRPremiumNew(t *testing.T) {
 			resourceMapName:   "azurerm_container_registry.acr[0]",
 			attributeJsonPath: "{$.georeplications[*].location}",
 		},
-		//"nameTest": {
-		//	expected:          "terratestws5omyacr",
-		//	resourceMapName:   "azurerm_container_registry.acr[0]",
-		//	attributeJsonPath: "{$.name}",
-		//},
+		"nameTest": {
+			resourceMapName:   "azurerm_container_registry.acr[0]",
+			attributeJsonPath: "{$.name}",
+		},
 		"skuTest": {
 			expected:          "Premium",
 			resourceMapName:   "azurerm_container_registry.acr[0]",
@@ -108,6 +114,14 @@ func TestPlanACRPremiumNew(t *testing.T) {
 	plan, err := initPlanWithVariables(t, variables)
 	require.NotNil(t, plan)
 	require.NoError(t, err)
+
+	resource, resourceExists := plan.ResourcePlannedValuesMap["azurerm_container_registry.acr[0]"]
+	require.True(t, resourceExists)
+	acrName, nameExists := resource.AttributeValues["name"].(string)
+	require.True(t, nameExists)
+	nameTestCase := acrPremiumTests["nameTest"]
+	nameTestCase.expected = acrName
+	acrPremiumTests["nameTest"] = nameTestCase
 
 	for name, tc := range acrPremiumTests {
 		t.Run(name, func(t *testing.T) {
