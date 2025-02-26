@@ -269,3 +269,87 @@ func TestPlanAdditionalNodePools(t *testing.T) {
 		})
 	}
 }
+
+// Test the default location variable when using the sample-input-defaults.tfvars file.
+// Verify that the tfplan is using the default location variable from the CONFIG-VARS which in this case is "eastus"
+// module.aks.data.azurerm_public_ip.cluster_public_ip[0] location is set after apply.
+func TestPlanLocation(t *testing.T) {
+	storageTests := map[string]testCase{
+		"networkSecurityGroupLocationTest": {
+			expected:          "eastus",
+			resourceMapName:   "azurerm_network_security_group.nsg[0]",
+			attributeJsonPath: "{$.location}",
+		},
+		"resourceGroupAKSRGLocationTest": {
+			expected:          "eastus",
+			resourceMapName:   "azurerm_resource_group.aks_rg[0]",
+			attributeJsonPath: "{$.location}",
+		},
+		"userAssignedIdentityUAILocationTest": {
+			expected:          "eastus",
+			resourceMapName:   "azurerm_user_assigned_identity.uai[0]",
+			attributeJsonPath: "{$.location}",
+		},
+		"kubernetesClusterAKSLocationTest": {
+			expected:          "eastus",
+			resourceMapName:   "module.aks.azurerm_kubernetes_cluster.aks",
+			attributeJsonPath: "{$.location}",
+		},
+		"jumpLinuxVirtualMachineVMLocationTest": {
+			expected:          "eastus",
+			resourceMapName:   "module.jump[0].azurerm_linux_virtual_machine.vm",
+			attributeJsonPath: "{$.location}",
+		},
+		"jumpNetworkInterfaceVMNICLocationTest": {
+			expected:          "eastus",
+			resourceMapName:   "module.jump[0].azurerm_network_interface.vm_nic",
+			attributeJsonPath: "{$.location}",
+		},
+		"jumpPublicIPVMPIPLocationTest": {
+			expected:          "eastus",
+			resourceMapName:   "module.jump[0].azurerm_public_ip.vm_ip[0]",
+			attributeJsonPath: "{$.location}",
+		},
+		"nfsManagedDiskVMDataDisk0LocationTest": {
+			expected:          "eastus",
+			resourceMapName:   "module.nfs[0].azurerm_managed_disk.vm_data_disk[0]",
+			attributeJsonPath: "{$.location}",
+		},
+		"nfsManagedDiskVMDataDisk1LocationTest": {
+			expected:          "eastus",
+			resourceMapName:   "module.nfs[0].azurerm_managed_disk.vm_data_disk[1]",
+			attributeJsonPath: "{$.location}",
+		},
+		"nfsManagedDiskVMDataDisk2LocationTest": {
+			expected:          "eastus",
+			resourceMapName:   "module.nfs[0].azurerm_managed_disk.vm_data_disk[2]",
+			attributeJsonPath: "{$.location}",
+		},
+		"nfsManagedDiskVMDataDisk3LocationTest": {
+			expected:          "eastus",
+			resourceMapName:   "module.nfs[0].azurerm_managed_disk.vm_data_disk[3]",
+			attributeJsonPath: "{$.location}",
+		},
+		"nfsNetworkInterfaceVMNICLocationTest": {
+			expected:          "eastus",
+			resourceMapName:   "module.nfs[0].azurerm_network_interface.vm_nic",
+			attributeJsonPath: "{$.location}",
+		},
+		"virtualNetworkVNETLocationTest": {
+			expected:          "eastus",
+			resourceMapName:   "module.vnet.azurerm_virtual_network.vnet[0]",
+			attributeJsonPath: "{$.location}",
+		},
+	}
+
+	variables := getDefaultPlanVars(t)
+	plan, err := initPlanWithVariables(t, variables)
+	require.NotNil(t, plan)
+	require.NoError(t, err)
+
+	for name, tc := range storageTests {
+		t.Run(name, func(t *testing.T) {
+			runTest(t, tc, plan)
+		})
+	}
+}

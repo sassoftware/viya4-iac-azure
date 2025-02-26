@@ -7,6 +7,8 @@ import (
 	"strings"
 	"testing"
 
+	"test/validation"
+
 	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	test_structure "github.com/gruntwork-io/terratest/modules/test-structure"
@@ -14,7 +16,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"k8s.io/client-go/util/jsonpath"
-	"test/validation"
 )
 
 // getJsonPathFromResourcePlannedValuesMap retrieves the value of a jsonpath query on a given *terraform.PlanStruct
@@ -69,7 +70,7 @@ func getPlanVars(t *testing.T, tfVarsPath string) map[string]interface{} {
 func initPlanWithVariables(t *testing.T, variables map[string]interface{}) (*terraform.PlanStruct, error) {
 	// Create a temporary plan file
 	planFileName := "testplan-" + variables["prefix"].(string) + ".tfplan"
-	planFilePath := filepath.Join("/tmp/", planFileName)
+	planFilePath := filepath.Join(os.TempDir(), planFileName)
 	defer os.Remove(planFilePath)
 
 	// Copy the terraform folder to a temp folder
