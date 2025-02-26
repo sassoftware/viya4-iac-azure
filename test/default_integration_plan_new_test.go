@@ -78,6 +78,31 @@ func TestPlanNetwork(t *testing.T) {
 			resourceMapName:   "module.vnet.azurerm_virtual_network.vnet[0]",
 			attributeJsonPath: "{$.address_space}",
 		},
+		"vnet_subnetTest": {
+			expected:          "",
+			resourceMapName:   "module.vnet.azurerm_virtual_network.vnet[0]",
+			attributeJsonPath: "{$.subnet[0].name}",
+		},
+		"clusterEgressTypeTest": {
+			expected:          "loadBalancer",
+			resourceMapName:   "module.aks.azurerm_kubernetes_cluster.aks",
+			attributeJsonPath: "{$.network_profile[0].outbound_type}",
+		},
+		"networkPluginTest": {
+			expected:          "kubenet",
+			resourceMapName:   "module.aks.azurerm_kubernetes_cluster.aks",
+			attributeJsonPath: "{$.network_profile[0].network_plugin}",
+		},
+		"aksNetworkPolicyTest": {
+			expected:          "",
+			resourceMapName:   "module.aks.azurerm_kubernetes_cluster.aks",
+			attributeJsonPath: "{$.expressions.aks_network_policy.reference[0]}",
+		},
+		"aksNetworkPluginModeTest": {
+			expected:          "",
+			resourceMapName:   "module.aks.azurerm_kubernetes_cluster.aks",
+			attributeJsonPath: "{$.expressions.aks_network_plugin_mode.reference[0]}",
+		},
 	}
 
 	variables := getDefaultPlanVars(t)
