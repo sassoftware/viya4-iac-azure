@@ -1,0 +1,124 @@
+package test
+
+import (
+	"testing"
+
+	"github.com/gruntwork-io/terratest/modules/terraform"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+)
+
+//const ACR_STATEFUL_SOURCE = "azurerm_container_registry.acr[0]"
+
+// Verify Acr disabled stuff
+func TestPlanAcrDisabledNew(t *testing.T) {
+	acrDisabledTests := map[string]testCase{
+		"acrDisabledTest": {
+			expected:          "",
+			resourceMapName:   "azurerm_container_registry.acr[0]",
+			attributeJsonPath: "{$}",
+			retriever:         resourceRetrieverRequireNotExist,
+		},
+	}
+
+	variables := getDefaultPlanVars(t)
+	variables["create_container_registry"] = false
+	variables["container_registry_admin_enabled"] = true
+	plan, err := initPlanWithVariables(t, variables)
+	require.NotNil(t, plan)
+	require.NoError(t, err)
+
+	for name, tc := range acrDisabledTests {
+		t.Run(name, func(t *testing.T) {
+			runTest(t, tc, plan)
+		})
+	}
+}
+
+// Verify Acr standard stuff
+func TestPlanACRStandardNew(t *testing.T) {
+	acrStandardTests := map[string]testCase{
+		"acrGeoRepsNotExistTest": {
+			expected:          "[]",
+			resourceMapName:   "azurerm_container_registry.acr[0]",
+			attributeJsonPath: "{$.georeplications}",
+		},
+		//"nameTest": {
+		//	expected:          "terratestfyppteacr",
+		//	resourceMapName:   "azurerm_container_registry.acr[0]",
+		//	attributeJsonPath: "{$.name}",
+		//},
+		"skuTest": {
+			expected:          "Standard",
+			resourceMapName:   "azurerm_container_registry.acr[0]",
+			attributeJsonPath: "{$.sku}",
+		},
+		"adminEnabledTest": {
+			expected:          "true",
+			resourceMapName:   "azurerm_container_registry.acr[0]",
+			attributeJsonPath: "{$.admin_enabled}",
+		},
+	}
+
+	variables := getDefaultPlanVars(t)
+	variables["create_container_registry"] = true
+	variables["container_registry_admin_enabled"] = true
+	variables["container_registry_sku"] = "Standard"
+	plan, err := initPlanWithVariables(t, variables)
+	require.NotNil(t, plan)
+	require.NoError(t, err)
+
+	for name, tc := range acrStandardTests {
+		t.Run(name, func(t *testing.T) {
+			runTest(t, tc, plan)
+		})
+	}
+}
+
+// Verify Acr premium stuff
+func TestPlanACRPremiumNew(t *testing.T) {
+	acrPremiumTests := map[string]testCase{
+		"locationsTest": {
+			expected:          "southeastus3 southeastus5",
+			resourceMapName:   "azurerm_container_registry.acr[0]",
+			attributeJsonPath: "{$.georeplications[*].location}",
+		},
+		//"nameTest": {
+		//	expected:          "terratestws5omyacr",
+		//	resourceMapName:   "azurerm_container_registry.acr[0]",
+		//	attributeJsonPath: "{$.name}",
+		//},
+		"skuTest": {
+			expected:          "Premium",
+			resourceMapName:   "azurerm_container_registry.acr[0]",
+			attributeJsonPath: "{$.sku}",
+		},
+		"adminEnabledTest": {
+			expected:          "true",
+			resourceMapName:   "azurerm_container_registry.acr[0]",
+			attributeJsonPath: "{$.admin_enabled}",
+		},
+	}
+
+	variables := getDefaultPlanVars(t)
+	variables["create_container_registry"] = true
+	variables["container_registry_admin_enabled"] = true
+	variables["container_registry_sku"] = "Premium"
+	variables["container_registry_geo_replica_locs"] = []string{"southeastus5", "southeastus3"}
+	plan, err := initPlanWithVariables(t, variables)
+	require.NotNil(t, plan)
+	require.NoError(t, err)
+
+	for name, tc := range acrPremiumTests {
+		t.Run(name, func(t *testing.T) {
+			runTest(t, tc, plan)
+		})
+	}
+}
+
+func resourceRetrieverRequireNotExist(t *testing.T, plan *terraform.PlanStruct, resourceMapName string,
+	attributeJsonPath string) (string, error) {
+	_, exists := plan.ResourcePlannedValuesMap[resourceMapName]
+	assert.False(t, exists, "Should not be present")
+	return "", nil
+}

@@ -25,7 +25,7 @@ func TestDefaultRbacEnabledGroupIds(t *testing.T) {
 	assert.NoError(t, err)
 
 	// admin_group_object_ids default is null list(string)
-	groupids, err := getJsonPathFromResourcePlannedValuesMap(plan, RBAC_STATEFUL_SOURCE, "{$..admin_group_object_ids}")
+	groupids, err := getJsonPathFromResourcePlannedValuesMap(t, plan, RBAC_STATEFUL_SOURCE, "{$..admin_group_object_ids}")
 	assert.NoError(t, err)
 	assert.Equal(t, "<nil>", groupids)
 }
