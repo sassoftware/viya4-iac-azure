@@ -206,3 +206,293 @@ func TestPlanNodePoolsNew(t *testing.T) {
 		})
 	}
 }
+
+// Test the default additional nodepool variables when using the sample-input-defaults.tfvars file.
+// Verify that the tfplan is using the default variables from the CONFIG-VARS
+func TestPlanAdditionalNodePools(t *testing.T) {
+	type attrTuple struct {
+		expectedValue string
+		jsonPath      string
+	}
+
+	type nodepoolTestcase struct {
+		expected map[string]attrTuple
+	}
+
+	nodepoolTests := map[string]nodepoolTestcase{
+		"stateless": {
+			expected: map[string]attrTuple{
+				"MachineType":       {`Standard_D4s_v5`, "{$.vm_size}"},
+				"OsDiskSize":        {`200`, "{$.os_disk_size_gb}"},
+				"MinNodes":          {`0`, "{$.min_count}"},
+				"MaxNodes":          {`5`, "{$.max_count}"},
+				"MaxPods":           {`110`, "{$.max_pods}"},
+				"NodeTaints":        {`["workload.sas.com/class=stateless:NoSchedule"]`, "{$.node_taints}"},
+				"NodeLabels":        {`{"workload.sas.com/class":"stateless"}`, "{$.node_labels}"},
+				"AvailabilityZones": {`["1"]`, "{$.zones}"},
+				"FipsEnabled":       {`false`, "{$.fips_enabled}"},
+			},
+		},
+		"stateful": {
+			expected: map[string]attrTuple{
+				"MachineType":       {`Standard_D4s_v5`, "{$.vm_size}"},
+				"OsDiskSize":        {`200`, "{$.os_disk_size_gb}"},
+				"MinNodes":          {`0`, "{$.min_count}"},
+				"MaxNodes":          {`3`, "{$.max_count}"},
+				"MaxPods":           {`110`, "{$.max_pods}"},
+				"NodeTaints":        {`["workload.sas.com/class=stateful:NoSchedule"]`, "{$.node_taints}"},
+				"NodeLabels":        {`{"workload.sas.com/class":"stateful"}`, "{$.node_labels}"},
+				"AvailabilityZones": {`["1"]`, "{$.zones}"},
+				"FipsEnabled":       {`false`, "{$.fips_enabled}"},
+			},
+		},
+		"cas": {
+			expected: map[string]attrTuple{
+				"MachineType":       {`Standard_E16ds_v5`, "{$.vm_size}"},
+				"OsDiskSize":        {`200`, "{$.os_disk_size_gb}"},
+				"MinNodes":          {`0`, "{$.min_count}"},
+				"MaxNodes":          {`5`, "{$.max_count}"},
+				"MaxPods":           {`110`, "{$.max_pods}"},
+				"NodeTaints":        {`["workload.sas.com/class=cas:NoSchedule"]`, "{$.node_taints}"},
+				"NodeLabels":        {`{"workload.sas.com/class":"cas"}`, "{$.node_labels}"},
+				"AvailabilityZones": {`["1"]`, "{$.zones}"},
+				"FipsEnabled":       {`false`, "{$.fips_enabled}"},
+			},
+		},
+		"compute": {
+			expected: map[string]attrTuple{
+				"MachineType":       {`Standard_D4ds_v5`, "{$.vm_size}"},
+				"OsDiskSize":        {`200`, "{$.os_disk_size_gb}"},
+				"MinNodes":          {`1`, "{$.min_count}"},
+				"MaxNodes":          {`5`, "{$.max_count}"},
+				"MaxPods":           {`110`, "{$.max_pods}"},
+				"NodeTaints":        {`["workload.sas.com/class=compute:NoSchedule"]`, "{$.node_taints}"},
+				"NodeLabels":        {`{"launcher.sas.com/prepullImage":"sas-programming-environment","workload.sas.com/class":"compute"}`, "{$.node_labels}"},
+				"AvailabilityZones": {`["1"]`, "{$.zones}"},
+				"FipsEnabled":       {`false`, "{$.fips_enabled}"},
+			},
+		},
+	}
+
+	variables := getDefaultPlanVars(t)
+	plan, err := initPlanWithVariables(t, variables)
+	require.NotNil(t, plan)
+	require.NoError(t, err)
+
+	for name, tc := range nodepoolTests {
+		t.Run(name, func(t *testing.T) {
+			resourceMapName := "module.node_pools[\"" + name + "\"].azurerm_kubernetes_cluster_node_pool.autoscale_node_pool[0]"
+			for attrName, attrTuple := range tc.expected {
+				t.Run(attrName, func(t *testing.T) {
+					runTest(t, testCase{
+						expected:          attrTuple.expectedValue,
+						resourceMapName:   resourceMapName,
+						attributeJsonPath: attrTuple.jsonPath,
+					}, plan)
+				})
+			}
+		})
+	}
+}
+
+// Test the default location variable when using the sample-input-defaults.tfvars file.
+// Verify that the tfplan is using the default location variable from the CONFIG-VARS which in this case is "eastus"
+// module.aks.data.azurerm_public_ip.cluster_public_ip[0] location is set after apply.
+func TestPlanLocation(t *testing.T) {
+	storageTests := map[string]testCase{
+		"networkSecurityGroupLocationTest": {
+			expected:          "eastus",
+			resourceMapName:   "azurerm_network_security_group.nsg[0]",
+			attributeJsonPath: "{$.location}",
+		},
+		"resourceGroupAKSRGLocationTest": {
+			expected:          "eastus",
+			resourceMapName:   "azurerm_resource_group.aks_rg[0]",
+			attributeJsonPath: "{$.location}",
+		},
+		"userAssignedIdentityUAILocationTest": {
+			expected:          "eastus",
+			resourceMapName:   "azurerm_user_assigned_identity.uai[0]",
+			attributeJsonPath: "{$.location}",
+		},
+		"kubernetesClusterAKSLocationTest": {
+			expected:          "eastus",
+			resourceMapName:   "module.aks.azurerm_kubernetes_cluster.aks",
+			attributeJsonPath: "{$.location}",
+		},
+		"jumpLinuxVirtualMachineVMLocationTest": {
+			expected:          "eastus",
+			resourceMapName:   "module.jump[0].azurerm_linux_virtual_machine.vm",
+			attributeJsonPath: "{$.location}",
+		},
+		"jumpNetworkInterfaceVMNICLocationTest": {
+			expected:          "eastus",
+			resourceMapName:   "module.jump[0].azurerm_network_interface.vm_nic",
+			attributeJsonPath: "{$.location}",
+		},
+		"jumpPublicIPVMPIPLocationTest": {
+			expected:          "eastus",
+			resourceMapName:   "module.jump[0].azurerm_public_ip.vm_ip[0]",
+			attributeJsonPath: "{$.location}",
+		},
+		"nfsManagedDiskVMDataDisk0LocationTest": {
+			expected:          "eastus",
+			resourceMapName:   "module.nfs[0].azurerm_managed_disk.vm_data_disk[0]",
+			attributeJsonPath: "{$.location}",
+		},
+		"nfsManagedDiskVMDataDisk1LocationTest": {
+			expected:          "eastus",
+			resourceMapName:   "module.nfs[0].azurerm_managed_disk.vm_data_disk[1]",
+			attributeJsonPath: "{$.location}",
+		},
+		"nfsManagedDiskVMDataDisk2LocationTest": {
+			expected:          "eastus",
+			resourceMapName:   "module.nfs[0].azurerm_managed_disk.vm_data_disk[2]",
+			attributeJsonPath: "{$.location}",
+		},
+		"nfsManagedDiskVMDataDisk3LocationTest": {
+			expected:          "eastus",
+			resourceMapName:   "module.nfs[0].azurerm_managed_disk.vm_data_disk[3]",
+			attributeJsonPath: "{$.location}",
+		},
+		"nfsNetworkInterfaceVMNICLocationTest": {
+			expected:          "eastus",
+			resourceMapName:   "module.nfs[0].azurerm_network_interface.vm_nic",
+			attributeJsonPath: "{$.location}",
+		},
+		"virtualNetworkVNETLocationTest": {
+			expected:          "eastus",
+			resourceMapName:   "module.vnet.azurerm_virtual_network.vnet[0]",
+			attributeJsonPath: "{$.location}",
+		},
+	}
+
+	variables := getDefaultPlanVars(t)
+	plan, err := initPlanWithVariables(t, variables)
+	require.NotNil(t, plan)
+	require.NoError(t, err)
+
+	for name, tc := range storageTests {
+		t.Run(name, func(t *testing.T) {
+			runTest(t, tc, plan)
+		})
+	}
+}
+
+
+// create_nfs_public_ip
+//assert.Nil(t, nfsPublicIP, "NFS Public IP should not be created when create_nfs_public_ip=false")
+func TestPlanNFSPublicIP(t *testing.T) {
+        nfsIPTests := map[string]testCase{
+                "nfsPublicIP": {
+                        expected:          `nil`,
+                        resourceMapName:   "module.nfs[0].azurerm_public_ip.vm_ip[0]",
+                        attributeJsonPath: "{$}",
+                        assertFunction:    assert.Equal,
+			message:	   "NFS Public IP should not be created when create_nfs_public_ip=false",
+                },
+        }
+
+        variables := getDefaultPlanVars(t)
+        plan, err := initPlanWithVariables(t, variables)
+        require.NotNil(t, plan)
+        require.NoError(t, err)
+
+        for name, tc := range nfsIPTests {
+                t.Run(name, func(t *testing.T) {
+                        runTest(t, tc, plan)
+                })
+        }
+}
+
+func TestPlanNFSDisk(t *testing.T) {
+        nfsDiskTests := map[string]testCase{
+                "nfsDataDisk0NotNilTest": {
+                        expected:          "<nil>",
+                        resourceMapName:   "module.nfs[0].azurerm_managed_disk.vm_data_disk[0]",
+                        attributeJsonPath: "{$}",
+                        assertFunction:    assert.NotEqual,
+			message:	   "NFS Data Disk 0 should be created for NFS VM",
+                },
+                "raid_disk0_type": {
+                        expected:          "Standard_LRS",
+                        resourceMapName:   "module.nfs[0].azurerm_managed_disk.vm_data_disk[0]",
+                        attributeJsonPath: "{$.storage_account_type}",
+			message: 	   "NFS Data Disk 0 should be created with Standard_LRS storage account type",
+                },
+                "disk0_size_gb0": {
+                        expected:          "256",
+                        resourceMapName:   "module.nfs[0].azurerm_managed_disk.vm_data_disk[0]",
+                        attributeJsonPath: "{$.disk_size_gb}",
+			message:	   "NFS Data Disk 0 should be created with 256 GB size",
+                },
+                "nfsDataDisk1NotNilTest": {
+                        expected:          "<nil>",
+                        resourceMapName:   "module.nfs[0].azurerm_managed_disk.vm_data_disk[1]",
+                        attributeJsonPath: "{$}",
+                        assertFunction:    assert.NotEqual,
+			message:	   "NFS Data Disk 1 should be created for NFS VM",
+                },
+                "raid_disk1_type": {
+                        expected:          "Standard_LRS",
+                        resourceMapName:   "module.nfs[0].azurerm_managed_disk.vm_data_disk[1]",
+                        attributeJsonPath: "{$.storage_account_type}",
+			message: 	   "NFS Data Disk 1 should be created with Standard_LRS storage account type",
+                },
+                "disk1_size_gb": {
+                        expected:          "256",
+                        resourceMapName:   "module.nfs[0].azurerm_managed_disk.vm_data_disk[1]",
+                        attributeJsonPath: "{$.disk_size_gb}",
+			message:	   "NFS Data Disk 1 should be created with 256 GB size",
+                },
+                "nfsDataDisk2NotNilTest": {
+                        expected:          "<nil>",
+                        resourceMapName:   "module.nfs[0].azurerm_managed_disk.vm_data_disk[2]",
+                        attributeJsonPath: "{$}",
+                        assertFunction:    assert.NotEqual,
+			message:	   "NFS Data Disk 2 should be created for NFS VM",
+                },
+                "raid_disk2_type": {
+                        expected:          "Standard_LRS",
+                        resourceMapName:   "module.nfs[0].azurerm_managed_disk.vm_data_disk[2]",
+                        attributeJsonPath: "{$.storage_account_type}",
+			message: 	   "NFS Data Disk 2 should be created with Standard_LRS storage account type",
+                },
+                "disk2_size_gb": {
+                        expected:          "256",
+                        resourceMapName:   "module.nfs[0].azurerm_managed_disk.vm_data_disk[2]",
+                        attributeJsonPath: "{$.disk_size_gb}",
+			message:	   "NFS Data Disk 2 should be created with 256 GB size",
+                },
+                "nfsDataDisk3NotNilTest": {
+                        expected:          "<nil>",
+                        resourceMapName:   "module.nfs[0].azurerm_managed_disk.vm_data_disk[3]",
+                        attributeJsonPath: "{$}",
+                        assertFunction:    assert.NotEqual,
+			message:	   "NFS Data Disk 3 should be created for NFS VM",
+                },
+                "raid_disk3_type": {
+                        expected:          "Standard_LRS",
+                        resourceMapName:   "module.nfs[0].azurerm_managed_disk.vm_data_disk[3]",
+                        attributeJsonPath: "{$.storage_account_type}",
+			message: 	   "NFS Data Disk 3 should be created with Standard_LRS storage account type",
+                },
+                "disk3_size_gb": {
+                        expected:          "256",
+                        resourceMapName:   "module.nfs[0].azurerm_managed_disk.vm_data_disk[3]",
+                        attributeJsonPath: "{$.disk_size_gb}",
+			message:	   "NFS Data Disk 3 should be created with 256 GB size",
+                },
+        }
+
+        variables := getDefaultPlanVars(t)
+        plan, err := initPlanWithVariables(t, variables)
+        require.NotNil(t, plan)
+        require.NoError(t, err)
+
+        for name, tc := range nfsDiskTests {
+                t.Run(name, func(t *testing.T) {
+                        runTest(t, tc, plan)
+                })
+        }
+}

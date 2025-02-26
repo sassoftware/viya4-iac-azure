@@ -7,6 +7,8 @@ import (
 	"strings"
 	"testing"
 
+	"test/validation"
+
 	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	test_structure "github.com/gruntwork-io/terratest/modules/test-structure"
@@ -14,18 +16,20 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"k8s.io/client-go/util/jsonpath"
-	"test/validation"
 )
 
 // getJsonPathFromResourcePlannedValuesMap retrieves the value of a jsonpath query on a given *terraform.PlanStruct
-func getJsonPathFromResourcePlannedValuesMap(plan *terraform.PlanStruct, resourceMapName string, jsonPath string) (string, error) {
-	valuesMap := plan.ResourcePlannedValuesMap[resourceMapName]
-	return getJsonPathFromStateResource(valuesMap, jsonPath)
+func getJsonPathFromResourcePlannedValuesMap(t *testing.T, plan *terraform.PlanStruct, resourceMapName string, jsonPath string) (string, error) {
+	valuesMap, exists := plan.ResourcePlannedValuesMap[resourceMapName]
+	if !exists {
+		return "nil", nil
+	}
+	return getJsonPathFromStateResource(t, valuesMap, jsonPath)
 }
 
 // getJsonPathFromResourcePlannedValuesMap retrieves the value of a jsonpath query on a given *tfjson.StateResource
 // map is visited in random order
-func getJsonPathFromStateResource(resource *tfjson.StateResource, jsonPath string) (string, error) {
+func getJsonPathFromStateResource(t *testing.T, resource *tfjson.StateResource, jsonPath string) (string, error) {
 	j := jsonpath.New("PlanParser")
 	j.AllowMissingKeys(true)
 	err := j.Parse(jsonPath)
@@ -69,7 +73,7 @@ func getPlanVars(t *testing.T, tfVarsPath string) map[string]interface{} {
 func initPlanWithVariables(t *testing.T, variables map[string]interface{}) (*terraform.PlanStruct, error) {
 	// Create a temporary plan file
 	planFileName := "testplan-" + variables["prefix"].(string) + ".tfplan"
-	planFilePath := filepath.Join("/tmp/", planFileName)
+	planFilePath := filepath.Join(os.TempDir(), planFileName)
 	defer os.Remove(planFilePath)
 
 	// Copy the terraform folder to a temp folder
@@ -94,6 +98,7 @@ type testCase struct {
 	resourceMapName   string
 	attributeJsonPath string
 	assertFunction    assert.ComparisonAssertionFunc
+	message           string
 }
 
 // runTest runs a test case
@@ -102,16 +107,16 @@ func runTest(t *testing.T, tc testCase, plan *terraform.PlanStruct) {
 	if retrieverFn == nil {
 		retrieverFn = getJsonPathFromResourcePlannedValuesMap
 	}
-	actual, err := retrieverFn(plan, tc.resourceMapName, tc.attributeJsonPath)
+	actual, err := retrieverFn(t, plan, tc.resourceMapName, tc.attributeJsonPath)
 	require.NoError(t, err)
 	assertFn := tc.assertFunction
 	if assertFn == nil {
 		assertFn = assert.Equal
 	}
 	validateFn := validation.AssertComparison(assertFn, tc.expected)
-	validateFn(t, actual)
+	validateFn(t, actual, tc.message)
 }
 
 // A Retriever retrieves the value from a *terraform.PlanStruct plan,
 // given a resource map name and json path
-type Retriever func(plan *terraform.PlanStruct, resourceMapName string, jsonPath string) (string, error)
+type Retriever func(t *testing.T, plan *terraform.PlanStruct, resourceMapName string, jsonPath string) (string, error)
