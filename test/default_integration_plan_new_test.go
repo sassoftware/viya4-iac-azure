@@ -144,27 +144,27 @@ func TestPlanNodePoolsNew(t *testing.T) {
 			attributeJsonPath: "{$.default_node_pool[0].vm_size}",
 		},
 		"defaultNodepoolOsDiskSizeTest": {
-			expected:          128,
+			expected:          "128",
 			resourceMapName:   "module.aks.azurerm_kubernetes_cluster.aks",
 			attributeJsonPath: "{$.default_node_pool[0].os_disk_size_gb}",
 		},
 		"defaultNodepoolMaxPodsTest": {
-			expected:          110,
+			expected:          "110",
 			resourceMapName:   "module.aks.azurerm_kubernetes_cluster.aks",
 			attributeJsonPath: "{$.default_node_pool[0].max_pods}",
 		},
 		"defaultNodepoolMinNodesTest": {
-			expected:          1,
+			expected:          "1",
 			resourceMapName:   "module.aks.azurerm_kubernetes_cluster.aks",
 			attributeJsonPath: "{$.default_node_pool[0].min_count}",
 		},
 		"defaultNodepoolMaxNodesTest": {
-			expected:          5,
+			expected:          "5",
 			resourceMapName:   "module.aks.azurerm_kubernetes_cluster.aks",
 			attributeJsonPath: "{$.default_node_pool[0].max_count}",
 		},
 		"defaultNodepoolAvailabilityZonesTest": {
-			expected:          []string{"1"},
+			expected:          "[\"1\"]",
 			resourceMapName:   "module.aks.azurerm_kubernetes_cluster.aks",
 			attributeJsonPath: "{$.default_node_pool[0].zones}",
 		},
