@@ -144,27 +144,27 @@ func TestPlanNodePoolsNew(t *testing.T) {
 			attributeJsonPath: "{$.default_node_pool[0].vm_size}",
 		},
 		"defaultNodepoolOsDiskSizeTest": {
-			expected:          128,
+			expected:          "128",
 			resourceMapName:   "module.aks.azurerm_kubernetes_cluster.aks",
 			attributeJsonPath: "{$.default_node_pool[0].os_disk_size_gb}",
 		},
 		"defaultNodepoolMaxPodsTest": {
-			expected:          110,
+			expected:          "110",
 			resourceMapName:   "module.aks.azurerm_kubernetes_cluster.aks",
 			attributeJsonPath: "{$.default_node_pool[0].max_pods}",
 		},
 		"defaultNodepoolMinNodesTest": {
-			expected:          1,
+			expected:          "1",
 			resourceMapName:   "module.aks.azurerm_kubernetes_cluster.aks",
 			attributeJsonPath: "{$.default_node_pool[0].min_count}",
 		},
 		"defaultNodepoolMaxNodesTest": {
-			expected:          5,
+			expected:          "5",
 			resourceMapName:   "module.aks.azurerm_kubernetes_cluster.aks",
 			attributeJsonPath: "{$.default_node_pool[0].max_count}",
 		},
 		"defaultNodepoolAvailabilityZonesTest": {
-			expected:          []string{"1"},
+			expected:          "[\"1\"]",
 			resourceMapName:   "module.aks.azurerm_kubernetes_cluster.aks",
 			attributeJsonPath: "{$.default_node_pool[0].zones}",
 		},
@@ -178,6 +178,94 @@ func TestPlanNodePoolsNew(t *testing.T) {
 	for name, tc := range nodePoolTests {
 		t.Run(name, func(t *testing.T) {
 			runTest(t, tc, plan)
+		})
+	}
+}
+
+// Test the default additional nodepool variables when using the sample-input-defaults.tfvars file.
+// Verify that the tfplan is using the default variables from the CONFIG-VARS
+func TestPlanAdditionalNodePools(t *testing.T) {
+	type attrTuple struct {
+		expectedValue string
+		jsonPath      string
+	}
+
+	type nodepoolTestcase struct {
+		expected map[string]attrTuple
+	}
+
+	nodepoolTests := map[string]nodepoolTestcase{
+		"stateless": {
+			expected: map[string]attrTuple{
+				"MachineType":       {`Standard_D4s_v5`, "{$.vm_size}"},
+				"OsDiskSize":        {`200`, "{$.os_disk_size_gb}"},
+				"MinNodes":          {`0`, "{$.min_count}"},
+				"MaxNodes":          {`5`, "{$.max_count}"},
+				"MaxPods":           {`110`, "{$.max_pods}"},
+				"NodeTaints":        {`["workload.sas.com/class=stateless:NoSchedule"]`, "{$.node_taints}"},
+				"NodeLabels":        {`{"workload.sas.com/class":"stateless"}`, "{$.node_labels}"},
+				"AvailabilityZones": {`["1"]`, "{$.zones}"},
+				"FipsEnabled":       {`false`, "{$.fips_enabled}"},
+			},
+		},
+		"stateful": {
+			expected: map[string]attrTuple{
+				"MachineType":       {`Standard_D4s_v5`, "{$.vm_size}"},
+				"OsDiskSize":        {`200`, "{$.os_disk_size_gb}"},
+				"MinNodes":          {`0`, "{$.min_count}"},
+				"MaxNodes":          {`3`, "{$.max_count}"},
+				"MaxPods":           {`110`, "{$.max_pods}"},
+				"NodeTaints":        {`["workload.sas.com/class=stateful:NoSchedule"]`, "{$.node_taints}"},
+				"NodeLabels":        {`{"workload.sas.com/class":"stateful"}`, "{$.node_labels}"},
+				"AvailabilityZones": {`["1"]`, "{$.zones}"},
+				"FipsEnabled":       {`false`, "{$.fips_enabled}"},
+			},
+		},
+		"cas": {
+			expected: map[string]attrTuple{
+				"MachineType":       {`Standard_E16ds_v5`, "{$.vm_size}"},
+				"OsDiskSize":        {`200`, "{$.os_disk_size_gb}"},
+				"MinNodes":          {`0`, "{$.min_count}"},
+				"MaxNodes":          {`5`, "{$.max_count}"},
+				"MaxPods":           {`110`, "{$.max_pods}"},
+				"NodeTaints":        {`["workload.sas.com/class=cas:NoSchedule"]`, "{$.node_taints}"},
+				"NodeLabels":        {`{"workload.sas.com/class":"cas"}`, "{$.node_labels}"},
+				"AvailabilityZones": {`["1"]`, "{$.zones}"},
+				"FipsEnabled":       {`false`, "{$.fips_enabled}"},
+			},
+		},
+		"compute": {
+			expected: map[string]attrTuple{
+				"MachineType":       {`Standard_D4ds_v5`, "{$.vm_size}"},
+				"OsDiskSize":        {`200`, "{$.os_disk_size_gb}"},
+				"MinNodes":          {`1`, "{$.min_count}"},
+				"MaxNodes":          {`5`, "{$.max_count}"},
+				"MaxPods":           {`110`, "{$.max_pods}"},
+				"NodeTaints":        {`["workload.sas.com/class=compute:NoSchedule"]`, "{$.node_taints}"},
+				"NodeLabels":        {`{"launcher.sas.com/prepullImage":"sas-programming-environment","workload.sas.com/class":"compute"}`, "{$.node_labels}"},
+				"AvailabilityZones": {`["1"]`, "{$.zones}"},
+				"FipsEnabled":       {`false`, "{$.fips_enabled}"},
+			},
+		},
+	}
+
+	variables := getDefaultPlanVars(t)
+	plan, err := initPlanWithVariables(t, variables)
+	require.NotNil(t, plan)
+	require.NoError(t, err)
+
+	for name, tc := range nodepoolTests {
+		t.Run(name, func(t *testing.T) {
+			resourceMapName := "module.node_pools[\"" + name + "\"].azurerm_kubernetes_cluster_node_pool.autoscale_node_pool[0]"
+			for attrName, attrTuple := range tc.expected {
+				t.Run(attrName, func(t *testing.T) {
+					runTest(t, testCase{
+						expected:          attrTuple.expectedValue,
+						resourceMapName:   resourceMapName,
+						attributeJsonPath: attrTuple.jsonPath,
+					}, plan)
+				})
+			}
 		})
 	}
 }
