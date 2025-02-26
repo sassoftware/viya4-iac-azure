@@ -9,9 +9,8 @@ set -e
 terratest_help() {
   echo "Usage: terratest_docker_entrypoint.sh [OPTIONS]"
   echo "Options:"
-  echo "  -p, --package=PACKAGE        The package to test. Default is '.'"
-  echo "  -n, --testname=TEST          The name of the test to run. Default is 'TestDefaults'"
-  echo "  -t, --build-tags=TAGS        The tags to use when running the tests. Default is 'integration_plan_unit_tests'"
+  echo "  -p, --package=PACKAGE        The package to test. Default is './...'"
+  echo "  -n, --testname=TEST          The name of the test to run. Default is '.*'"
   echo "  -v, --verbose                Run the tests in verbose mode"
   echo "  -h, --help                   Display this help message"
 }
@@ -28,10 +27,6 @@ for i in "$@"; do
       ;;
     -n=*|--testname=*)
       TEST="${i#*=}"
-      shift # past argument=value
-      ;;
-    -t=*|--build-tags=*)
-      TAGS="${i#*=}"
       shift # past argument=value
       ;;
     -v|--verbose)
@@ -59,9 +54,6 @@ fi
 if [ -z "$TEST" ]; then
   TEST=".*"
 fi
-if [ -z "$TAGS" ]; then
-  TAGS=".*"
-fi
 if [ -z "$VERBOSE" ]; then
   VERBOSE=""
 fi
@@ -73,8 +65,8 @@ export TF_VAR_tenant_id=$TF_VAR_tenant_id
 export TF_VAR_subscription_id=$TF_VAR_subscription_id
 
 # Run the tests
-echo "Running 'go test $VERBOSE $PACKAGE -run $TEST -tags $TAGS -timeout 60m'"
-exec go test $VERBOSE $PACKAGE -run $TEST -tags $TAGS -timeout 60m | tee test_output.log
+echo "Running 'go test $VERBOSE $PACKAGE -run $TEST -timeout 60m'"
+exec go test $VERBOSE $PACKAGE -run $TEST -timeout 60m | tee test_output.log
 
 # Parse the results
 terratest_log_parser -testlog test_output.log -outputdir test_output

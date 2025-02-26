@@ -23,7 +23,7 @@ The Docker image `viya4-iac-azure-terratest` will contain Terraform and Go execu
 Follow either one of the authentication methods described in [Authenticating Terraform to access Azure](./TerraformAzureAuthentication.md) and create a file with the authentication variable values to use with container invocation. Store these values outside of this repo in a secure file, for example
 `$HOME/.azure_docker_creds.env.` Protect that file with Azure credentials so only you have read access to it. **NOTE:** Do not use quotes around the values in the file, and make sure to avoid any trailing blanks!
 
-Now each time you invoke the container, specify the file with the [`--env-file` option](https://docs.docker.com/engine/reference/commandline/run/#set-environment-variables--e---env---env-file) to pass on Azure credentials to the container.
+Now each time you invoke the container, specify the file with the [`--env-file`](https://docs.docker.com/engine/reference/commandline/run/#set-environment-variables--e---env---env-file) option to pass on Azure credentials to the container.
 
 ### Docker Volume Mounts
 
@@ -34,9 +34,8 @@ Add volume mounts to the `docker run` command for all files and directories that
 
 The `terratest_docker_entrypoint.sh` script supports several command line arguments to customize the test execution. Here are the available options:
 
-* `-p, --package=PACKAGE`: The package to test. Default is '.'
-* `-n, --testname=TEST`: The name of the test to run. Default is 'TestDefaults'.
-* `-t, --build-tags=TAGS`: The tags to use when running the tests. Default is 'integration_plan_unit_tests'.
+* `-p, --package=PACKAGE`: The package to test. Default is './...'
+* `-n, --testname=TEST`: The name of the test to run. Default is '.*'.
 * `-v, --verbose`: Run the tests in verbose mode.
 * `-h, --help`: Display the help message.
 
@@ -66,9 +65,9 @@ docker run --rm --group-add root \
 ```
 To run multiple tests, pass in a regex to the -n argument - "TestName1|TestName2|TestName3"
 
-### Running a specific Go Package, Test, and Build Tags
+### Running a specific Go Package and Test
 
-If you want to specify the Go package, test name, and build tags, run the following docker command with the following arguments:
+If you want to specify the Go package and test name, run the following docker command with the following arguments:
 
 ```bash
 docker run --rm --group-add root \
@@ -76,8 +75,7 @@ docker run --rm --group-add root \
   --env-file=$HOME/.azure_docker_creds.env \
   viya4-iac-azure-terratest \
   -n="YourTest" \
-  -p="YourPackage" \
-  -t="YourBuildTags"
+  -p="YourPackage"
 ```
 
 ### Running the Go Tests with verbose mode
