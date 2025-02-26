@@ -6,13 +6,17 @@ package test
 
 import (
 	"errors"
-	"strconv"
 	"strings"
 	"testing"
 
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+)
+
+const (
+	STRING = iota
+	STRING_ARRAY
 )
 
 type TestCase interface {
@@ -27,7 +31,7 @@ type StringCompareTestCase struct {
 }
 
 func (testCase *StringCompareTestCase) RunTest(t *testing.T, plan *terraform.PlanStruct) {
-	actual, err := getExpectedFromPlan(plan, testCase.path, "string")
+	actual, err := getExpectedFromPlan(plan, testCase.path, STRING)
 	require.NoError(t, err)
 	assert.Equal(t, testCase.expected, actual, testCase.message)
 }
@@ -40,7 +44,7 @@ type StringContainsTestCase struct {
 }
 
 func (testCase *StringContainsTestCase) RunTest(t *testing.T, plan *terraform.PlanStruct) {
-	actual, err := getExpectedFromPlan(plan, testCase.path, "string")
+	actual, err := getExpectedFromPlan(plan, testCase.path, STRING)
 	require.NoError(t, err)
 	assert.Contains(t, actual, testCase.expected, testCase.message)
 }
@@ -75,30 +79,25 @@ type ElementsMatchTestCase struct {
 }
 
 func (testCase *ElementsMatchTestCase) RunTest(t *testing.T, plan *terraform.PlanStruct) {
-	actual, err := getExpectedFromPlan(plan, testCase.path, "string_array")
+	actual, err := getExpectedFromPlan(plan, testCase.path, STRING_ARRAY)
 	require.NoError(t, err)
 	assert.ElementsMatch(t, actual, testCase.expected, testCase.message)
 }
 
-func getExpectedFromPlan(plan *terraform.PlanStruct, path []string, expectedType string) (any, error) {
+// Note: implement changes here if the path array changes
+func getExpectedFromPlan(plan *terraform.PlanStruct, path []string, expectedType int) (any, error) {
 	valuesMap := plan.ResourcePlannedValuesMap[path[0]]
 
-	if expectedType == "string" {
+	switch expectedType {
+	case STRING:
 		return getJsonPathFromStateResource(valuesMap, path[1])
-	}
-	if expectedType == "bool" {
-		expected, err := getJsonPathFromStateResource(valuesMap, path[1])
-		if err != nil {
-			return nil, err
-		}
-		return strconv.ParseBool(expected)
-	}
-	if expectedType == "string_array" {
+	case STRING_ARRAY:
 		expected, err := getJsonPathFromStateResource(valuesMap, path[1])
 		if err != nil {
 			return nil, err
 		}
 		return strings.Fields(expected), nil
+	default:
+		return nil, errors.New("unknown return type")
 	}
-	return nil, errors.New("unknown return type")
 }

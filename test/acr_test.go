@@ -5,6 +5,7 @@
 package test
 
 import (
+	"fmt"
 	"strconv"
 	"testing"
 
@@ -73,11 +74,11 @@ func TestPlanACRPremium(t *testing.T) {
 	require.NoError(t, err)
 
 	tests := map[string]TestCase{
-		"ACRExists":               ACRExists(),
-		"ACRNameContains":         ACRNameContains("acr"),
-		"ACRSkuMatches":           ACRSkuMatches("Premium"),
-		"ACRAdminMatches":         ACRAdminMatches(true),
-		"ACRGeoReplicationsExist": ACRGeoReplicationExists(defaultGeoLocs),
+		"ACRExists":                         ACRExists(),
+		"ACRNameContains":                   ACRNameContains("acr"),
+		"ACRSkuMatches":                     ACRSkuMatches("Premium"),
+		"ACRAdminMatches":                   ACRAdminMatches(true),
+		"ACRGeoReplicationLocationsMatches": ACRGeoReplicationLocationsMatches(defaultGeoLocs),
 	}
 
 	for name, tc := range tests {
@@ -105,7 +106,7 @@ func ACRNameContains(name string) TestCase {
 	return &StringContainsTestCase{
 		expected: name,
 		path:     []string{"azurerm_container_registry.acr[0]", "{$.name}"},
-		message:  "ACR name does not contain 'acr'",
+		message:  fmt.Sprintf("ACR name does not contain %s", name),
 	}
 }
 
@@ -133,7 +134,7 @@ func ACRGeoReplicationsDoNotExist() TestCase {
 	}
 }
 
-func ACRGeoReplicationExists(expected []string) TestCase {
+func ACRGeoReplicationLocationsMatches(expected []string) TestCase {
 	return &ElementsMatchTestCase{
 		expected: expected,
 		path:     []string{"azurerm_container_registry.acr[0]", "{$.georeplications[*].location}"},
