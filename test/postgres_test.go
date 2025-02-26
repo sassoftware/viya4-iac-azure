@@ -53,7 +53,7 @@ func TestPostgresServers(t *testing.T) {
 
 	// Validate SSL Enforcement
 	expectedSSLEnforcement := false
-	requireSecureTransport, err := getJsonPathFromStateResource(postgresDefault, "{$.postgresql_configurations[*].require_secure_transport}")
+	requireSecureTransport, err := getJsonPathFromStateResource(t, postgresDefault, "{$.postgresql_configurations[*].require_secure_transport}")
 	assert.NoError(t, err)
 	sslEnforcementDisabled := requireSecureTransport == "OFF"
 	assert.Equal(t, expectedSSLEnforcement, sslEnforcementDisabled, "Mismatch in SSL Enforcement: Expected False")

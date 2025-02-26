@@ -19,14 +19,14 @@ import (
 )
 
 // getJsonPathFromResourcePlannedValuesMap retrieves the value of a jsonpath query on a given *terraform.PlanStruct
-func getJsonPathFromResourcePlannedValuesMap(plan *terraform.PlanStruct, resourceMapName string, jsonPath string) (string, error) {
+func getJsonPathFromResourcePlannedValuesMap(t *testing.T, plan *terraform.PlanStruct, resourceMapName string, jsonPath string) (string, error) {
 	valuesMap := plan.ResourcePlannedValuesMap[resourceMapName]
-	return getJsonPathFromStateResource(valuesMap, jsonPath)
+	return getJsonPathFromStateResource(t, valuesMap, jsonPath)
 }
 
 // getJsonPathFromResourcePlannedValuesMap retrieves the value of a jsonpath query on a given *tfjson.StateResource
 // map is visited in random order
-func getJsonPathFromStateResource(resource *tfjson.StateResource, jsonPath string) (string, error) {
+func getJsonPathFromStateResource(t *testing.T, resource *tfjson.StateResource, jsonPath string) (string, error) {
 	j := jsonpath.New("PlanParser")
 	j.AllowMissingKeys(true)
 	err := j.Parse(jsonPath)
@@ -95,6 +95,7 @@ type testCase struct {
 	resourceMapName   string
 	attributeJsonPath string
 	assertFunction    assert.ComparisonAssertionFunc
+	message           string
 }
 
 // runTest runs a test case
@@ -103,16 +104,16 @@ func runTest(t *testing.T, tc testCase, plan *terraform.PlanStruct) {
 	if retrieverFn == nil {
 		retrieverFn = getJsonPathFromResourcePlannedValuesMap
 	}
-	actual, err := retrieverFn(plan, tc.resourceMapName, tc.attributeJsonPath)
+	actual, err := retrieverFn(t, plan, tc.resourceMapName, tc.attributeJsonPath)
 	require.NoError(t, err)
 	assertFn := tc.assertFunction
 	if assertFn == nil {
 		assertFn = assert.Equal
 	}
 	validateFn := validation.AssertComparison(assertFn, tc.expected)
-	validateFn(t, actual)
+	validateFn(t, actual, tc.message)
 }
 
 // A Retriever retrieves the value from a *terraform.PlanStruct plan,
 // given a resource map name and json path
-type Retriever func(plan *terraform.PlanStruct, resourceMapName string, jsonPath string) (string, error)
+type Retriever func(t *testing.T, plan *terraform.PlanStruct, resourceMapName string, jsonPath string) (string, error)
