@@ -353,3 +353,121 @@ func TestPlanLocation(t *testing.T) {
 		})
 	}
 }
+
+
+// create_nfs_public_ip
+//assert.Nil(t, nfsPublicIP, "NFS Public IP should not be created when create_nfs_public_ip=false")
+func TestPlanNFSPublicIP(t *testing.T) {
+        nfsIPTests := map[string]testCase{
+                "nfsPublicIP": {
+                        expected:          `nil`,
+                        resourceMapName:   "module.nfs[0].azurerm_public_ip.vm_ip[0]",
+                        attributeJsonPath: "{$}",
+                        assertFunction:    assert.Equal,
+			message:	   "NFS Public IP should not be created when create_nfs_public_ip=false",
+                },
+        }
+
+        variables := getDefaultPlanVars(t)
+        plan, err := initPlanWithVariables(t, variables)
+        require.NotNil(t, plan)
+        require.NoError(t, err)
+
+        for name, tc := range nfsIPTests {
+                t.Run(name, func(t *testing.T) {
+                        runTest(t, tc, plan)
+                })
+        }
+}
+
+func TestPlanNFSDisk(t *testing.T) {
+        nfsDiskTests := map[string]testCase{
+                "nfsDataDisk0NotNilTest": {
+                        expected:          "<nil>",
+                        resourceMapName:   "module.nfs[0].azurerm_managed_disk.vm_data_disk[0]",
+                        attributeJsonPath: "{$}",
+                        assertFunction:    assert.NotEqual,
+			message:	   "NFS Data Disk 0 should be created for NFS VM",
+                },
+                "raid_disk0_type": {
+                        expected:          "Standard_LRS",
+                        resourceMapName:   "module.nfs[0].azurerm_managed_disk.vm_data_disk[0]",
+                        attributeJsonPath: "{$.storage_account_type}",
+			message: 	   "NFS Data Disk 0 should be created with Standard_LRS storage account type",
+                },
+                "disk0_size_gb0": {
+                        expected:          "256",
+                        resourceMapName:   "module.nfs[0].azurerm_managed_disk.vm_data_disk[0]",
+                        attributeJsonPath: "{$.disk_size_gb}",
+			message:	   "NFS Data Disk 0 should be created with 256 GB size",
+                },
+                "nfsDataDisk1NotNilTest": {
+                        expected:          "<nil>",
+                        resourceMapName:   "module.nfs[0].azurerm_managed_disk.vm_data_disk[1]",
+                        attributeJsonPath: "{$}",
+                        assertFunction:    assert.NotEqual,
+			message:	   "NFS Data Disk 1 should be created for NFS VM",
+                },
+                "raid_disk1_type": {
+                        expected:          "Standard_LRS",
+                        resourceMapName:   "module.nfs[0].azurerm_managed_disk.vm_data_disk[1]",
+                        attributeJsonPath: "{$.storage_account_type}",
+			message: 	   "NFS Data Disk 1 should be created with Standard_LRS storage account type",
+                },
+                "disk1_size_gb": {
+                        expected:          "256",
+                        resourceMapName:   "module.nfs[0].azurerm_managed_disk.vm_data_disk[1]",
+                        attributeJsonPath: "{$.disk_size_gb}",
+			message:	   "NFS Data Disk 1 should be created with 256 GB size",
+                },
+                "nfsDataDisk2NotNilTest": {
+                        expected:          "<nil>",
+                        resourceMapName:   "module.nfs[0].azurerm_managed_disk.vm_data_disk[2]",
+                        attributeJsonPath: "{$}",
+                        assertFunction:    assert.NotEqual,
+			message:	   "NFS Data Disk 2 should be created for NFS VM",
+                },
+                "raid_disk2_type": {
+                        expected:          "Standard_LRS",
+                        resourceMapName:   "module.nfs[0].azurerm_managed_disk.vm_data_disk[2]",
+                        attributeJsonPath: "{$.storage_account_type}",
+			message: 	   "NFS Data Disk 2 should be created with Standard_LRS storage account type",
+                },
+                "disk2_size_gb": {
+                        expected:          "256",
+                        resourceMapName:   "module.nfs[0].azurerm_managed_disk.vm_data_disk[2]",
+                        attributeJsonPath: "{$.disk_size_gb}",
+			message:	   "NFS Data Disk 2 should be created with 256 GB size",
+                },
+                "nfsDataDisk3NotNilTest": {
+                        expected:          "<nil>",
+                        resourceMapName:   "module.nfs[0].azurerm_managed_disk.vm_data_disk[3]",
+                        attributeJsonPath: "{$}",
+                        assertFunction:    assert.NotEqual,
+			message:	   "NFS Data Disk 3 should be created for NFS VM",
+                },
+                "raid_disk3_type": {
+                        expected:          "Standard_LRS",
+                        resourceMapName:   "module.nfs[0].azurerm_managed_disk.vm_data_disk[3]",
+                        attributeJsonPath: "{$.storage_account_type}",
+			message: 	   "NFS Data Disk 3 should be created with Standard_LRS storage account type",
+                },
+                "disk3_size_gb": {
+                        expected:          "256",
+                        resourceMapName:   "module.nfs[0].azurerm_managed_disk.vm_data_disk[3]",
+                        attributeJsonPath: "{$.disk_size_gb}",
+			message:	   "NFS Data Disk 3 should be created with 256 GB size",
+                },
+        }
+
+        variables := getDefaultPlanVars(t)
+        plan, err := initPlanWithVariables(t, variables)
+        require.NotNil(t, plan)
+        require.NoError(t, err)
+
+        for name, tc := range nfsDiskTests {
+                t.Run(name, func(t *testing.T) {
+                        runTest(t, tc, plan)
+                })
+        }
+}
