@@ -94,6 +94,7 @@ type testCase struct {
 	resourceMapName   string
 	attributeJsonPath string
 	assertFunction    assert.ComparisonAssertionFunc
+	message           string
 }
 
 // runTest runs a test case
@@ -109,7 +110,7 @@ func runTest(t *testing.T, tc testCase, plan *terraform.PlanStruct) {
 		assertFn = assert.Equal
 	}
 	validateFn := validation.AssertComparison(assertFn, tc.expected)
-	validateFn(t, actual)
+	validateFn(t, actual, tc.message)
 }
 
 // A Retriever retrieves the value from a *terraform.PlanStruct plan,

@@ -18,6 +18,7 @@ func TestPlanAcrDisabledNew(t *testing.T) {
 			resourceMapName:   "azurerm_container_registry.acr[0]",
 			attributeJsonPath: "{$}",
 			retriever:         resourceRetrieverRequireNotExist,
+			message:           "Azure Container Registry (ACR) present when it should not be",
 		},
 	}
 
@@ -42,20 +43,25 @@ func TestPlanACRStandardNew(t *testing.T) {
 			expected:          "[]",
 			resourceMapName:   "azurerm_container_registry.acr[0]",
 			attributeJsonPath: "{$.georeplications}",
+			message:           "Geo-replications found when they should not be present",
 		},
 		"nameTest": {
 			resourceMapName:   "azurerm_container_registry.acr[0]",
 			attributeJsonPath: "{$.name}",
+			assertFunction:    assert.Contains,
+			message:           "ACR name does not contain 'acr'",
 		},
 		"skuTest": {
 			expected:          "Standard",
 			resourceMapName:   "azurerm_container_registry.acr[0]",
 			attributeJsonPath: "{$.sku}",
+			message:           "Unexpected ACR SKU value",
 		},
 		"adminEnabledTest": {
 			expected:          "true",
 			resourceMapName:   "azurerm_container_registry.acr[0]",
 			attributeJsonPath: "{$.admin_enabled}",
+			message:           "Unexpected ACR admin_enabled value",
 		},
 	}
 
@@ -89,20 +95,25 @@ func TestPlanACRPremiumNew(t *testing.T) {
 			expected:          "southeastus3 southeastus5",
 			resourceMapName:   "azurerm_container_registry.acr[0]",
 			attributeJsonPath: "{$.georeplications[*].location}",
+			message:           "Geo-replications do not match expected values",
 		},
 		"nameTest": {
 			resourceMapName:   "azurerm_container_registry.acr[0]",
 			attributeJsonPath: "{$.name}",
+			assertFunction:    assert.Contains,
+			message:           "ACR name does not contain 'acr'",
 		},
 		"skuTest": {
 			expected:          "Premium",
 			resourceMapName:   "azurerm_container_registry.acr[0]",
 			attributeJsonPath: "{$.sku}",
+			message:           "Unexpected ACR SKU value",
 		},
 		"adminEnabledTest": {
 			expected:          "true",
 			resourceMapName:   "azurerm_container_registry.acr[0]",
 			attributeJsonPath: "{$.admin_enabled}",
+			message:           "Unexpected ACR admin_enabled value",
 		},
 	}
 
@@ -133,6 +144,6 @@ func TestPlanACRPremiumNew(t *testing.T) {
 func resourceRetrieverRequireNotExist(t *testing.T, plan *terraform.PlanStruct, resourceMapName string,
 	attributeJsonPath string) (string, error) {
 	_, exists := plan.ResourcePlannedValuesMap[resourceMapName]
-	assert.False(t, exists, "Should not be present")
+	assert.False(t, exists, resourceMapName+"."+attributeJsonPath+" should not be present")
 	return "", nil
 }
