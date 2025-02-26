@@ -1,11 +1,9 @@
 package test
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
-	"reflect"
 	"strings"
 	"testing"
 
@@ -229,70 +227,70 @@ func TestDefaults(t *testing.T) {
 	//supportPlan := cluster.AttributeValues["support_plan"]
 	//assert.Equal(t, supportPlan, "KubernetesOfficial", "Unexpected cluster_support_tier")
 
-	// Additional Node Pools
-	statelessNodePool := plan.ResourcePlannedValuesMap["module.node_pools[\"stateless\"].azurerm_kubernetes_cluster_node_pool.autoscale_node_pool[0]"]
-	statelessStruct := &NodePool{
-		MachineType: "Standard_D4s_v5",
-		OsDiskSize:  200,
-		MinNodes:    0,
-		MaxNodes:    5,
-		MaxPods:     110,
-		NodeTaints:  []string{"workload.sas.com/class=stateless:NoSchedule"},
-		NodeLabels: map[string]string{
-			"workload.sas.com/class": "stateless",
-		},
-		AvailabilityZones: []string{"1"},
-		FipsEnabled:       false,
-	}
-	verifyNodePools(t, statelessNodePool, statelessStruct)
+	// Additional Node Pools - TEST MOVED TO TEST TABLE
+	// statelessNodePool := plan.ResourcePlannedValuesMap["module.node_pools[\"stateless\"].azurerm_kubernetes_cluster_node_pool.autoscale_node_pool[0]"]
+	// statelessStruct := &NodePool{
+	// 	MachineType: "Standard_D4s_v5",
+	// 	OsDiskSize:  200,
+	// 	MinNodes:    0,
+	// 	MaxNodes:    5,
+	// 	MaxPods:     110,
+	// 	NodeTaints:  []string{"workload.sas.com/class=stateless:NoSchedule"},
+	// 	NodeLabels: map[string]string{
+	// 		"workload.sas.com/class": "stateless",
+	// 	},
+	// 	AvailabilityZones: []string{"1"},
+	// 	FipsEnabled:       false,
+	// }
+	// verifyNodePools(t, statelessNodePool, statelessStruct)
 
-	statefulNodePool := plan.ResourcePlannedValuesMap["module.node_pools[\"stateful\"].azurerm_kubernetes_cluster_node_pool.autoscale_node_pool[0]"]
-	statefulStruct := &NodePool{
-		MachineType: "Standard_D4s_v5",
-		OsDiskSize:  200,
-		MinNodes:    0,
-		MaxNodes:    3,
-		MaxPods:     110,
-		NodeTaints:  []string{"workload.sas.com/class=stateful:NoSchedule"},
-		NodeLabels: map[string]string{
-			"workload.sas.com/class": "stateful",
-		},
-		AvailabilityZones: []string{"1"},
-		FipsEnabled:       false,
-	}
-	verifyNodePools(t, statefulNodePool, statefulStruct)
-	casNodePool := plan.ResourcePlannedValuesMap["module.node_pools[\"cas\"].azurerm_kubernetes_cluster_node_pool.autoscale_node_pool[0]"]
-	casStruct := &NodePool{
-		MachineType: "Standard_E16ds_v5",
-		OsDiskSize:  200,
-		MinNodes:    0,
-		MaxNodes:    5,
-		MaxPods:     110,
-		NodeTaints:  []string{"workload.sas.com/class=cas:NoSchedule"},
-		NodeLabels: map[string]string{
-			"workload.sas.com/class": "cas",
-		},
-		AvailabilityZones: []string{"1"},
-		FipsEnabled:       false,
-	}
-	verifyNodePools(t, casNodePool, casStruct)
+	// statefulNodePool := plan.ResourcePlannedValuesMap["module.node_pools[\"stateful\"].azurerm_kubernetes_cluster_node_pool.autoscale_node_pool[0]"]
+	// statefulStruct := &NodePool{
+	// 	MachineType: "Standard_D4s_v5",
+	// 	OsDiskSize:  200,
+	// 	MinNodes:    0,
+	// 	MaxNodes:    3,
+	// 	MaxPods:     110,
+	// 	NodeTaints:  []string{"workload.sas.com/class=stateful:NoSchedule"},
+	// 	NodeLabels: map[string]string{
+	// 		"workload.sas.com/class": "stateful",
+	// 	},
+	// 	AvailabilityZones: []string{"1"},
+	// 	FipsEnabled:       false,
+	// }
+	// verifyNodePools(t, statefulNodePool, statefulStruct)
+	// casNodePool := plan.ResourcePlannedValuesMap["module.node_pools[\"cas\"].azurerm_kubernetes_cluster_node_pool.autoscale_node_pool[0]"]
+	// casStruct := &NodePool{
+	// 	MachineType: "Standard_E16ds_v5",
+	// 	OsDiskSize:  200,
+	// 	MinNodes:    0,
+	// 	MaxNodes:    5,
+	// 	MaxPods:     110,
+	// 	NodeTaints:  []string{"workload.sas.com/class=cas:NoSchedule"},
+	// 	NodeLabels: map[string]string{
+	// 		"workload.sas.com/class": "cas",
+	// 	},
+	// 	AvailabilityZones: []string{"1"},
+	// 	FipsEnabled:       false,
+	// }
+	// verifyNodePools(t, casNodePool, casStruct)
 
-	computeNodePool := plan.ResourcePlannedValuesMap["module.node_pools[\"compute\"].azurerm_kubernetes_cluster_node_pool.autoscale_node_pool[0]"]
-	computeStruct := &NodePool{
-		MachineType: "Standard_D4ds_v5",
-		OsDiskSize:  200,
-		MinNodes:    1,
-		MaxNodes:    5,
-		MaxPods:     110,
-		NodeTaints:  []string{"workload.sas.com/class=compute:NoSchedule"},
-		NodeLabels: map[string]string{
-			"workload.sas.com/class":        "compute",
-			"launcher.sas.com/prepullImage": "sas-programming-environment",
-		},
-		AvailabilityZones: []string{"1"},
-		FipsEnabled:       false,
-	}
-	verifyNodePools(t, computeNodePool, computeStruct)
+	// computeNodePool := plan.ResourcePlannedValuesMap["module.node_pools[\"compute\"].azurerm_kubernetes_cluster_node_pool.autoscale_node_pool[0]"]
+	// computeStruct := &NodePool{
+	// 	MachineType: "Standard_D4ds_v5",
+	// 	OsDiskSize:  200,
+	// 	MinNodes:    1,
+	// 	MaxNodes:    5,
+	// 	MaxPods:     110,
+	// 	NodeTaints:  []string{"workload.sas.com/class=compute:NoSchedule"},
+	// 	NodeLabels: map[string]string{
+	// 		"workload.sas.com/class":        "compute",
+	// 		"launcher.sas.com/prepullImage": "sas-programming-environment",
+	// 	},
+	// 	AvailabilityZones: []string{"1"},
+	// 	FipsEnabled:       false,
+	// }
+	// verifyNodePools(t, computeNodePool, computeStruct)
 
 	// VAI: TEST MOVED TO TEST TABLE
 	//// storage_type
@@ -343,61 +341,62 @@ func testSSHKey(t *testing.T, cluster *tfjson.StateResource) bool {
 	return key != ""
 }
 
-func verifyNodePools(t *testing.T, nodePool *tfjson.StateResource, expectedValues *NodePool) {
-	// machine_type
-	assert.Equal(t, expectedValues.MachineType, nodePool.AttributeValues["vm_size"], "Unexpected machine_type.")
+// TEST MOVED TO TEST TABLE
+// func verifyNodePools(t *testing.T, nodePool *tfjson.StateResource, expectedValues *NodePool) {
+// 	// machine_type
+// 	assert.Equal(t, expectedValues.MachineType, nodePool.AttributeValues["vm_size"], "Unexpected machine_type.")
 
-	// os_disk_size
-	assert.Equal(t, expectedValues.OsDiskSize, nodePool.AttributeValues["os_disk_size_gb"], "Unexpected os_disk_size.")
+// 	// os_disk_size
+// 	assert.Equal(t, expectedValues.OsDiskSize, nodePool.AttributeValues["os_disk_size_gb"], "Unexpected os_disk_size.")
 
-	// min_nodes
-	assert.Equal(t, expectedValues.MinNodes, nodePool.AttributeValues["min_count"], "Unexpected min_nodes.")
+// 	// min_nodes
+// 	assert.Equal(t, expectedValues.MinNodes, nodePool.AttributeValues["min_count"], "Unexpected min_nodes.")
 
-	// max_nodes
-	assert.Equal(t, expectedValues.MaxNodes, nodePool.AttributeValues["max_count"], "Unexpected max_nodes.")
+// 	// max_nodes
+// 	assert.Equal(t, expectedValues.MaxNodes, nodePool.AttributeValues["max_count"], "Unexpected max_nodes.")
 
-	// max_pods
-	assert.Equal(t, expectedValues.MaxPods, nodePool.AttributeValues["max_pods"], "Unexpected max_pods.")
+// 	// max_pods
+// 	assert.Equal(t, expectedValues.MaxPods, nodePool.AttributeValues["max_pods"], "Unexpected max_pods.")
 
-	// node_taints
-	for index, nodeTaint := range expectedValues.NodeTaints {
-		assert.Equal(t, nodeTaint, nodePool.AttributeValues["node_taints"].([]interface{})[index].(string), "Unexpected Node Taints")
-	}
+// 	// node_taints
+// 	for index, nodeTaint := range expectedValues.NodeTaints {
+// 		assert.Equal(t, nodeTaint, nodePool.AttributeValues["node_taints"].([]interface{})[index].(string), "Unexpected Node Taints")
+// 	}
 
-	// node_labels
-	nodeLabelsStatus := true
-	nodeLabels := nodePool.AttributeValues["node_labels"]
-	// Convert the interface {}(map[string]interface {}) to JSON string
-	j, err := json.Marshal(nodeLabels)
-	if err != nil {
-		t.Log("Error parsing tfplan's Node Labels: ", err)
-		nodeLabelsStatus = false
-	}
-	// Unmarshal the JSON string into the map
-	var result map[string]string
-	err = json.Unmarshal(j, &result)
-	if err != nil {
-		t.Log("Error unmarshaling Node Labels Json string: ", err)
-		nodeLabelsStatus = false
-	}
-	// If no previous errors, verify that the maps are equal
-	if nodeLabelsStatus {
-		assert.True(t, reflect.DeepEqual(expectedValues.NodeLabels, result), "Unexpected Node Labels")
-	} else {
-		assert.Fail(t, "Unexpected errors parsing Node Labels")
-	}
+// 	// node_labels
+// 	nodeLabelsStatus := true
+// 	nodeLabels := nodePool.AttributeValues["node_labels"]
+// 	// Convert the interface {}(map[string]interface {}) to JSON string
+// 	j, err := json.Marshal(nodeLabels)
+// 	if err != nil {
+// 		t.Log("Error parsing tfplan's Node Labels: ", err)
+// 		nodeLabelsStatus = false
+// 	}
+// 	// Unmarshal the JSON string into the map
+// 	var result map[string]string
+// 	err = json.Unmarshal(j, &result)
+// 	if err != nil {
+// 		t.Log("Error unmarshaling Node Labels Json string: ", err)
+// 		nodeLabelsStatus = false
+// 	}
+// 	// If no previous errors, verify that the maps are equal
+// 	if nodeLabelsStatus {
+// 		assert.True(t, reflect.DeepEqual(expectedValues.NodeLabels, result), "Unexpected Node Labels")
+// 	} else {
+// 		assert.Fail(t, "Unexpected errors parsing Node Labels")
+// 	}
 
-	// node_pools_availability_zone
-	for index, az := range expectedValues.AvailabilityZones {
-		assert.Equal(t, az, nodePool.AttributeValues["zones"].([]interface{})[index].(string), "Unexpected Availability Zones")
-	}
+// 	// node_pools_availability_zone
+// 	for index, az := range expectedValues.AvailabilityZones {
+// 		assert.Equal(t, az, nodePool.AttributeValues["zones"].([]interface{})[index].(string), "Unexpected Availability Zones")
+// 	}
 
-	// fips_enabled
-	assert.Equal(t, expectedValues.FipsEnabled, nodePool.AttributeValues["fips_enabled"], "Unexpected fips_enabled.")
+// 	// fips_enabled - TEST MOVED TO TEST TABLE
+// 	// assert.Equal(t, expectedValues.FipsEnabled, nodePool.AttributeValues["fips_enabled"], "Unexpected fips_enabled.")
 
-	// node_pools_proximity_placement - Can't find in tfplan
+// 	// node_pools_proximity_placement - Can't find in tfplan
 
-}
+// }
 
 // Subnet func
 func verifySubnets(t *testing.T, subnet *tfjson.StateResource, expectedValues *Subnet) {
