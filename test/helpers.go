@@ -20,7 +20,10 @@ import (
 
 // getJsonPathFromResourcePlannedValuesMap retrieves the value of a jsonpath query on a given *terraform.PlanStruct
 func getJsonPathFromResourcePlannedValuesMap(t *testing.T, plan *terraform.PlanStruct, resourceMapName string, jsonPath string) (string, error) {
-	valuesMap := plan.ResourcePlannedValuesMap[resourceMapName]
+	valuesMap, exists := plan.ResourcePlannedValuesMap[resourceMapName]
+	if !exists {
+		return "nil", nil
+	}
 	return getJsonPathFromStateResource(t, valuesMap, jsonPath)
 }
 
