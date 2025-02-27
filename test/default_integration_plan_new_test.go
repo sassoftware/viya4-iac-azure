@@ -220,10 +220,6 @@ func TestPlanNodePools(t *testing.T) {
 // Test the default additional nodepool variables when using the sample-input-defaults.tfvars file.
 // Verify that the tfplan is using the default variables from the CONFIG-VARS
 func TestPlanAdditionalNodePools(t *testing.T) {
-	type attrTuple struct {
-		expectedValue string
-		jsonPath      string
-	}
 
 	type nodepoolTestcase struct {
 		expected map[string]attrTuple
@@ -614,6 +610,53 @@ func TestPlanGeneral(t *testing.T) {
 	for name, tc := range outputsTests {
 		t.Run(name, func(t *testing.T) {
 			runTest(t, tc, plan)
+		})
+	}
+}
+
+func TestDefaultSubnets(t *testing.T) {
+	type subnetTestcase struct {
+		expected map[string]attrTuple
+	}
+
+	subnetTests := map[string]subnetTestcase{
+		"aks": {
+			expected: map[string]attrTuple{
+				"prefixes":                                 {`["192.168.0.0/23"]`, "{$.address_prefixes}"},
+				"serviceEndpoints":                         {`["Microsoft.Sql"]`, "{$.service_endpoints}"},
+				"privateEndpointNetworkPolicies":           {`Enabled`, "{$.private_endpoint_network_policies}"},
+				"privateLinkServiceNetworkPoliciesEnabled": {`false`, "{$.private_link_service_network_policies_enabled}"},
+				"serviceDelegations":                       {``, "{$.service_delegations}"},
+			},
+		},
+		"misc": {
+			expected: map[string]attrTuple{
+				"prefixes":                                 {`["192.168.2.0/24"]`, "{$.address_prefixes}"},
+				"serviceEndpoints":                         {`["Microsoft.Sql"]`, "{$.service_endpoints}"},
+				"privateEndpointNetworkPolicies":           {`Enabled`, "{$.private_endpoint_network_policies}"},
+				"privateLinkServiceNetworkPoliciesEnabled": {`false`, "{$.private_link_service_network_policies_enabled}"},
+				"serviceDelegations":                       {``, "{$.service_delegations}"},
+			},
+		},
+	}
+
+	variables := getDefaultPlanVars(t)
+	plan, err := initPlanWithVariables(t, variables)
+	require.NotNil(t, plan)
+	require.NoError(t, err)
+
+	for name, tc := range subnetTests {
+		t.Run(name, func(t *testing.T) {
+			resourceMapName := "module.vnet.azurerm_subnet.subnet[\"" + name + "\"]"
+			for attrName, attrTuple := range tc.expected {
+				t.Run(attrName, func(t *testing.T) {
+					runTest(t, testCase{
+						expected:          attrTuple.expectedValue,
+						resourceMapName:   resourceMapName,
+						attributeJsonPath: attrTuple.jsonPath,
+					}, plan)
+				})
+			}
 		})
 	}
 }

@@ -18,6 +18,11 @@ import (
 	"k8s.io/client-go/util/jsonpath"
 )
 
+type attrTuple struct {
+	expectedValue string
+	jsonPath      string
+}
+
 // getJsonPathFromResourcePlannedValuesMap retrieves the value of a jsonpath query on a given *terraform.PlanStruct
 func getJsonPathFromResourcePlannedValuesMap(t *testing.T, plan *terraform.PlanStruct, resourceMapName string, jsonPath string) (string, error) {
 	valuesMap, exists := plan.ResourcePlannedValuesMap[resourceMapName]

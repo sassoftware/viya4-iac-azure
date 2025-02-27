@@ -127,14 +127,14 @@ The default values for the `subnets` variable are as follows:
   aks = {
     "prefixes": ["192.168.0.0/23"],
     "service_endpoints": ["Microsoft.Sql"],
-    "private_endpoint_network_policies": "Disabled",
+    "private_endpoint_network_policies": "Enabled",
     "private_link_service_network_policies_enabled": false,
     "service_delegations": {},
   }
   misc = {
     "prefixes": ["192.168.2.0/24"],
     "service_endpoints": ["Microsoft.Sql"],
-    "private_endpoint_network_policies": "Disabled",
+    "private_endpoint_network_policies": "Enabled",
     "private_link_service_network_policies_enabled": false,
     "service_delegations": {},
   }
@@ -142,7 +142,7 @@ The default values for the `subnets` variable are as follows:
   netapp = {
     "prefixes": ["192.168.3.0/24"],
     "service_endpoints": [],
-    "private_endpoint_network_policies": "Disabled",
+    "private_endpoint_network_policies": "Enabled",
     "private_link_service_network_policies_enabled": false,
     "service_delegations": {
       netapp = {
