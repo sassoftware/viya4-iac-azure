@@ -45,6 +45,14 @@ func getJsonPathFromStateResource(t *testing.T, resource *tfjson.StateResource, 
 	return out, nil
 }
 
+func getOutputsFromPlan(t *testing.T, plan *terraform.PlanStruct, outputName string, jsonPath string) (string, error) {
+	output, exists := plan.RawPlan.OutputChanges[outputName]
+	if !exists {
+		return "nil", nil
+	}
+	return output.After.(string), nil
+}
+
 // getDefaultPlanVars returns a map of default terratest variables
 func getDefaultPlanVars(t *testing.T) map[string]interface{} {
 	tfVarsPath := "../examples/sample-input-defaults.tfvars"
