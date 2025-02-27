@@ -2,6 +2,7 @@ package test
 
 import (
 	"bytes"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -51,11 +52,13 @@ func getJsonPathFromStateResource(t *testing.T, resource *tfjson.StateResource, 
 }
 
 func getOutputsFromPlan(t *testing.T, plan *terraform.PlanStruct, outputName string, jsonPath string) (string, error) {
-	output, exists := plan.RawPlan.OutputChanges[outputName]
+	output, exists := plan.RawPlan.Variables[outputName]
 	if !exists {
 		return "nil", nil
 	}
-	return output.After.(string), nil
+	require.NotNil(t, output)
+	value := fmt.Sprintf("%v", output.Value)
+	return value, nil
 }
 
 // getDefaultPlanVars returns a map of default terratest variables
@@ -91,7 +94,10 @@ func initPlanWithVariables(t *testing.T, variables map[string]interface{}) (*ter
 
 	// Copy the terraform folder to a temp folder
 	tempTestFolder := test_structure.CopyTerraformFolderToTemp(t, "../", "")
-	defer os.RemoveAll(tempTestFolder)
+	// Get the path to the parent folder for clean up
+	tempTestFolderSlice := strings.Split(tempTestFolder, string(os.PathSeparator))
+	tempTestFolderPath := strings.Join(tempTestFolderSlice[:len(tempTestFolderSlice)-1], string(os.PathSeparator))
+	defer os.RemoveAll(tempTestFolderPath)
 
 	// Set up Terraform options
 	terraformOptions := &terraform.Options{
