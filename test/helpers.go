@@ -95,8 +95,8 @@ func initPlanWithVariables(t *testing.T, variables map[string]interface{}) (*ter
 	// Copy the terraform folder to a temp folder
 	tempTestFolder := test_structure.CopyTerraformFolderToTemp(t, "../", "")
 	// Get the path to the parent folder for clean up
-	tempTestFolderSlice := strings.Split(tempTestFolder, "/")
-	tempTestFolderPath := strings.Join(tempTestFolderSlice[:len(tempTestFolderSlice)-1], "/")
+	tempTestFolderSlice := strings.Split(tempTestFolder, string(os.PathSeparator))
+	tempTestFolderPath := strings.Join(tempTestFolderSlice[:len(tempTestFolderSlice)-1], string(os.PathSeparator))
 	defer os.RemoveAll(tempTestFolderPath)
 
 	// Set up Terraform options
