@@ -1,7 +1,6 @@
 package test
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -80,7 +79,7 @@ func TestDefaults(t *testing.T) {
 	}
 
 	plan := terraform.InitAndPlanAndShowWithStruct(t, terraformOptions)
-	cluster := plan.ResourcePlannedValuesMap["module.aks.azurerm_kubernetes_cluster.aks"]
+	// cluster := plan.ResourcePlannedValuesMap["module.aks.azurerm_kubernetes_cluster.aks"]
 
 	// VAI: TEST MOVED TO TEST TABLE
 	//// vnet_address_space
@@ -141,10 +140,11 @@ func TestDefaults(t *testing.T) {
 	// Assert that the Cluster Role Binding and Service Account objects
 	// are present in the output. create_static_kubeconfig=false would
 	// not contain these objects.
-	kubeconfigCRBResource := plan.ResourcePlannedValuesMap["module.kubeconfig.kubernetes_cluster_role_binding.kubernetes_crb[0]"]
-	assert.NotNil(t, kubeconfigCRBResource, "Kubeconfig CRB object should not be nil")
-	kubeconfigSAResource := plan.ResourcePlannedValuesMap["module.kubeconfig.kubernetes_service_account.kubernetes_sa[0]"]
-	assert.NotNil(t, kubeconfigSAResource, "Kubeconfig Service Account object should not be nil")
+	// CHJMIL: TEST MOVED TO TEST TABLE
+	// kubeconfigCRBResource := plan.ResourcePlannedValuesMap["module.kubeconfig.kubernetes_cluster_role_binding.kubernetes_crb[0]"]
+	// assert.NotNil(t, kubeconfigCRBResource, "Kubeconfig CRB object should not be nil")
+	// kubeconfigSAResource := plan.ResourcePlannedValuesMap["module.kubeconfig.kubernetes_service_account.kubernetes_sa[0]"]
+	// assert.NotNil(t, kubeconfigSAResource, "Kubeconfig Service Account object should not be nil")
 
 	// VAI: TEST MOVED TO TEST TABLE
 	//// kubernetes_version
@@ -153,27 +153,31 @@ func TestDefaults(t *testing.T) {
 
 	// create_jump_vm
 	// Verify that the jump vm resource is not nil
-	jumpVM := plan.ResourcePlannedValuesMap["module.jump[0].azurerm_linux_virtual_machine.vm"]
-	assert.NotNil(t, jumpVM, "Jump VM should be created")
+	// jumpVM := plan.ResourcePlannedValuesMap["module.jump[0].azurerm_linux_virtual_machine.vm"]
+	// CHJMIL: TEST MOVED TO TEST TABLE
+	// assert.NotNil(t, jumpVM, "Jump VM should be created")
 
 	// create_jump_public_ip
-	jumpPublicIP := plan.ResourcePlannedValuesMap["module.jump[0].azurerm_public_ip.vm_ip[0]"]
-	assert.NotNil(t, jumpPublicIP, "Jump VM public IP should exist")
+	// jumpPublicIP := plan.ResourcePlannedValuesMap["module.jump[0].azurerm_public_ip.vm_ip[0]"]
+
+	// assert.NotNil(t, jumpPublicIP, "Jump VM public IP should exist")
 
 	// enable_jump_public_static_ip
-	assert.Equal(t, "Static", jumpPublicIP.AttributeValues["allocation_method"], "Jump VM should use static IP")
+	// assert.Equal(t, "Static", jumpPublicIP.AttributeValues["allocation_method"], "Jump VM should use static IP")
 
 	// jump_vm_admin
-	assert.Equal(t, "jumpuser", jumpVM.AttributeValues["admin_username"], "Unexpected jump VM admin username")
+	// assert.Equal(t, "jumpuser", jumpVM.AttributeValues["admin_username"], "Unexpected jump VM admin username")
 
 	// jump_vm_machine_type
-	assert.Equal(t, "Standard_B2s", jumpVM.AttributeValues["size"], "Unexpected jump VM machine type")
+	// assert.Equal(t, "Standard_B2s", jumpVM.AttributeValues["size"], "Unexpected jump VM machine type")
 
+	// CHJMIL: TEST MOVED TO TEST TABLE
 	// jump_rwx_filestore_path
-	assert.Equal(t, "/viya-share", plan.RawPlan.OutputChanges["jump_rwx_filestore_path"].After.(string))
+	// assert.Equal(t, "/viya-share", plan.RawPlan.OutputChanges["jump_rwx_filestore_path"].After.(string))
 
+	// CHJMIL: TEST MOVED TO TEST TABLE
 	// prefix
-	assert.Equal(t, variables["prefix"], plan.RawPlan.OutputChanges["prefix"].After.(string))
+	// assert.Equal(t, variables["prefix"], plan.RawPlan.OutputChanges["prefix"].After.(string))
 
 	// iadomi: TEST MOVED TO TEST TABLE
 	// location
@@ -199,7 +203,8 @@ func TestDefaults(t *testing.T) {
 	// 	locationAttributes := locationResource.AttributeValues["location"]
 	// 	assert.Equal(t, variables["location"], locationAttributes, "Unexpected location")
 	// }
-	assert.Equal(t, variables["location"], plan.RawPlan.OutputChanges["location"].After.(string), "Unexpected location")
+	// CHJMIL: TEST MOVED TO TEST TABLE
+	// assert.Equal(t, variables["location"], plan.RawPlan.OutputChanges["location"].After.(string), "Unexpected location")
 
 	// tags - defaults to empty so there is nothing to test. If we wanted to test it, this is how we would
 	// aksTags := cluster.AttributeValues["tags"]
@@ -211,10 +216,11 @@ func TestDefaults(t *testing.T) {
 	//assert.NotNil(t, userAssignedIdentity, "The User Identity should exist.")
 
 	// ssh_public_key
-	assert.True(t, testSSHKey(t, cluster), "SSH Key should exist")
+	// assert.True(t, testSSHKey(t, cluster), "SSH Key should exist")
 
+	// CHJMIL: TEST MOVED TO TEST TABLE
 	// cluster_api_mode
-	assert.Equal(t, "public", plan.RawPlan.OutputChanges["cluster_api_mode"].After.(string))
+	// assert.Equal(t, "public", plan.RawPlan.OutputChanges["cluster_api_mode"].After.(string))
 
 	// aks_cluster_private_dns_zone_id - defaults to empty, only known after apply
 
@@ -303,24 +309,24 @@ func TestDefaults(t *testing.T) {
 	//assert.Equal(t, "Standard_D4s_v5", nfsVM.AttributeValues["size"], "Unexpected NFS VM Size")
 
 	// create_nfs_public_ip
-	nfsPublicIP := plan.ResourcePlannedValuesMap["module.nfs[0].azurerm_public_ip.vm_ip[0]"]
-	assert.Nil(t, nfsPublicIP, "NFS Public IP should not be created when create_nfs_public_ip=false")
+	// nfsPublicIP := plan.ResourcePlannedValuesMap["module.nfs[0].azurerm_public_ip.vm_ip[0]"]
+	// assert.Nil(t, nfsPublicIP, "NFS Public IP should not be created when create_nfs_public_ip=false")
 
 	// nfs_raid_disk_type
 	// when storage_type is standard, we should have four nfs data disks
 	// make sure all four module.nfs[0].azurerm_managed_disk.vm_data_disk[i] resources exist
-	for i := 0; i < 4; i++ {
-		nfsDataDisk := plan.ResourcePlannedValuesMap[fmt.Sprintf("module.nfs[0].azurerm_managed_disk.vm_data_disk[%d]", i)]
-		assert.NotNil(t, nfsDataDisk, fmt.Sprintf("NFS Data Disk %d should be created for NFS VM", i))
+	// for i := 0; i < 4; i++ {
+	// 	nfsDataDisk := plan.ResourcePlannedValuesMap[fmt.Sprintf("module.nfs[0].azurerm_managed_disk.vm_data_disk[%d]", i)]
+	// 	assert.NotNil(t, nfsDataDisk, fmt.Sprintf("NFS Data Disk %d should be created for NFS VM", i))
 
-		// make sure all four disks are using raid disk type Standard_LRS by default
-		nfsDataDisk = plan.ResourcePlannedValuesMap[fmt.Sprintf("module.nfs[0].azurerm_managed_disk.vm_data_disk[%d]", i)]
-		assert.Equal(t, "Standard_LRS", nfsDataDisk.AttributeValues["storage_account_type"], fmt.Sprintf("Unexpected NFS Raid Disk Type for disk %d", i))
+	// 	// make sure all four disks are using raid disk type Standard_LRS by default
+	// 	nfsDataDisk = plan.ResourcePlannedValuesMap[fmt.Sprintf("module.nfs[0].azurerm_managed_disk.vm_data_disk[%d]", i)]
+	// 	assert.Equal(t, "Standard_LRS", nfsDataDisk.AttributeValues["storage_account_type"], fmt.Sprintf("Unexpected NFS Raid Disk Type for disk %d", i))
 
-		// make sure all four disks have default disk size of 256 gb
-		nfsDataDisk = plan.ResourcePlannedValuesMap[fmt.Sprintf("module.nfs[0].azurerm_managed_disk.vm_data_disk[%d]", i)]
-		assert.Equal(t, float64(256), nfsDataDisk.AttributeValues["disk_size_gb"], fmt.Sprintf("Unexpected NFS Raid Disk Size in GB for disk %d", i))
-	}
+	// 	// make sure all four disks have default disk size of 256 gb
+	// 	nfsDataDisk = plan.ResourcePlannedValuesMap[fmt.Sprintf("module.nfs[0].azurerm_managed_disk.vm_data_disk[%d]", i)]
+	// 	assert.Equal(t, float64(256), nfsDataDisk.AttributeValues["disk_size_gb"], fmt.Sprintf("Unexpected NFS Raid Disk Size in GB for disk %d", i))
+	// }
 
 	// VAI: TEST MOVED TO TEST TABLE
 	//// nfs_vm_zone
@@ -336,11 +342,11 @@ func TestDefaults(t *testing.T) {
 	// assert.Empty(t, aad_rbac, "Unexpected azure_active_directory_role_based_access_control; should be empty by default")
 }
 
-func testSSHKey(t *testing.T, cluster *tfjson.StateResource) bool {
-	key, err := getJsonPathFromStateResource(t, cluster, "{$.linux_profile[0].ssh_key[0].key_data}")
-	assert.NoError(t, err)
-	return key != ""
-}
+// func testSSHKey(t *testing.T, cluster *tfjson.StateResource) bool {
+// 	key, err := getJsonPathFromStateResource(t, cluster, "{$.linux_profile[0].ssh_key[0].key_data}")
+// 	assert.NoError(t, err)
+// 	return key != ""
+// }
 
 // TEST MOVED TO TEST TABLE
 // func verifyNodePools(t *testing.T, nodePool *tfjson.StateResource, expectedValues *NodePool) {
