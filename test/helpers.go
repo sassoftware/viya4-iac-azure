@@ -2,6 +2,7 @@ package test
 
 import (
 	"bytes"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -51,11 +52,13 @@ func getJsonPathFromStateResource(t *testing.T, resource *tfjson.StateResource, 
 }
 
 func getOutputsFromPlan(t *testing.T, plan *terraform.PlanStruct, outputName string, jsonPath string) (string, error) {
-	output, exists := plan.RawPlan.OutputChanges[outputName]
+	output, exists := plan.RawPlan.Variables[outputName]
 	if !exists {
 		return "nil", nil
 	}
-	return output.After.(string), nil
+	require.NotNil(t, output)
+	value := fmt.Sprintf("%v", output.Value)
+	return value, nil
 }
 
 // getDefaultPlanVars returns a map of default terratest variables
