@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Copyright © 2020-2025, SAS Institute Inc., Cary, NC, USA. All Rights Reserved.
+# Copyright © 2025, SAS Institute Inc., Cary, NC, USA. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 set -e
@@ -10,10 +10,17 @@ terratest_help() {
   echo "Usage: terratest_docker_entrypoint.sh [OPTIONS]"
   echo "Options:"
   echo "  -p, --package=PACKAGE        The package to test. Default is './...'"
-  echo "  -n, --testname=TEST          The name of the test to run. Default is '.*'"
+  echo "  -r, --run=TEST               The name of the test to run. Default is '.*Plan.*'"
   echo "  -v, --verbose                Run the tests in verbose mode"
   echo "  -h, --help                   Display this help message"
 }
+
+# Verify the /viya4-iac-azure directory has been mounted by checking if
+# the main.tf file exists
+if [ ! -f "/viya4-iac-azure/main.tf" ]; then
+  echo "Error: The /viya4-iac-azure directory has not been mounted"
+  exit 1
+fi
 
 # setup container user
 echo "viya4-iac-azure:*:$(id -u):$(id -g):,,,:/viya4-iac-azure:/bin/bash" >> /etc/passwd
@@ -25,7 +32,7 @@ for i in "$@"; do
       PACKAGE="${i#*=}"
       shift # past argument=value
       ;;
-    -n=*|--testname=*)
+    -r=*|--run=*)
       TEST="${i#*=}"
       shift # past argument=value
       ;;
@@ -52,7 +59,7 @@ if [ -z "$PACKAGE" ]; then
   PACKAGE="./..."
 fi
 if [ -z "$TEST" ]; then
-  TEST=".*"
+  TEST=".*Plan.*"
 fi
 if [ -z "$VERBOSE" ]; then
   VERBOSE=""
