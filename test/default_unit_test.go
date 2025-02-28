@@ -663,39 +663,43 @@ func TestDefaultSubnets(t *testing.T) {
 	}
 }
 
-// Verify Acr disabled stuff
 // TestAdminAccess verifies that NSG rules for admin access are correctly applied in the Terraform plan.
-func TestDefaultAdminAccess(t *testing.T) {
+func TestAdminAccess(t *testing.T) {
 	adminAccessTests := map[string]testCase{
 		"defaultCidrTest": {
-			expected:        "[123.45.67.89/16]",
-			resourceMapName: "default_public_access_cidrs",
-			retriever:       getOutputsFromPlan,
-			message:         "Mismatch in default_public_access_cidrs",
+			expected:          "{[123.45.67.89/16]}",
+			resourceMapName:   "default_public_access_cidrs",
+			retriever:         getVariablesFromPlan,
+			attributeJsonPath: "{$}",
+			message:           "Mismatch in default_public_access_cidrs",
 		},
 		"clusterCidrTest": {
-			expected:        "<nil>",
-			resourceMapName: "cluster_endpoint_public_access_cidrs",
-			retriever:       getOutputsFromPlan,
-			message:         "Mismatch in cluster_endpoint_public_access_cidrs",
+			expected:          "{<nil>}",
+			resourceMapName:   "cluster_endpoint_public_access_cidrs",
+			retriever:         getVariablesFromPlan,
+			attributeJsonPath: "{$}",
+			message:           "Mismatch in cluster_endpoint_public_access_cidrs",
 		},
 		"vmCidrTest": {
-			expected:        "<nil>",
-			resourceMapName: "vm_public_access_cidrs",
-			retriever:       getOutputsFromPlan,
-			message:         "Mismatch in vm_public_access_cidrs",
+			expected:          "{<nil>}",
+			resourceMapName:   "vm_public_access_cidrs",
+			retriever:         getVariablesFromPlan,
+			attributeJsonPath: "{$}",
+			message:           "Mismatch in vm_public_access_cidrs",
 		},
 		"postgresCidrTest": {
-			expected:        "<nil>",
-			resourceMapName: "vm_public_access_cidrs",
-			retriever:       getOutputsFromPlan,
-			message:         "Mismatch in postgres_public_access_cidrs",
+			expected:          "{<nil>}",
+			resourceMapName:   "vm_public_access_cidrs",
+			retriever:         getVariablesFromPlan,
+			attributeJsonPath: "{$}",
+			message:           "Mismatch in postgres_public_access_cidrs",
 		},
 		"acrCidrTest": {
-			expected:        "<nil>",
-			resourceMapName: "acr_public_access_cidrs",
-			retriever:       getOutputsFromPlan,
-			message:         "Mismatch in acr_public_access_cidrs",
+			expected:          "{<nil>}",
+			resourceMapName:   "acr_public_access_cidrs",
+			retriever:         getVariablesFromPlan,
+			attributeJsonPath: "{$}",
+			message:           "Mismatch in acr_public_access_cidrs",
 		},
 	}
 

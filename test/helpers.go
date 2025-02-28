@@ -51,6 +51,33 @@ func getJsonPathFromStateResource(t *testing.T, resource *tfjson.StateResource, 
 	return out, nil
 }
 
+// getVariablesFromPlan retrieves the value from 'Variables' using variablesMapName and jsonPath
+func getVariablesFromPlan(t *testing.T, plan *terraform.PlanStruct, resourceMapName string, jsonPath string) (string, error) {
+	//valuesMap, exists := plan.RawPlan.Variables[resourceMapName]
+	variablesMap := plan.RawPlan.Variables
+	variables := variablesMap[resourceMapName]
+	require.NotNil(t, variables)
+	return getJsonPathFromPlannedVariablesMap(t, variables, jsonPath)
+}
+
+// getJsonPathFromResourcePlannedVariablesMap retrieves the value of a jsonpath query on a given *tfjson.StateResource
+// map is visited in random order
+func getJsonPathFromPlannedVariablesMap(t *testing.T, resourceMap *tfjson.PlanVariable, jsonPath string) (string, error) {
+	j := jsonpath.New("PlanParser")
+	j.AllowMissingKeys(true)
+	err := j.Parse(jsonPath)
+	if err != nil {
+		return "", err
+	}
+	buf := new(bytes.Buffer)
+	err = j.Execute(buf, resourceMap)
+	if err != nil {
+		return "", err
+	}
+	out := buf.String()
+	return out, nil
+}
+
 func getOutputsFromPlan(t *testing.T, plan *terraform.PlanStruct, outputName string, jsonPath string) (string, error) {
 	output, exists := plan.RawPlan.Variables[outputName]
 	if !exists {
