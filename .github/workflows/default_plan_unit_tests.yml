@@ -14,7 +14,7 @@ jobs:
       - name: Build Docker Image
         run: docker build -t viya4-iac-azure:terratest -f Dockerfile.terratest .
       - name: Run Tests
-        working-directory: test
+        working-directory: viya4-iac-azure
         run: |
           docker run \
             -e TF_VAR_subscription_id=$TF_VAR_subscription_id \
