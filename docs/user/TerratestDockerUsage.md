@@ -28,7 +28,7 @@ Now each time you invoke the container, specify the file with the [`--env-file`]
 ### Docker Volume Mounts
 
 Add volume mounts to the `docker run` command for all files and directories that must be accessible from inside the container.
-- `--volume=$(pwd):/viya4-iac-azure` the project must be mounted to the /viya4-iac-azure directory.
+- `--volume="$(pwd)":/viya4-iac-azure` the project must be mounted to the /viya4-iac-azure directory.
 
 ## Command Line Arguments
 
@@ -49,7 +49,7 @@ To run the default suite of unit tests (only terraform plan), run the following 
 # Run from the ./viya4-iac-azure directory
 docker run --rm \
   --env-file=$HOME/.azure_docker_creds.env \
-  --volume $(pwd):/viya4-iac-azure \
+  --volume "$(pwd)":/viya4-iac-azure \
   viya4-iac-azure-terratest
 ```
 
@@ -61,7 +61,7 @@ To run a specific test, run the following docker command with the -r command lin
 # Run from the ./viya4-iac-azure directory
 docker run --rm \
   --env-file=$HOME/.azure_docker_creds.env \
-  --volume $(pwd):/viya4-iac-azure \
+  --volume "$(pwd)":/viya4-iac-azure \
   viya4-iac-azure-terratest \
   -r="YourTest"
 ```
@@ -75,7 +75,7 @@ If you want to specify the Go package and test name, run the following docker co
 # Run from the ./viya4-iac-azure directory
 docker run --rm \
   --env-file=$HOME/.azure_docker_creds.env \
-  --volume $(pwd):/viya4-iac-azure \
+  --volume "$(pwd)":/viya4-iac-azure \
   viya4-iac-azure-terratest \
   -r="YourTest" \
   -p="YourPackage"
@@ -89,7 +89,7 @@ If you want to run the tests with verbose mode, run the docker image with the -v
 # Run from the ./viya4-iac-azure directory
 docker run --rm \
   --env-file=$HOME/.azure_docker_creds.env \
-  --volume $(pwd):/viya4-iac-azure \
+  --volume "$(pwd)":/viya4-iac-azure \
   viya4-iac-azure-terratest -v
 ```
 
