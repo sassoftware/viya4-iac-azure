@@ -16,23 +16,24 @@ Run the following command to create the `viya4-iac-azure-terratest` Docker image
 docker build -t viya4-iac-azure-terratest -f Dockerfile.terratest .
 ```
 
-The Docker image `viya4-iac-azure-terratest` will contain Terraform and Go executables, as well as the required Go modules. The Docker entrypoint for the image is `go test` and accepts several optional command line arguments. For more information on command line arguments, please see [Command Line Arguments](#command-line-arguments).
+The Docker image `viya4-iac-azure-terratest` will contain Terraform and Go executables, as well as the required Go modules. The Docker entrypoint for the image is `go test`, and it accepts several optional command-line arguments. For more information about command-line arguments, see [Command-Line Arguments](#command-line-arguments).
 
 ### Docker Environment File for Azure Authentication
 
-Follow either one of the authentication methods described in [Authenticating Terraform to access Azure](./TerraformAzureAuthentication.md) and create a file with the authentication variable values to use with container invocation. Store these values outside of this repo in a secure file, for example
-`$HOME/.azure_docker_creds.env.` Protect that file with Azure credentials so only you have read access to it. **NOTE:** Do not use quotes around the values in the file, and make sure to avoid any trailing blanks!
+Follow either one of the authentication methods that are described in [Authenticating Terraform to access Azure](./TerraformAzureAuthentication.md), and create a file with the authentication variable values to use with container invocation. Store these values outside of this repository in a secure file, such as
+`$HOME/.azure_docker_creds.env`. Protect that file with Azure credentials so that only you have Read access to it. **NOTE**: Do not use quotation marks around the values in the file, and be sure to avoid any trailing blank spaces.
 
-Now each time you invoke the container, specify the file with the [`--env-file`](https://docs.docker.com/engine/reference/commandline/run/#set-environment-variables--e---env---env-file) option to pass on Azure credentials to the container.
+Now each time you invoke the container, specify the file with the [`--env-file`](https://docs.docker.com/engine/reference/commandline/run/#set-environment-variables--e---env---env-file) option to pass Azure credentials to the container.
 
 ### Docker Volume Mounts
 
-Add volume mounts to the `docker run` command for all files and directories that must be accessible from inside the container.
-- `--volume="$(pwd)":/viya4-iac-azure` the project must be mounted to the /viya4-iac-azure directory.
+Run the following command:
+`--volume="$(pwd)":/viya4-iac-azure`
+Note that the project must be mounted to the `/viya4-iac-azure` directory.
 
-## Command Line Arguments
+## Command-Line Arguments
 
-The `terratest_docker_entrypoint.sh` script supports several command line arguments to customize the test execution. Here are the available options:
+The `terratest_docker_entrypoint.sh` script supports several command-line arguments to customize the test execution. Here are the available options:
 
 * `-p, --package=PACKAGE`: The package to test. Default is './...'
 * `-r, --run=TEST`: The name of the test to run. Default is '.\*Plan.\*'.
@@ -41,9 +42,9 @@ The `terratest_docker_entrypoint.sh` script supports several command line argume
 
 ## Running Terratest Commands
 
-### Running the default tests
+### Running the Default Tests
 
-To run the default suite of unit tests (only terraform plan), run the following docker command:
+To run the default suite of unit tests (only Terraform plan), run the following Docker command:
 
 ```bash
 # Run from the ./viya4-iac-azure directory
@@ -53,9 +54,9 @@ docker run --rm \
   viya4-iac-azure-terratest
 ```
 
-### Running a specific Go Test
+### Running a Specific Go Test
 
-To run a specific test, run the following docker command with the -r command line argument:
+To run a specific test, run the following Docker command with the `-r` option:
 
 ```bash
 # Run from the ./viya4-iac-azure directory
@@ -65,11 +66,11 @@ docker run --rm \
   viya4-iac-azure-terratest \
   -r="YourTest"
 ```
-To run multiple tests, pass in a regex to the -r argument - "TestName1|TestName2|TestName3"
+To run multiple tests, pass in a regex to the `-r` option - "TestName1|TestName2|TestName3"
 
-### Running a specific Go Package and Test
+### Running a Specific Go Package and Test
 
-If you want to specify the Go package and test name, run the following docker command with the following arguments:
+If you want to specify the Go package and test name, run the following Docker command with the following options:
 
 ```bash
 # Run from the ./viya4-iac-azure directory
@@ -83,7 +84,7 @@ docker run --rm \
 
 ### Running the Go Tests with verbose mode
 
-If you want to run the tests with verbose mode, run the docker image with the -v flag:
+If you want to run the tests in verbose mode, run the Docker command with the `-v` option:
 
 ```bash
 # Run from the ./viya4-iac-azure directory
@@ -95,4 +96,4 @@ docker run --rm \
 
 ### Accessing test run logs
 
-After running the docker container, log files will be created in the ./viya4-iac-azure/test/test_output directory. These will allow you to view the test results in xml as well as test logs generated by the terrratest_log_parser.
+After you have started the Docker container, log files are created in the ./viya4-iac-azure/test/test_output directory. These files enable you to view the test results in XML format, as well as test logs that are generated by the terrratest_log_parser.
