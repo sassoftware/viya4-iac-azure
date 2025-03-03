@@ -1,6 +1,5 @@
-/*
- * Copyright (c) 2020-2022, SAS Institute Inc., Cary, NC, USA. All Rights Reserved.
- */
+// Copyright © 2025, SAS Institute Inc., Cary, NC, USA. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 // Package validation ...
 package validation
@@ -11,8 +10,6 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	//assertext "sassoftware.io/viya/orchestration/pkg/library/test/testifyext/assert"
-	//requireext "sassoftware.io/viya/orchestration/pkg/library/test/testifyext/require"
 )
 
 // A Validation is a function that executes a validation check.
