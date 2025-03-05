@@ -12,7 +12,7 @@ terraform {
     }
     azuread = {
       source  = "hashicorp/azuread"
-      version = "~>2.53"
+      version = "~>3.1"
     }
     external = {
       source  = "hashicorp/external"
@@ -36,7 +36,7 @@ terraform {
     }
     kubernetes = {
       source  = "hashicorp/kubernetes"
-      version = "~>2.32"
+      version = "~>2.36"
     }
   }
 }
