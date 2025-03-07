@@ -31,7 +31,7 @@ runTests: checkEnv buildTests
             -e TF_VAR_tenant_id=$(TF_VAR_tenant_id) \
             -e TF_VAR_client_id=$(TF_VAR_client_id) \
             -e TF_VAR_client_secret=$(TF_VAR_client_secret) \
-            -v $(pwd):/viya4-iac-azure \
+            -v $(PWD):/viya4-iac-azure \
             $(IMAGE) -v
 
 clean:
