@@ -70,6 +70,7 @@ export TF_VAR_client_id=$TF_VAR_client_id
 export TF_VAR_client_secret=$TF_VAR_client_secret
 export TF_VAR_tenant_id=$TF_VAR_tenant_id
 export TF_VAR_subscription_id=$TF_VAR_subscription_id
+export ARM_SUBSCRIPTION_ID=$TF_VAR_subscription_id
 
 # Run the tests
 echo "Running 'go test $VERBOSE $PACKAGE -run $TEST -timeout 60m'"
