@@ -69,7 +69,7 @@ func TestPlanDefaults(t *testing.T) {
 			expected:          "false",
 			resourceMapName:   "module.aks.azurerm_kubernetes_cluster.aks",
 			attributeJsonPath: "{$.run_command_enabled}",
-			message:           "Run command should be disabled by default",
+			message:           "The AKS cluster Run Command feature should be disabled by default",
 		},
 	}
 
