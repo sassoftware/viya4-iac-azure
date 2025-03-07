@@ -21,7 +21,7 @@ commandTests:
   - name: "terraform version"
     command: "terraform"
     args: ["--version"]
-    expectedOutput: ["Terraform v1.9.6"]
+    expectedOutput: ["Terraform v1.10.5"]
   - name: "python version"
     command: "python3"
     args: ["--version"]
@@ -32,11 +32,11 @@ commandTests:
       - -c
       - |
         az version -o tsv
-    expectedOutput: ["2.64.0\t2.64.0\t1.1.0"]
+    expectedOutput: ["2.70.0\t2.70.0\t1.1.0"]
   - name: "kubectl version"
     command: "kubectl"
     args: ["version", "--client"]
-    expectedOutput: ["Client Version: v1.30.6"]
+    expectedOutput: ["Client Version: v1.30.10"]
 
 metadataTest:
   workdir: "/viya4-iac-azure"
