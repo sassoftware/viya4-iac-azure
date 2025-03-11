@@ -32,16 +32,15 @@ container_registry_sku              = "Standard"
 container_registry_admin_enabled    = false
 
 # AKS config
-kubernetes_version         = "1.29"
+kubernetes_version         = "1.30"
 default_nodepool_min_nodes = 2
-default_nodepool_vm_type   = "Standard_D4_v3"
-#v3 still has local temp storage
+default_nodepool_vm_type   = "Standard_D4_v5"
 
 # AKS Node Pools config - minimal
 cluster_node_pool_mode = "minimal"
 node_pools = {
   cas = {
-    "machine_type"          = "Standard_E4s_v3"
+    "machine_type"          = "Standard_E4s_v5"
     "os_disk_size"          = 200
     "min_nodes"             = 0
     "max_nodes"             = 5
@@ -52,7 +51,7 @@ node_pools = {
     }
   },
   generic = {
-    "machine_type"          = "Standard_D8s_v3"
+    "machine_type"          = "Standard_D8s_v5"
     "os_disk_size"          = 200
     "min_nodes"             = 0
     "max_nodes"             = 5
