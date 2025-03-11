@@ -1,0 +1,33 @@
+# Copyright © 2025, SAS Institute Inc., Cary, NC, USA. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+name: Default Plan Unit Tests
+on:
+  push:
+    branches: ['**'] # '*' will cause the workflow to run on all commits to all branches.
+
+jobs:
+  go-tests:
+    name: Default Plan Unit Tests
+    runs-on: ubuntu-latest
+    environment: terraformSecrets
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      - name: Build Docker Image
+        run: docker build -t viya4-iac-azure:terratest -f Dockerfile.terratest .
+      - name: Run Tests
+        run: |
+          docker run \
+            -e TF_VAR_subscription_id=$TF_VAR_subscription_id \
+            -e TF_VAR_tenant_id=$TF_VAR_tenant_id \
+            -e TF_VAR_client_id=$TF_VAR_client_id \
+            -e TF_VAR_client_secret=$TF_VAR_client_secret \
+            -v $(pwd):/viya4-iac-azure \
+            viya4-iac-azure:terratest -v
+        env:
+          # TF ENVIRONMENT
+          TF_VAR_subscription_id: "${{ secrets.TF_VAR_SUBSCRIPTION_ID }}"
+          TF_VAR_tenant_id: "${{ secrets.TF_VAR_TENANT_ID }}"
+          TF_VAR_client_id: "${{ secrets.TF_VAR_CLIENT_ID }}"
+          TF_VAR_client_secret: "${{ secrets.TF_VAR_CLIENT_SECRET }}"
