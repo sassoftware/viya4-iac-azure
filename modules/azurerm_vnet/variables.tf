@@ -61,3 +61,14 @@ variable "tags" {
   description = "The tags to associate with your network and subnets."
   type        = map(string)
 }
+
+variable "roles" {
+    description = "Managed Identity permissions for VNet and Route Table"
+    type = list(string)
+    default = ["Network Contributor"]
+}
+
+variable "aks_uai_principal_id" {
+  description = "Managed Identity Principal ID used to associate permissions to network and route table"
+  type = string
+}
