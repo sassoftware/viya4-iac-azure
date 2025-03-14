@@ -25,6 +25,9 @@ resource "azurerm_kubernetes_cluster_node_pool" "autoscale_node_pool" {
   node_taints                  = var.node_taints
   orchestrator_version         = var.orchestrator_version
   tags                         = var.tags
+  priority                    = var.priority
+  eviction_policy             = var.eviction_policy
+  spot_max_price              = var.spot_max_price
 
   lifecycle {
     ignore_changes = [node_count]
@@ -52,4 +55,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "static_node_pool" {
   node_taints                  = var.node_taints
   orchestrator_version         = var.orchestrator_version
   tags                         = var.tags
+  priority                    = var.priority
+  eviction_policy             = var.eviction_policy
+  spot_max_price              = var.spot_max_price
 }

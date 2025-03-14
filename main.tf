@@ -212,6 +212,9 @@ module "node_pools" {
   orchestrator_version         = var.kubernetes_version
   host_encryption_enabled      = var.aks_cluster_enable_host_encryption
   tags                         = var.tags
+  priority                     = each.value.priority 
+  eviction_policy              = each.value.eviction_policy
+  spot_max_price               = each.value.spot_max_price
 }
 
 # https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/postgresql_flexible_server

@@ -556,6 +556,9 @@ variable "node_pools" {
     max_pods     = string
     node_taints  = list(string)
     node_labels  = map(string)
+    priority     = optional(string, "Regular")
+    eviction_policy = optional(string)
+    spot_max_price = optional(string)
   }))
 
   default = {
