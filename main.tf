@@ -149,6 +149,7 @@ module "aks" {
   aks_cluster_enable_host_encryption       = var.aks_cluster_enable_host_encryption
   aks_node_disk_encryption_set_id          = var.aks_node_disk_encryption_set_id
   aks_cluster_node_admin                   = var.node_vm_admin
+  aks_cluster_run_command_enabled          = var.aks_cluster_run_command_enabled
   aks_cluster_ssh_public_key               = try(file(var.ssh_public_key), "")
   aks_cluster_private_dns_zone_id          = var.aks_cluster_private_dns_zone_id
   aks_vnet_subnet_id                       = module.vnet.subnets["aks"].id

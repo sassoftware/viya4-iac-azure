@@ -29,7 +29,7 @@ variable "vnet_subnet_id" {
 variable "machine_type" {
   description = "The size which should be used for this Virtual Machine, such as Standard_F2."
   type        = string
-  default     = "Standard_E8s_v3"
+  default     = "Standard_E8s_v5"
 }
 
 variable "vm_admin" {

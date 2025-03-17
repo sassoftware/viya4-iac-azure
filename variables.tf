@@ -808,3 +808,9 @@ variable "aks_cluster_private_dns_zone_id" {
   type        = string
   default     = ""
 }
+
+variable "aks_cluster_run_command_enabled" {
+  description = "Enable or disable the AKS cluster Run Command feature."
+  type        = bool
+  default     = false
+}
