@@ -127,14 +127,14 @@ The default values for the `subnets` variable are as follows:
   aks = {
     "prefixes": ["192.168.0.0/23"],
     "service_endpoints": ["Microsoft.Sql"],
-    "private_endpoint_network_policies": "Disabled",
+    "private_endpoint_network_policies": "Enabled",
     "private_link_service_network_policies_enabled": false,
     "service_delegations": {},
   }
   misc = {
     "prefixes": ["192.168.2.0/24"],
     "service_endpoints": ["Microsoft.Sql"],
-    "private_endpoint_network_policies": "Disabled",
+    "private_endpoint_network_policies": "Enabled",
     "private_link_service_network_policies_enabled": false,
     "service_delegations": {},
   }
@@ -142,7 +142,7 @@ The default values for the `subnets` variable are as follows:
   netapp = {
     "prefixes": ["192.168.3.0/24"],
     "service_endpoints": [],
-    "private_endpoint_network_policies": "Disabled",
+    "private_endpoint_network_policies": "Enabled",
     "private_link_service_network_policies_enabled": false,
     "service_delegations": {
       netapp = {
@@ -211,6 +211,7 @@ Ubuntu 20.04 LTS is the operating system used on the Jump/NFS servers. Ubuntu cr
 | aks_cluster_private_dns_zone_id | Specifies private DNS zone resource ID for AKS private cluster to use | string | "" | For `cluster_api_mode=private` if `aks_cluster_private_dns_zone_id` is not specified then the value `System` is used else it is set to null. For details see [Configure a private DNS zone](https://learn.microsoft.com/en-us/azure/aks/private-clusters?tabs=azure-portal#configure-a-private-dns-zone) |
 | aks_cluster_sku_tier | The SKU Tier that should be used for this Kubernetes Cluster. Optimizes api server for cost vs availability | string | "Free" | Valid Values:  "Free", "Standard" and "Premium" | 
 | cluster_support_tier | Specifies the support plan which should be used for this Kubernetes Cluster. | string | "KubernetesOfficial" | Possible values are `KubernetesOfficial` and `AKSLongTermSupport`. To enable long term K8s support is a combination of setting `aks_cluster_sku_tier` to `Premium` tier and explicitly selecting the `cluster_support_tier` as `AKSLongTermSupport`. For details see [Long term Support](https://learn.microsoft.com/en-us/azure/aks/long-term-support) and for which K8s version has long term support see [AKS Kubernetes release calendar](https://learn.microsoft.com/en-us/azure/aks/supported-kubernetes-versions?tabs=azure-cli#aks-kubernetes-release-calendar).| 
+| aks_cluster_run_command_enabled | Enable or disable the AKS Run Command feature | bool | false | The AKS Run Command feature in AKS allows you to remotely execute commands within a running container of your AKS cluster directly from the Azure CLI or Azure portal. To enable the Run Command feature for an AKS cluster where Run Command is disabled, navigate to the Run Command tab for your AKS Cluster in the Azure Portal and select the Enable button. |
 
 ## Node Pools
 
@@ -368,7 +369,7 @@ Each server element, like `foo = {}`, can contain none, some, or all of the para
 
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
-| sku_name| The SKU Name for the PostgreSQL Flexible Server | string | "GP_Standard_D4ds_v5" | The name pattern is the SKU, followed by the tier + family + cores (e.g. B_Standard_B1ms, GP_Standard_D2s_v3, MO_Standard_E4s_v3).|
+| sku_name| The SKU Name for the PostgreSQL Flexible Server | string | "GP_Standard_D4ds_v5" | The name pattern is the SKU, followed by the tier + family + cores (e.g. B_Standard_B1ms, GP_Standard_D2s_v5, MO_Standard_E4s_v5).|
 | storage_mb | The max storage allowed for the PostgreSQL Flexible Server | number | 131072 | Possible values are 32768, 65536, 131072, 262144, 524288, 1048576, 2097152, 4194304, 8388608, 16777216, and 33554432. |
 | backup_retention_days | Backup retention days for the PostgreSQL Flexible server | number | 7 | Supported values are between 7 and 35 days. |
 | geo_redundant_backup_enabled | Enable Geo-redundant or not for server backup | bool | false | Not supported for the basic tier. |

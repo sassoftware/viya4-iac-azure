@@ -3,16 +3,16 @@
 
 terraform {
 
-  required_version = ">= 1.9.6"
+  required_version = ">= 1.10.0"
 
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "4.3.0"
+      version = "4.21.1"
     }
     azuread = {
       source  = "hashicorp/azuread"
-      version = "~>2.53"
+      version = "~>3.1"
     }
     external = {
       source  = "hashicorp/external"
@@ -36,7 +36,7 @@ terraform {
     }
     kubernetes = {
       source  = "hashicorp/kubernetes"
-      version = "~>2.32"
+      version = "~>2.36"
     }
   }
 }
