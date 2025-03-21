@@ -378,7 +378,7 @@ Each server element, like `foo = {}`, can contain none, some, or all of the para
 | server_version | The version of the PostgreSQL Flexible server instance | string | "15" | Refer to the [SAS Viya Platform Administration Guide](https://documentation.sas.com/?cdcId=sasadmincdc&cdcVersion=default&docsetId=itopssr&docsetTarget=p05lfgkwib3zxbn1t6nyihexp12n.htm#p1wq8ouke3c6ixn1la636df9oa1u) for the supported versions of PostgreSQL for the SAS Viya platform. |
 | ssl_enforcement_enabled | Enforce SSL on connection to the Azure Database for PostgreSQL Flexible server instance | bool | true | |
 | connectivity_method | Network connectivity option to connect to your flexible server. There are two connectivity options available: Public access (allowed IP addresses) and Private access (VNet Integration). Defaults to public access with firewall rules enabled.| string | "public" | Valid options are `public` and `private`. See sample input file [here](../examples/sample-input-postgres.tfvars) and Private access documentation [here](./user/PostgreSQLPrivateAccess.md). For more details see [Networking overview](https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/concepts-networking) |
-| postgresql_configurations | Sets a PostgreSQL Configuration value on a Azure PostgreSQL Flexible Server | list(object) | [] | More details can be found [here](https://docs.microsoft.com/en-us/azure/postgresql/flexible-server/howto-configure-server-parameters-using-cli) |
+| postgresql_configurations | Sets a PostgreSQL Configuration value on a Azure PostgreSQL Flexible Server | list(object) | [{ name : "azure.extensions", value : "PLPGSQL,PGCRYPTO" }] | More details can be found [here](https://docs.microsoft.com/en-us/azure/postgresql/flexible-server/howto-configure-server-parameters-using-cli) |
 
 Multiple SAS offerings require a second PostgreSQL instance referred to as SAS Common Data Store, or CDS PostgreSQL. For more information, see [Common Customizations](https://documentation.sas.com/?cdcId=itopscdc&cdcVersion=default&docsetId=dplyml0phy0dkr&docsetTarget=n08u2yg8tdkb4jn18u8zsi6yfv3d.htm#p0wkxxi9s38zbzn19ukjjaxsc0kl). A list of SAS offerings that require CDS PostgreSQL is provided in [SAS Common Data Store Requirements](https://documentation.sas.com/?cdcId=itopscdc&cdcVersion=default&docsetId=itopssr&docsetTarget=p05lfgkwib3zxbn1t6nyihexp12n.htm#n03wzanutmc6gon1val5fykas9aa). To create and configure an external CDS PostgreSQL instance in addition to the external platform PostgreSQL instance named `default`, specify `cds-postgres` as a second PostgreSQL instance, as shown in the example below.
 
@@ -391,7 +391,7 @@ postgres_servers = {
     postgresql_configurations    = [
        {
          name  = "azure.extensions"
-         value = "PLPGSQL,LTREE"
+         value = "PLPGSQL,PGCRYPTO,LTREE"
        }
       ]
   },
