@@ -61,7 +61,13 @@ variable "location" {
 ## Azure AD
 variable "rbac_aad_enabled" {
   type        = bool
-  description = "Enables Azure Active Directory integration with Kubernetes RBAC."
+  description = "Enables Azure Active Directory integration with Kubernetes or Azure RBAC."
+  default     = false
+}
+
+variable "rbac_aad_azure_rbac_enabled" {
+  type        = bool
+  description = "Enables Azure RBAC.  If false, Kubernetes RBAC is used.  Only relevant if rbac_aad_enabled is true."
   default     = false
 }
 
