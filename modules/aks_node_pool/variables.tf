@@ -115,3 +115,19 @@ variable "proximity_placement_group_id" {
   type        = string
   default     = ""
 }
+
+variable "priority" {
+  description = "(Optional) The Priority for Virtual Machines within the Virtual Machine Scale Set that powers this Node Pool. Possible values are Regular and Spot. Defaults to Regular. Changing this forces a new resource to be created."
+  type        = string
+  default     = "Regular"
+}
+variable "eviction_policy" {
+  description = "(Optional) The Eviction Policy which should be used for Virtual Machines within the Virtual Machine Scale Set powering this Node Pool. Possible values are Deallocate and Delete. Changing this forces a new resource to be created."
+  type        = string
+  default     = "Delete"
+}
+variable "spot_max_price" {
+  description = "(Optional) The maximum price you're willing to pay in USD per Virtual Machine. Valid values are -1 (the current on-demand price for a Virtual Machine) or a positive value with up to five decimal places. Changing this forces a new resource to be created."
+  type        = string
+  default     = "-1"
+}
