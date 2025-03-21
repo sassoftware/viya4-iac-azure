@@ -5,7 +5,21 @@
 
 version: 2
 updates:
-  - package-ecosystem: "docker" # See documentation for possible 
-    directory: "/" # Location of package manifests
+  # Terraform dependencies
+  - package-ecosystem: "terraform"
+    directory: "/"
     schedule:
       interval: "weekly"
+    
+  # Docker dependencies
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    
