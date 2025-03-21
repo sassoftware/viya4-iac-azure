@@ -8,35 +8,35 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "4.21.1"
+      version = "4.24.0"
     }
     azuread = {
       source  = "hashicorp/azuread"
-      version = "~>3.1"
+      version = "3.2"
     }
     external = {
       source  = "hashicorp/external"
-      version = "~>2.3"
+      version = "2.3.4"
     }
     local = {
       source  = "hashicorp/local"
-      version = "~>2.5"
+      version = "2.5.2"
     }
     null = {
       source  = "hashicorp/null"
-      version = "~>3.2"
+      version = "3.2.3"
     }
     tls = {
       source  = "hashicorp/tls"
-      version = "~>4.0"
+      version = "4.0.6"
     }
     cloudinit = {
       source  = "hashicorp/cloudinit"
-      version = "~>2.3"
+      version = "2.3.6"
     }
     kubernetes = {
       source  = "hashicorp/kubernetes"
-      version = "~>2.36"
+      version = "2.36.0"
     }
   }
 }
