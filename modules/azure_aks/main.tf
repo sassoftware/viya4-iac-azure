@@ -20,6 +20,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   kubernetes_version      = var.kubernetes_version
   private_cluster_enabled = var.aks_private_cluster
   private_dns_zone_id     = var.aks_private_cluster && var.aks_cluster_private_dns_zone_id != "" ? var.aks_cluster_private_dns_zone_id : (var.aks_private_cluster ? "System" : null)
+  run_command_enabled     = var.aks_cluster_run_command_enabled
 
   network_profile {
     # Docs on AKS Advanced Networking config

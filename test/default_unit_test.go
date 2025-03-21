@@ -65,6 +65,12 @@ func TestPlanDefaults(t *testing.T) {
 			assertFunction:    assert.NotEqual,
 			message:           "The Jump VM machine type should be Standard_B2s",
 		},
+		"runCommandEnabledTest": {
+			expected:          "false",
+			resourceMapName:   "module.aks.azurerm_kubernetes_cluster.aks",
+			attributeJsonPath: "{$.run_command_enabled}",
+			message:           "The AKS cluster Run Command feature should be disabled by default",
+		},
 	}
 
 	variables := getDefaultPlanVars(t)
