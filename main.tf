@@ -8,12 +8,12 @@
 #
 provider "azurerm" {
 
-  subscription_id = var.subscription_id
-  client_id       = var.client_id
-  client_secret   = var.client_secret
-  tenant_id       = var.tenant_id
-  partner_id      = var.partner_id
-  use_msi         = var.use_msi
+   subscription_id = var.subscription_id
+   client_id       = var.client_id
+   client_secret   = var.client_secret
+   tenant_id       = var.tenant_id
+   partner_id      = var.partner_id
+   use_msi         = var.use_msi
 
   features {}
 }
@@ -200,6 +200,8 @@ module "node_pools" {
   machine_type                 = each.value.machine_type
   fips_enabled                 = var.fips_enabled
   os_disk_size                 = each.value.os_disk_size
+  os_disk_type                 = each.value.os_disk_type
+  kubelet_disk_type            = each.value.kubelet_disk_type  
   auto_scaling_enabled         = each.value.min_nodes == each.value.max_nodes ? false : true
   node_count                   = each.value.min_nodes
   min_nodes                    = each.value.min_nodes == each.value.max_nodes ? null : each.value.min_nodes
