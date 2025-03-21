@@ -1,8 +1,5 @@
-ARG TERRAFORM_VERSION=1.10.5
-ARG AZURECLI_VERSION=2.70.0
-
-FROM hashicorp/terraform:$TERRAFORM_VERSION as terraform
-FROM mcr.microsoft.com/azure-cli:$AZURECLI_VERSION
+FROM hashicorp/terraform:1.10.5 as terraform
+FROM mcr.microsoft.com/azure-cli:2.70.0
 ARG KUBECTL_VERSION=1.30.10
 
 WORKDIR /viya4-iac-azure
