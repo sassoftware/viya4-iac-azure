@@ -14,7 +14,7 @@ categories:
   - title: '🧰 Maintenance'
     labels: 
       - 'chore'
-      - 'ci'
+      - 'CI/CD'
       - 'refactor'
       - 'test'
       - 'documentation'
