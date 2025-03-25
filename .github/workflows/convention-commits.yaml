@@ -11,6 +11,7 @@ jobs:
   validate-pr-title:
     runs-on: ubuntu-latest
     steps:
+    # https://github.com/marketplace/actions/conventional-commit-in-pull-requests
       - name: PR Conventional Commit Validation
         uses:  ytanikin/pr-conventional-commits@1.4.0
         with:
