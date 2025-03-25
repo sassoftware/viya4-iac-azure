@@ -1,4 +1,4 @@
-name-template: 'v$RESOLVED_VERSION 🌈'
+name-template: 'v$RESOLVED_VERSION - <Release Date>'
 tag-template: 'v$RESOLVED_VERSION'
 categories:
   - title: '💀 BREAKING CHANGES'
