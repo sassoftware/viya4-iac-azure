@@ -7,6 +7,8 @@ on:
       - 'v*.*.*'
 jobs:
   update-semver:
+    # Update the tags based on semantic versioning.
+    # Also update the latest tag.
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -15,4 +17,4 @@ jobs:
         run: |
           git tag latest
       - name: Push latest git tag
-        run: git push origin latest
+        run: git push -f origin latest
