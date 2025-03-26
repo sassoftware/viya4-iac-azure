@@ -73,7 +73,7 @@ export TF_VAR_subscription_id=$TF_VAR_subscription_id
 
 # Run the tests
 echo "Running 'go test $VERBOSE $PACKAGE -run $TEST -timeout 60m'"
-exec go test $VERBOSE $PACKAGE -run $TEST -timeout 60m | tee ./test_output/test_output.log
+exec go test $VERBOSE $PACKAGE -run $TEST -timeout 60m | tee ./testoutput/test_output.log
 
 # Parse the results
 cd testoutput
