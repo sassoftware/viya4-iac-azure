@@ -1,4 +1,4 @@
-name-template: 'v$RESOLVED_VERSION - $TODAYS_DATE'
+name-template: 'v$RESOLVED_VERSION - ${TODAYS_DATE}'
 tag-template: 'v$RESOLVED_VERSION'
 categories:
   - title: '⚠️ BREAKING CHANGES'
