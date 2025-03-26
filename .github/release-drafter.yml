@@ -17,7 +17,7 @@ categories:
   - title: '⏱️ Performance'
     labels:
       - 'performance'
-  - title: '🧰 Tests'
+  - title: '🤖 Tests'
     labels:
       - 'test'
   - title: '🔧 Maintenance'
