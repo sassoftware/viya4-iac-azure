@@ -13,52 +13,49 @@ The unit tests in this project are designed to quickly and efficiently verify th
 
 ### Unit Testing Structure
 
-The unit tests are written as [table-driven tests](https://go.dev/wiki/TableDrivenTests) so that they are easier to read, understand, and expand. The tests are divided into two files, [default_unit_test.go](../../test/default_unit_test.go) and [non_default_unit_test.go](../../test/non_default_unit_test.go).
+The unit tests are written as [table-driven tests](https://go.dev/wiki/TableDrivenTests) so that they are easier to read, understand, and expand. The tests are divided into two packages, [defaultplan](../../test/defaultplan) and [nondefaultplan](../../test/nondefaultplan).
 
-The test file named default_unit_test.go validates the default values of a Terraform plan. This testing ensures that there are no regressions in the default behavior of the code base. The test file named non_default_unit_test.go modifies the input values before running the Terraform plan. After generating the plan file, the test verifies that it contains the expected values. Both files are written as table-driven tests.
+The test package defaultplan validates the default values of a Terraform plan. This testing ensures that there are no regressions in the default behavior of the code base. The test package nondefaultplan modifies the input values before running the Terraform plan. After generating the plan file, the test verifies that it contains the expected values. Both sets of tests are written to be table-driven.
 
-To see an example, look at the `TestPlanStorageDefaults` function in the default_unit_test.go file that is shown below.
+To see an example, look at the `TestPlanStorage` function in the defaultplan/storage_test.go file that is shown below.
 
-With the Table-Driven approach, each entry in the `storageTests` map is a test. These tests verify that the expected value matches the actual value of the "module.nfs[0].azurerm_linux_virtual_machine.vm" resource.  We use the [k8s.io JsonPath](https://pkg.go.dev/k8s.io/client-go@v0.28.4/util/jsonpath) library to parse the Terraform output and extract the desired attribute.  The runTest call is a helper function that runs through each test in the map and perform assertions. See the [helpers.go](../../test/helpers.go) file for more information on the common helper functions.
+With the Table-Driven approach, each entry in the `tests` map is a test. These tests verify that the expected value matches the actual value of the "module.nfs[0].azurerm_linux_virtual_machine.vm" resource.  We use the [k8s.io JsonPath](https://pkg.go.dev/k8s.io/client-go@v0.28.4/util/jsonpath) library to parse the Terraform output and extract the desired attribute.  The RunTests call is a helper function that runs through each test in the map and perform the supplied assertions. See the [helpers](../../test/helpers) package for more information on the common helper functions.
 
 ```go
-// Function containing all unit tests for the Storage type
-// and its default values.
-func TestPlanStorageDefaults(t *testing.T) {
-    // Map containing the different tests. Each entry is 
-    // a separate test.
-    storageTests := map[string]testCase{
-        // Verify that the default user is 'nfsuser'.
-        "userTest": {
-            expected:          "nfsuser",
-            resourceMapName:   "module.nfs[0].azurerm_linux_virtual_machine.vm",
-            attributeJsonPath: "{$.admin_username}",
-        },
-        // Verify that the default size is 'Standard_D4s_v5'.
-        "sizeTest": {
-            expected:          "Standard_D4s_v5",
-            resourceMapName:   "module.nfs[0].azurerm_linux_virtual_machine.vm",
-            attributeJsonPath: "{$.size}",
-        },
-    }
+func TestPlanStorage(t *testing.T) {
+    t.Parallel()
 
-    // Generate a Plan file using the default input variables.
-    variables := getDefaultPlanVars(t)
-    plan, err := initPlanWithVariables(t, variables)
-    require.NotNil(t, plan)
-    require.NoError(t, err)
-    
-    // For each test in the Test Table, run the test helper function
-    for name, tc := range storageTests {
-        t.Run(name, func(t *testing.T) {
-            runTest(t, tc, plan)
-        })
-    }
+
+    tests := map[string]helpers.TestCase{
+        "userTest": {
+            Expected:          "nfsuser",
+            ResourceMapName:   "module.nfs[0].azurerm_linux_virtual_machine.vm",
+            AttributeJsonPath: "{$.admin_username}",
+        },
+        "sizeTest": {
+            Expected:          "Standard_D4s_v5",
+            ResourceMapName:   "module.nfs[0].azurerm_linux_virtual_machine.vm",
+            AttributeJsonPath: "{$.size}",
+        },
+        "vmNotNilTest": {
+            Expected:          "<nil>",
+            ResourceMapName:   "module.nfs[0].azurerm_linux_virtual_machine.vm",
+            AttributeJsonPath: "{$}",
+            AssertFunction:    assert.NotEqual,
+        },
+        "vmZoneEmptyStrTest": {
+            Expected:          "",
+            ResourceMapName:   "module.nfs[0].azurerm_linux_virtual_machine.vm",
+            AttributeJsonPath: "{$.vm_zone}",
+        },
+
+    // Run the tests using the default input variables.
+    helpers.RunTests(t, tests, helpers.GetDefaultPlan(t))
 }
 ```
 ### Adding Unit Tests
 
-To create a unit test, you can add an entry to an existing test table in the [default_unit_test.go](../../test/default_unit_test.go) file or the [non_default_unit_test.go](../../test/non_default_unit_test.go) file, depending on the test type. If you don't see an existing test table that fits your needs, you are welcome to create a new function in a similar table-driven test format.
+To create a unit test, you can add an entry to an existing test table if it's related to the resources being validated. If you don't see an existing test table that fits your needs, you are welcome to create a new file in a similar table-driven test format and drop it in the appropriate package.
 
 ### Integration Testing
 
