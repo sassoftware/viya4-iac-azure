@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-  cron:
+  schedule:
     # Schedule to run every week day at 05:00am EST
     - cron: '0 9 * * 1-5'
 
