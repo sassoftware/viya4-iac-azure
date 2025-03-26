@@ -1,7 +1,7 @@
 name-template: 'v$RESOLVED_VERSION - <Release Date>'
 tag-template: 'v$RESOLVED_VERSION'
 categories:
-  - title: '💀 BREAKING CHANGES'
+  - title: '⚠️ BREAKING CHANGES'
     labels:
       - 'breaking change'
   - title: '🚀 Features'
@@ -11,16 +11,24 @@ categories:
   - title: '🐛 Bug Fixes'
     labels:
       - 'bug'
-  - title: '🧰 Maintenance'
+  - title: '📖 Documentation'
+    labels:
+      - 'documentation'
+  - title: '⏱️ Performance'
+    labels:
+      - 'performance'
+  - title: '🧰 Tests'
+    labels:
+      - 'test'
+  - title: '🔧 Maintenance'
     labels: 
+      - 'build'
       - 'chore'
       - 'CI/CD'
       - 'refactor'
-      - 'test'
-      - 'documentation'
-      - 'performance'
       - 'revert'
-change-template: '- $TITLE @$AUTHOR (#$NUMBER): $BODY'
+      - 'style'
+change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
 change-title-escapes: '\<*_&' # You can add # and @ to disable mentions, and add ` to disable code blocks.
 version-resolver:
   major:
@@ -40,6 +48,7 @@ version-resolver:
       - 'refactor'
       - 'chore'
       - 'revert'
+      - 'style'
   default: patch
 template: |
   ## Changes
