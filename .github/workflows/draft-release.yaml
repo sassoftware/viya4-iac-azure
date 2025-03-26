@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+  cron:
+    # Schedule to run every week day at 05:00am EST
+    - cron: '0 9 * * 1-5'
 
 permissions:
   contents: read
@@ -15,9 +18,13 @@ jobs:
       contents: write
     runs-on: ubuntu-latest
     steps:
-      # Drafts your next Release notes as Pull Requests are merged into "master"
+      - name: Get current date
+        id: date
+        run: echo "::set-output name=date::$(date +'%B %d, %Y')"
+      # Drafts your next Release notes as Pull Requests are merged into "main"
       - uses: release-drafter/release-drafter@v6
         with:
           disable-autolabeler: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TODAYS_DATE: ${{ steps.date.outputs.date }}
