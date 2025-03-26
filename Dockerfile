@@ -22,4 +22,3 @@ RUN tdnf -y install git which \
 ENV TF_VAR_iac_tooling=docker
 ENTRYPOINT ["/viya4-iac-azure/docker-entrypoint.sh"]
 VOLUME ["/workspace"]
- 
