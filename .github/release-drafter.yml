@@ -1,4 +1,4 @@
-name-template: 'v$RESOLVED_VERSION - <Release Date>'
+name-template: 'v$RESOLVED_VERSION - <RELEASE_DATE>'
 tag-template: 'v$RESOLVED_VERSION'
 categories:
   - title: '⚠️ BREAKING CHANGES'
@@ -17,7 +17,7 @@ categories:
   - title: '⏱️ Performance'
     labels:
       - 'performance'
-  - title: '🧰 Tests'
+  - title: '🤖 Tests'
     labels:
       - 'test'
   - title: '🔧 Maintenance'
