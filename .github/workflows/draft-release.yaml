@@ -25,6 +25,6 @@ jobs:
       - uses: release-drafter/release-drafter@v6
         with:
           disable-autolabeler: true
+          TODAYS_DATE: ${{ steps.date.outputs.date }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TODAYS_DATE: ${{ steps.date.outputs.date }}
