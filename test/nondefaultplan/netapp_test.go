@@ -1,4 +1,7 @@
-package defaultplan
+// Copyright © 2025, SAS Institute Inc., Cary, NC, USA. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
+package nondefaultplan
 
 import (
 	"github.com/stretchr/testify/assert"
@@ -13,6 +16,7 @@ func TestPlanNetApp(t *testing.T) {
 	t.Parallel()
 
 	variables := helpers.GetDefaultPlanVars(t)
+	variables["prefix"] = "net-app"
 	variables["storage_type"] = "ha"
 
 	tests := map[string]helpers.TestCase{
@@ -73,6 +77,6 @@ func TestPlanNetApp(t *testing.T) {
 		},
 	}
 
-	plan := helpers.InitPlan(t, variables)
+	plan := helpers.GetPlan(t, variables)
 	helpers.RunTests(t, tests, plan)
 }

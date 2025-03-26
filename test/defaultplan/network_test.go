@@ -1,3 +1,6 @@
+// Copyright © 2025, SAS Institute Inc., Cary, NC, USA. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 package defaultplan
 
 import (
@@ -14,7 +17,7 @@ func TestPlanNetwork(t *testing.T) {
 			ResourceMapName:   "module.vnet.azurerm_virtual_network.vnet[0]",
 			AttributeJsonPath: "{$.address_space}",
 		},
-		"vnet_subnetTest": {
+		"vnetSubnetTest": {
 			Expected:          "",
 			ResourceMapName:   "module.vnet.azurerm_virtual_network.vnet[0]",
 			AttributeJsonPath: "{$.subnet[0].name}",

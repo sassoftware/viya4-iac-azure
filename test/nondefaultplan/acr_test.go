@@ -14,6 +14,7 @@ func TestPlanACRStandard(t *testing.T) {
 	t.Parallel()
 
 	variables := helpers.GetDefaultPlanVars(t)
+	variables["prefix"] = "acr-standard"
 	variables["create_container_registry"] = true
 	variables["container_registry_admin_enabled"] = true
 	variables["container_registry_sku"] = "Standard"
@@ -46,7 +47,7 @@ func TestPlanACRStandard(t *testing.T) {
 		},
 	}
 
-	plan := helpers.InitPlan(t, variables)
+	plan := helpers.GetPlanFromCache(t, variables)
 	helpers.RunTests(t, tests, plan)
 }
 
@@ -55,6 +56,7 @@ func TestPlanACRPremium(t *testing.T) {
 	t.Parallel()
 
 	variables := helpers.GetDefaultPlanVars(t)
+	variables["prefix"] = "acr-premium"
 	variables["create_container_registry"] = true
 	variables["container_registry_admin_enabled"] = true
 	variables["container_registry_sku"] = "Premium"
@@ -88,6 +90,6 @@ func TestPlanACRPremium(t *testing.T) {
 		},
 	}
 
-	plan := helpers.InitPlan(t, variables)
+	plan := helpers.GetPlan(t, variables)
 	helpers.RunTests(t, tests, plan)
 }

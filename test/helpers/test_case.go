@@ -8,7 +8,6 @@ import (
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"test/validation"
 	"testing"
 )
 
@@ -76,7 +75,7 @@ func RunTest(t *testing.T, tc TestCase, plan *terraform.PlanStruct) {
 	if assertFn == nil {
 		assertFn = assert.Equal
 	}
-	validateFn := validation.AssertComparison(assertFn, tc.Expected)
+	validateFn := AssertComparison(assertFn, tc.Expected)
 	validateFn(t, actual, tc.Message)
 }
 

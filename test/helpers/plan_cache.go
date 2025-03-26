@@ -15,19 +15,28 @@ import (
 	"testing"
 )
 
-var CACHE = newCache()
+var lock = &sync.Mutex{}
+var CACHE *PlanCache
 
 type PlanCache struct {
 	plans map[string]*terraform.PlanStruct
 	lock  sync.Mutex
 }
 
-func newCache() *PlanCache {
-	return &PlanCache{
-		plans: make(map[string]*terraform.PlanStruct),
+func getCache() *PlanCache {
+	if CACHE == nil {
+		lock.Lock()
+		defer lock.Unlock()
+		if CACHE == nil {
+			CACHE = &PlanCache{
+				plans: make(map[string]*terraform.PlanStruct),
+			}
+		}
 	}
+	return CACHE
 }
 
+// Not worrying about expiration since this is for a single run of tests.
 func (c *PlanCache) get(key string, planFn func() *terraform.PlanStruct) *terraform.PlanStruct {
 	c.lock.Lock()
 	defer c.lock.Unlock()
@@ -41,12 +50,16 @@ func (c *PlanCache) get(key string, planFn func() *terraform.PlanStruct) *terraf
 }
 
 func GetDefaultPlan(t *testing.T) *terraform.PlanStruct {
-	return CACHE.get("default", func() *terraform.PlanStruct {
-		return InitPlan(t, GetDefaultPlanVars(t))
+	return GetPlanFromCache(t, GetDefaultPlanVars(t))
+}
+
+func GetPlanFromCache(t *testing.T, variables map[string]interface{}) *terraform.PlanStruct {
+	return getCache().get(variables["prefix"].(string), func() *terraform.PlanStruct {
+		return GetPlan(t, variables)
 	})
 }
 
-func InitPlan(t *testing.T, variables map[string]interface{}) *terraform.PlanStruct {
+func GetPlan(t *testing.T, variables map[string]interface{}) *terraform.PlanStruct {
 	plan, err := InitPlanWithVariables(t, variables)
 	require.NotNil(t, plan)
 	require.NoError(t, err)
@@ -86,7 +99,7 @@ func GetDefaultPlanVars(t *testing.T) map[string]interface{} {
 	err := terraform.GetAllVariablesFromVarFileE(t, tfVarsPath, &variables)
 	assert.NoError(t, err)
 
-	variables["prefix"] = "terratest-default"
+	variables["prefix"] = "default"
 	variables["location"] = "eastus"
 	variables["default_public_access_cidrs"] = []string{"123.45.67.89/16"}
 

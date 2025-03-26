@@ -1,3 +1,6 @@
+// Copyright © 2025, SAS Institute Inc., Cary, NC, USA. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 package defaultplan
 
 import (
@@ -35,13 +38,13 @@ func TestPlanNFSDisk(t *testing.T) {
 			AssertFunction:    assert.NotEqual,
 			Message:           "NFS Data Disk 0 should be created for NFS VM",
 		},
-		"raid_disk0_type": {
+		"raidDisk0Type": {
 			Expected:          "Standard_LRS",
 			ResourceMapName:   "module.nfs[0].azurerm_managed_disk.vm_data_disk[0]",
 			AttributeJsonPath: "{$.storage_account_type}",
 			Message:           "NFS Data Disk 0 should be created with Standard_LRS storage account type",
 		},
-		"disk0_size_gb0": {
+		"disk0SizeGb0": {
 			Expected:          "256",
 			ResourceMapName:   "module.nfs[0].azurerm_managed_disk.vm_data_disk[0]",
 			AttributeJsonPath: "{$.disk_size_gb}",
@@ -54,13 +57,13 @@ func TestPlanNFSDisk(t *testing.T) {
 			AssertFunction:    assert.NotEqual,
 			Message:           "NFS Data Disk 1 should be created for NFS VM",
 		},
-		"raid_disk1_type": {
+		"raidDisk1Type": {
 			Expected:          "Standard_LRS",
 			ResourceMapName:   "module.nfs[0].azurerm_managed_disk.vm_data_disk[1]",
 			AttributeJsonPath: "{$.storage_account_type}",
 			Message:           "NFS Data Disk 1 should be created with Standard_LRS storage account type",
 		},
-		"disk1_size_gb": {
+		"disk1SizeGb": {
 			Expected:          "256",
 			ResourceMapName:   "module.nfs[0].azurerm_managed_disk.vm_data_disk[1]",
 			AttributeJsonPath: "{$.disk_size_gb}",
@@ -73,13 +76,13 @@ func TestPlanNFSDisk(t *testing.T) {
 			AssertFunction:    assert.NotEqual,
 			Message:           "NFS Data Disk 2 should be created for NFS VM",
 		},
-		"raid_disk2_type": {
+		"raidDisk2Type": {
 			Expected:          "Standard_LRS",
 			ResourceMapName:   "module.nfs[0].azurerm_managed_disk.vm_data_disk[2]",
 			AttributeJsonPath: "{$.storage_account_type}",
 			Message:           "NFS Data Disk 2 should be created with Standard_LRS storage account type",
 		},
-		"disk2_size_gb": {
+		"disk2SizeGb": {
 			Expected:          "256",
 			ResourceMapName:   "module.nfs[0].azurerm_managed_disk.vm_data_disk[2]",
 			AttributeJsonPath: "{$.disk_size_gb}",
@@ -92,13 +95,13 @@ func TestPlanNFSDisk(t *testing.T) {
 			AssertFunction:    assert.NotEqual,
 			Message:           "NFS Data Disk 3 should be created for NFS VM",
 		},
-		"raid_disk3_type": {
+		"raidDisk3Type": {
 			Expected:          "Standard_LRS",
 			ResourceMapName:   "module.nfs[0].azurerm_managed_disk.vm_data_disk[3]",
 			AttributeJsonPath: "{$.storage_account_type}",
 			Message:           "NFS Data Disk 3 should be created with Standard_LRS storage account type",
 		},
-		"disk3_size_gb": {
+		"disk3SizeGb": {
 			Expected:          "256",
 			ResourceMapName:   "module.nfs[0].azurerm_managed_disk.vm_data_disk[3]",
 			AttributeJsonPath: "{$.disk_size_gb}",

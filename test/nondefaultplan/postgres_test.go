@@ -1,3 +1,6 @@
+// Copyright © 2025, SAS Institute Inc., Cary, NC, USA. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 package nondefaultplan
 
 import (
@@ -14,6 +17,7 @@ func TestPlanPostgresServers(t *testing.T) {
 	postgresFlexResourceMapName := "module.flex_postgresql[\"" + defaultPostgresServerName + "\"].azurerm_postgresql_flexible_server_configuration.flexpsql[\"max_prepared_transactions\"]"
 
 	variables := helpers.GetDefaultPlanVars(t)
+	variables["prefix"] = "postgres-servers"
 	variables["postgres_servers"] = map[string]any{
 		defaultPostgresServerName: map[string]any{},
 	}
@@ -83,6 +87,6 @@ func TestPlanPostgresServers(t *testing.T) {
 		},
 	}
 
-	plan := helpers.InitPlan(t, variables)
+	plan := helpers.GetPlan(t, variables)
 	helpers.RunTests(t, tests, plan)
 }
