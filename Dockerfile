@@ -1,7 +1,7 @@
 ARG TERRAFORM_VERSION=1.10.5
 ARG AZURECLI_VERSION=2.70.0
 
-FROM hashicorp/terraform:$TERRAFORM_VERSION as terraform
+FROM hashicorp/terraform:$TERRAFORM_VERSION AS terraform
 FROM mcr.microsoft.com/azure-cli:$AZURECLI_VERSION
 ARG KUBECTL_VERSION=1.30.10
 
