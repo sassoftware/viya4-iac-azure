@@ -32,7 +32,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "autoscale_node_pool" {
 
   linux_os_config {
     sysctl_config {
-      vm_max_map_count  = try(var.linux_os_config.sysctl_config.vm_max_map_count,null)
+      vm_max_map_count = try(var.linux_os_config.sysctl_config.vm_max_map_count,null)
     }
   }
 }
@@ -61,7 +61,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "static_node_pool" {
   
   linux_os_config {
     sysctl_config {
-      vm_max_map_count  = try(var.linux_os_config.sysctl_config.vm_max_map_count,null)
+      vm_max_map_count = try(var.linux_os_config.sysctl_config.vm_max_map_count,null)
     }
   }
 }
