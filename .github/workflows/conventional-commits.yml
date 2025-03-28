@@ -1,0 +1,19 @@
+name: PR Conventional Commit Validation
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+    branches:
+      - main
+      - staging
+
+jobs:
+  validate-pr-title:
+    runs-on: ubuntu-latest
+    steps:
+    # https://github.com/marketplace/actions/conventional-commit-in-pull-requests
+      - name: PR Conventional Commit Validation
+        uses:  ytanikin/pr-conventional-commits@1.4.0
+        with:
+          task_types: '["fix", "feat", "build", "chore", "ci", "docs", "style", "refactor", "perf", "test"]'
+          custom_labels: '{"feat": "enhancement", "fix": "bug", "docs": "documentation", "ci": "CI/CD", "perf": "performance"}'
