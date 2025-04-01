@@ -194,7 +194,7 @@ subnet_names = {
 Ubuntu 20.04 LTS is the operating system used on the Jump/NFS servers. Ubuntu creates the `/mnt` location as an ephemeral drive that cannot be used as the root location of the `jump_rwx_filestore_path` variable.
 
 | Name | Description | Type | Default | Notes |
-| :--- | ---: |---:| ---: | ---: |
+| :--- | ---: | ---: | ---: | ---: |
 | partner_id | A GUID that is registered with Microsoft to facilitate partner resource usage attribution | string | "5d27f3ae-e49c-4dea-9aa3-b44e4750cd8c" | Defaults to SAS partner GUID. When you deploy this Terraform configuration, Microsoft can identify the installation of SAS software with the deployed Azure resources. Microsoft can then correlate the resources that are used to support the software. Microsoft collects this information to provide the best experiences with their products and to operate their business. The data is collected and governed by Microsoft's privacy policies, located at https://www.microsoft.com/trustcenter. |
 | create_static_kubeconfig | Allows the user to create a provider / service account-based kubeconfig file | bool | true | A value of `false` will default to using the cloud provider's mechanism for generating the kubeconfig file. A value of `true` will create a static kubeconfig that uses a `Service Account` and `Cluster Role Binding` to provide credentials. |
 | kubernetes_version | The AKS cluster Kubernetes version | string | "1.30" | Use of specific versions is still supported. If you need exact kubernetes version please use format `x.y.z`, where `x` is the major version, `y` is the minor version, and `z` is the patch version |
@@ -233,7 +233,7 @@ Ubuntu 20.04 LTS is the operating system used on the Jump/NFS servers. Ubuntu cr
 Additional node pools can be created separate from the default node pool. This is done with the `node_pools` variable, which is a map of objects. Irrespective of the default values, the following variables are required for each node pool unless marked optional:
 
 | Name | Description | Type | Notes |
-| :--- | ---: | ---: |---:|
+| :--- | ---: | ---: | ---: |
 | machine_type | Type of the node pool VMs | string | |
 | os_disk_size | Disk size for node pool VMs in GB | number | |
 | min_nodes | Minimum number of nodes for the node pool | number | Value must be between 0 and 100. Setting min and max node counts to the same value disables autoscaling |
