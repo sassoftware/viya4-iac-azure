@@ -241,7 +241,7 @@ Additional node pools can be created separate from the default node pool. This i
 | max_pods | Maximum number of pods per node | number | Default is 110 |
 | node_taints | Taints for the node pool VMs | list of strings | |
 | node_labels | Labels to add to the node pool VMs | map | |
-| vm_max_map_count | Maximum number of memory map areas | map | Value is set as follows: "linux_os_config" = {"sysctl_config" = {"vm_max_map_count" = 262144}} |
+| vm_max_map_count (Optional) | Linux kernel parameter that defines the maximum number of memory map areas that a process can have | map | Value is set as follows: "linux_os_config" = {"sysctl_config" = {"vm_max_map_count" = 262144}} |
 
 The default values for the `node_pools` variable are as follows:
 
