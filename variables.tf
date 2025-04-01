@@ -821,6 +821,7 @@ variable "aks_cluster_run_command_enabled" {
 }
 
 variable "node_resource_group_name" {
+  description = "Resource group name for the AKS cluster resources."
   type    = string
   default = ""
 }
