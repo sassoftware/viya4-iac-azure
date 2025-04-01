@@ -115,3 +115,13 @@ variable "proximity_placement_group_id" {
   type        = string
   default     = ""
 }
+
+variable "linux_os_config"{
+  description = "Specifications of linux os config. Changing this forces a new resource to be created."
+  type = object({
+      sysctl_config = optional(object({
+        vm_max_map_count = optional(number)
+        }))
+      })
+  default = {}
+}

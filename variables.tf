@@ -562,6 +562,11 @@ variable "node_pools" {
     max_pods     = string
     node_taints  = list(string)
     node_labels  = map(string)
+    linux_os_config = optional(object({
+      sysctl_config = optional(object({
+        vm_max_map_count = optional(number)
+      }))
+    }))
   }))
 
   default = {
@@ -813,4 +818,10 @@ variable "aks_cluster_run_command_enabled" {
   description = "Enable or disable the AKS cluster Run Command feature."
   type        = bool
   default     = false
+}
+
+variable "node_resource_group_name" {
+  description = "Resource group name for the AKS cluster resources."
+  type    = string
+  default = ""
 }
