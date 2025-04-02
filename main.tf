@@ -172,7 +172,7 @@ module "aks" {
   rbac_aad_admin_group_object_ids          = var.rbac_aad_admin_group_object_ids
   aks_private_cluster                      = var.cluster_api_mode == "private" ? true : false
   depends_on                               = [module.vnet]
-  aks_azure_policy_enabled                 = var.aks_azure_policy_enabled
+  aks_azure_policy_enabled                 = var.aks_azure_policy_enabled ? var.aks_azure_policy_enabled : false
 }
 
 module "kubeconfig" {

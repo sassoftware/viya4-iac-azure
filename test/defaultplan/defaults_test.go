@@ -70,6 +70,12 @@ func TestPlanDefaults(t *testing.T) {
 			AttributeJsonPath: "{$.run_command_enabled}",
 			Message:           "The AKS cluster Run Command feature should be disabled by default",
 		},
+		"azurePolicyEnabledTest": {
+			Expected:          "false",
+			ResourceMapName:   "module.aks.azurerm_kubernetes_cluster.aks",
+			AttributeJsonPath: "{$.azure_policy_enabled}",
+			Message:           "Unexpected azure_policy_enabled value; disabled by default",
+		},
 	}
 
 	helpers.RunTests(t, tests, helpers.GetDefaultPlan(t))
