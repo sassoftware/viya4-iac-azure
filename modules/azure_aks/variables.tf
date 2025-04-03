@@ -152,7 +152,7 @@ variable "aks_azure_policy_enabled" {
 variable "kubernetes_version" {
   description = "The AKS cluster K8s version"
   type        = string
-  default     = "1.30"
+  default     = "1.31"
 }
 
 variable "aks_cluster_endpoint_public_access_cidrs" {
