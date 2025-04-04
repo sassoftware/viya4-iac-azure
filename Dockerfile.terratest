@@ -1,6 +1,6 @@
 FROM golang:1.24
 
-# Install terraform from apt repository and terratest_log_parser
+# Install terraform from apt repository, terratest_log_parser, jq, azure-cli
 RUN \
     apt-get update \
     && apt-get install -y jq lsb-release \
@@ -11,7 +11,8 @@ RUN \
     && apt update \
     && apt install terraform \
     && ssh-keygen -f ~/.ssh/id_rsa -P "" \
-    && go install github.com/gruntwork-io/terratest/cmd/terratest_log_parser@latest
+    && go install github.com/gruntwork-io/terratest/cmd/terratest_log_parser@latest \
+    && curl -sL https://aka.ms/InstallAzureCLIDeb | bash
 
 WORKDIR /viya4-iac-azure/test
 
