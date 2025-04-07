@@ -72,3 +72,9 @@ variable "aks_uai_principal_id" {
   description = "Managed Identity Principal ID used to associate permissions to network and route table"
   type = string
 }
+
+variable "add_uai_permissions" {
+  description = "True if we should add roles to network objects"
+  default = false
+  type = bool
+}
