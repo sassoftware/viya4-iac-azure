@@ -45,7 +45,7 @@ container_registry_sku              = "Standard"
 container_registry_admin_enabled    = false
 
 # AKS config
-kubernetes_version         = "1.30"
+kubernetes_version         = "1.31"
 default_nodepool_min_nodes = 2
 default_nodepool_vm_type   = "Standard_E8s_v5"
 
