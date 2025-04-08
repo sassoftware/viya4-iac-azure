@@ -18,4 +18,4 @@ Here is a table with the variables you would use to configure them
 
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
-| exp_enable_spot_nodes | Enable spot nodes | bool | "false" | |
+| experimental_enable_spot_nodes | Enable spot nodes | bool | "false" | |
