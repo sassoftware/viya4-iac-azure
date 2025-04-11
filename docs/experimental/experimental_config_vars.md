@@ -16,6 +16,6 @@ Here is a warning about why they might cause issues.
 
 Here is a table with the variables you would use to configure them
 
-| Name | Description | Type | Default | Notes |
+| Name | Description | Type | Default | TEsting | Notes | release added | 
 | :--- | ---: | ---: | ---: | ---: |
-| experimental_enable_spot_nodes | Enable spot nodes | bool | "false" | |
+| experimental_enable_spot_nodes | Enable spot nodes | bool | "false" | | | 7.0.0 |
