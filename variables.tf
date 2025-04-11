@@ -30,6 +30,12 @@ variable "use_msi" {
   default     = false
 }
 
+variable "msi_network_roles" {
+    description = "Managed Identity permissions for VNet and Route Table"
+    type = list(string)
+    default = ["Network Contributor"]
+}
+
 variable "iac_tooling" {
   description = "Value used to identify the tooling used to generate this providers infrastructure."
   type        = string

@@ -175,6 +175,7 @@ Note: All of the following resources are expected to be in the Resource Group se
 | subnet_names | Existing subnets mapped to desired usage. | map(string) | null | Only required if deploying into existing subnets. See the example that follows. |
 | nsg_name | Name of pre-existing network security group. | string | null | Only required if deploying into existing NSG. |
 | aks_uai_name | Name of existing User Assigned Identity for the cluster | string | null | This Identity will need permissions as listed in [AKS Cluster Identity Permissions](https://docs.microsoft.com/en-us/azure/aks/concepts-identity#aks-cluster-identity-permissions) and [Additional Cluster Identity Permissions](https://docs.microsoft.com/en-us/azure/aks/concepts-identity#additional-cluster-identity-permissions). Alternatively, use can use the [Contributor](https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#contributor) role for this Identity. |
+| msi_network_roles | Roles that will be assigned to the vnet and route table | list of strings | ["Network Contributor"] | This field will only be used in the event that the User Assigned Identity is created by IaC. If this case the authenticating identity used to run Terraform must have [Permissions for Assigning Roles](https://learn.microsoft.com/en-us/azure/role-based-access-control/role-assignments-portal#prerequisites) scoped to the vnet and route table. |
 
 Example for the `subnet_names` variable:
 
