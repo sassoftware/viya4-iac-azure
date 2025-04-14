@@ -63,12 +63,12 @@ Following are the possible ways to configure Authentication and Authorization in
 2. Microsoft Entra authentication with Kubernetes RBAC. See details [here](https://learn.microsoft.com/en-us/azure/aks/azure-ad-rbac)
 3. Microsoft Entra authentication with Azure RBAC. See details [here](https://learn.microsoft.com/en-us/azure/aks/manage-azure-rbac)
 
-| Name | Description | Type | Default |
-| :--- | ---: | ---: | ---: |
-| rbac_aad_enabled | Enables Azure Active Directory integration with Kubernetes RBAC. | bool  | false |
-| rbac_aad_azure_rbac_enabled | Enables Azure RBAC.  If false, Kubernetes RBAC is used.  Only relevant if rbac_aad_enabled is true. | bool  | false |
-| rbac_aad_admin_group_object_ids | A list of Object IDs of Azure Active Directory Groups which should have Admin Role on the Cluster. | list(string) | null |
-| rbac_aad_tenant_id | (Optional) The Tenant ID used for Azure Active Directory Application. If this isn't specified the Tenant ID of the current Subscription is used.| string  | |
+| Name | Description | Type | Default | Notes |
+| :--- | ---: | ---: | ---: | ---: |
+| rbac_aad_enabled | Enables Azure Active Directory integration with Kubernetes or Azure RBAC. | bool  | false |
+| rbac_aad_azure_rbac_enabled | Enables Azure RBAC.  If false and `rbac_aad_enabled` is true`, Kubernetes RBAC is used. Only relevant if rbac_aad_enabled is true. | bool  | false |
+| rbac_aad_admin_group_object_ids | A list of Object IDs of Azure Active Directory Groups which should have Admin Role on the Cluster. | list(string) | null | One of `rbac_aad_admin_group_object_ids` or `rbac_aad_tenant_id` is required if `rbac_aad_enabled` is true. Not relevant if `rbac_aad_azure_rbac_enabled` is true.
+| rbac_aad_tenant_id | (Optional) The Tenant ID used for Azure Active Directory Application. If this isn't specified, the Tenant ID of the current Subscription is used.| string  | | One of `rbac_aad_admin_group_object_ids` or `rbac_aad_tenant_id` is required if `rbac_aad_enabled` is true.
 
 ## Admin Access
 
