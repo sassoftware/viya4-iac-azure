@@ -168,7 +168,7 @@ module "aks" {
   aks_uai_id                               = local.aks_uai_id
   client_id                                = var.client_id
   client_secret                            = var.client_secret
-  rbac_aad_tenant_id                       = var.rbac_aad_tenant_id
+  rbac_aad_tenant_id                       = var.rbac_aad_tenant_id == null ? var.tenant_id != "" ? var.tenant_id : null : var.rbac_aad_tenant_id
   rbac_aad_enabled                         = var.rbac_aad_enabled
   rbac_aad_azure_rbac_enabled              = var.rbac_aad_azure_rbac_enabled
   rbac_aad_admin_group_object_ids          = var.rbac_aad_admin_group_object_ids
