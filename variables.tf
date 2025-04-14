@@ -67,7 +67,7 @@ variable "rbac_aad_enabled" {
 
 variable "rbac_aad_azure_rbac_enabled" {
   type        = bool
-  description = "Enables Azure RBAC.  If false, Kubernetes RBAC is used.  Only relevant if rbac_aad_enabled is true."
+  description = "Enables Azure RBAC. If false, Kubernetes RBAC is used.  Only relevant if rbac_aad_enabled is true."
   default     = false
 }
 
