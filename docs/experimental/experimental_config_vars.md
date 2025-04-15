@@ -2,8 +2,8 @@
 
 Experimental configuration variables are listed in the tables below. All variables can also be specified on the command line. Values specified on the command line will override values in configuration defaults files.
 
-**Note**: Experimental features are managed by the community. SAS does not provide support for these features.
-
+> [!CAUTION]
+> Experimental features are managed by the community. SAS does not provide support for these features.
 
 ## Table of Contents
 
