@@ -10,6 +10,22 @@ resource "azurerm_netapp_account" "anf" {
   location            = var.location
   resource_group_name = var.resource_group_name
   tags                = var.tags
+
+  dynamic "identity" {
+    for_each = var.netapp_enable_cmk_encryption ? [1] : []
+    content {
+      type         = "UserAssigned"
+      identity_ids = [var.netapp_cmk_encryption_key_uai]
+    }
+  }
+}
+
+resource "azurerm_netapp_account_encryption" "anf" {
+  count = var.netapp_enable_cmk_encryption ? 1 : 0
+
+  netapp_account_id         = azurerm_netapp_account.anf.id
+  encryption_key            = var.netapp_cmk_encryption_key_id
+  user_assigned_identity_id = var.netapp_cmk_encryption_key_uai
 }
 
 resource "azurerm_netapp_pool" "anf" {
@@ -20,6 +36,10 @@ resource "azurerm_netapp_pool" "anf" {
   service_level       = var.service_level
   size_in_tb          = var.size_in_tb
   tags                = var.tags
+  
+  depends_on = [
+    azurerm_netapp_account_encryption.anf
+  ]
 }
 
 resource "azurerm_netapp_volume" "anf" {
@@ -49,6 +69,8 @@ resource "azurerm_netapp_volume" "anf" {
   }
 
   depends_on = [
-    azurerm_netapp_pool.anf
+    azurerm_netapp_pool.anf,
+    azurerm_netapp_account_encryption.anf
   ]
 }
+
