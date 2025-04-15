@@ -1,7 +1,9 @@
 name: Linter Analysis
 on:
-  push:
-    branches: ['**'] # '*' will cause the workflow to run on all commits to all branches.
+  pull_request:
+    branches:
+    - main
+    - staging
 
 jobs:
   # Hadolint: Job-1
