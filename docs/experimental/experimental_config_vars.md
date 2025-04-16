@@ -1,9 +1,9 @@
 # Experimental Configuration Variables
 
-Experimental configuration variables are listed in the tables below. All variables can also be specified on the command line. Values specified on the command line will override values in configuration defaults files.
+Experimental configuration variables are listed in the tables below. All experimental variables can also be specified on the terraform command line.
 
 > [!CAUTION]
-> Community members are responsible for maintaining experimental features. While project maintainers will verify these features work as expected when merged, they cannot guarantee future releases will not break them. If you run into issues while using these features, please create a GitHub Issue, start a GitHub Discussion, or open a Pull Request to fix it.
+> Community members are responsible for maintaining experimental features. While project maintainers will verify these features work as expected when merged, they cannot guarantee future releases will not break them. If you run into issues while using these features, start a [GitHub Discussion](https://github.com/sassoftware/viya4-iac-azure/discussions) or open a Pull Request to fix it. As a last resort, you can create a GitHub Issue.
 
 ## Table of Contents
 
