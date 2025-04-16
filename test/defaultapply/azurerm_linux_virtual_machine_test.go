@@ -1,4 +1,4 @@
-package defaultplan
+package defaultapply
 
 import (
 	"os"
@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestApplyVirtualMachine(t *testing.T) {
+func TestApplyVirtualMachineOld(t *testing.T) {
 	t.Parallel()
 
 	uniquePrefix := strings.ToLower(random.UniqueId())
@@ -80,12 +80,12 @@ func TestApplyVirtualMachine(t *testing.T) {
 	assert.Contains(t, list, nfsVMname)
 	assert.Contains(t, list, jumpVMname)
 
-	testNfsVM(t, plan, nfsVMname, resourceGroupName)
-	testJumpVM(t, jumpVMname, resourceGroupName)
+	testNfsVMOld(t, plan, nfsVMname, resourceGroupName)
+	testJumpVMOld(t, jumpVMname, resourceGroupName)
 
 }
 
-func testNfsVM(t *testing.T, plan *terraform.PlanStruct, nfsVMname interface{}, resourceGroupName interface{}) {
+func testNfsVMOld(t *testing.T, plan *terraform.PlanStruct, nfsVMname interface{}, resourceGroupName interface{}) {
 	//func testNfsVM(t *testing.T, plan *terraform.PlanStruct, nfsVMname string, resourceGroupName string) {
 
 	// Check if the NFS VM exists
@@ -343,7 +343,7 @@ func testNfsVM(t *testing.T, plan *terraform.PlanStruct, nfsVMname interface{}, 
 
 }
 
-func testJumpVM(t *testing.T, jumpVMname interface{}, resourceGroupName interface{}) {
+func testJumpVMOld(t *testing.T, jumpVMname interface{}, resourceGroupName interface{}) {
 	//func testJumpVM(t *testing.T, jumpVMname string, resourceGroupName string) {
 
 	jumpExists, err := azure.VirtualMachineExistsE(jumpVMname.(string), resourceGroupName.(string), os.Getenv("TF_VAR_subscription_id"))

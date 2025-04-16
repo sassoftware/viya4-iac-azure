@@ -1,4 +1,4 @@
-package defaultplan
+package defaultapply
 
 import (
 	"os"
@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestApplyResourceGroup(t *testing.T) {
+func TestApplyResourceGroupOld(t *testing.T) {
 	t.Parallel()
 
 	uniquePrefix := strings.ToLower(random.UniqueId())
