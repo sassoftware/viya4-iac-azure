@@ -1,4 +1,4 @@
-FROM golang:1.23
+FROM golang:1.24
 
 # Install terraform from apt repository and terratest_log_parser
 RUN \

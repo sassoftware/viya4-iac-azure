@@ -135,6 +135,7 @@ module "aks" {
   aks_cluster_dns_prefix                   = "${var.prefix}-aks"
   aks_cluster_sku_tier                     = var.aks_cluster_sku_tier
   aks_cluster_location                     = var.location
+  node_resource_group_name                 = var.node_resource_group_name != "" ? var.node_resource_group_name : "MC_${local.aks_rg.name}_${var.prefix}-aks_${var.location}"
   cluster_support_tier                     = var.cluster_support_tier
   fips_enabled                             = var.fips_enabled
   aks_cluster_node_auto_scaling            = var.default_nodepool_min_nodes == var.default_nodepool_max_nodes ? false : true
@@ -167,11 +168,13 @@ module "aks" {
   aks_uai_id                               = local.aks_uai_id
   client_id                                = var.client_id
   client_secret                            = var.client_secret
-  rbac_aad_tenant_id                       = var.rbac_aad_tenant_id
+  rbac_aad_tenant_id                       = var.rbac_aad_tenant_id == null ? var.tenant_id != "" ? var.tenant_id : null : var.rbac_aad_tenant_id
   rbac_aad_enabled                         = var.rbac_aad_enabled
+  rbac_aad_azure_rbac_enabled              = var.rbac_aad_azure_rbac_enabled
   rbac_aad_admin_group_object_ids          = var.rbac_aad_admin_group_object_ids
   aks_private_cluster                      = var.cluster_api_mode == "private" ? true : false
   depends_on                               = [module.vnet]
+  aks_azure_policy_enabled                 = var.aks_azure_policy_enabled ? var.aks_azure_policy_enabled : false
 }
 
 module "kubeconfig" {
@@ -212,6 +215,7 @@ module "node_pools" {
   orchestrator_version         = var.kubernetes_version
   host_encryption_enabled      = var.aks_cluster_enable_host_encryption
   tags                         = var.tags
+  linux_os_config              = each.value.linux_os_config
 }
 
 # https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/postgresql_flexible_server
@@ -259,11 +263,11 @@ module "netapp" {
 }
 
 data "external" "git_hash" {
-  program = ["files/tools/iac_git_info.sh"]
+  program = ["${path.module}/files/tools/iac_git_info.sh"]
 }
 
 data "external" "iac_tooling_version" {
-  program = ["files/tools/iac_tooling_version.sh"]
+  program = ["${path.module}/files/tools/iac_tooling_version.sh"]
 }
 
 resource "kubernetes_config_map" "sas_iac_buildinfo" {
