@@ -78,7 +78,13 @@ variable "location" {
 ## Azure AD
 variable "rbac_aad_enabled" {
   type        = bool
-  description = "Enables Azure Active Directory integration with Kubernetes RBAC."
+  description = "Enables Azure Active Directory integration with Kubernetes or Azure RBAC."
+  default     = false
+}
+
+variable "rbac_aad_azure_rbac_enabled" {
+  type        = bool
+  description = "Enables Azure RBAC. If false, Kubernetes RBAC is used.  Only relevant if rbac_aad_enabled is true."
   default     = false
 }
 
@@ -168,7 +174,7 @@ variable "default_nodepool_vm_type" {
 variable "kubernetes_version" {
   description = "The AKS cluster K8s version"
   type        = string
-  default     = "1.30"
+  default     = "1.31"
 }
 
 variable "default_nodepool_max_nodes" {
@@ -211,6 +217,12 @@ variable "aks_node_disk_encryption_set_id" {
   description = "The ID of the Disk Encryption Set which should be used for the Nodes and Volumes. Changing this forces a new resource to be created."
   type        = string
   default     = null
+}
+
+variable "aks_azure_policy_enabled" {
+  description = "Enables the Azure Policy Add-On for Azure Kubernetes Service."
+  type        = bool
+  default     = false
 }
 
 # AKS advanced network config
@@ -315,7 +327,7 @@ variable "postgres_server_defaults" {
     server_version               = "15"
     ssl_enforcement_enabled      = true
     connectivity_method          = "public"
-    postgresql_configurations    = []
+    postgresql_configurations    = [{ name : "azure.extensions", value : "PLPGSQL,PGCRYPTO" }]
   }
 }
 
@@ -573,6 +585,11 @@ variable "node_pools" {
     max_pods     = string
     node_taints  = list(string)
     node_labels  = map(string)
+    linux_os_config = optional(object({
+      sysctl_config = optional(object({
+        vm_max_map_count = optional(number)
+      }))
+    }))
   }))
 
   default = {
@@ -824,4 +841,10 @@ variable "aks_cluster_run_command_enabled" {
   description = "Enable or disable the AKS cluster Run Command feature."
   type        = bool
   default     = false
+}
+
+variable "node_resource_group_name" {
+  description = "Resource group name for the AKS cluster resources."
+  type    = string
+  default = ""
 }

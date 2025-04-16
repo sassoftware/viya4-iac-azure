@@ -6,6 +6,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   name                       = var.aks_cluster_name
   location                   = var.aks_cluster_location
   resource_group_name        = var.aks_cluster_rg
+  node_resource_group        = var.node_resource_group_name
   dns_prefix                 = var.aks_private_cluster == false || var.aks_cluster_private_dns_zone_id == "" ? var.aks_cluster_dns_prefix : null
   dns_prefix_private_cluster = var.aks_private_cluster && var.aks_cluster_private_dns_zone_id != "" ? var.aks_cluster_dns_prefix : null
 
@@ -14,6 +15,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   role_based_access_control_enabled = true
   http_application_routing_enabled  = false
   disk_encryption_set_id            = var.aks_node_disk_encryption_set_id
+  azure_policy_enabled              = var.aks_azure_policy_enabled
 
   # https://docs.microsoft.com/en-us/azure/aks/supported-kubernetes-versions
   # az aks get-versions --location eastus -o table
@@ -63,7 +65,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
     content {
       tenant_id              = var.rbac_aad_tenant_id
       admin_group_object_ids = var.rbac_aad_admin_group_object_ids
-      azure_rbac_enabled     = false
+      azure_rbac_enabled     = var.rbac_aad_azure_rbac_enabled
     }
   }
 
@@ -138,7 +140,7 @@ data "azurerm_public_ip" "cluster_public_ip" {
 
   # effective_outbound_ips is a set of strings, that needs to be converted to a list type
   name                = split("/", tolist(azurerm_kubernetes_cluster.aks.network_profile[0].load_balancer_profile[0].effective_outbound_ips)[0])[8]
-  resource_group_name = "MC_${var.aks_cluster_rg}_${var.aks_cluster_name}_${var.aks_cluster_location}"
+  resource_group_name = var.node_resource_group_name
 
   depends_on = [azurerm_kubernetes_cluster.aks]
 }

@@ -61,12 +61,14 @@ The ability to manage RBAC for Kubernetes resources from Azure gives you the cho
 Following are the possible ways to configure Authentication and Authorization in an AKS cluster:
 1. Authentication using local accounts with Kubernetes RBAC. This is traditionally used and current default, see details [here](https://learn.microsoft.com/en-us/azure/aks/concepts-identity#kubernetes-rbac)
 2. Microsoft Entra authentication with Kubernetes RBAC. See details [here](https://learn.microsoft.com/en-us/azure/aks/azure-ad-rbac)
+3. Microsoft Entra authentication with Azure RBAC. See details [here](https://learn.microsoft.com/en-us/azure/aks/manage-azure-rbac)
 
-| Name | Description | Type | Default |
-| :--- | ---: | ---: | ---: |
-| rbac_aad_enabled | Enables Azure Active Directory integration with Kubernetes RBAC. | bool  | false |
-| rbac_aad_admin_group_object_ids | A list of Object IDs of Azure Active Directory Groups which should have Admin Role on the Cluster. | list(string) | null |
-| rbac_aad_tenant_id | (Optional) The Tenant ID used for Azure Active Directory Application. If this isn't specified the Tenant ID of the current Subscription is used.| string  | |
+| Name | Description | Type | Default | Notes |
+| :--- | ---: | ---: | ---: | ---: |
+| rbac_aad_enabled | Enables Azure Active Directory integration with Kubernetes or Azure RBAC. | bool  | false |
+| rbac_aad_azure_rbac_enabled | Enables Azure RBAC. If false and `rbac_aad_enabled` is true`, Kubernetes RBAC is used. Only relevant if rbac_aad_enabled is true. | bool  | false |
+| rbac_aad_admin_group_object_ids | A list of Object IDs of Azure Active Directory Groups which should have Admin Role on the Cluster. | list(string) | null | One of `rbac_aad_admin_group_object_ids` or `rbac_aad_tenant_id` is required if `rbac_aad_enabled` is true. Not relevant if `rbac_aad_azure_rbac_enabled` is true.
+| rbac_aad_tenant_id | (Optional) The Tenant ID used for Azure Active Directory Application. If this isn't specified, the Tenant ID of the current Subscription is used.| string  | | One of `rbac_aad_admin_group_object_ids` or `rbac_aad_tenant_id` is required if `rbac_aad_enabled` is true.
 
 ## Admin Access
 
@@ -197,21 +199,27 @@ Ubuntu 20.04 LTS is the operating system used on the Jump/NFS servers. Ubuntu cr
 | :--- | ---: | ---: | ---: | ---: |
 | partner_id | A GUID that is registered with Microsoft to facilitate partner resource usage attribution | string | "5d27f3ae-e49c-4dea-9aa3-b44e4750cd8c" | Defaults to SAS partner GUID. When you deploy this Terraform configuration, Microsoft can identify the installation of SAS software with the deployed Azure resources. Microsoft can then correlate the resources that are used to support the software. Microsoft collects this information to provide the best experiences with their products and to operate their business. The data is collected and governed by Microsoft's privacy policies, located at https://www.microsoft.com/trustcenter. |
 | create_static_kubeconfig | Allows the user to create a provider / service account-based kubeconfig file | bool | true | A value of `false` will default to using the cloud provider's mechanism for generating the kubeconfig file. A value of `true` will create a static kubeconfig that uses a `Service Account` and `Cluster Role Binding` to provide credentials. |
-| kubernetes_version | The AKS cluster Kubernetes version | string | "1.30" |Use of specific versions is still supported. If you need exact kubernetes version please use format `x.y.z`, where `x` is the major version, `y` is the minor version, and `z` is the patch version |
+| kubernetes_version | The AKS cluster Kubernetes version | string | "1.31" | Use of specific versions is still supported. If you need exact kubernetes version please use format `x.y.z`, where `x` is the major version, `y` is the minor version, and `z` is the patch version |
 | create_jump_vm | Create bastion host | bool | true | |
 | create_jump_public_ip | Add public IP address to the jump VM | bool | true | |
 | enable_jump_public_static_ip | Enables `Static` allocation method for the public IP address of Jump Server. Setting false will enable `Dynamic` allocation method. | bool | true | Only used with `create_jump_public_ip=true` |
 | jump_vm_admin | Operating system Admin User for the jump VM | string | "jumpuser" | |
-| jump_vm_machine_type | SKU to use for the jump VM | string | "Standard_B2s" | To check for valid types for your subscription, run: `az vm list-skus --resource-type virtualMachines --subscription $subscription --location $location -o table`|
+| jump_vm_machine_type | SKU to use for the jump VM | string | "Standard_B2s" | To check for valid types for your subscription, run: `az vm list-skus --resource-type virtualMachines --subscription $subscription --location $location -o table` |
 | jump_rwx_filestore_path | File store mount point on jump server | string | "/viya-share" | This location cannot include `/mnt` as its root location. This disk is ephemeral on Ubuntu, which is the operating system being used for the jump/NFS servers. |
 | tags | Map of common tags to be placed on all Azure resources created by this script | map | { project_name = "sasviya4", environment = "dev" } | |
-| aks_identity | Use UserAssignedIdentity or Service Principal as  [AKS identity](https://docs.microsoft.com/en-us/azure/aks/concepts-identity) | string | "uai" | A value of `uai` wil create a Managed Identity based on the permissions of the authenticated user or use [`AKS_UAI_NAME`](#use-existing), if set. A value of `sp` will use values from [`CLIENT_ID`/`CLIENT_SECRET`](#azure-authentication), if set. |
+| aks_identity | Use UserAssignedIdentity or Service Principal as [AKS identity](https://docs.microsoft.com/en-us/azure/aks/concepts-identity) | string | "uai" | A value of `uai` wil create a Managed Identity based on the permissions of the authenticated user or use [`AKS_UAI_NAME`](#use-existing), if set. A value of `sp` will use values from [`CLIENT_ID`/`CLIENT_SECRET`](#azure-authentication), if set. |
 | ssh_public_key | File name of public ssh key for jump and nfs VM | string | "~/.ssh/id_rsa.pub" | Required with `create_jump_vm=true` or `storage_type=standard` |
 | cluster_api_mode | Public or private IP for the cluster api | string | "public" | Valid Values: "public", "private" |
 | aks_cluster_private_dns_zone_id | Specifies private DNS zone resource ID for AKS private cluster to use | string | "" | For `cluster_api_mode=private` if `aks_cluster_private_dns_zone_id` is not specified then the value `System` is used else it is set to null. For details see [Configure a private DNS zone](https://learn.microsoft.com/en-us/azure/aks/private-clusters?tabs=azure-portal#configure-a-private-dns-zone) |
 | aks_cluster_sku_tier | The SKU Tier that should be used for this Kubernetes Cluster. Optimizes api server for cost vs availability | string | "Free" | Valid Values:  "Free", "Standard" and "Premium" | 
-| cluster_support_tier | Specifies the support plan which should be used for this Kubernetes Cluster. | string | "KubernetesOfficial" | Possible values are `KubernetesOfficial` and `AKSLongTermSupport`. To enable long term K8s support is a combination of setting `aks_cluster_sku_tier` to `Premium` tier and explicitly selecting the `cluster_support_tier` as `AKSLongTermSupport`. For details see [Long term Support](https://learn.microsoft.com/en-us/azure/aks/long-term-support) and for which K8s version has long term support see [AKS Kubernetes release calendar](https://learn.microsoft.com/en-us/azure/aks/supported-kubernetes-versions?tabs=azure-cli#aks-kubernetes-release-calendar).| 
+| cluster_support_tier | Specifies the support plan which should be used for this Kubernetes Cluster. | string | "KubernetesOfficial" | Possible values are `KubernetesOfficial` and `AKSLongTermSupport`. To enable long term K8s support is a combination of setting `aks_cluster_sku_tier` to `Premium` tier and explicitly selecting the `cluster_support_tier` as `AKSLongTermSupport`. For details see [Long term Support](https://learn.microsoft.com/en-us/azure/aks/long-term-support) and for which K8s version has long term support see [AKS Kubernetes release calendar](https://learn.microsoft.com/en-us/azure/aks/supported-kubernetes-versions?tabs=azure-cli#aks-kubernetes-release-calendar). | 
 | aks_cluster_run_command_enabled | Enable or disable the AKS Run Command feature | bool | false | The AKS Run Command feature in AKS allows you to remotely execute commands within a running container of your AKS cluster directly from the Azure CLI or Azure portal. To enable the Run Command feature for an AKS cluster where Run Command is disabled, navigate to the Run Command tab for your AKS Cluster in the Azure Portal and select the Enable button. |
+| aks_azure_policy_enabled | Enable or disable the Azure Policy Add-on or extension | bool | false | Azure Policy makes it possible to manage and report on the compliance state of your Kubernetes cluster components from one place. By using Azure Policy's Add-on or Extension, governing your cluster components is enhanced with Azure Policy features, like the ability to use selectors and overrides for safe policy rollout and rollback. |
+| node_resource_group_name | Specifies the resource group name for the cluster resources | string | `MC_${local.aks_rg.name}_${var.prefix}-aks_${var.location}` | |
+| aks_cluster_sku_tier | The SKU Tier that should be used for this Kubernetes Cluster. Optimizes api server for cost vs availability | string | "Free" | Valid Values:  "Free", "Standard" and "Premium" |
+| cluster_support_tier | Specifies the support plan which should be used for this Kubernetes Cluster. | string | "KubernetesOfficial" | Possible values are `KubernetesOfficial` and `AKSLongTermSupport`. To enable long term K8s support is a combination of setting `aks_cluster_sku_tier` to `Premium` tier and explicitly selecting the `cluster_support_tier` as `AKSLongTermSupport`. For details see [Long term Support](https://learn.microsoft.com/en-us/azure/aks/long-term-support) and for which K8s version has long term support see [AKS Kubernetes release calendar](https://learn.microsoft.com/en-us/azure/aks/supported-kubernetes-versions?tabs=azure-cli#aks-kubernetes-release-calendar).|
+| aks_cluster_run_command_enabled | Enable or disable the AKS Run Command feature | bool | false | The AKS Run Command feature in AKS allows you to remotely execute commands within a running container of your AKS cluster directly from the Azure CLI or Azure portal. To enable the Run Command feature for an AKS cluster where Run Command is disabled, navigate to the Run Command tab for your AKS Cluster in the Azure Portal and select the Enable button. |
+| aks_azure_policy_enabled | Enable or disable the Azure Policy Add-on or extension | bool | false | Azure Policy makes it possible to manage and report on the compliance state of your Kubernetes cluster components from one place. By using Azure Policy's Add-on or Extension, governing your cluster components is enhanced with Azure Policy features, like the ability to use selectors and overrides for safe policy rollout and rollback. |
 
 ## Node Pools
 
@@ -229,7 +237,7 @@ Ubuntu 20.04 LTS is the operating system used on the Jump/NFS servers. Ubuntu cr
 
 ### Additional Node Pools
 
-Additional node pools can be created separate from the default node pool. This is done with the `node_pools` variable, which is a map of objects. Irrespective of the default values, the following variables are required for each node pool:
+Additional node pools can be created separate from the default node pool. This is done with the `node_pools` variable, which is a map of objects. Irrespective of the default values, the following variables are required for each node pool unless marked optional:
 
 | Name | Description | Type | Notes |
 | :--- | ---: | ---: | ---: |
@@ -237,9 +245,10 @@ Additional node pools can be created separate from the default node pool. This i
 | os_disk_size | Disk size for node pool VMs in GB | number | |
 | min_nodes | Minimum number of nodes for the node pool | number | Value must be between 0 and 100. Setting min and max node counts to the same value disables autoscaling |
 | max_nodes | Maximum number of nodes for the node pool | number | Value must be between 0 and 100. Setting min and max node counts to the same value disables autoscaling |
-| max_pods | Maximum number of pods per node | number | Default is 110
+| max_pods | Maximum number of pods per node | number | Default is 110 |
 | node_taints | Taints for the node pool VMs | list of strings | |
 | node_labels | Labels to add to the node pool VMs | map | |
+| vm_max_map_count (Optional) | Linux kernel parameter that defines the maximum number of memory map areas that a process can have | map | Value is set as follows: "linux_os_config" = {"sysctl_config" = {"vm_max_map_count" = 262144}} |
 
 The default values for the `node_pools` variable are as follows:
 
@@ -378,7 +387,7 @@ Each server element, like `foo = {}`, can contain none, some, or all of the para
 | server_version | The version of the PostgreSQL Flexible server instance | string | "15" | Refer to the [SAS Viya Platform Administration Guide](https://documentation.sas.com/?cdcId=sasadmincdc&cdcVersion=default&docsetId=itopssr&docsetTarget=p05lfgkwib3zxbn1t6nyihexp12n.htm#p1wq8ouke3c6ixn1la636df9oa1u) for the supported versions of PostgreSQL for the SAS Viya platform. |
 | ssl_enforcement_enabled | Enforce SSL on connection to the Azure Database for PostgreSQL Flexible server instance | bool | true | |
 | connectivity_method | Network connectivity option to connect to your flexible server. There are two connectivity options available: Public access (allowed IP addresses) and Private access (VNet Integration). Defaults to public access with firewall rules enabled.| string | "public" | Valid options are `public` and `private`. See sample input file [here](../examples/sample-input-postgres.tfvars) and Private access documentation [here](./user/PostgreSQLPrivateAccess.md). For more details see [Networking overview](https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/concepts-networking) |
-| postgresql_configurations | Sets a PostgreSQL Configuration value on a Azure PostgreSQL Flexible Server | list(object) | [] | More details can be found [here](https://docs.microsoft.com/en-us/azure/postgresql/flexible-server/howto-configure-server-parameters-using-cli) |
+| postgresql_configurations | Sets a PostgreSQL Configuration value on a Azure PostgreSQL Flexible Server | list(object) | [{ name : "azure.extensions", value : "PLPGSQL,PGCRYPTO" }] | More details can be found [here](https://docs.microsoft.com/en-us/azure/postgresql/flexible-server/howto-configure-server-parameters-using-cli) |
 
 Multiple SAS offerings require a second PostgreSQL instance referred to as SAS Common Data Store, or CDS PostgreSQL. For more information, see [Common Customizations](https://documentation.sas.com/?cdcId=itopscdc&cdcVersion=default&docsetId=dplyml0phy0dkr&docsetTarget=n08u2yg8tdkb4jn18u8zsi6yfv3d.htm#p0wkxxi9s38zbzn19ukjjaxsc0kl). A list of SAS offerings that require CDS PostgreSQL is provided in [SAS Common Data Store Requirements](https://documentation.sas.com/?cdcId=itopscdc&cdcVersion=default&docsetId=itopssr&docsetTarget=p05lfgkwib3zxbn1t6nyihexp12n.htm#n03wzanutmc6gon1val5fykas9aa). To create and configure an external CDS PostgreSQL instance in addition to the external platform PostgreSQL instance named `default`, specify `cds-postgres` as a second PostgreSQL instance, as shown in the example below.
 
@@ -391,7 +400,7 @@ postgres_servers = {
     postgresql_configurations    = [
        {
          name  = "azure.extensions"
-         value = "PLPGSQL,LTREE"
+         value = "PLPGSQL,PGCRYPTO,LTREE"
        }
       ]
   },

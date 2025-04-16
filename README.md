@@ -1,5 +1,24 @@
 # SAS Viya 4 Infrastructure as Code (IaC) for Microsoft Azure
 
+## Table of Contents
+- [Overview](#overview)
+- [Prerequisites](#prerequisites)
+   - [Technical Prerequisites](#technical-prerequisites)
+   - [Terraform Requirements](#terraform-requirements)
+   - [Docker Requirements](#docker-requirements)
+- [Getting Started](#getting-started)
+   - [Clone this Project](#clone-this-project)
+   - [Authenticating Terraform to Access Microsoft Azure](#authenticating-terraform-to-access-microsoft-azure)
+   - [Customizing Input Values](#customizing-input-values)
+- [Creating and Managing the Cloud Resources](#creating-and-managing-the-cloud-resources)
+- [Troubleshooting](#troubleshooting)
+- [Security](#security)
+- [Contributing](#contributing)
+- [License](#license)
+- [Additional Resources](#additional-resources)
+   - [Azure Resources](#azure-resources)
+   - [Terraform Resources](#terraform-resources)
+
 ## Overview
 
 This project helps you to automate the cluster-provisioning phase of SAS Viya platform deployment. It contains Terraform scripts to provision the Microsoft Azure Cloud infrastructure resources that are required to deploy SAS Viya platform product offerings. Here is a list of resources that this project can create:
@@ -58,7 +77,7 @@ Access to an **Azure Subscription** and an [**Identity**](./docs/user/TerraformA
 
 #### Terraform Requirements:
 - [Terraform](https://www.terraform.io/downloads.html) - v1.10.5
-- [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl) - v1.30.10
+- [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl) - v1.31.6
 - [jq](https://stedolan.github.io/jq/) - v1.6
 - [Azure CLI](https://docs.microsoft.com/en-us/cli/azure) - (optional - useful as an alternative to the Azure Portal) - v2.70.0
 
