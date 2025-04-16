@@ -30,10 +30,21 @@ variable "use_msi" {
   default     = false
 }
 
-variable "skip_provider_registration" {
-  description = "Set Azure Provider to skip automatic registration all of the Resource Providers which it supports on launch"
-  type        = bool
-  default     = false
+variable "resource_provider_registrations" {
+  description = "Set mode determine the set of RPs to automatically register on the subscription"
+  type        = string
+  default     = "core"
+
+  validation {
+    condition     = contains(["core", "extended", "all", "none", "legacy"], var.resource_provider_registrations)
+    error_message = "ERROR: Valid types are \"core\", \"extended\", \"all\", \"none\" and \"legacy\"!"
+  }  
+}
+
+variable "resource_providers_to_register" {
+  description = "A custom list of RPs to explicitly register for the subscription, in addition to those specified by the resource_provider_registrations property"
+  type        = list(string)
+  default     = null
 }
 
 variable "iac_tooling" {

@@ -8,13 +8,14 @@
 #
 provider "azurerm" {
 
-  subscription_id            = var.subscription_id
-  client_id                  = var.client_id
-  client_secret              = var.client_secret
-  tenant_id                  = var.tenant_id
-  partner_id                 = var.partner_id
-  use_msi                    = var.use_msi
-  skip_provider_registration = var.skip_provider_registration
+  subscription_id                 = var.subscription_id
+  client_id                       = var.client_id
+  client_secret                   = var.client_secret
+  tenant_id                       = var.tenant_id
+  partner_id                      = var.partner_id
+  use_msi                         = var.use_msi
+  resource_provider_registrations = var.resource_provider_registrations
+  resource_providers_to_register  = var.resource_providers_to_register
 
   features {}
 }
