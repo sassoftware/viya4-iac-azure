@@ -17,15 +17,15 @@ variable "server_name" {
 }
 
 variable "sku_name" {
-  description = "The SKU Name for the PostgreSQL Flexible Server. The name of the SKU, follows the tier + name pattern (e.g. B_Standard_B1ms, GP_Standard_D2s_v3, MO_Standard_E4s_v3)."
+  description = "The SKU Name for the PostgreSQL Flexible Server. The name of the SKU, follows the tier + name pattern (e.g. B_Standard_B1ms, GP_Standard_D2s_v5, MO_Standard_E4s_v5)."
   type        = string
-  default     = "GP_Standard_D16s_v3"
+  default     = "GP_Standard_D4s_v5"
 }
 
 variable "storage_mb" {
   description = "The max storage allowed for the PostgreSQL Flexible Server. Possible values are 32768, 65536, 131072, 262144, 524288, 1048576, 2097152, 4194304, 8388608, 16777216, and 33554432."
   type        = number
-  default     = 65536
+  default     = 131072
 }
 
 variable "backup_retention_days" {

@@ -1,0 +1,11 @@
+---
+default_stages: [pre-commit]
+repos:
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.24.3
+    hooks:
+      - id: gitleaks
+
+ci:
+  autofix_prs: false
+  autoupdate_commit_msg: "chore: auto-update of pre-commit hooks"

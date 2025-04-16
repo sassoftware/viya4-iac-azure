@@ -29,7 +29,7 @@ variable "vnet_subnet_id" {
 variable "machine_type" {
   description = "The size which should be used for this Virtual Machine, such as Standard_F2."
   type        = string
-  default     = "Standard_E8s_v3"
+  default     = "Standard_E8s_v5"
 }
 
 variable "vm_admin" {
@@ -94,7 +94,7 @@ variable "data_disk_count" {
 variable "data_disk_size" {
   description = "Specifies the size of the managed disk to create in GB."
   type        = number
-  default     = 128
+  default     = 256
 }
 
 variable "data_disk_caching" {
@@ -133,7 +133,7 @@ variable "os_disk_caching" {
   default     = "ReadOnly"
 }
 
-variable "enable_accelerated_networking" {
+variable "accelerated_networking_enabled" {
   description = "Enables network accelaration for VMs. By default enabled for the nfs and jump VMs. For any other VM the default is false"
   type        = bool
   default     = false

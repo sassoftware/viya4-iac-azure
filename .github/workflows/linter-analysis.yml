@@ -1,7 +1,9 @@
 name: Linter Analysis
 on:
-  push:
-    branches: ['**'] # '*' will cause the workflow to run on all commits to all branches.
+  pull_request:
+    branches:
+    - main
+    - staging
 
 jobs:
   # Hadolint: Job-1
@@ -45,6 +47,12 @@ jobs:
       with:
         path: ~/.tflint.d/plugins
         key: ubuntu-latest-tflint-${{ hashFiles('.tflint.hcl') }}
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: "^1.10.5"
+        terraform_wrapper: false
 
     - name: Setup TFLint
       uses: terraform-linters/setup-tflint@v3.0.0
