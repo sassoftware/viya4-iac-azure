@@ -3,7 +3,7 @@
 Experimental configuration variables are listed in the tables below. All variables can also be specified on the command line. Values specified on the command line will override values in configuration defaults files.
 
 > [!CAUTION]
-> Community members are responsible for maintaining experimental features. While project maintainers will verify these features work as expected when merged, they cannot guarantee future releases will not break them. If you run into issues while using these features, please open a GitHub Issue, post a GitHub Discussion, or open a Pull Request to fix it.
+> Community members are responsible for maintaining experimental features. While project maintainers will verify these features work as expected when merged, they cannot guarantee future releases will not break them. If you run into issues while using these features, please create a GitHub Issue, start a GitHub Discussion, or open a Pull Request to fix it.
 
 ## Table of Contents
 
