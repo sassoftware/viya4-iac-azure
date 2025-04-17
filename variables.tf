@@ -31,7 +31,7 @@ variable "use_msi" {
 }
 
 variable "resource_provider_registrations" {
-  description = "Set mode to determine the set of resource providers to automatically register on the subscription"
+  description = "Set mode to determine the collection of resource providers to automatically register on the subscription"
   type        = string
   default     = "core"
 
