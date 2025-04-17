@@ -27,10 +27,10 @@ help and guidance, we are happy to help you navigate it by providing continuous
 collaboration within the pull request.
 
 ### Conventional Commits
-All pull requests **must follow the [Conventional Commit](https://www.conventionalcommits.org/en/v1.0.0/)**
-**standard** for commit messages. This helps maintain a consistent and meaningful
-commit history. Pull requests with commits that do **not** follow the Conventional
-Commit format will **not be merged**.
+All pull requests must follow the [Conventional Commit](https://www.conventionalcommits.org/en/v1.0.0/)**
+standard for commit messages. This helps maintain a consistent and meaningful
+commit history. Pull requests with commits that do not follow the Conventional
+Commit format will not be merged.
 
 ### Developer Certificate of Origin Sign-Off
 This project requires all commits to be signed off in accordance with the [Developer Certificate of Origin (DCO)](https://developercertificate.org/).
@@ -52,7 +52,7 @@ Signed-off-by: You Name <your.email@example.com>
 For more information, please refer to https://probot.github.io/apps/dco/
 
 ### Linter Analysis Checks
-All pull requests **must pass our automated analysis checks** before they can be
+All pull requests must pass our automated analysis checks before they can be
 merged. These checks include:
 
 - **Hadolint** – for Dockerfile best practices
