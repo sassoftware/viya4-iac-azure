@@ -27,7 +27,7 @@ help and guidance, we are happy to help you navigate it by providing continuous
 collaboration within the pull request.
 
 ### Conventional Commits
-All pull requests must follow the [Conventional Commit](https://www.conventionalcommits.org/en/v1.0.0/)**
+All pull requests must follow the [Conventional Commit](https://www.conventionalcommits.org/en/v1.0.0/)
 standard for commit messages. This helps maintain a consistent and meaningful
 commit history. Pull requests with commits that do not follow the Conventional
 Commit format will not be merged.
