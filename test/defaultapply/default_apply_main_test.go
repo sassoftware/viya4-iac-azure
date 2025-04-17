@@ -6,10 +6,11 @@ import (
 )
 
 func TestApplyMain(t *testing.T) {
-	variables, terraformOptions, _ := helpers.InitAndApply(t)
+	terraformOptions, plan := helpers.InitAndApply(t)
 
 	defer helpers.DestroyDouble(t, terraformOptions)
 
-	testApplyResourceGroup(t, variables)
-	testApplyVM(t, variables)
+	// Drop in new test cases here
+	testApplyResourceGroup(t, plan)
+	testApplyVirtualMachine(t, plan)
 }

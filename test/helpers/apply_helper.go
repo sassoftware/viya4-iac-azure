@@ -10,7 +10,7 @@ import (
 	"testing"
 )
 
-func InitAndApply(t *testing.T) (map[string]interface{}, *terraform.Options, *terraform.PlanStruct) {
+func InitAndApply(t *testing.T) (*terraform.Options, *terraform.PlanStruct) {
 	validateEnvVars(t, "TF_VAR_client_id", "TF_VAR_client_secret", "TF_VAR_tenant_id",
 		"TF_VAR_subscription_id", "TF_VAR_public_cidrs")
 
@@ -40,7 +40,7 @@ func InitAndApply(t *testing.T) (map[string]interface{}, *terraform.Options, *te
 
 	terraform.InitAndApply(t, options)
 
-	return variables, options, plan
+	return options, plan
 }
 
 func validateEnvVars(t *testing.T, vars ...string) {

@@ -1,6 +1,7 @@
 package helpers
 
 import (
+	"fmt"
 	"github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2019-07-01/compute"
 	"github.com/Azure/azure-sdk-for-go/services/resources/mgmt/2020-10-01/resources"
 	"github.com/gruntwork-io/terratest/modules/azure"
@@ -8,9 +9,9 @@ import (
 	"reflect"
 )
 
-func RetrieveGroupExists(variables map[string]interface{}) (function func() string) {
+func RetrieveGroupExists(resourceGroupName string) (function func() string) {
 	return func() string {
-		exists, err := azure.ResourceGroupExistsE(variables["resourceGroupName"].(string), os.Getenv("TF_VAR_subscription_id"))
+		exists, err := azure.ResourceGroupExistsE(resourceGroupName, os.Getenv("TF_VAR_subscription_id"))
 		if err == nil && exists {
 			return "true"
 		}
@@ -18,17 +19,13 @@ func RetrieveGroupExists(variables map[string]interface{}) (function func() stri
 	}
 }
 
-func RetrieveFromGroup(resourceGroup *resources.Group, fieldName string) (function func() string) {
-	return RetrieveFromStruct(resourceGroup, fieldName)
+func RetrieveFromGroup(resourceGroup *resources.Group, fieldNames ...string) (function func() string) {
+	return RetrieveFromStruct(resourceGroup, fieldNames)
 }
 
-func RetrieveFromVirtualMachine(virtualMachine *compute.VirtualMachine, fieldName string) (function func() string) {
-	return RetrieveFromStruct(virtualMachine, fieldName)
-}
-
-func RetrieveVMExists(variables map[string]interface{}, vmName string) (function func() string) {
+func RetrieveVMExists(resourceGroupName string, vmName string) (function func() string) {
 	return func() string {
-		exists, err := azure.VirtualMachineExistsE(vmName, variables["resourceGroupName"].(string), os.Getenv("TF_VAR_subscription_id"))
+		exists, err := azure.VirtualMachineExistsE(vmName, resourceGroupName, os.Getenv("TF_VAR_subscription_id"))
 		if err == nil && exists {
 			return "true"
 		}
@@ -36,26 +33,49 @@ func RetrieveVMExists(variables map[string]interface{}, vmName string) (function
 	}
 }
 
-func RetrieveFromStruct(input interface{}, fieldName string) func() string {
+func RetrieveFromVirtualMachine(virtualMachine *compute.VirtualMachine, fieldNames ...string) (function func() string) {
+	return RetrieveFromStruct(virtualMachine, fieldNames)
+}
+
+func RetrieveFromStruct(input interface{}, fieldNames []string) func() string {
 	return func() string {
-		if input == nil {
+		if len(fieldNames) == 0 {
 			return "nil"
 		}
 
-		val := reflect.ValueOf(input)
-		if val.Kind() == reflect.Ptr {
-			val = reflect.Indirect(val)
+		// Start with the input value
+		value := reflect.ValueOf(input)
+
+		// Traverse the fields
+		for _, fieldName := range fieldNames {
+			// Ensure the value is a struct or pointer to a struct
+			if value.Kind() == reflect.Ptr {
+				value = value.Elem()
+			}
+			if value.Kind() != reflect.Struct {
+				return "nil"
+			}
+
+			// Get the field by name
+			value = value.FieldByName(fieldName)
+			if !value.IsValid() {
+				return "nil"
+			}
 		}
 
-		if val.Kind() != reflect.Struct {
+		switch value.Kind() {
+		case reflect.String:
+			return value.String()
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+			return fmt.Sprintf("%d", value.Int())
+		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+			return fmt.Sprintf("%d", value.Uint())
+		case reflect.Float32, reflect.Float64:
+			return fmt.Sprintf("%f", value.Float())
+		case reflect.Bool:
+			return fmt.Sprintf("%t", value.Bool())
+		default:
 			return "nil"
 		}
-
-		field := val.FieldByName(fieldName)
-		if !field.IsValid() || field.Kind() != reflect.String {
-			return "nil"
-		}
-
-		return field.String()
 	}
 }
