@@ -61,12 +61,14 @@ The ability to manage RBAC for Kubernetes resources from Azure gives you the cho
 Following are the possible ways to configure Authentication and Authorization in an AKS cluster:
 1. Authentication using local accounts with Kubernetes RBAC. This is traditionally used and current default, see details [here](https://learn.microsoft.com/en-us/azure/aks/concepts-identity#kubernetes-rbac)
 2. Microsoft Entra authentication with Kubernetes RBAC. See details [here](https://learn.microsoft.com/en-us/azure/aks/azure-ad-rbac)
+3. Microsoft Entra authentication with Azure RBAC. See details [here](https://learn.microsoft.com/en-us/azure/aks/manage-azure-rbac)
 
-| Name | Description | Type | Default |
-| :--- | ---: | ---: | ---: |
-| rbac_aad_enabled | Enables Azure Active Directory integration with Kubernetes RBAC. | bool  | false |
-| rbac_aad_admin_group_object_ids | A list of Object IDs of Azure Active Directory Groups which should have Admin Role on the Cluster. | list(string) | null |
-| rbac_aad_tenant_id | (Optional) The Tenant ID used for Azure Active Directory Application. If this isn't specified the Tenant ID of the current Subscription is used.| string  | |
+| Name | Description | Type | Default | Notes |
+| :--- | ---: | ---: | ---: | ---: |
+| rbac_aad_enabled | Enables Azure Active Directory integration with Kubernetes or Azure RBAC. | bool  | false |
+| rbac_aad_azure_rbac_enabled | Enables Azure RBAC. If false and `rbac_aad_enabled` is true`, Kubernetes RBAC is used. Only relevant if rbac_aad_enabled is true. | bool  | false |
+| rbac_aad_admin_group_object_ids | A list of Object IDs of Azure Active Directory Groups which should have Admin Role on the Cluster. | list(string) | null | One of `rbac_aad_admin_group_object_ids` or `rbac_aad_tenant_id` is required if `rbac_aad_enabled` is true. Not relevant if `rbac_aad_azure_rbac_enabled` is true.
+| rbac_aad_tenant_id | (Optional) The Tenant ID used for Azure Active Directory Application. If this isn't specified, the Tenant ID of the current Subscription is used.| string  | | One of `rbac_aad_admin_group_object_ids` or `rbac_aad_tenant_id` is required if `rbac_aad_enabled` is true.
 
 ## Admin Access
 
@@ -197,7 +199,7 @@ Ubuntu 20.04 LTS is the operating system used on the Jump/NFS servers. Ubuntu cr
 | :--- | ---: | ---: | ---: | ---: |
 | partner_id | A GUID that is registered with Microsoft to facilitate partner resource usage attribution | string | "5d27f3ae-e49c-4dea-9aa3-b44e4750cd8c" | Defaults to SAS partner GUID. When you deploy this Terraform configuration, Microsoft can identify the installation of SAS software with the deployed Azure resources. Microsoft can then correlate the resources that are used to support the software. Microsoft collects this information to provide the best experiences with their products and to operate their business. The data is collected and governed by Microsoft's privacy policies, located at https://www.microsoft.com/trustcenter. |
 | create_static_kubeconfig | Allows the user to create a provider / service account-based kubeconfig file | bool | true | A value of `false` will default to using the cloud provider's mechanism for generating the kubeconfig file. A value of `true` will create a static kubeconfig that uses a `Service Account` and `Cluster Role Binding` to provide credentials. |
-| kubernetes_version | The AKS cluster Kubernetes version | string | "1.30" | Use of specific versions is still supported. If you need exact kubernetes version please use format `x.y.z`, where `x` is the major version, `y` is the minor version, and `z` is the patch version |
+| kubernetes_version | The AKS cluster Kubernetes version | string | "1.31" | Use of specific versions is still supported. If you need exact kubernetes version please use format `x.y.z`, where `x` is the major version, `y` is the minor version, and `z` is the patch version |
 | create_jump_vm | Create bastion host | bool | true | |
 | create_jump_public_ip | Add public IP address to the jump VM | bool | true | |
 | enable_jump_public_static_ip | Enables `Static` allocation method for the public IP address of Jump Server. Setting false will enable `Dynamic` allocation method. | bool | true | Only used with `create_jump_public_ip=true` |

@@ -1,7 +1,9 @@
 name: Linter Analysis
 on:
-  push:
-    branches: ['**'] # '*' will cause the workflow to run on all commits to all branches.
+  pull_request:
+    branches:
+    - main
+    - staging
 
 jobs:
   # Hadolint: Job-1
@@ -13,7 +15,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run Hadolint Action
-        uses: jbergstroem/hadolint-gh-action@v1.11.0
+        uses: jbergstroem/hadolint-gh-action@v1.12.2
         with:
           dockerfile: ./Dockerfile
           config_file: linting-configs/.hadolint.yaml

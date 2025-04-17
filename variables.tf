@@ -61,7 +61,13 @@ variable "location" {
 ## Azure AD
 variable "rbac_aad_enabled" {
   type        = bool
-  description = "Enables Azure Active Directory integration with Kubernetes RBAC."
+  description = "Enables Azure Active Directory integration with Kubernetes or Azure RBAC."
+  default     = false
+}
+
+variable "rbac_aad_azure_rbac_enabled" {
+  type        = bool
+  description = "Enables Azure RBAC. If false, Kubernetes RBAC is used.  Only relevant if rbac_aad_enabled is true."
   default     = false
 }
 
@@ -151,7 +157,7 @@ variable "default_nodepool_vm_type" {
 variable "kubernetes_version" {
   description = "The AKS cluster K8s version"
   type        = string
-  default     = "1.30"
+  default     = "1.31"
 }
 
 variable "default_nodepool_max_nodes" {
