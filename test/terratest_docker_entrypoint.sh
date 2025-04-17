@@ -70,6 +70,16 @@ export TF_VAR_client_id=$TF_VAR_client_id
 export TF_VAR_client_secret=$TF_VAR_client_secret
 export TF_VAR_tenant_id=$TF_VAR_tenant_id
 export TF_VAR_subscription_id=$TF_VAR_subscription_id
+# Export the variables for the AzureRM Provider
+export ARM_CLIENT_ID=$TF_VAR_client_id
+export ARM_CLIENT_SECRET=$TF_VAR_client_secret
+export ARM_TENANT_ID=$TF_VAR_tenant_id
+export ARM_SUBSCRIPTION_ID=$TF_VAR_subscription_id
+# Export the variables for the Azure Client
+export AZURE_CLIENT_ID=$TF_VAR_client_id
+export AZURE_CLIENT_SECRET=$TF_VAR_client_secret
+export AZURE_TENANT_ID=$TF_VAR_tenant_id
+export AZURE_SUBSCRIPTION_ID=$TF_VAR_subscription_id
 
 # Run the tests
 echo "Running 'go test $VERBOSE $PACKAGE -run $TEST -timeout 60m'"
