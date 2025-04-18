@@ -87,6 +87,9 @@ module "vnet" {
   resource_group_name = local.network_rg.name
   location            = var.location
   subnets             = local.subnets
+  roles               = var.msi_network_roles
+  aks_uai_principal_id = local.aks_uai_principal_id
+  add_uai_permissions = (var.aks_uai_name == null)
   existing_subnets    = var.subnet_names
   address_space       = [var.vnet_address_space]
   tags                = var.tags
