@@ -23,12 +23,20 @@ The Docker image `viya4-iac-azure-terratest` will contain Terraform and Go execu
 Follow either one of the authentication methods that are described in [Authenticating Terraform to access Azure](./TerraformAzureAuthentication.md), and create a file with the authentication variable values to use with container invocation. Store these values outside of this repository in a secure file, such as
 `$HOME/.azure_docker_creds.env`. Protect that file with Azure credentials so that only you have Read access to it. **NOTE**: Do not use quotation marks around the values in the file, and be sure to avoid any trailing blank spaces.
 
+#### Public Access Cidrs Environment File
+
+In order to run  ```terraform apply``` integration tests, you will also need to define your ```TF_VAR_public_cidrs``` as described in [Admin Access](../CONFIG-VARS.md#admin-access), and create a file with the public access cidr values to use with container invocation.  Store these values in [CIDR notation](https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing) outside of this repository in a secure file, such as `$HOME/.azure_public_cidrs.env`. Protect that file with public access cidr values so that only you have Read access to it. Below is an example of what the file should look like.
+
+```bash
+TF_VAR_public_cidrs=["123.456.7.8/16", "98.76.54.32/32"]
+```
+
 Now each time you invoke the container, specify the file with the [`--env-file`](https://docs.docker.com/engine/reference/commandline/run/#set-environment-variables--e---env---env-file) option to pass Azure credentials to the container.
 
 ### Docker Volume Mounts
 
-Run the following command:  
-`--volume="$(pwd)":/viya4-iac-azure`  
+Run the following command:
+`--volume="$(pwd)":/viya4-iac-azure`
 Note that the project must be mounted to the `/viya4-iac-azure` directory.
 
 ## Command-Line Arguments
@@ -42,9 +50,9 @@ The `terratest_docker_entrypoint.sh` script supports several command-line argume
 
 ## Running Terratest Commands
 
-### Running the Default Tests
+### Running the Plan Tests
 
-To run the default suite of unit tests (only `terraform plan`), run the following Docker command:
+To run the suite of unit tests (only `terraform plan`), run the following Docker command:
 
 ```bash
 # Run from the ./viya4-iac-azure directory
@@ -52,6 +60,20 @@ docker run --rm \
   --env-file=$HOME/.azure_docker_creds.env \
   --volume "$(pwd)":/viya4-iac-azure \
   viya4-iac-azure-terratest
+```
+
+### Running the Apply Tests
+
+To run the suite of integration tests (only `terraform apply`), run the following Docker command:
+
+```bash
+# Run from the ./viya4-iac-azure directory
+docker run --rm \
+  --env-file=$HOME/.azure_docker_creds.env \
+  --env-file=$HOME/.azure_public_cidrs.env \
+  --volume "$(pwd)":/viya4-iac-azure \
+  viya4-iac-azure-terratest \
+  -r=".*Plan.*"
 ```
 
 ### Running a Specific Go Test
@@ -62,11 +84,26 @@ To run a specific test, run the following Docker command with the `-r` option:
 # Run from the ./viya4-iac-azure directory
 docker run --rm \
   --env-file=$HOME/.azure_docker_creds.env \
+  --env-file=$HOME/.azure_public_cidrs.env \ #env file for integration tests
   --volume "$(pwd)":/viya4-iac-azure \
   viya4-iac-azure-terratest \
   -r="YourTest"
 ```
 To run multiple tests, pass in a regex to the `-r` option - "TestName1|TestName2|TestName3"
+
+####  Running a Specific Integration Go Test
+
+To run a specific integration test, modify the main test runner function (i.e. TestApplyMain) to define the test name you desire and run the following Docker command with the `-r` option:
+
+```bash
+# Run from the ./viya4-iac-azure directory
+docker run --rm \
+  --env-file=$HOME/.azure_docker_creds.env \
+  --env-file=$HOME/.azure_public_cidrs.env \
+  --volume "$(pwd)":/viya4-iac-azure \
+  viya4-iac-azure-terratest \
+  -r="YourIntegrationTestMainFunction"
+```
 
 ### Running a Specific Go Package and Test
 
@@ -79,6 +116,21 @@ docker run --rm \
   --volume "$(pwd)":/viya4-iac-azure \
   viya4-iac-azure-terratest \
   -r="YourTest" \
+  -p="YourPackage"
+```
+
+####  Running a Specific Integration Go Package and Test
+
+To run a specific integration Go package and test name, modify the main test runner function in the desired packaged to define the test name you want and run the following Docker command with the following options:
+
+```bash
+# Run from the ./viya4-iac-azure directory
+docker run --rm \
+  --env-file=$HOME/.azure_docker_creds.env \
+  --env-file=$HOME/.azure_public_cidrs.env \
+  --volume "$(pwd)":/viya4-iac-azure \
+  viya4-iac-azure-terratest \
+  -r="YourIntegrationTestMainFunction" \
   -p="YourPackage"
 ```
 
