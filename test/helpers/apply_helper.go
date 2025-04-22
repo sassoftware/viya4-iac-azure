@@ -1,13 +1,17 @@
+// Copyright © 2025, SAS Institute Inc., Cary, NC, USA. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 package helpers
 
 import (
-	"github.com/gruntwork-io/terratest/modules/terraform"
-	test_structure "github.com/gruntwork-io/terratest/modules/test-structure"
-	"github.com/stretchr/testify/require"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/gruntwork-io/terratest/modules/terraform"
+	"github.com/gruntwork-io/terratest/modules/test-structure"
+	"github.com/stretchr/testify/require"
 )
 
 func InitAndApply(t *testing.T) (*terraform.Options, *terraform.PlanStruct) {
@@ -32,11 +36,6 @@ func InitAndApply(t *testing.T) (*terraform.Options, *terraform.PlanStruct) {
 	}
 
 	plan := terraform.InitAndPlanAndShowWithStruct(t, options)
-	variables["resourceGroupLocation"] = plan.ResourcePlannedValuesMap["azurerm_resource_group.aks_rg[0]"].AttributeValues["location"]
-	variables["resourceGroupName"] = plan.ResourcePlannedValuesMap["azurerm_resource_group.aks_rg[0]"].AttributeValues["name"]
-	variables["nfsVmName"] = plan.ResourcePlannedValuesMap["module.nfs[0].azurerm_linux_virtual_machine.vm"].AttributeValues["name"]
-	variables["nfsVmAdmin"] = plan.ResourcePlannedValuesMap["module.nfs[0].azurerm_linux_virtual_machine.vm"].AttributeValues["admin_username"]
-	variables["jumpVmName"] = plan.ResourcePlannedValuesMap["module.jump[0].azurerm_linux_virtual_machine.vm"].AttributeValues["name"]
 
 	terraform.InitAndApply(t, options)
 

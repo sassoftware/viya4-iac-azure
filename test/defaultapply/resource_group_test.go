@@ -1,24 +1,29 @@
+// Copyright © 2025, SAS Institute Inc., Cary, NC, USA. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 package defaultapply
 
 import (
-	"github.com/gruntwork-io/terratest/modules/azure"
-	"github.com/gruntwork-io/terratest/modules/terraform"
-	"github.com/stretchr/testify/assert"
 	"os"
 	"test/helpers"
 	"testing"
+
+	"github.com/gruntwork-io/terratest/modules/azure"
+	"github.com/gruntwork-io/terratest/modules/terraform"
+	"github.com/stretchr/testify/assert"
 )
 
 func testApplyResourceGroup(t *testing.T, plan *terraform.PlanStruct) {
 	resourceMapName := "azurerm_resource_group.aks_rg[0]"
-	resourceGroupName := helpers.RetrieveFromPlan(plan, resourceMapName, "name")()
+	resourceGroupName := helpers.RetrieveFromPlan(plan, resourceMapName, "{$.name}")()
 	resourceGroup := azure.GetAResourceGroup(t, resourceGroupName, os.Getenv("TF_VAR_subscription_id"))
 
 	tests := map[string]helpers.ApplyTestCase{
 		"resourceGroupExistsTest": {
-			Expected:        "true",
-			ActualRetriever: helpers.RetrieveGroupExists(resourceGroupName),
-			Message:         "Resource group does not exist",
+			Expected:       nil,
+			Actual:         resourceGroup,
+			AssertFunction: assert.NotEqual,
+			Message:        "Resource group does not exist",
 		},
 		"resourceGroupLocationTest": {
 			ExpectedRetriever: helpers.RetrieveFromPlan(plan, resourceMapName, "{$.location}"),
@@ -26,9 +31,9 @@ func testApplyResourceGroup(t *testing.T, plan *terraform.PlanStruct) {
 			Message:           "Resource group location is incorrect",
 		},
 		"resourceGroupNameTest": {
-			ExpectedRetriever: helpers.RetrieveFromPlan(plan, resourceMapName, "{$.name}"),
-			ActualRetriever:   helpers.RetrieveFromGroup(resourceGroup, "Name"),
-			Message:           "Resource group name is incorrect",
+			Expected:        resourceGroupName,
+			ActualRetriever: helpers.RetrieveFromGroup(resourceGroup, "Name"),
+			Message:         "Resource group name is incorrect",
 		},
 		"resourceGroupIdTest": {
 			Expected:        "nil",

@@ -1,36 +1,18 @@
+// Copyright © 2025, SAS Institute Inc., Cary, NC, USA. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 package helpers
 
 import (
 	"fmt"
+	"reflect"
+
 	"github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2019-07-01/compute"
 	"github.com/Azure/azure-sdk-for-go/services/resources/mgmt/2020-10-01/resources"
-	"github.com/gruntwork-io/terratest/modules/azure"
-	"os"
-	"reflect"
 )
-
-func RetrieveGroupExists(resourceGroupName string) (function func() string) {
-	return func() string {
-		exists, err := azure.ResourceGroupExistsE(resourceGroupName, os.Getenv("TF_VAR_subscription_id"))
-		if err == nil && exists {
-			return "true"
-		}
-		return "false"
-	}
-}
 
 func RetrieveFromGroup(resourceGroup *resources.Group, fieldNames ...string) (function func() string) {
 	return RetrieveFromStruct(resourceGroup, fieldNames)
-}
-
-func RetrieveVMExists(resourceGroupName string, vmName string) (function func() string) {
-	return func() string {
-		exists, err := azure.VirtualMachineExistsE(vmName, resourceGroupName, os.Getenv("TF_VAR_subscription_id"))
-		if err == nil && exists {
-			return "true"
-		}
-		return "false"
-	}
 }
 
 func RetrieveFromVirtualMachine(virtualMachine *compute.VirtualMachine, fieldNames ...string) (function func() string) {
@@ -43,10 +25,8 @@ func RetrieveFromStruct(input interface{}, fieldNames []string) func() string {
 			return "nil"
 		}
 
-		// Start with the input value
 		value := reflect.ValueOf(input)
 
-		// Traverse the fields
 		for _, fieldName := range fieldNames {
 			// Ensure the value is a struct or pointer to a struct
 			if value.Kind() == reflect.Ptr {
@@ -63,7 +43,13 @@ func RetrieveFromStruct(input interface{}, fieldNames []string) func() string {
 			}
 		}
 
-		switch value.Kind() {
+		// Do a final dereference if necessary
+		if value.Kind() == reflect.Ptr {
+			value = value.Elem()
+		}
+		kind := value.Kind()
+
+		switch kind {
 		case reflect.String:
 			return value.String()
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
@@ -74,6 +60,11 @@ func RetrieveFromStruct(input interface{}, fieldNames []string) func() string {
 			return fmt.Sprintf("%f", value.Float())
 		case reflect.Bool:
 			return fmt.Sprintf("%t", value.Bool())
+		case reflect.Slice:
+			if value.Len() > 0 {
+				return "not nil"
+			}
+			return "nil"
 		default:
 			return "nil"
 		}

@@ -1,162 +1,176 @@
+// Copyright © 2025, SAS Institute Inc., Cary, NC, USA. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 package defaultapply
 
 import (
-	"github.com/gruntwork-io/terratest/modules/azure"
-	"github.com/gruntwork-io/terratest/modules/terraform"
-	"github.com/stretchr/testify/assert"
+	"fmt"
 	"os"
 	"test/helpers"
 	"testing"
+
+	"github.com/gruntwork-io/terratest/modules/azure"
+	"github.com/gruntwork-io/terratest/modules/terraform"
+	"github.com/stretchr/testify/assert"
 )
 
 func testApplyVirtualMachine(t *testing.T, plan *terraform.PlanStruct) {
-	resourceMapName := "azurerm_resource_group.aks_rg[0]"
-	nfsResourceMapName := "module.nfs[0].azurerm_linux_virtual_machine.vm"
-	jumpResourceMapName := "module.jump[0].azurerm_linux_virtual_machine.vm"
+	resourceGroupName := helpers.RetrieveFromPlan(plan, "azurerm_resource_group.aks_rg[0]", "{$.name}")()
 
-	resourceGroupName := helpers.RetrieveFromPlan(plan, resourceMapName, "name")()
-	nfsVmName := helpers.RetrieveFromPlan(plan, nfsResourceMapName, "name")()
-	jumpVmName := helpers.RetrieveFromPlan(plan, jumpResourceMapName, "name")()
+	testVMList(t, plan, resourceGroupName)
+	testVM(t, plan, resourceGroupName, "nfs")
+	testVM(t, plan, resourceGroupName, "jump")
+}
+
+func testVMList(t *testing.T, plan *terraform.PlanStruct, resourceGroupName string) {
+	nfsVmName := helpers.RetrieveFromPlan(plan, "module.nfs[0].azurerm_linux_virtual_machine.vm", "{$.name}")()
+	jumpVmName := helpers.RetrieveFromPlan(plan, "module.jump[0].azurerm_linux_virtual_machine.vm", "{$.name}")()
 
 	vmList, err := azure.ListVirtualMachinesForResourceGroupE(resourceGroupName, os.Getenv("TF_VAR_subscription_id"))
 	if err != nil {
 		t.Errorf("Error: %s\n", err)
 	}
 
-	nfsVM := azure.GetVirtualMachine(t, nfsVmName, resourceGroupName, os.Getenv("TF_VAR_subscription_id"))
-
 	tests := map[string]helpers.ApplyTestCase{
 		"vmsLengthTest": {
 			Expected: len(vmList),
 			Actual:   2,
 		},
-		"vmsContainsNsfTest": {
-			ExpectedRetriever: helpers.RetrieveFromPlan(plan, nfsResourceMapName, "{$.name}"),
-			Actual:            vmList,
-			AssertFunction:    assert.Contains,
+		"vmsContainNsfTest": {
+			Expected:       nfsVmName,
+			Actual:         vmList,
+			AssertFunction: assert.Contains,
 		},
-		"vmsContainsJumpTest": {
-			ExpectedRetriever: helpers.RetrieveFromPlan(plan, jumpResourceMapName, "{$.name}"),
-			Actual:            vmList,
-			AssertFunction:    assert.Contains,
+		"vmsContainJumpTest": {
+			Expected:       jumpVmName,
+			Actual:         vmList,
+			AssertFunction: assert.Contains,
 		},
-		"nfsVmExistsTest": {
-			Expected:        "true",
-			ActualRetriever: helpers.RetrieveVMExists(resourceGroupName, nfsVmName),
-			Message:         "NFS VM does not exist",
+	}
+
+	helpers.RunApplyTests(t, tests)
+}
+
+func testVM(t *testing.T, plan *terraform.PlanStruct, resourceGroupName string, prefix string) {
+	vmResourceMapName := fmt.Sprintf("module.%s[0].azurerm_linux_virtual_machine.vm", prefix)
+	vmName := helpers.RetrieveFromPlan(plan, vmResourceMapName, "{$.name}")()
+	virtualMachine := azure.GetVirtualMachine(t, vmName, resourceGroupName, os.Getenv("TF_VAR_subscription_id"))
+
+	tests := map[string]helpers.ApplyTestCase{
+		prefix + "VmExistsTest": {
+			Expected:       nil,
+			Actual:         virtualMachine,
+			AssertFunction: assert.NotEqual,
+			Message:        "VM does not exist",
 		},
-		"nfsVmAdminTest": {
-			ExpectedRetriever: helpers.RetrieveFromPlan(plan, nfsResourceMapName, "{$.admin_username}"),
-			ActualRetriever:   helpers.RetrieveFromVirtualMachine(nfsVM, "OsProfile", "AdminUsername"),
-			Message:           "Nfs VM admin username is incorrect",
+		prefix + "VmAdminTest": {
+			ExpectedRetriever: helpers.RetrieveFromPlan(plan, vmResourceMapName, "{$.admin_username}"),
+			ActualRetriever:   helpers.RetrieveFromVirtualMachine(virtualMachine, "VirtualMachineProperties", "OsProfile", "AdminUsername"),
+			Message:           "VM admin username is incorrect",
 		},
-		"nfsAllowedExtensionOperationsTest": {
-			ExpectedRetriever: helpers.RetrieveFromPlan(plan, nfsResourceMapName, "{$.allow_extension_operations}"),
-			ActualRetriever:   helpers.RetrieveFromVirtualMachine(nfsVM, "OsProfile", "AllowExtensionOperations"),
-			Message:           "Nfs VM allow extension operations is incorrect",
+		prefix + "AllowedExtensionOperationsTest": {
+			ExpectedRetriever: helpers.RetrieveFromPlan(plan, vmResourceMapName, "{$.allow_extension_operations}"),
+			ActualRetriever:   helpers.RetrieveFromVirtualMachine(virtualMachine, "VirtualMachineProperties", "OsProfile", "AllowExtensionOperations"),
+			Message:           "VM allow extension operations is incorrect",
 		},
-		"nfsComputerNameTest": {
-			ExpectedRetriever: helpers.RetrieveFromPlan(plan, nfsResourceMapName, "{$.computer_name}"),
-			ActualRetriever:   helpers.RetrieveFromVirtualMachine(nfsVM, "OsProfile", "ComputerName"),
-			Message:           "Nfs VM computer name is nil",
+		prefix + "ComputerNameTest": {
+			ExpectedRetriever: helpers.RetrieveFromPlan(plan, vmResourceMapName, "{$.computer_name}"),
+			ActualRetriever:   helpers.RetrieveFromVirtualMachine(virtualMachine, "VirtualMachineProperties", "OsProfile", "ComputerName"),
+			Message:           "VM computer name is nil",
 		},
-		"nfsDisablePasswordAuthTest": {
-			ExpectedRetriever: helpers.RetrieveFromPlan(plan, nfsResourceMapName, "{$.disable_password_authentication}"),
-			ActualRetriever:   helpers.RetrieveFromVirtualMachine(nfsVM, "OsProfile", "LinuxConfiguration", "DisablePasswordAuthentication"),
-			Message:           "Nfs VM computer name is nil",
+		prefix + "DisablePasswordAuthTest": {
+			ExpectedRetriever: helpers.RetrieveFromPlan(plan, vmResourceMapName, "{$.disable_password_authentication}"),
+			ActualRetriever:   helpers.RetrieveFromVirtualMachine(virtualMachine, "VirtualMachineProperties", "OsProfile", "LinuxConfiguration", "DisablePasswordAuthentication"),
+			Message:           "VM computer name is nil",
 		},
-		"nfsIdTest": {
+		prefix + "IdTest": {
 			Expected:        "nil",
-			ActualRetriever: helpers.RetrieveFromVirtualMachine(nfsVM, "ID"),
+			ActualRetriever: helpers.RetrieveFromVirtualMachine(virtualMachine, "ID"),
 			AssertFunction:  assert.NotEqual,
-			Message:         "Nfs VM ID is nil",
+			Message:         "VM ID is nil",
 		},
-		"nfsLocationTest": {
-			ExpectedRetriever: helpers.RetrieveFromPlan(plan, nfsResourceMapName, "{$.location}"),
-			ActualRetriever:   helpers.RetrieveFromVirtualMachine(nfsVM, "Location"),
-			Message:           "Nfs VM location is incorrect",
+		prefix + "LocationTest": {
+			ExpectedRetriever: helpers.RetrieveFromPlan(plan, vmResourceMapName, "{$.location}"),
+			ActualRetriever:   helpers.RetrieveFromVirtualMachine(virtualMachine, "Location"),
+			Message:           "VM location is incorrect",
 		},
-		"nfsNetworkInterfaceIDsTest": {
-			ExpectedRetriever: helpers.RetrieveFromPlan(plan, nfsResourceMapName, "{$.network_interface_ids}"),
-			ActualRetriever:   helpers.RetrieveFromVirtualMachine(nfsVM, "NetworkProfile", "NetworkInterfaces"),
-			Message:           "Nfs VM network interface IDs are nil",
-		},
-		"nfsPlatformFaultDomainTest": {
+		prefix + "NetworkInterfaceIDsTest": {
 			Expected:        "nil",
-			ActualRetriever: helpers.RetrieveFromVirtualMachine(nfsVM, "InstanceView", "PlatformFaultDomain"),
-			Message:         "Nfs VM platform fault domain should return nil",
-		},
-		"nfsPriorityTest": {
-			ExpectedRetriever: helpers.RetrieveFromPlan(plan, nfsResourceMapName, "{$.priority}"),
-			ActualRetriever:   helpers.RetrieveFromVirtualMachine(nfsVM, "Priority"),
-			Message:           "Nfs VM priority is incorrect",
-		},
-		"nfsProvisionVMAgentTest": {
-			ExpectedRetriever: helpers.RetrieveFromPlan(plan, nfsResourceMapName, "{$.provision_vm_agent}"),
-			ActualRetriever:   helpers.RetrieveFromVirtualMachine(nfsVM, "OsProfile", "LinuxConfiguration", "ProvisionVMAgent"),
-			Message:           "Nfs Provision VM Agent is incorrect",
-		},
-		"nfsSizeTest": {
-			ExpectedRetriever: helpers.RetrieveFromPlan(plan, nfsResourceMapName, "{$.size}"),
-			ActualRetriever:   helpers.RetrieveFromVirtualMachine(nfsVM, "HardwareProfile", "VMSize"),
-			Message:           "Nfs VM size is incorrect",
-		},
-		"nfsUltraSSDEnabledTest": {
-			ExpectedRetriever: helpers.RetrieveFromPlan(plan, nfsResourceMapName, "{$.additional_capabilities[0].ultra_ssd_enabled}"),
-			ActualRetriever:   helpers.RetrieveFromVirtualMachine(nfsVM, "AdditionalCapabilities", "UltraSSDEnabled"),
-			Message:           "Nfs VM ultra SSD enabled is incorrect",
-		},
-		"nfsCachingTest": {
-			ExpectedRetriever: helpers.RetrieveFromPlan(plan, nfsResourceMapName, "{$.os_disk[0].disk_size_gb}"),
-			ActualRetriever:   helpers.RetrieveFromVirtualMachine(nfsVM, "StorageProfile", "OsDisk", "DiskSizeGB"),
-			Message:           "Nfs VM caching is incorrect",
-		},
-		"nfsOSDiskIdTest": {
-			Expected:        "nil",
-			ActualRetriever: helpers.RetrieveFromVirtualMachine(nfsVM, "StorageProfile", "OsDisk", "ManagedDisk", "ID"),
+			ActualRetriever: helpers.RetrieveFromVirtualMachine(virtualMachine, "VirtualMachineProperties", "NetworkProfile", "NetworkInterfaces"),
 			AssertFunction:  assert.NotEqual,
-			Message:         "Nfs VM OS disk ID is nil",
+			Message:         "VM network interface IDs are nil",
 		},
-		"nfsOSDiskNameTest": {
+		prefix + "PlatformFaultDomainTest": {
 			Expected:        "nil",
-			ActualRetriever: helpers.RetrieveFromVirtualMachine(nfsVM, "StorageProfile", "OsDisk", "Name"),
+			ActualRetriever: helpers.RetrieveFromVirtualMachine(virtualMachine, "VirtualMachineProperties", "InstanceView", "PlatformFaultDomain"),
+			Message:         "VM platform fault domain should return nil",
+		},
+		prefix + "PriorityTest": {
+			ExpectedRetriever: helpers.RetrieveFromPlan(plan, vmResourceMapName, "{$.priority}"),
+			ActualRetriever:   helpers.RetrieveFromVirtualMachine(virtualMachine, "Priority"),
+			Message:           "VM priority is incorrect",
+		},
+		prefix + "ProvisionVMAgentTest": {
+			ExpectedRetriever: helpers.RetrieveFromPlan(plan, vmResourceMapName, "{$.provision_vm_agent}"),
+			ActualRetriever:   helpers.RetrieveFromVirtualMachine(virtualMachine, "VirtualMachineProperties", "OsProfile", "LinuxConfiguration", "ProvisionVMAgent"),
+			Message:           "Provision VM Agent is incorrect",
+		},
+		prefix + "SizeTest": {
+			ExpectedRetriever: helpers.RetrieveFromPlan(plan, vmResourceMapName, "{$.size}"),
+			ActualRetriever:   helpers.RetrieveFromVirtualMachine(virtualMachine, "VirtualMachineProperties", "HardwareProfile", "VMSize"),
+			Message:           "VM size is incorrect",
+		},
+		prefix + "UltraSSDEnabledTest": {
+			ExpectedRetriever: helpers.RetrieveFromPlan(plan, vmResourceMapName, "{$.additional_capabilities[0].ultra_ssd_enabled}"),
+			ActualRetriever:   helpers.RetrieveFromVirtualMachine(virtualMachine, "VirtualMachineProperties", "AdditionalCapabilities", "UltraSSDEnabled"),
+			Message:           "VM ultra SSD enabled is incorrect",
+		},
+		prefix + "CachingTest": {
+			ExpectedRetriever: helpers.RetrieveFromPlan(plan, vmResourceMapName, "{$.os_disk[0].disk_size_gb}"),
+			ActualRetriever:   helpers.RetrieveFromVirtualMachine(virtualMachine, "VirtualMachineProperties", "StorageProfile", "OsDisk", "DiskSizeGB"),
+			Message:           "VM caching is incorrect",
+		},
+		prefix + "OSDiskIdTest": {
+			Expected:        "nil",
+			ActualRetriever: helpers.RetrieveFromVirtualMachine(virtualMachine, "VirtualMachineProperties", "StorageProfile", "OsDisk", "ManagedDisk", "ID"),
 			AssertFunction:  assert.NotEqual,
-			Message:         "Nfs VM OS disk name is nil",
+			Message:         "VM OS disk ID is nil",
 		},
-		"nfsStorageAccountTypeTest": {
-			ExpectedRetriever: helpers.RetrieveFromPlan(plan, nfsResourceMapName, "{$.os_disk[0].storage_account_type}"),
-			ActualRetriever:   helpers.RetrieveFromVirtualMachine(nfsVM, "StorageProfile", "OsDisk", "ManagedDisk", "StorageAccountType"),
-			Message:           "Nfs VM storage account type is incorrect",
+		prefix + "OSDiskNameTest": {
+			Expected:        "nil",
+			ActualRetriever: helpers.RetrieveFromVirtualMachine(virtualMachine, "VirtualMachineProperties", "StorageProfile", "OsDisk", "Name"),
+			AssertFunction:  assert.NotEqual,
+			Message:         "VM OS disk name is nil",
 		},
-		"nfsWriteAcceleratorEnabledTest": {
-			ExpectedRetriever: helpers.RetrieveFromPlan(plan, nfsResourceMapName, "{$.os_disk[0].write_accelerator_enabled}"),
-			ActualRetriever:   helpers.RetrieveFromVirtualMachine(nfsVM, "StorageProfile", "OsDisk", "WriteAcceleratorEnabled"),
-			Message:           "Nfs VM write accelerator enabled is incorrect",
+		prefix + "StorageAccountTypeTest": {
+			ExpectedRetriever: helpers.RetrieveFromPlan(plan, vmResourceMapName, "{$.os_disk[0].storage_account_type}"),
+			ActualRetriever:   helpers.RetrieveFromVirtualMachine(virtualMachine, "VirtualMachineProperties", "StorageProfile", "OsDisk", "ManagedDisk", "StorageAccountType"),
+			Message:           "VM storage account type is incorrect",
 		},
-		"nfsOfferTest": {
-			ExpectedRetriever: helpers.RetrieveFromPlan(plan, nfsResourceMapName, "{$.source_image_reference[0].offer}"),
-			ActualRetriever:   helpers.RetrieveFromVirtualMachine(nfsVM, "StorageProfile", "ImageReference", "Offer"),
-			Message:           "Nfs VM offer is incorrect",
+		prefix + "WriteAcceleratorEnabledTest": {
+			ExpectedRetriever: helpers.RetrieveFromPlan(plan, vmResourceMapName, "{$.os_disk[0].write_accelerator_enabled}"),
+			ActualRetriever:   helpers.RetrieveFromVirtualMachine(virtualMachine, "VirtualMachineProperties", "StorageProfile", "OsDisk", "WriteAcceleratorEnabled"),
+			Message:           "VM write accelerator enabled is incorrect",
 		},
-		"nfsPublisherTest": {
-			ExpectedRetriever: helpers.RetrieveFromPlan(plan, nfsResourceMapName, "{$.source_image_reference[0].publisher}"),
-			ActualRetriever:   helpers.RetrieveFromVirtualMachine(nfsVM, "StorageProfile", "ImageReference", "Publisher"),
-			Message:           "Nfs VM publisher is incorrect",
+		prefix + "OfferTest": {
+			ExpectedRetriever: helpers.RetrieveFromPlan(plan, vmResourceMapName, "{$.source_image_reference[0].offer}"),
+			ActualRetriever:   helpers.RetrieveFromVirtualMachine(virtualMachine, "VirtualMachineProperties", "StorageProfile", "ImageReference", "Offer"),
+			Message:           "VM offer is incorrect",
 		},
-		"nfsSkuTest": {
-			ExpectedRetriever: helpers.RetrieveFromPlan(plan, nfsResourceMapName, "{$.source_image_reference[0].sku}"),
-			ActualRetriever:   helpers.RetrieveFromVirtualMachine(nfsVM, "StorageProfile", "ImageReference", "Sku"),
-			Message:           "Nfs VM sku is incorrect",
+		prefix + "PublisherTest": {
+			ExpectedRetriever: helpers.RetrieveFromPlan(plan, vmResourceMapName, "{$.source_image_reference[0].publisher}"),
+			ActualRetriever:   helpers.RetrieveFromVirtualMachine(virtualMachine, "VirtualMachineProperties", "StorageProfile", "ImageReference", "Publisher"),
+			Message:           "VM publisher is incorrect",
 		},
-		"nfsVersionTest": {
-			ExpectedRetriever: helpers.RetrieveFromPlan(plan, nfsResourceMapName, "{$.source_image_reference[0].version}"),
-			ActualRetriever:   helpers.RetrieveFromVirtualMachine(nfsVM, "StorageProfile", "ImageReference", "Version"),
-			Message:           "Nfs VM Version is incorrect",
+		prefix + "SkuTest": {
+			ExpectedRetriever: helpers.RetrieveFromPlan(plan, vmResourceMapName, "{$.source_image_reference[0].sku}"),
+			ActualRetriever:   helpers.RetrieveFromVirtualMachine(virtualMachine, "VirtualMachineProperties", "StorageProfile", "ImageReference", "Sku"),
+			Message:           "VM sku is incorrect",
 		},
-		"jumpVmExistsTest": {
-			Expected:        "true",
-			ActualRetriever: helpers.RetrieveVMExists(resourceGroupName, jumpVmName),
-			Message:         "NFS VM does not exist",
+		prefix + "VersionTest": {
+			ExpectedRetriever: helpers.RetrieveFromPlan(plan, vmResourceMapName, "{$.source_image_reference[0].version}"),
+			ActualRetriever:   helpers.RetrieveFromVirtualMachine(virtualMachine, "VirtualMachineProperties", "StorageProfile", "ImageReference", "Version"),
+			Message:           "VM Version is incorrect",
 		},
 	}
 
