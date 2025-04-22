@@ -25,7 +25,7 @@ func InitAndApply(t *testing.T) (*terraform.Options, *terraform.PlanStruct) {
 
 	variables["prefix"] = "default"
 	variables["location"] = "eastus"
-	variables["default_public_access_cidrs"] = strings.Split(os.Getenv("TF_VAR_public_cidrs"), ",")
+	variables["default_public_access_cidrs"] = os.Getenv("TF_VAR_public_cidrs")
 
 	// Set up Terraform options with temporary folders (deleted in DestroyDouble)
 	options := &terraform.Options{
