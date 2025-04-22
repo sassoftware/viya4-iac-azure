@@ -11,7 +11,7 @@ import (
 
 	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/terraform"
-	"github.com/gruntwork-io/terratest/modules/test-structure"
+	test_structure "github.com/gruntwork-io/terratest/modules/test-structure"
 	"github.com/stretchr/testify/require"
 )
 
@@ -25,7 +25,7 @@ func InitAndApply(t *testing.T) (*terraform.Options, *terraform.PlanStruct) {
 	terraform.GetAllVariablesFromVarFile(t, tfVarsPath, &variables)
 
 	// Use a unique prefix in case multiple applies are processing.
-	variables["prefix"] = "terratest" + strings.ToLower(random.UniqueId())
+	variables["prefix"] = "terratest-" + strings.ToLower(random.UniqueId())
 	variables["location"] = "eastus"
 	variables["default_public_access_cidrs"] = os.Getenv("TF_VAR_public_cidrs")
 
