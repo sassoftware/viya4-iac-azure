@@ -6,20 +6,9 @@ package helpers
 import (
 	"fmt"
 	"reflect"
-
-	"github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2019-07-01/compute"
-	"github.com/Azure/azure-sdk-for-go/services/resources/mgmt/2020-10-01/resources"
 )
 
-func RetrieveFromGroup(resourceGroup *resources.Group, fieldNames ...string) (function func() string) {
-	return RetrieveFromStruct(resourceGroup, fieldNames)
-}
-
-func RetrieveFromVirtualMachine(virtualMachine *compute.VirtualMachine, fieldNames ...string) (function func() string) {
-	return RetrieveFromStruct(virtualMachine, fieldNames)
-}
-
-func RetrieveFromStruct(input interface{}, fieldNames []string) func() string {
+func RetrieveFromStruct(input interface{}, fieldNames ...string) func() string {
 	return func() string {
 		if len(fieldNames) == 0 {
 			return "nil"

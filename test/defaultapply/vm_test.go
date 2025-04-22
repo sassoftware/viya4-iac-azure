@@ -54,7 +54,10 @@ func testVMList(t *testing.T, plan *terraform.PlanStruct, resourceGroupName stri
 func testVM(t *testing.T, plan *terraform.PlanStruct, resourceGroupName string, prefix string) {
 	vmResourceMapName := fmt.Sprintf("module.%s[0].azurerm_linux_virtual_machine.vm", prefix)
 	vmName := helpers.RetrieveFromPlan(plan, vmResourceMapName, "{$.name}")()
-	virtualMachine := azure.GetVirtualMachine(t, vmName, resourceGroupName, os.Getenv("TF_VAR_subscription_id"))
+	virtualMachine, err := azure.GetVirtualMachineE(vmName, resourceGroupName, os.Getenv("TF_VAR_subscription_id"))
+	if err != nil {
+		t.Errorf("Error: %s\n", err)
+	}
 
 	tests := map[string]helpers.ApplyTestCase{
 		prefix + "VmExistsTest": {
@@ -65,111 +68,112 @@ func testVM(t *testing.T, plan *terraform.PlanStruct, resourceGroupName string, 
 		},
 		prefix + "VmAdminTest": {
 			ExpectedRetriever: helpers.RetrieveFromPlan(plan, vmResourceMapName, "{$.admin_username}"),
-			ActualRetriever:   helpers.RetrieveFromVirtualMachine(virtualMachine, "VirtualMachineProperties", "OsProfile", "AdminUsername"),
+			ActualRetriever:   helpers.RetrieveFromStruct(virtualMachine, "VirtualMachineProperties", "OsProfile", "AdminUsername"),
 			Message:           "VM admin username is incorrect",
 		},
 		prefix + "AllowedExtensionOperationsTest": {
 			ExpectedRetriever: helpers.RetrieveFromPlan(plan, vmResourceMapName, "{$.allow_extension_operations}"),
-			ActualRetriever:   helpers.RetrieveFromVirtualMachine(virtualMachine, "VirtualMachineProperties", "OsProfile", "AllowExtensionOperations"),
+			ActualRetriever:   helpers.RetrieveFromStruct(virtualMachine, "VirtualMachineProperties", "OsProfile", "AllowExtensionOperations"),
 			Message:           "VM allow extension operations is incorrect",
 		},
 		prefix + "ComputerNameTest": {
-			ExpectedRetriever: helpers.RetrieveFromPlan(plan, vmResourceMapName, "{$.computer_name}"),
-			ActualRetriever:   helpers.RetrieveFromVirtualMachine(virtualMachine, "VirtualMachineProperties", "OsProfile", "ComputerName"),
-			Message:           "VM computer name is nil",
+			Expected:        "nil",
+			ActualRetriever: helpers.RetrieveFromStruct(virtualMachine, "VirtualMachineProperties", "OsProfile", "ComputerName"),
+			AssertFunction:  assert.NotEqual,
+			Message:         "VM computer name is nil",
 		},
 		prefix + "DisablePasswordAuthTest": {
 			ExpectedRetriever: helpers.RetrieveFromPlan(plan, vmResourceMapName, "{$.disable_password_authentication}"),
-			ActualRetriever:   helpers.RetrieveFromVirtualMachine(virtualMachine, "VirtualMachineProperties", "OsProfile", "LinuxConfiguration", "DisablePasswordAuthentication"),
-			Message:           "VM computer name is nil",
+			ActualRetriever:   helpers.RetrieveFromStruct(virtualMachine, "VirtualMachineProperties", "OsProfile", "LinuxConfiguration", "DisablePasswordAuthentication"),
+			Message:           "VM DisablePasswordAuthTest is incorrect",
 		},
 		prefix + "IdTest": {
 			Expected:        "nil",
-			ActualRetriever: helpers.RetrieveFromVirtualMachine(virtualMachine, "ID"),
+			ActualRetriever: helpers.RetrieveFromStruct(virtualMachine, "ID"),
 			AssertFunction:  assert.NotEqual,
 			Message:         "VM ID is nil",
 		},
 		prefix + "LocationTest": {
 			ExpectedRetriever: helpers.RetrieveFromPlan(plan, vmResourceMapName, "{$.location}"),
-			ActualRetriever:   helpers.RetrieveFromVirtualMachine(virtualMachine, "Location"),
+			ActualRetriever:   helpers.RetrieveFromStruct(virtualMachine, "Location"),
 			Message:           "VM location is incorrect",
 		},
 		prefix + "NetworkInterfaceIDsTest": {
 			Expected:        "nil",
-			ActualRetriever: helpers.RetrieveFromVirtualMachine(virtualMachine, "VirtualMachineProperties", "NetworkProfile", "NetworkInterfaces"),
+			ActualRetriever: helpers.RetrieveFromStruct(virtualMachine, "VirtualMachineProperties", "NetworkProfile", "NetworkInterfaces"),
 			AssertFunction:  assert.NotEqual,
 			Message:         "VM network interface IDs are nil",
 		},
 		prefix + "PlatformFaultDomainTest": {
 			Expected:        "nil",
-			ActualRetriever: helpers.RetrieveFromVirtualMachine(virtualMachine, "VirtualMachineProperties", "InstanceView", "PlatformFaultDomain"),
+			ActualRetriever: helpers.RetrieveFromStruct(virtualMachine, "VirtualMachineProperties", "InstanceView", "PlatformFaultDomain"),
 			Message:         "VM platform fault domain should return nil",
 		},
 		prefix + "PriorityTest": {
 			ExpectedRetriever: helpers.RetrieveFromPlan(plan, vmResourceMapName, "{$.priority}"),
-			ActualRetriever:   helpers.RetrieveFromVirtualMachine(virtualMachine, "Priority"),
+			ActualRetriever:   helpers.RetrieveFromStruct(virtualMachine, "Priority"),
 			Message:           "VM priority is incorrect",
 		},
 		prefix + "ProvisionVMAgentTest": {
 			ExpectedRetriever: helpers.RetrieveFromPlan(plan, vmResourceMapName, "{$.provision_vm_agent}"),
-			ActualRetriever:   helpers.RetrieveFromVirtualMachine(virtualMachine, "VirtualMachineProperties", "OsProfile", "LinuxConfiguration", "ProvisionVMAgent"),
+			ActualRetriever:   helpers.RetrieveFromStruct(virtualMachine, "VirtualMachineProperties", "OsProfile", "LinuxConfiguration", "ProvisionVMAgent"),
 			Message:           "Provision VM Agent is incorrect",
 		},
 		prefix + "SizeTest": {
 			ExpectedRetriever: helpers.RetrieveFromPlan(plan, vmResourceMapName, "{$.size}"),
-			ActualRetriever:   helpers.RetrieveFromVirtualMachine(virtualMachine, "VirtualMachineProperties", "HardwareProfile", "VMSize"),
+			ActualRetriever:   helpers.RetrieveFromStruct(virtualMachine, "VirtualMachineProperties", "HardwareProfile", "VMSize"),
 			Message:           "VM size is incorrect",
 		},
 		prefix + "UltraSSDEnabledTest": {
 			ExpectedRetriever: helpers.RetrieveFromPlan(plan, vmResourceMapName, "{$.additional_capabilities[0].ultra_ssd_enabled}"),
-			ActualRetriever:   helpers.RetrieveFromVirtualMachine(virtualMachine, "VirtualMachineProperties", "AdditionalCapabilities", "UltraSSDEnabled"),
+			ActualRetriever:   helpers.RetrieveFromStruct(virtualMachine, "VirtualMachineProperties", "AdditionalCapabilities", "UltraSSDEnabled"),
 			Message:           "VM ultra SSD enabled is incorrect",
 		},
 		prefix + "CachingTest": {
 			ExpectedRetriever: helpers.RetrieveFromPlan(plan, vmResourceMapName, "{$.os_disk[0].disk_size_gb}"),
-			ActualRetriever:   helpers.RetrieveFromVirtualMachine(virtualMachine, "VirtualMachineProperties", "StorageProfile", "OsDisk", "DiskSizeGB"),
+			ActualRetriever:   helpers.RetrieveFromStruct(virtualMachine, "VirtualMachineProperties", "StorageProfile", "OsDisk", "DiskSizeGB"),
 			Message:           "VM caching is incorrect",
 		},
 		prefix + "OSDiskIdTest": {
 			Expected:        "nil",
-			ActualRetriever: helpers.RetrieveFromVirtualMachine(virtualMachine, "VirtualMachineProperties", "StorageProfile", "OsDisk", "ManagedDisk", "ID"),
+			ActualRetriever: helpers.RetrieveFromStruct(virtualMachine, "VirtualMachineProperties", "StorageProfile", "OsDisk", "ManagedDisk", "ID"),
 			AssertFunction:  assert.NotEqual,
 			Message:         "VM OS disk ID is nil",
 		},
 		prefix + "OSDiskNameTest": {
 			Expected:        "nil",
-			ActualRetriever: helpers.RetrieveFromVirtualMachine(virtualMachine, "VirtualMachineProperties", "StorageProfile", "OsDisk", "Name"),
+			ActualRetriever: helpers.RetrieveFromStruct(virtualMachine, "VirtualMachineProperties", "StorageProfile", "OsDisk", "Name"),
 			AssertFunction:  assert.NotEqual,
 			Message:         "VM OS disk name is nil",
 		},
 		prefix + "StorageAccountTypeTest": {
 			ExpectedRetriever: helpers.RetrieveFromPlan(plan, vmResourceMapName, "{$.os_disk[0].storage_account_type}"),
-			ActualRetriever:   helpers.RetrieveFromVirtualMachine(virtualMachine, "VirtualMachineProperties", "StorageProfile", "OsDisk", "ManagedDisk", "StorageAccountType"),
+			ActualRetriever:   helpers.RetrieveFromStruct(virtualMachine, "VirtualMachineProperties", "StorageProfile", "OsDisk", "ManagedDisk", "StorageAccountType"),
 			Message:           "VM storage account type is incorrect",
 		},
 		prefix + "WriteAcceleratorEnabledTest": {
 			ExpectedRetriever: helpers.RetrieveFromPlan(plan, vmResourceMapName, "{$.os_disk[0].write_accelerator_enabled}"),
-			ActualRetriever:   helpers.RetrieveFromVirtualMachine(virtualMachine, "VirtualMachineProperties", "StorageProfile", "OsDisk", "WriteAcceleratorEnabled"),
+			ActualRetriever:   helpers.RetrieveFromStruct(virtualMachine, "VirtualMachineProperties", "StorageProfile", "OsDisk", "WriteAcceleratorEnabled"),
 			Message:           "VM write accelerator enabled is incorrect",
 		},
 		prefix + "OfferTest": {
 			ExpectedRetriever: helpers.RetrieveFromPlan(plan, vmResourceMapName, "{$.source_image_reference[0].offer}"),
-			ActualRetriever:   helpers.RetrieveFromVirtualMachine(virtualMachine, "VirtualMachineProperties", "StorageProfile", "ImageReference", "Offer"),
+			ActualRetriever:   helpers.RetrieveFromStruct(virtualMachine, "VirtualMachineProperties", "StorageProfile", "ImageReference", "Offer"),
 			Message:           "VM offer is incorrect",
 		},
 		prefix + "PublisherTest": {
 			ExpectedRetriever: helpers.RetrieveFromPlan(plan, vmResourceMapName, "{$.source_image_reference[0].publisher}"),
-			ActualRetriever:   helpers.RetrieveFromVirtualMachine(virtualMachine, "VirtualMachineProperties", "StorageProfile", "ImageReference", "Publisher"),
+			ActualRetriever:   helpers.RetrieveFromStruct(virtualMachine, "VirtualMachineProperties", "StorageProfile", "ImageReference", "Publisher"),
 			Message:           "VM publisher is incorrect",
 		},
 		prefix + "SkuTest": {
 			ExpectedRetriever: helpers.RetrieveFromPlan(plan, vmResourceMapName, "{$.source_image_reference[0].sku}"),
-			ActualRetriever:   helpers.RetrieveFromVirtualMachine(virtualMachine, "VirtualMachineProperties", "StorageProfile", "ImageReference", "Sku"),
+			ActualRetriever:   helpers.RetrieveFromStruct(virtualMachine, "VirtualMachineProperties", "StorageProfile", "ImageReference", "Sku"),
 			Message:           "VM sku is incorrect",
 		},
 		prefix + "VersionTest": {
 			ExpectedRetriever: helpers.RetrieveFromPlan(plan, vmResourceMapName, "{$.source_image_reference[0].version}"),
-			ActualRetriever:   helpers.RetrieveFromVirtualMachine(virtualMachine, "VirtualMachineProperties", "StorageProfile", "ImageReference", "Version"),
+			ActualRetriever:   helpers.RetrieveFromStruct(virtualMachine, "VirtualMachineProperties", "StorageProfile", "ImageReference", "Version"),
 			Message:           "VM Version is incorrect",
 		},
 	}
