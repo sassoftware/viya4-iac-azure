@@ -8,9 +8,11 @@ import (
 	"testing"
 )
 
-func TestApplyMain(t *testing.T) {
+func TestApplyDefaultMain(t *testing.T) {
+	// terrafrom init and apply using a default plan
 	terraformOptions, plan := helpers.InitAndApply(t, nil)
 
+	// deferred cleanup routine for the resources created by the terrafrom init and apply after the test have been run
 	defer helpers.DestroyDouble(t, terraformOptions)
 
 	// Drop in new test cases here
