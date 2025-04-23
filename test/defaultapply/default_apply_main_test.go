@@ -9,7 +9,7 @@ import (
 )
 
 func TestApplyMain(t *testing.T) {
-	terraformOptions, plan := helpers.InitAndApply(t)
+	terraformOptions, plan := helpers.InitAndApply(t, nil)
 
 	defer helpers.DestroyDouble(t, terraformOptions)
 

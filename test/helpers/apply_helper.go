@@ -15,7 +15,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func InitAndApply(t *testing.T) (*terraform.Options, *terraform.PlanStruct) {
+func InitAndApply(t *testing.T, overrides map[string]interface{}) (*terraform.Options, *terraform.PlanStruct) {
 	validateEnvVars(t, "TF_VAR_client_id", "TF_VAR_client_secret", "TF_VAR_tenant_id",
 		"TF_VAR_subscription_id", "TF_VAR_public_cidrs")
 
@@ -28,6 +28,11 @@ func InitAndApply(t *testing.T) (*terraform.Options, *terraform.PlanStruct) {
 	variables["prefix"] = "terratest-" + strings.ToLower(random.UniqueId())
 	variables["location"] = "eastus"
 	variables["default_public_access_cidrs"] = os.Getenv("TF_VAR_public_cidrs")
+	if overrides != nil {
+		for k, v := range overrides {
+			variables[k] = v
+		}
+	}
 
 	// Set up Terraform options with temporary folders (deleted in DestroyDouble)
 	options := &terraform.Options{
