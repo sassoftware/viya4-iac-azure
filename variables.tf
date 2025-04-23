@@ -310,7 +310,7 @@ variable "postgres_server_defaults" {
     server_version               = "15"
     ssl_enforcement_enabled      = true
     connectivity_method          = "public"
-    postgresql_configurations    = [{ name : "azure.extensions", value : "PLPGSQL,PGCRYPTO" }]
+    postgresql_configurations    = [{ name : "azure.extensions", value : "PGCRYPTO" }]
   }
 }
 
