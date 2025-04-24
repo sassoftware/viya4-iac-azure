@@ -99,12 +99,12 @@ You can use `default_public_access_cidrs` to set a default range for all created
 
 The Federal Information Processing Standard (FIPS) 140 is a US government standard that defines minimum security requirements for cryptographic modules in information technology products and systems. Azure Kubernetes Service (AKS) allows the creation of node pools with FIPS 140-2 enabled. Deployments running on FIPS-enabled node pools provide increased security and help meet security controls as part of FedRAMP compliance. For more information on FIPS 140-2, see [Federal Information Processing Standard (FIPS) 140](https://learn.microsoft.com/en-us/azure/compliance/offerings/offering-fips-140-2).
 
-To enable the FIPS support in your subscription, you first need to accept the legal terms of the `Ubuntu Pro FIPS 20.04 LTS` image that will be used in the deployment. For details see [Ubuntu Pro FIPS 20.04 LTS](https://azuremarketplace.microsoft.com/en-us/marketplace/apps/canonical.0001-com-ubuntu-pro-focal-fips?tab=Overview).
+To enable the FIPS support in your subscription, you first need to accept the legal terms of the `Ubuntu Pro FIPS 22.04 LTS` image that will be used in the deployment. For details see [Ubuntu Pro FIPS 22.04 LTS](https://azuremarketplace.microsoft.com/en-us/marketplace/apps/canonical.0001-com-ubuntu-pro-jammy-fips?tab=Overview).
 
 To accept the terms please run following az command before deploying cluster:
 
 ```bash
-az vm image terms accept --urn Canonical:0001-com-ubuntu-pro-focal-fips:pro-fips-20_04-gen2:latest --subscription $subscription_id
+az vm image terms accept --urn Canonical:0001-com-ubuntu-pro-focal-fips:pro-fips-22_04-gen2:latest --subscription $subscription_id
 ```
 
 | Name | Description | Type | Default | Notes |
@@ -193,7 +193,7 @@ subnet_names = {
 
 ## General
 
-Ubuntu 20.04 LTS is the operating system used on the Jump/NFS servers. Ubuntu creates the `/mnt` location as an ephemeral drive that cannot be used as the root location of the `jump_rwx_filestore_path` variable.
+Ubuntu 22.04 LTS is the operating system used on the Jump/NFS servers. Ubuntu creates the `/mnt` location as an ephemeral drive that cannot be used as the root location of the `jump_rwx_filestore_path` variable.
 
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |

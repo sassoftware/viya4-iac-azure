@@ -71,7 +71,7 @@ variable "os_offer" {
 variable "os_sku" {
   description = "Specifies the SKU of the image used to create the virtual machines. Changing this forces a new resource to be created."
   type        = string
-  default     = "20_04-lts"
+  default     = "22_04-lts"
 }
 
 variable "os_version" {
