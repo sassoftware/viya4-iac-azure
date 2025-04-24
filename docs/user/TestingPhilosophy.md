@@ -59,7 +59,7 @@ To create a unit test, you can add an entry to an existing test table if it's re
 
 ### Integration Testing
 
-The integration tests are designed to thoroughly verify the code base using `terraform apply`. The integration testing are intended to validate that the cloud provider is going to create the resources we're telling it to create through Terraform. Unlike the unit tests, these tests provision resources through the cloud provider. Careful consideration is required to avoid unnecessary infrastructure costs. The integration test framework is designed to optimize resource utilization and reduce associated costs by enabling multiple test cases to run against a single provisioned resource, provided the test cases are compatible with the resource’s configuration and state.  Because the integration tests take more time and incur costs, they will not as frequently as unit test but will still run on a regular basis.
+The integration tests are designed to thoroughly verify the code base using `terraform apply`. The tests are intended to validate that the cloud provider is going to create the resources we're telling it to create through Terraform. Unlike the unit tests, these tests provision resources through the cloud provider. Careful consideration is required to avoid unnecessary infrastructure costs. The integration test framework is designed to optimize resource utilization and reduce associated costs by enabling multiple test cases to run against a single provisioned resource, provided the test cases are compatible with the resource’s configuration and state.  Because the integration tests take more time and incur costs, they will not run as frequently as the unit tests but will still run on a regular basis.
 
 ### Integration Testing Structure
 
@@ -71,17 +71,18 @@ The test package defaultapply validates that the default plan values and configu
 
 As running `terraform apply` provisions infrastructure, it inherently incurs costs. To manage and minimize these expenses, it is essential that our testing framework optimizes resource utilization and ensures proper teardown and cleanup of any infrastructure created during testing.
 
-To support this, we have implemented main function test runners for our intergration tests that handle the setup of the testing environment by provisioning resources based on the provided Terraform options. These runners also include deferred cleanup routines that automatically decommission resources once tests are completed.
+To support this, we have implemented main function test runners for our integration tests that handle the setup of the testing environment by provisioning resources based on the provided Terraform options. These runners also include deferred cleanup routines that automatically decommission resources once tests are completed.
 
-We encourage developers contributing integration tests to be mindful of resource usage. Whenever possible, please leverage one of the existing main function test runners or extend them by adding your required Terraform options so long that it does not interfere with the functionality of existing options. If your requirements cannot be met through the existing runners, you may create a new main function test runner tailored to your specific Terraform configuration.
+We encourage developers contributing integration tests to be mindful of resource usage. Add your tests to the defaultapply suite if no plan changes are needed.  If testing non default options please modify the nondefault suite as long as the new options do not conflict with the existing overrides.  Otherwise feel free to add a new non default apply package, test runner, and test suite for your unique option configuration.
 
-To see an example, look at the `TestApplyMain` function in defaultapply/default_apply_main_test.go and nondefaultapply/non_default_apply_main_test.go that is shown below.
+To see an example, look at the test functions in [default_apply_main_test.go](../../test/defaultapply/default_apply_main_test.go) and [nondefaultapply](../../test/nondefaultapply/non_default_apply_main_test.go) that is shown below.
+
 ```go
 func TestApplyDefaultMain(t *testing.T) {
-	// terrafrom init and apply using a default plan
+	// terraform init and apply using a default plan
 	terraformOptions, plan := helpers.InitAndApply(t, nil)
 
-	// deferred cleanup routine for the resources created by the terrafrom init and apply after the test have been run
+	// deferred cleanup routine for the resources created by the terraform init and apply after the test have been run
 	defer helpers.DestroyDouble(t, terraformOptions)
 
 	// Drop in new test cases here
@@ -92,7 +93,7 @@ func TestApplyDefaultMain(t *testing.T) {
 
 ```go
 func TestApplyNonDefaultMain(t *testing.T) {
-	// terraform init and apply using a non-default values in the plan
+	// terraform init and apply using non-default values
 	overrides := make(map[string]interface{})
 	overrides["kubernetes_version"] = "1.32.0"
 	overrides["create_container_registry"] = true
@@ -101,7 +102,7 @@ func TestApplyNonDefaultMain(t *testing.T) {
 	overrides["rbac_aad_enabled"] = true
 	overrides["storage_type"] = "ha"
 
-	// deferred cleanup routine for the resources created by the terrafrom init and apply after the test have been run
+	// deferred cleanup routine for the resources created by the terraform init and apply after the test have been run
 	terraformOptions, _ := helpers.InitAndApply(t, overrides)
 
 	defer helpers.DestroyDouble(t, terraformOptions)
@@ -114,7 +115,7 @@ func TestApplyNonDefaultMain(t *testing.T) {
 
 ### Error Handling
 
-Terratest provides some flexibliity with how to [handle errors](https://terratest.gruntwork.io/docs/testing-best-practices/error-handling/) Every method in Terratest comes in two versions (e.g., `terraform.Apply` and `terraform.ApplyE` )
+Terratest provides some flexibility with how to [handle errors](https://terratest.gruntwork.io/docs/testing-best-practices/error-handling/) Every method in Terratest comes in two versions (e.g., `terraform.Apply` and `terraform.ApplyE` )
 
 * `terraform.Apply`: The base method takes a `t *testing.T` as an argument. If the method hits any errors, it calls `t.Fatal` to fail the test
 * `terraform.ApplyE`: Methods that end with the capital letter `E` always return an error as the last argument and never call `t.Fatal` themselves. This allows you to decide how to handle errors.
@@ -133,12 +134,21 @@ resourceGroup, err := azure.GetAResourceGroupE(resourceGroupName, os.Getenv("TF_
 
 ### Adding Integration Tests
 
-To create a integration test, you can add an new test file with your table tests in the appropriate package and upate the desired main function test runner to call and run your test.  If you don't see a main function test runner that fits your needs, you are welcome to create a new package and main function test runner in a similar format.
+To create an integration test, you can add a new test file with your table tests to the appropriate package and update the desired main function test runner to call and run your test.  If you don't see a main function test runner that fits your needs, you are welcome to create a new package, main function test runner, and test suite in a similar format.
+
+Below is an example of a possible structure for the new package, main function test runner, and test suite:
+
+    .
+    └── test/
+        └── nondefaultapply/
+            └── nondefaultapplycustomconfig/
+                ├── non_default_apply_custom_config_main_test.go
+                └── test_custom_config.go
+
 
 ## How to Run the Tests Locally
 
 Before changes can be merged, all unit tests must pass as part of the SAS CI/CD process. Unit tests are automatically run against every PR using the [Dockerfile.terratest](../../Dockerfile.terratest) Docker image. Refer to [TerratestDockerUsage.md](./TerratestDockerUsage.md) document for more information about running the tests locally.
-
 
 ## Additional Documents
 
