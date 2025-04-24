@@ -65,7 +65,7 @@ variable "os_publisher" {
 variable "os_offer" {
   description = "Specifies the offer of the image used to create the virtual machines. Changing this forces a new resource to be created."
   type        = string
-  default     = "0001-com-ubuntu-server-focal"
+  default     = "0001-com-ubuntu-server-jammy"
 }
 
 variable "os_sku" {

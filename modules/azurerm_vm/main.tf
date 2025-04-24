@@ -87,7 +87,7 @@ resource "azurerm_linux_virtual_machine" "vm" {
 
   source_image_reference {
     publisher = var.os_publisher
-    offer     = var.fips_enabled ? "0001-com-ubuntu-pro-focal-fips" : var.os_offer
+    offer     = var.fips_enabled ? "0001-com-ubuntu-pro-jammy-fips" : var.os_offer
     sku       = var.fips_enabled ? "pro-fips-22_04-gen2" : var.os_sku
     version   = var.os_version
   }
@@ -97,7 +97,7 @@ resource "azurerm_linux_virtual_machine" "vm" {
     content {
       name      = "pro-fips-22_04-gen2"
       publisher = "canonical"
-      product   = "0001-com-ubuntu-pro-focal-fips"
+      product   = "0001-com-ubuntu-pro-jammy-fips"
     }
   }
 
