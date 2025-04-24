@@ -20,4 +20,4 @@ Here is a table with the variables you would use to configure them
 
 | Name | Description | Type | Default | Release Added | Notes |
 | :--- | ---: | ---: | ---: | ---: | ---: |
-| experimental_enable_spot_nodes | Enable spot nodes | bool | false | 10.3.0 | |
+| contrib_enable_spot_nodes | Enable spot nodes | bool | false | 10.3.0 | |
