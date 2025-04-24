@@ -21,6 +21,7 @@ func testApplyResourceGroup(t *testing.T, plan *terraform.PlanStruct) {
 		t.Errorf("Error: %s\n", err)
 	}
 
+	// validate resource group resource from the cloud provider match the plan
 	tests := map[string]helpers.ApplyTestCase{
 		"resourceGroupExistsTest": {
 			Expected:       nil,

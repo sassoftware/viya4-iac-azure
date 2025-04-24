@@ -73,7 +73,7 @@ docker run --rm \
   --env-file=$HOME/.azure_public_cidrs.env \
   --volume "$(pwd)":/viya4-iac-azure \
   viya4-iac-azure-terratest \
-  -r=".*Plan.*"
+  -r=".*Apply.*"
 ```
 
 ### Running a Specific Go Test
@@ -93,7 +93,7 @@ To run multiple tests, pass in a regex to the `-r` option - "TestName1|TestName2
 
 ####  Running a Specific Integration Go Test
 
-To run a specific integration test, modify the main test runner function (i.e. TestApplyMain) to define the test name you desire and run the following Docker command with the `-r` option:
+To run a specific integration test, modify the main test runner function (i.e. TestApplyNonDefaultMain) to define the test name you desire and run the following Docker command with the `-r` option:
 
 ```bash
 # Run from the ./viya4-iac-azure directory

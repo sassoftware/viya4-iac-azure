@@ -17,6 +17,7 @@ import (
 func testApplyVirtualMachine(t *testing.T, plan *terraform.PlanStruct) {
 	resourceGroupName := helpers.RetrieveFromPlan(plan, "azurerm_resource_group.aks_rg[0]", "{$.name}")()
 
+	// validate virtual machine resources from the cloud provider match the plan
 	testVMList(t, plan, resourceGroupName)
 	testVM(t, plan, resourceGroupName, "nfs")
 	testVM(t, plan, resourceGroupName, "jump")

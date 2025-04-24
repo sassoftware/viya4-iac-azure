@@ -75,7 +75,7 @@ To support this, we have implemented main function test runners for our integrat
 
 We encourage developers contributing integration tests to be mindful of resource usage. Add your tests to the defaultapply suite if no plan changes are needed.  If testing non default options please modify the nondefault suite as long as the new options do not conflict with the existing overrides.  Otherwise feel free to add a new non default apply package, test runner, and test suite for your unique option configuration.
 
-To see an example, look at the test functions in [default_apply_main_test.go](../../test/defaultapply/default_apply_main_test.go) and [nondefaultapply](../../test/nondefaultapply/non_default_apply_main_test.go) that is shown below.
+To see an example, look at the test functions in [default_apply_main_test.go](../../test/defaultapply/default_apply_main_test.go) and [non_default_apply_main_test.go](../../test/nondefaultapply/non_default_apply_main_test.go) that is shown below.
 
 ```go
 func TestApplyDefaultMain(t *testing.T) {
@@ -115,12 +115,12 @@ func TestApplyNonDefaultMain(t *testing.T) {
 
 ### Error Handling
 
-Terratest provides some flexibility with how to [handle errors](https://terratest.gruntwork.io/docs/testing-best-practices/error-handling/) Every method in Terratest comes in two versions (e.g., `terraform.Apply` and `terraform.ApplyE` )
+Terratest provides some flexibility with how to [handle errors](https://terratest.gruntwork.io/docs/testing-best-practices/error-handling/). Every method in Terratest comes in two versions (e.g., `terraform.Apply` and `terraform.ApplyE` )
 
 * `terraform.Apply`: The base method takes a `t *testing.T` as an argument. If the method hits any errors, it calls `t.Fatal` to fail the test
 * `terraform.ApplyE`: Methods that end with the capital letter `E` always return an error as the last argument and never call `t.Fatal` themselves. This allows you to decide how to handle errors.
 
-We recommend using the capital letter `E` version of Terratest methods because `t.Fatal` will immediately exit the test run and prevent our other tests that have yet to be run from running and deferred cleanup routine from being executed which would result in incomplete test runs and unexpected extra costs. This is because `t.Fatal` ultimately calls `os.Exit(1)`, which immediately terminates the program
+We recommend using the capital letter `E` version of Terratest methods because `t.Fatal` will immediately exit the test run and prevent our other tests that have yet to be run from running and the deferred cleanup routine from being executed which would result in incomplete test runs and unexpected extra costs. This is because `t.Fatal` ultimately calls `os.Exit(1)`, which immediately terminates the program
 
 Here's an example of how we handle terratest method calls:
 
