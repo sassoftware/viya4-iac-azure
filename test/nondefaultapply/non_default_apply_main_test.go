@@ -20,7 +20,7 @@ func TestApplyNonDefaultMain(t *testing.T) {
 	overrides["storage_type"] = "ha"
 
 	// deferred cleanup routine for the resources created by the terrafrom init and apply after the test have been run
-	terraformOptions, _ := helpers.InitAndApply(t, overrides)
+	terraformOptions, _ := helpers.InitPlanAndApply(t, overrides)
 
 	defer helpers.DestroyDouble(t, terraformOptions)
 

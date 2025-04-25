@@ -15,7 +15,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func InitAndApply(t *testing.T, overrides map[string]interface{}) (*terraform.Options, *terraform.PlanStruct) {
+func InitPlanAndApply(t *testing.T, overrides map[string]interface{}) (*terraform.Options, *terraform.PlanStruct) {
 	validateEnvVars(t, "TF_VAR_client_id", "TF_VAR_client_secret", "TF_VAR_tenant_id",
 		"TF_VAR_subscription_id", "TF_VAR_public_cidrs")
 
@@ -44,7 +44,7 @@ func InitAndApply(t *testing.T, overrides map[string]interface{}) (*terraform.Op
 
 	plan := terraform.InitAndPlanAndShowWithStruct(t, options)
 
-	terraform.InitAndApply(t, options)
+	terraform.Apply(t, options)
 
 	return options, plan
 }
