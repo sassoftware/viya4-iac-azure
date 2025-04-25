@@ -59,13 +59,13 @@ To create a unit test, you can add an entry to an existing test table if it's re
 
 ### Integration Testing
 
-The integration tests are designed to thoroughly verify the code base using `terraform apply`. The tests are intended to validate that the cloud provider is going to create the resources we're telling it to create through Terraform. Unlike the unit tests, these tests provision resources through the cloud provider. Careful consideration is required to avoid unnecessary infrastructure costs. The integration test framework is designed to optimize resource utilization and reduce associated costs by enabling multiple test cases to run against a single provisioned resource, provided the test cases are compatible with the resource’s configuration and state.  Because the integration tests take more time and incur costs, they will not run as frequently as the unit tests but will still run on a regular basis.
+The integration tests are designed to thoroughly verify the code base using `terraform apply`. The tests are intended to validate that the cloud provider creates the expected resources. Unlike the unit tests, these tests provision resources through the cloud provider. Careful consideration is required to avoid unnecessary infrastructure costs. The integration test framework is designed to optimize resource utilization and reduce associated costs by enabling multiple test cases to run against a single provisioned resource group, provided the test cases are compatible with the resource’s configuration and state.
 
 ### Integration Testing Structure
 
 The integration tests are also written as [table-driven tests](https://go.dev/wiki/TableDrivenTests) so that they are easier to read, understand, and expand. The tests are divided into two packages, [defaultapply](../../test/defaultapply) and [nondefaultapply](../../test/nondefaultapply).
 
-The test package defaultapply validates that the default plan values and configurations match what the cloud provider provisions. The test package nondefaultapply validates that the non default plan values and configurations match what the cloud provider provisions. This level of integration testing ensures the cloud provider is properly and correctly creating the resources we tell it to create via Terraform.
+The test package defaultapply validates that the provisioned resources match the default configuration values. The test package nondefaultapply validates that, when given non-default input configuration values, the provisioned resources match the input configuration values. This level of integration testing ensures the cloud provider is correctly creating the resources via Terraform.
 
 ### Resource Management
 
@@ -73,45 +73,7 @@ As running `terraform apply` provisions infrastructure, it inherently incurs cos
 
 To support this, we have implemented main function test runners for our integration tests that handle the setup of the testing environment by provisioning resources based on the provided Terraform options. These runners also include deferred cleanup routines that automatically decommission resources once tests are completed.
 
-We encourage developers contributing integration tests to be mindful of resource usage. Add your tests to the defaultapply suite if no plan changes are needed.  If testing non default options please modify the nondefault suite as long as the new options do not conflict with the existing overrides.  Otherwise feel free to add a new non default apply package, test runner, and test suite for your unique option configuration.
-
-To see an example, look at the test functions in [default_apply_main_test.go](../../test/defaultapply/default_apply_main_test.go) and [non_default_apply_main_test.go](../../test/nondefaultapply/non_default_apply_main_test.go) that is shown below.
-
-```go
-func TestApplyDefaultMain(t *testing.T) {
-	// terraform init and apply using a default plan
-	terraformOptions, plan := helpers.InitAndApply(t, nil)
-
-	// deferred cleanup routine for the resources created by the terraform init and apply after the test have been run
-	defer helpers.DestroyDouble(t, terraformOptions)
-
-	// Drop in new test cases here
-	testApplyResourceGroup(t, plan)
-	testApplyVirtualMachine(t, plan)
-}
-```
-
-```go
-func TestApplyNonDefaultMain(t *testing.T) {
-	// terraform init and apply using non-default values
-	overrides := make(map[string]interface{})
-	overrides["kubernetes_version"] = "1.32.0"
-	overrides["create_container_registry"] = true
-	overrides["container_registry_admin_enabled"] = true
-	overrides["container_registry_geo_replica_locs"] = []string{"southeastus5", "southeastus3"}
-	overrides["rbac_aad_enabled"] = true
-	overrides["storage_type"] = "ha"
-
-	// deferred cleanup routine for the resources created by the terraform init and apply after the test have been run
-	terraformOptions, _ := helpers.InitAndApply(t, overrides)
-
-	defer helpers.DestroyDouble(t, terraformOptions)
-
-	// Drop in test cases here
-
-}
-}
-```
+We encourage developers contributing integration tests to be mindful of resource usage. Add your tests to the defaultapply suite if no configuration changes are needed.  If testing non default options, please modify the nondefault suite as long as the new options do not conflict with the existing overrides. If the existing packages do not fit your testing needs, please add a new non default apply package, test runner, and test suite for your unique option configuration.
 
 ### Error Handling
 
@@ -120,7 +82,7 @@ Terratest provides some flexibility with how to [handle errors](https://terrates
 * `terraform.Apply`: The base method takes a `t *testing.T` as an argument. If the method hits any errors, it calls `t.Fatal` to fail the test
 * `terraform.ApplyE`: Methods that end with the capital letter `E` always return an error as the last argument and never call `t.Fatal` themselves. This allows you to decide how to handle errors.
 
-We recommend using the capital letter `E` version of Terratest methods because `t.Fatal` will immediately exit the test run and prevent our other tests that have yet to be run from running and the deferred cleanup routine from being executed which would result in incomplete test runs and unexpected extra costs. This is because `t.Fatal` ultimately calls `os.Exit(1)`, which immediately terminates the program
+We recommend using the capital letter `E` version of Terratest methods. This allows the test to handle the error rather than immediately calling `t.Fatal`. `t.Fatal` causes test run to exit, preventing other tests from running and stopping the deferred cleanup routine from being executed.
 
 Here's an example of how we handle terratest method calls:
 

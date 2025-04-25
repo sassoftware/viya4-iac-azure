@@ -21,7 +21,9 @@ The Docker image `viya4-iac-azure-terratest` will contain Terraform and Go execu
 ### Docker Environment File for Azure Authentication
 
 Follow either one of the authentication methods that are described in [Authenticating Terraform to access Azure](./TerraformAzureAuthentication.md), and create a file with the authentication variable values to use with container invocation. Store these values outside of this repository in a secure file, such as
-`$HOME/.azure_docker_creds.env`. Protect that file with Azure credentials so that only you have Read access to it. **NOTE**: Do not use quotation marks around the values in the file, and be sure to avoid any trailing blank spaces.
+`$HOME/.azure_docker_creds.env`.
+
+**NOTE**: Do not use quotation marks around the values in the file, and be sure to avoid any trailing blank spaces.
 
 #### Public Access Cidrs Environment File
 
@@ -35,7 +37,7 @@ Now each time you invoke the container, specify the file with the [`--env-file`]
 
 ### Docker Volume Mounts
 
-Run the following command:
+To mount the current working directory, add the following argument to the docker run command:
 `--volume="$(pwd)":/viya4-iac-azure`
 Note that the project must be mounted to the `/viya4-iac-azure` directory.
 
@@ -93,7 +95,7 @@ To run multiple tests, pass in a regex to the `-r` option - "TestName1|TestName2
 
 ####  Running a Specific Integration Go Test
 
-To run a specific integration test, modify the main test runner function (i.e. TestApplyNonDefaultMain) to define the test name you desire and run the following Docker command with the `-r` option:
+To run a specific integration test, modify the main test runner function (e.g. YourIntegrationTestMainFunction) to define the test name you desire and run the following Docker command with the `-r` option:
 
 ```bash
 # Run from the ./viya4-iac-azure directory

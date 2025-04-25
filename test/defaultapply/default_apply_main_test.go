@@ -9,7 +9,7 @@ import (
 )
 
 func TestApplyDefaultMain(t *testing.T) {
-	// terrafrom init and apply using a default plan
+	// terrafrom init and apply using the default configuration
 	terraformOptions, plan := helpers.InitAndApply(t, nil)
 
 	// deferred cleanup routine for the resources created by the terrafrom init and apply after the test have been run
