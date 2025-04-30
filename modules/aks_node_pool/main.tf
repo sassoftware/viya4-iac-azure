@@ -32,6 +32,12 @@ resource "azurerm_kubernetes_cluster_node_pool" "autoscale_node_pool" {
   lifecycle {
     ignore_changes = [node_count]
   }
+
+  linux_os_config {
+    sysctl_config {
+      vm_max_map_count = try(var.linux_os_config.sysctl_config.vm_max_map_count,null)
+    }
+  }
 }
 
 resource "azurerm_kubernetes_cluster_node_pool" "static_node_pool" {
@@ -55,7 +61,12 @@ resource "azurerm_kubernetes_cluster_node_pool" "static_node_pool" {
   node_taints                  = var.node_taints
   orchestrator_version         = var.orchestrator_version
   tags                         = var.tags
-  priority                    = var.priority
-  eviction_policy             = var.eviction_policy
-  spot_max_price              = var.spot_max_price
+  community_priority           = var.priority
+  community_eviction_policy    = var.eviction_policy
+  community_spot_max_price     = var.spot_max_price
+  linux_os_config {
+    sysctl_config {
+      vm_max_map_count = try(var.linux_os_config.sysctl_config.vm_max_map_count,null)
+    }
+  }
 }
