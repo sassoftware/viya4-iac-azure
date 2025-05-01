@@ -22,5 +22,5 @@ Here is a table with the variables you would use to configure them
 | :--- | ---: | ---: | ---: | ---: | ---: |
 | community_priority | (Optional) The Priority for Virtual Machines within the Virtual Machine Scale Set that powers this Node Pool. Possible values are Regular and Spot. Defaults to Regular. Changing this forces a new resource to be created. | string | `Regular` | 10.3.0 | Changing this to Spot enables the Spot node pool functionality |
 | community_eviction_policy | (Optional) The Eviction Policy which should be used for Virtual Machines within the Virtual Machine Scale Set powering this Node Pool. Possible values are Deallocate and Delete. Changing this forces a new resource to be created. | string | `Delete` | 10.3.0 | |
-| community_spot_max_price | (Optional) The maximum price you're willing to pay in USD per Virtual Machine. Valid values are -1 (the current on-demand price for a Virtual Machine) or a positive value with up to five decimal places. Changing this forces a new resource to be created. | string | `-1` | |
+| community_spot_max_price | (Optional) The maximum price you're willing to pay in USD per Virtual Machine. Valid values are -1 (the current on-demand price for a Virtual Machine) or a positive value with up to five decimal places. Changing this forces a new resource to be created. | string | `-1` | 10.3.0 | |
 
