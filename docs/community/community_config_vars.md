@@ -12,7 +12,7 @@ Community-contributed configuration variables are listed in the tables below. Th
 <a name="spot_nodes"></a>
 ## Spot Nodes
 
-Spot Nodes allow you to run Azure Kubernetes Service (AKS) workloads on low-cost, surplus compute capacity offered by Azure. These Spot Virtual Machines (VMs) can significantly reduce infrastructure costs, especially for workloads that are fault-tolerant or batch-oriented. However, Spot VMs can be preempted (evicted) by Azure at any time if the capacity is needed elsewhere, which makes them less suitable for critical or stateful workloads.
+Spot Nodes allow you to run Azure Kubernetes Service (AKS) workloads on low-cost, surplus compute capacity offered by Azure. These Spot Virtual Machines (VMs) can significantly reduce infrastructure costs, especially for workloads that are fault-tolerant or batch-oriented or temporary lab environments. However, Spot VMs can be preempted (evicted) by Azure at any time if the capacity is needed elsewhere, which makes them less suitable for critical or stateful workloads.
 
 > [!CAUTION] 
 > Spot nodes can be evicted with little notice. They are best used for non-production, non-critical workloads or for scenarios where cost savings outweigh the risk of eviction. This is a configuration not supported by SAS Technical Support. Monitor eviction rates and ensure your workloads can tolerate sudden node loss.
