@@ -120,16 +120,45 @@ variable "community_priority" {
   description = "(Optional) The Priority for Virtual Machines within the Virtual Machine Scale Set that powers this Node Pool. Possible values are Regular and Spot. Defaults to Regular. Changing this forces a new resource to be created."
   type        = string
   default     = "Regular"
+  validation {
+    condition     = contains(["regular", "spot"], lower(var.community_priority))
+    error_message = "ERROR: community_priority must be either 'Regular' or 'Spot'."
+  }
 }
+
 variable "community_eviction_policy" {
   description = "(Optional) The Eviction Policy which should be used for Virtual Machines within the Virtual Machine Scale Set powering this Node Pool. Possible values are Deallocate and Delete. Changing this forces a new resource to be created."
   type        = string
-  default     = "Delete"
+  default     = null
+  validation {
+    condition     = var.community_eviction_policy == null || (
+                      contains(["delete", "deallocate"], lower(coalesce(var.community_eviction_policy, "delete")))
+                    )
+    error_message = "ERROR: When specified, community_eviction_policy must be either 'Delete' or 'Deallocate'."
+  }
+  validation {
+    condition     = var.community_eviction_policy == null || lower(coalesce(var.community_priority, "regular")) == "spot"
+    error_message = "ERROR: community_eviction_policy can only be specified when community_priority is set to 'Spot'."
+  }
 }
+
+
 variable "community_spot_max_price" {
   description = "(Optional) The maximum price you're willing to pay in USD per Virtual Machine. Valid values are -1 (the current on-demand price for a Virtual Machine) or a positive value with up to five decimal places. Changing this forces a new resource to be created."
   type        = string
-  default     = "-1"
+  default     = null
+  validation {
+    condition     = var.community_spot_max_price == null || (
+                      can(tonumber(coalesce(var.community_spot_max_price, "-1"))) && 
+                      (tonumber(coalesce(var.community_spot_max_price, "-1")) == -1 || 
+                       tonumber(coalesce(var.community_spot_max_price, "-1")) > 0)
+                    )
+    error_message = "ERROR: When specified, community_spot_max_price must be either '-1' or a positive number with up to five decimal places."
+  }
+  validation {
+    condition     = var.community_spot_max_price == null || lower(coalesce(var.community_priority, "regular")) == "spot"
+    error_message = "ERROR: community_spot_max_price can only be specified when community_priority is set to 'Spot'."
+  }
 }
 
 variable "linux_os_config"{
