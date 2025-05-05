@@ -121,7 +121,7 @@ variable "community_priority" {
   type        = string
   default     = "Regular"
   validation {
-    condition     = contains(["regular", "spot"], lower(var.community_priority))
+    condition     = contains(["Regular", "Spot"], var.community_priority)
     error_message = "ERROR: community_priority must be either 'Regular' or 'Spot'."
   }
 }
@@ -132,12 +132,12 @@ variable "community_eviction_policy" {
   default     = null
   validation {
     condition     = var.community_eviction_policy == null || (
-                      contains(["delete", "deallocate"], lower(coalesce(var.community_eviction_policy, "delete")))
+                      contains(["Delete", "Deallocate"], coalesce(var.community_eviction_policy, "Delete"))
                     )
     error_message = "ERROR: When specified, community_eviction_policy must be either 'Delete' or 'Deallocate'."
   }
   validation {
-    condition     = var.community_eviction_policy == null || lower(coalesce(var.community_priority, "regular")) == "spot"
+    condition     = var.community_eviction_policy == null || coalesce(var.community_priority, "Regular") == "Spot"
     error_message = "ERROR: community_eviction_policy can only be specified when community_priority is set to 'Spot'."
   }
 }
@@ -156,7 +156,7 @@ variable "community_spot_max_price" {
     error_message = "ERROR: When specified, community_spot_max_price must be either '-1' or a positive number with up to five decimal places."
   }
   validation {
-    condition     = var.community_spot_max_price == null || lower(coalesce(var.community_priority, "regular")) == "spot"
+    condition     = var.community_spot_max_price == null || coalesce(var.community_priority, "Regular") == "Spot"
     error_message = "ERROR: community_spot_max_price can only be specified when community_priority is set to 'Spot'."
   }
 }
