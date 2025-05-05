@@ -260,6 +260,8 @@ module "netapp" {
   tags                = var.tags
   allowed_clients     = concat(module.vnet.subnets["aks"].address_prefixes, module.vnet.subnets["misc"].address_prefixes)
   depends_on          = [module.vnet]
+
+  contrib_netapp_volume_size = var.contrib_netapp_volume_size
 }
 
 data "external" "git_hash" {

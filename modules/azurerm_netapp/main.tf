@@ -33,7 +33,7 @@ resource "azurerm_netapp_volume" "anf" {
   subnet_id           = var.subnet_id
   network_features    = var.network_features
   protocols           = var.protocols
-  storage_quota_in_gb = var.size_in_tb * 1024
+  storage_quota_in_gb = var.contrib_netapp_volume_size == 0 ? var.size_in_tb * 1024 : var.contrib_netapp_volume_size
   tags                = var.tags
 
   export_policy_rule {
