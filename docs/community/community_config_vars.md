@@ -20,5 +20,5 @@ Here is a table with the variables you would use to configure them
 
 | Name | Description | Type | Default | Release Added | Notes |
 | :--- | ---: | ---: | ---: | ---: | ---: |
-| contrib_enable_spot_nodes | Enable spot nodes | bool | false | 10.3.0 | |
-| contrib_netapp_volume_size | Size of the netapp volume | number | 0 | | Zero will disable, must be smaller than the Netapp Pool. The value is given in GB |
+| community_enable_spot_nodes | Enable spot nodes | bool | false | 10.3.0 | |
+| community_netapp_volume_size | Size of the netapp volume | number | 0 | | Zero will disable, must be smaller than the Netapp Pool. The value is given in GB |
