@@ -568,11 +568,15 @@ variable "node_pools" {
     max_pods     = string
     node_taints  = list(string)
     node_labels  = map(string)
+    community_priority     = optional(string, "Regular")
+    community_eviction_policy = optional(string)
+    community_spot_max_price = optional(string)
     linux_os_config = optional(object({
       sysctl_config = optional(object({
         vm_max_map_count = optional(number)
       }))
     }))
+
   }))
 
   default = {
