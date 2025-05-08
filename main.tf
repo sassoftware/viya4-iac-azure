@@ -203,8 +203,6 @@ module "node_pools" {
   machine_type                 = each.value.machine_type
   fips_enabled                 = var.fips_enabled
   os_disk_size                 = each.value.os_disk_size
-  os_disk_type                 = each.value.os_disk_type
-  kubelet_disk_type            = each.value.kubelet_disk_type  
   auto_scaling_enabled         = each.value.min_nodes == each.value.max_nodes ? false : true
   node_count                   = each.value.min_nodes
   min_nodes                    = each.value.min_nodes == each.value.max_nodes ? null : each.value.min_nodes
@@ -221,6 +219,8 @@ module "node_pools" {
   community_priority           = each.value.community_priority 
   community_eviction_policy    = each.value.community_eviction_policy
   community_spot_max_price     = each.value.community_spot_max_price
+  community_os_disk_type       = each.value.community_os_disk_type
+  community_kubelet_disk_type  = each.value.community_kubelet_disk_type  
 
 }
 

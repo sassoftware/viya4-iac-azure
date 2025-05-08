@@ -53,8 +53,6 @@ resource "azurerm_kubernetes_cluster_node_pool" "static_node_pool" {
   proximity_placement_group_id = var.proximity_placement_group_id == "" ? null : var.proximity_placement_group_id
   vm_size                      = var.machine_type
   os_disk_size_gb              = var.os_disk_size
-  os_disk_type                 = var.os_disk_type
-  kubelet_disk_type            = var.kubelet_disk_type
   os_type                      = var.os_type
   auto_scaling_enabled         = var.auto_scaling_enabled
   node_count                   = var.node_count
@@ -68,6 +66,9 @@ resource "azurerm_kubernetes_cluster_node_pool" "static_node_pool" {
   priority                     = var.community_priority
   eviction_policy              = var.community_eviction_policy
   spot_max_price               = var.community_spot_max_price
+  os_disk_type                 = var.community_os_disk_type
+  kubelet_disk_type            = var.community_kubelet_disk_type
+
   linux_os_config {
     sysctl_config {
       vm_max_map_count = try(var.linux_os_config.sysctl_config.vm_max_map_count,null)
