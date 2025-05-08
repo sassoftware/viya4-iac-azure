@@ -27,3 +27,14 @@ To enable a Spot node pool in your AKS cluster using this module, configure the 
 | community_eviction_policy | (Optional) The Eviction Policy which should be used for Virtual Machines within the Virtual Machine Scale Set powering this Node Pool. Possible values are Deallocate and Delete. Changing this forces a new resource to be created. | string | `Delete` | 10.3.0 | |
 | community_spot_max_price | (Optional) The maximum price you're willing to pay in USD per Virtual Machine. Valid values are -1 (the current on-demand price for a Virtual Machine) or a positive value with up to five decimal places. Changing this forces a new resource to be created. | string | `-1` | 10.3.0 | |
 
+
+## OS Disk Type and Kubelet Disk Type
+
+This gives the user the ability to choose the use the local temporary storage available to some nodes for the Operating system, and or the Kubelet.
+The benefit of doing this is the local temporary disk is typically a high performance type of storage medium. If the kubelet is set to use this fast storage, then local emptyDir volume can be used for workloads such as SASWORK. This configuration works well on E-series machines where there is one local temporary disk. For L-series machines with many high performance nvme drives, consider using Azure Container storage instead.
+
+| Name | Description | Type | Default | Release Added | Notes |
+| :--- | ---: | ---: | ---: | ---: | ---: |
+| community_os_disk_type | (Optional) The type of disk which should be used for the Operating System. Possible values are Ephemeral and Managed. Changing this forces a new resource to be created | string | `null` | 10.3.0 | |
+| community_kubelet_disk_type | (Optional) The type of disk which should be used for the Kubelet. Possible values are OS (Where the OS Disk Type is then used) and Temporary. Defaults to Managed. Changing this forces a new resource to be created | string | `null` | 10.3.0 | |
+

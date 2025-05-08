@@ -46,13 +46,13 @@ variable "os_disk_size" {
   default     = 100
 }
 
-variable "os_disk_type" {
+variable "community_os_disk_type" {
    description = "(Optional) The type of disk which should be used for the Operating System. Possible values are Ephemeral and Managed. Changing this forces a new resource to be created"
    type = string
    default = null
 }
 
-variable "kubelet_disk_type" {
+variable "community_kubelet_disk_type" {
    description = "(Optional) The type of disk which should be used for the Kubelet. Possible values are OS (Where the OS Disk Type is then used) and Temporary. Defaults to Managed. Changing this forces a new resource to be created"
    type = string
    default = null
