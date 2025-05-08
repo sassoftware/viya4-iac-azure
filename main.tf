@@ -216,6 +216,10 @@ module "node_pools" {
   host_encryption_enabled      = var.aks_cluster_enable_host_encryption
   tags                         = var.tags
   linux_os_config              = each.value.linux_os_config
+  community_priority           = each.value.community_priority 
+  community_eviction_policy    = each.value.community_eviction_policy
+  community_spot_max_price     = each.value.community_spot_max_price
+
 }
 
 # https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/postgresql_flexible_server
@@ -260,6 +264,8 @@ module "netapp" {
   tags                = var.tags
   allowed_clients     = concat(module.vnet.subnets["aks"].address_prefixes, module.vnet.subnets["misc"].address_prefixes)
   depends_on          = [module.vnet]
+
+  community_netapp_volume_size = var.community_netapp_volume_size
 }
 
 data "external" "git_hash" {

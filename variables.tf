@@ -568,11 +568,15 @@ variable "node_pools" {
     max_pods     = string
     node_taints  = list(string)
     node_labels  = map(string)
+    community_priority     = optional(string, "Regular")
+    community_eviction_policy = optional(string)
+    community_spot_max_price = optional(string)
     linux_os_config = optional(object({
       sysctl_config = optional(object({
         vm_max_map_count = optional(number)
       }))
     }))
+
   }))
 
   default = {
@@ -830,4 +834,12 @@ variable "node_resource_group_name" {
   description = "Resource group name for the AKS cluster resources."
   type    = string
   default = ""
+}
+
+# Community Contribution
+# Netapp Volume Size control
+variable "community_netapp_volume_size" {
+  description = "Community Contributed field. Will manually set the value of the Netapp Volume smaller than the Netapp Pool. This value is in GB."
+  type = number
+  default = 0
 }

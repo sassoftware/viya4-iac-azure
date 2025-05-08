@@ -63,6 +63,21 @@ func RetrieveFromRawPlanResource(plan *terraform.PlanStruct, resourceMapName str
 	return GetJsonPathFromPlannedVariablesMap(variables, jsonPath)
 }
 
+// RetrieveFromPlan is used by the apply logic to retrieve a value to compare the deployed resources against
+func RetrieveFromPlan(plan *terraform.PlanStruct, resourceMapName string, jsonPath string) func() string {
+	return func() string {
+		valuesMap, exists := plan.ResourcePlannedValuesMap[resourceMapName]
+		if !exists {
+			return "nil"
+		}
+		actual, err := GetJsonPathFromStateResource(valuesMap, jsonPath)
+		if err != nil {
+			return "nil"
+		}
+		return actual
+	}
+}
+
 // RunTest runs a test case
 func RunTest(t *testing.T, tc TestCase, plan *terraform.PlanStruct) {
 	retrieverFn := tc.Retriever
