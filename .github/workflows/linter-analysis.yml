@@ -42,7 +42,7 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Cache Plugin Directory
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ~/.tflint.d/plugins
         key: ubuntu-latest-tflint-${{ hashFiles('.tflint.hcl') }}
