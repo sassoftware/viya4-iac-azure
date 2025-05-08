@@ -10,7 +10,7 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
-    target-branch: "staging"
+    target-branch: "main"
     open-pull-requests-limit: 2
 
   # Docker dependencies
@@ -18,7 +18,7 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
-    target-branch: "staging"
+    target-branch: "main"
     open-pull-requests-limit: 2
 
   # GitHub Actions
@@ -26,5 +26,5 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
-    target-branch: "staging"
+    target-branch: "main"
     open-pull-requests-limit: 2
