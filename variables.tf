@@ -61,7 +61,13 @@ variable "location" {
 ## Azure AD
 variable "rbac_aad_enabled" {
   type        = bool
-  description = "Enables Azure Active Directory integration with Kubernetes RBAC."
+  description = "Enables Azure Active Directory integration with Kubernetes or Azure RBAC."
+  default     = false
+}
+
+variable "rbac_aad_azure_rbac_enabled" {
+  type        = bool
+  description = "Enables Azure RBAC. If false, Kubernetes RBAC is used.  Only relevant if rbac_aad_enabled is true."
   default     = false
 }
 
@@ -151,7 +157,7 @@ variable "default_nodepool_vm_type" {
 variable "kubernetes_version" {
   description = "The AKS cluster K8s version"
   type        = string
-  default     = "1.30"
+  default     = "1.31"
 }
 
 variable "default_nodepool_max_nodes" {
@@ -194,6 +200,12 @@ variable "aks_node_disk_encryption_set_id" {
   description = "The ID of the Disk Encryption Set which should be used for the Nodes and Volumes. Changing this forces a new resource to be created."
   type        = string
   default     = null
+}
+
+variable "aks_azure_policy_enabled" {
+  description = "Enables the Azure Policy Add-On for Azure Kubernetes Service."
+  type        = bool
+  default     = false
 }
 
 # AKS advanced network config
@@ -298,7 +310,7 @@ variable "postgres_server_defaults" {
     server_version               = "15"
     ssl_enforcement_enabled      = true
     connectivity_method          = "public"
-    postgresql_configurations    = []
+    postgresql_configurations    = [{ name : "azure.extensions", value : "PGCRYPTO" }]
   }
 }
 
@@ -549,15 +561,23 @@ variable "node_pools_proximity_placement" {
 variable "node_pools" {
   description = "Node pool definitions"
   type = map(object({
-    machine_type      = string
-    os_disk_size      = number
-    kubelet_disk_type = optional(string)
-    os_disk_type      = optional(string)
-    min_nodes         = string
-    max_nodes         = string
-    max_pods          = string
-    node_taints       = list(string)
-    node_labels       = map(string)
+    machine_type = string
+    os_disk_size = number
+    min_nodes    = string
+    max_nodes    = string
+    max_pods     = string
+    node_taints  = list(string)
+    node_labels  = map(string)
+    community_priority     = optional(string, "Regular")
+    community_eviction_policy = optional(string)
+    community_spot_max_price = optional(string)
+    community_kubelet_disk_type = optional(string)
+    community_os_disk_type      = optional(string)  
+    linux_os_config = optional(object({
+      sysctl_config = optional(object({
+        vm_max_map_count = optional(number)
+      }))
+    }))
   }))
 
   default = {
@@ -809,4 +829,10 @@ variable "aks_cluster_run_command_enabled" {
   description = "Enable or disable the AKS cluster Run Command feature."
   type        = bool
   default     = false
+}
+
+variable "node_resource_group_name" {
+  description = "Resource group name for the AKS cluster resources."
+  type    = string
+  default = ""
 }

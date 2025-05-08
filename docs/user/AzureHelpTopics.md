@@ -13,7 +13,7 @@ az login
     "homeTenantId": "00000000-0000-0000-0000-000000000000",
     "id": "00000000-0000-0000-0000-000000000000",
     "isDefault": true,
-    "managedByTenants": [], 
+    "managedByTenants": [],
     "name": "Subscription Name",
     "state": "Enabled",
     "tenantId": "00000000-0000-0000-0000-000000000000",
@@ -46,7 +46,7 @@ echo $TF_VAR_subscription_id
 ## How to Create a Service Principal Using the Azure CLI
 
 A Service Principal is effectively a "user" that you create in order to enable automated tools, like Terraform, to access Azure services on your behalf. You give it a role with only the permissions needed to execute the tasks that the Service Principal performs on your behalf.
- 
+
 You can create a Service Principal to use with Terraform by taking the following steps:
 
 **_NOTE:_** You will need an Azure account with an **'Owner'** role to perform these operations. The Service Principal name must be unique. You might need to change the value using `--name http://$USER` if it exists already.
@@ -70,10 +70,10 @@ az ad sp list --show-mine -o table
 In a case where the value for `$TF_VAR_client_secret` is lost or has expired, you can reset it with this command:
 
 ```bash
-az ad sp credential reset --name http://$USER
+az ad sp credential reset --id {Object ID of Service Principal}
 ```
 
-If you don't have an Azure account with **Owner** role, check with your Azure account administrator. You can find more information about how to `create/retrieve/manage/reset` in the Azure documentation. See [Azure Service Principal with AzureCLI](https://docs.microsoft.com/en-us/cli/azure/create-an-azure-service-principal-azure-cli?view=azure-cli-latest). 
+If you don't have an Azure account with **Owner** role, check with your Azure account administrator. You can find more information about how to `create/retrieve/manage/reset` in the Azure documentation. See [Azure Service Principal with AzureCLI](https://docs.microsoft.com/en-us/cli/azure/create-an-azure-service-principal-azure-cli?view=azure-cli-latest).
 
 To learn more about how Azure Role-Based Access Control works, refer to the following documents:
 
@@ -95,7 +95,7 @@ When creating a private Azure Container Registry, assign 'acrpull' role to the S
 
 Follow the instructions in [Use the Azure Portal](https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/how-to-manage-ua-identity-portal). When you get the Role Assignment blade, use the following values:
 
-- **Role**: "Contributor" 
+- **Role**: "Contributor"
 - **Assign access to**: "User Assigned Managed Identity"
 - **Select** - Select the Managed Identity you just created from the list below that entry field
 

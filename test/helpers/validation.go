@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 // Package validation ...
-package validation
+package helpers
 
 import (
 	"fmt"

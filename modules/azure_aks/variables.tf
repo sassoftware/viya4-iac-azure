@@ -24,7 +24,13 @@ variable "aks_cluster_location" {
 
 variable "rbac_aad_enabled" {
   type        = bool
-  description = "Enables Azure Active Directory integration with Kubernetes RBAC."
+  description = "Enables Azure Active Directory integration with Kubernetes or Azure RBAC."
+  default     = false
+}
+
+variable "rbac_aad_azure_rbac_enabled" {
+  type        = bool
+  description = "Enables Azure RBAC.  If false, Kubernetes RBAC is used.  Only relevant if rbac_aad_enabled is true."
   default     = false
 }
 
@@ -39,6 +45,7 @@ variable "rbac_aad_tenant_id" {
   description = "(Optional) The Tenant ID used for Azure Active Directory Application. If this isn't specified the Tenant ID of the current Subscription is used."
   default     = null
 }
+
 
 variable "aks_cluster_sku_tier" {
   description = "The SKU Tier that should be used for this Kubernetes Cluster. Possible values are Free, Standard (which includes the Uptime SLA) and Premium. Defaults to Free"
@@ -143,10 +150,16 @@ variable "aks_node_disk_encryption_set_id" {
   default     = null
 }
 
+variable "aks_azure_policy_enabled" {
+  description = "Enables the Azure Policy Add-On for Azure Kubernetes Service."
+  type        = bool
+  default     = false
+}
+
 variable "kubernetes_version" {
   description = "The AKS cluster K8s version"
   type        = string
-  default     = "1.30"
+  default     = "1.31"
 }
 
 variable "aks_cluster_endpoint_public_access_cidrs" {
@@ -258,4 +271,9 @@ variable "aks_cluster_run_command_enabled" {
   description = "Enable or disable the AKS cluster Run Command feature."
   type        = bool
   default     = false
+}
+
+variable "node_resource_group_name" {
+  type    = string
+  default = ""
 }
