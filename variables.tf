@@ -835,3 +835,11 @@ variable "node_resource_group_name" {
   type    = string
   default = ""
 }
+
+# Community Contribution
+# Netapp Volume Size control
+variable "community_netapp_volume_size" {
+  description = "Community Contributed field. Will manually set the value of the Netapp Volume smaller than the Netapp Pool. This value is in GB."
+  type = number
+  default = 0
+}
