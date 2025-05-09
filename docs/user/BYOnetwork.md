@@ -35,9 +35,9 @@ values set by the [`vm_public_access_cidrs`/`postgres_public_access_cidrs`](../C
 ## Cluster Identity
 
 When creating an AKS cluster, Azure associates an Identity with the cluster. Any resources created on behalf of the cluster (e.g. VMs for the Node Pools etc.) will use the permissions associated with that Identity.
-By default, an Identity with the same permissions as the [Identity used for  authenticating to the Terraform script](TerraformAzureAuthentication.md) will be used. You can choose to use the Service Principal directly (if used), or bring your own User Assigned Identity, depending on the setting of the  [`aks_identity`](../CONFIG-VARS.md#general) variable.
+By default, an Identity with the same permissions as the [Identity used for  authenticating to the Terraform script](TerraformAzureAuthentication.md) will be used. However, the new Identity may not have the same scope as the authenticating Identity. You can choose to use the Service Principal directly (if used), or bring your own User Assigned Identity, depending on the setting of the  [`aks_identity`](../CONFIG-VARS.md#general) variable. 
 
-When providing your own networking, the AKS cluster identity will need write access to the aks subnet and the associated routing table.
+When providing your own networking, the AKS cluster identity will need write access to the aks subnet and the associated routing table. If an alternate identity is not provided then the resulting identity will have permissions assigned to the networking components directly (by default Network Contributor). This will require your authenticating identity to have [Permissions for Assigning Roles](https://learn.microsoft.com/en-us/azure/role-based-access-control/role-assignments-portal#prerequisites).
 
 See [AKS Cluster Identity Permissions](https://docs.microsoft.com/en-us/azure/aks/concepts-identity#aks-cluster-identity-permissions) and [Additional Cluster Identity Permissions](https://docs.microsoft.com/en-us/azure/aks/concepts-identity#additional-cluster-identity-permissions) for details.
 
