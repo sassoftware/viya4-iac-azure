@@ -8,6 +8,8 @@ Community-contributed configuration variables are listed in the tables below. Th
 ## Table of Contents
 
 * [Spot Nodes](#spot_nodes)
+* [Netapp Volume Size](#netapp_volume_size)
+* [OS and Kubelet Disk Types](#os_kubelet_disk_types)
 
 <a name="spot_nodes"></a>
 ## Spot Nodes
@@ -27,7 +29,18 @@ To enable a Spot node pool in your AKS cluster using this module, configure the 
 | community_eviction_policy | (Optional) The Eviction Policy which should be used for Virtual Machines within the Virtual Machine Scale Set powering this Node Pool. Possible values are Deallocate and Delete. Changing this forces a new resource to be created. | string | `Delete` | 10.3.0 | |
 | community_spot_max_price | (Optional) The maximum price you're willing to pay in USD per Virtual Machine. Valid values are -1 (the current on-demand price for a Virtual Machine) or a positive value with up to five decimal places. Changing this forces a new resource to be created. | string | `-1` | 10.3.0 | |
 
+<a name="netapp_volume_size"></a>
+## Netapp Volume Size
 
+Netapp Volume Size control allows you to create a Netapp Volume smaller than the Netapp Pool. This will allow other tools outside of this Terraform to create Netapp Volumes within the pool.
+
+To control the Netapp Volume size use the below community-maintained variable listed below. This will allow you to control the size of the Netapp Volume in GBs. This value must be smaller than the Netapp Pool size. There is no validation for this during the planning phase of Terraform. If this is misconfigured, the Terraform Apply will fail when attempting to deploy the volume.
+
+| Name | Description | Type | Default | Release Added | Notes |
+| :--- | ---: | ---: | ---: | ---: | ---: |
+| community_netapp_volume_size | Size of the netapp volume | number | 0 | 10.3.0 | Zero will disable, must be smaller than the Netapp Pool. The value is given in GB |
+
+<a name="os_kubelet_disk_types"></a>
 ## OS Disk Type and Kubelet Disk Type
 
 This gives the user the ability to choose the use the local temporary storage available to some nodes for the Operating system, and or the Kubelet.
@@ -37,4 +50,3 @@ The benefit of doing this is the local temporary disk is typically a high perfor
 | :--- | ---: | ---: | ---: | ---: | ---: |
 | community_os_disk_type | (Optional) The type of disk which should be used for the Operating System. Possible values are Ephemeral and Managed. Changing this forces a new resource to be created | string | `null` | 10.3.0 | |
 | community_kubelet_disk_type | (Optional) The type of disk which should be used for the Kubelet. Possible values are OS (Where the OS Disk Type is then used) and Temporary. Defaults to Managed. Changing this forces a new resource to be created | string | `null` | 10.3.0 | |
-
