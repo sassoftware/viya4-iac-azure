@@ -61,12 +61,14 @@ The ability to manage RBAC for Kubernetes resources from Azure gives you the cho
 Following are the possible ways to configure Authentication and Authorization in an AKS cluster:
 1. Authentication using local accounts with Kubernetes RBAC. This is traditionally used and current default, see details [here](https://learn.microsoft.com/en-us/azure/aks/concepts-identity#kubernetes-rbac)
 2. Microsoft Entra authentication with Kubernetes RBAC. See details [here](https://learn.microsoft.com/en-us/azure/aks/azure-ad-rbac)
+3. Microsoft Entra authentication with Azure RBAC. See details [here](https://learn.microsoft.com/en-us/azure/aks/manage-azure-rbac)
 
-| Name | Description | Type | Default |
-| :--- | ---: | ---: | ---: |
-| rbac_aad_enabled | Enables Azure Active Directory integration with Kubernetes RBAC. | bool  | false |
-| rbac_aad_admin_group_object_ids | A list of Object IDs of Azure Active Directory Groups which should have Admin Role on the Cluster. | list(string) | null |
-| rbac_aad_tenant_id | (Optional) The Tenant ID used for Azure Active Directory Application. If this isn't specified the Tenant ID of the current Subscription is used.| string  | |
+| Name | Description | Type | Default | Notes |
+| :--- | ---: | ---: | ---: | ---: |
+| rbac_aad_enabled | Enables Azure Active Directory integration with Kubernetes or Azure RBAC. | bool  | false |
+| rbac_aad_azure_rbac_enabled | Enables Azure RBAC. If false and `rbac_aad_enabled` is true`, Kubernetes RBAC is used. Only relevant if rbac_aad_enabled is true. | bool  | false |
+| rbac_aad_admin_group_object_ids | A list of Object IDs of Azure Active Directory Groups which should have Admin Role on the Cluster. | list(string) | null | One of `rbac_aad_admin_group_object_ids` or `rbac_aad_tenant_id` is required if `rbac_aad_enabled` is true. Not relevant if `rbac_aad_azure_rbac_enabled` is true.
+| rbac_aad_tenant_id | (Optional) The Tenant ID used for Azure Active Directory Application. If this isn't specified, the Tenant ID of the current Subscription is used.| string  | | One of `rbac_aad_admin_group_object_ids` or `rbac_aad_tenant_id` is required if `rbac_aad_enabled` is true.
 
 ## Admin Access
 
@@ -97,12 +99,12 @@ You can use `default_public_access_cidrs` to set a default range for all created
 
 The Federal Information Processing Standard (FIPS) 140 is a US government standard that defines minimum security requirements for cryptographic modules in information technology products and systems. Azure Kubernetes Service (AKS) allows the creation of node pools with FIPS 140-2 enabled. Deployments running on FIPS-enabled node pools provide increased security and help meet security controls as part of FedRAMP compliance. For more information on FIPS 140-2, see [Federal Information Processing Standard (FIPS) 140](https://learn.microsoft.com/en-us/azure/compliance/offerings/offering-fips-140-2).
 
-To enable the FIPS support in your subscription, you first need to accept the legal terms of the `Ubuntu Pro FIPS 20.04 LTS` image that will be used in the deployment. For details see [Ubuntu Pro FIPS 20.04 LTS](https://azuremarketplace.microsoft.com/en-us/marketplace/apps/canonical.0001-com-ubuntu-pro-focal-fips?tab=Overview).
+To enable the FIPS support in your subscription, you first need to accept the legal terms of the `Ubuntu Pro FIPS 22.04 LTS` image that will be used in the deployment. For details see [Ubuntu Pro FIPS 22.04 LTS](https://azuremarketplace.microsoft.com/en-us/marketplace/apps/canonical.0001-com-ubuntu-pro-jammy-fips?tab=Overview).
 
 To accept the terms please run following az command before deploying cluster:
 
 ```bash
-az vm image terms accept --urn Canonical:0001-com-ubuntu-pro-focal-fips:pro-fips-20_04-gen2:latest --subscription $subscription_id
+az vm image terms accept --urn Canonical:0001-com-ubuntu-pro-focal-fips:pro-fips-22_04-gen2:latest --subscription $subscription_id
 ```
 
 | Name | Description | Type | Default | Notes |
@@ -192,7 +194,7 @@ subnet_names = {
 
 ## General
 
-Ubuntu 20.04 LTS is the operating system used on the Jump/NFS servers. Ubuntu creates the `/mnt` location as an ephemeral drive that cannot be used as the root location of the `jump_rwx_filestore_path` variable.
+Ubuntu 22.04 LTS is the operating system used on the Jump/NFS servers. Ubuntu creates the `/mnt` location as an ephemeral drive that cannot be used as the root location of the `jump_rwx_filestore_path` variable.
 
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
@@ -386,7 +388,7 @@ Each server element, like `foo = {}`, can contain none, some, or all of the para
 | server_version | The version of the PostgreSQL Flexible server instance | string | "15" | Refer to the [SAS Viya Platform Administration Guide](https://documentation.sas.com/?cdcId=sasadmincdc&cdcVersion=default&docsetId=itopssr&docsetTarget=p05lfgkwib3zxbn1t6nyihexp12n.htm#p1wq8ouke3c6ixn1la636df9oa1u) for the supported versions of PostgreSQL for the SAS Viya platform. |
 | ssl_enforcement_enabled | Enforce SSL on connection to the Azure Database for PostgreSQL Flexible server instance | bool | true | |
 | connectivity_method | Network connectivity option to connect to your flexible server. There are two connectivity options available: Public access (allowed IP addresses) and Private access (VNet Integration). Defaults to public access with firewall rules enabled.| string | "public" | Valid options are `public` and `private`. See sample input file [here](../examples/sample-input-postgres.tfvars) and Private access documentation [here](./user/PostgreSQLPrivateAccess.md). For more details see [Networking overview](https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/concepts-networking) |
-| postgresql_configurations | Sets a PostgreSQL Configuration value on a Azure PostgreSQL Flexible Server | list(object) | [{ name : "azure.extensions", value : "PLPGSQL,PGCRYPTO" }] | More details can be found [here](https://docs.microsoft.com/en-us/azure/postgresql/flexible-server/howto-configure-server-parameters-using-cli) |
+| postgresql_configurations | Sets a PostgreSQL Configuration value on a Azure PostgreSQL Flexible Server | list(object) | [{ name : "azure.extensions", value : "PGCRYPTO" }] | More details can be found [here](https://docs.microsoft.com/en-us/azure/postgresql/flexible-server/howto-configure-server-parameters-using-cli) |
 
 Multiple SAS offerings require a second PostgreSQL instance referred to as SAS Common Data Store, or CDS PostgreSQL. For more information, see [Common Customizations](https://documentation.sas.com/?cdcId=itopscdc&cdcVersion=default&docsetId=dplyml0phy0dkr&docsetTarget=n08u2yg8tdkb4jn18u8zsi6yfv3d.htm#p0wkxxi9s38zbzn19ukjjaxsc0kl). A list of SAS offerings that require CDS PostgreSQL is provided in [SAS Common Data Store Requirements](https://documentation.sas.com/?cdcId=itopscdc&cdcVersion=default&docsetId=itopssr&docsetTarget=p05lfgkwib3zxbn1t6nyihexp12n.htm#n03wzanutmc6gon1val5fykas9aa). To create and configure an external CDS PostgreSQL instance in addition to the external platform PostgreSQL instance named `default`, specify `cds-postgres` as a second PostgreSQL instance, as shown in the example below.
 
@@ -399,7 +401,7 @@ postgres_servers = {
     postgresql_configurations    = [
        {
          name  = "azure.extensions"
-         value = "PLPGSQL,PGCRYPTO,LTREE"
+         value = "PGCRYPTO,LTREE"
        }
       ]
   },

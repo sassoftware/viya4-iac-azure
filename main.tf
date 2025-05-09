@@ -171,8 +171,9 @@ module "aks" {
   aks_uai_id                               = local.aks_uai_id
   client_id                                = var.client_id
   client_secret                            = var.client_secret
-  rbac_aad_tenant_id                       = var.rbac_aad_tenant_id
+  rbac_aad_tenant_id                       = var.rbac_aad_tenant_id == null ? var.tenant_id != "" ? var.tenant_id : null : var.rbac_aad_tenant_id
   rbac_aad_enabled                         = var.rbac_aad_enabled
+  rbac_aad_azure_rbac_enabled              = var.rbac_aad_azure_rbac_enabled
   rbac_aad_admin_group_object_ids          = var.rbac_aad_admin_group_object_ids
   aks_private_cluster                      = var.cluster_api_mode == "private" ? true : false
   depends_on                               = [module.vnet]
@@ -218,6 +219,10 @@ module "node_pools" {
   host_encryption_enabled      = var.aks_cluster_enable_host_encryption
   tags                         = var.tags
   linux_os_config              = each.value.linux_os_config
+  community_priority           = each.value.community_priority 
+  community_eviction_policy    = each.value.community_eviction_policy
+  community_spot_max_price     = each.value.community_spot_max_price
+
 }
 
 # https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/postgresql_flexible_server
@@ -262,6 +267,8 @@ module "netapp" {
   tags                = var.tags
   allowed_clients     = concat(module.vnet.subnets["aks"].address_prefixes, module.vnet.subnets["misc"].address_prefixes)
   depends_on          = [module.vnet]
+
+  community_netapp_volume_size = var.community_netapp_volume_size
 }
 
 data "external" "git_hash" {

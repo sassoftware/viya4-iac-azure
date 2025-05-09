@@ -4,9 +4,10 @@
 package nondefaultplan
 
 import (
-	"github.com/stretchr/testify/assert"
 	"test/helpers"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestPlanRbacEnabledGroupIds(t *testing.T) {
@@ -44,13 +45,86 @@ func TestPlanRbacEnabledGroupIds(t *testing.T) {
 	helpers.RunTests(t, tests, plan)
 }
 
-func TestPlanRbacEnabledNoTenant(t *testing.T) {
+func TestPlanRbacEnabledWithTenant(t *testing.T) {
 	t.Parallel()
 
+	const TENANT_ID = "b1c14d5c-3625-45b3-a430-9552373a0c2f"
+
+	tests := map[string]helpers.TestCase{
+		"aadRbacExists": {
+			Expected:          `nil`,
+			ResourceMapName:   "module.aks.azurerm_kubernetes_cluster.aks",
+			AttributeJsonPath: "{$.azure_active_directory_role_based_access_control}",
+			AssertFunction:    assert.NotEqual,
+		},
+		"aadAzureRbacEnabled": {
+			Expected:          `false`,
+			ResourceMapName:   "module.aks.azurerm_kubernetes_cluster.aks",
+			AttributeJsonPath: "{$.azure_active_directory_role_based_access_control[0].azure_rbac_enabled}",
+		},
+		"aadRbacTenant": {
+			Expected:          TENANT_ID,
+			ResourceMapName:   "module.aks.azurerm_kubernetes_cluster.aks",
+			AttributeJsonPath: "{$.azure_active_directory_role_based_access_control[0].tenant_id}",
+		},
+		"aadRbacAdminIDs": {
+			Expected:          `null`,
+			ResourceMapName:   "module.aks.azurerm_kubernetes_cluster.aks",
+			AttributeJsonPath: "{$.azure_active_directory_role_based_access_control[0].admin_group_object_ids}",
+		},
+	}
+
+	// Initialize the default variables map
 	variables := helpers.GetDefaultPlanVars(t)
-	variables["prefix"] = "rbac-no-tenant"
+
+	variables["prefix"] = "rbac-with-tenant"
+	variables["rbac_aad_enabled"] = true
+	// Set RBAC to true
 	variables["rbac_aad_enabled"] = true
 
-	_, err := helpers.InitPlanWithVariables(t, variables)
-	assert.ErrorContains(t, err, "Missing required argument")
+	variables["tenant_id"] = TENANT_ID
+
+	plan := helpers.GetPlan(t, variables)
+	helpers.RunTests(t, tests, plan)
 }
+
+func TestPlanAzureRbacEnabledWithTenant(t *testing.T) {
+	t.Parallel()
+
+	const TENANT_ID = "b1c14d5c-3625-45b3-a430-9552373a0c2f"
+
+	tests := map[string]helpers.TestCase{
+		"aadRbacExists": {
+			Expected:          `nil`,
+			ResourceMapName:   "module.aks.azurerm_kubernetes_cluster.aks",
+			AttributeJsonPath: "{$.azure_active_directory_role_based_access_control}",
+			AssertFunction:    assert.NotEqual,
+		},
+		"aadAzureRbacEnabled": {
+			Expected:          `true`,
+			ResourceMapName:   "module.aks.azurerm_kubernetes_cluster.aks",
+			AttributeJsonPath: "{$.azure_active_directory_role_based_access_control[0].azure_rbac_enabled}",
+		},
+		"aadRbacTenant": {
+			Expected:          TENANT_ID,
+			ResourceMapName:   "module.aks.azurerm_kubernetes_cluster.aks",
+			AttributeJsonPath: "{$.azure_active_directory_role_based_access_control[0].tenant_id}",
+		},
+	}
+
+	// Initialize the default variables map
+	variables := helpers.GetDefaultPlanVars(t)
+
+	variables["prefix"] = "rbac-azure-enabled"
+	// Set RBAC to true
+	variables["rbac_aad_enabled"] = true
+
+	// Set Azure RBAC enabled to true
+	variables["rbac_aad_azure_rbac_enabled"] = true
+
+	variables["tenant_id"] = TENANT_ID
+
+	plan := helpers.GetPlan(t, variables)
+	helpers.RunTests(t, tests, plan)
+}
+
