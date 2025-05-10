@@ -28,6 +28,8 @@ resource "azurerm_kubernetes_cluster_node_pool" "autoscale_node_pool" {
   priority                     = var.community_priority
   eviction_policy              = var.community_eviction_policy
   spot_max_price               = var.community_spot_max_price
+  os_disk_type                 = var.community_os_disk_type
+  kubelet_disk_type            = var.community_kubelet_disk_type
 
   lifecycle {
     ignore_changes = [node_count]
@@ -64,6 +66,9 @@ resource "azurerm_kubernetes_cluster_node_pool" "static_node_pool" {
   priority                     = var.community_priority
   eviction_policy              = var.community_eviction_policy
   spot_max_price               = var.community_spot_max_price
+  os_disk_type                 = var.community_os_disk_type
+  kubelet_disk_type            = var.community_kubelet_disk_type
+
   linux_os_config {
     sysctl_config {
       vm_max_map_count = try(var.linux_os_config.sysctl_config.vm_max_map_count,null)
