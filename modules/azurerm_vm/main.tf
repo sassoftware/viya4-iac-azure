@@ -107,5 +107,9 @@ resource "azurerm_linux_virtual_machine" "vm" {
 
   tags = var.tags
 
+  lifecycle {
+    ignore_changes = [ identity ]
+  }
+
   depends_on = [azurerm_network_interface_security_group_association.vm_nic_sg]
 }
