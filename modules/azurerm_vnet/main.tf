@@ -58,3 +58,16 @@ resource "azurerm_subnet" "subnet" {
   depends_on = [data.azurerm_virtual_network.vnet, azurerm_virtual_network.vnet]
 }
 
+resource "azurerm_role_assignment" "existing_network_assignment" {
+    count = length(var.existing_subnets) == 0 ? 0 : (var.add_uai_permissions ? length(var.roles) : 0)
+    scope = data.azurerm_subnet.subnet["aks"].route_table_id
+    role_definition_name = var.roles[count.index]
+    principal_id = var.aks_uai_principal_id
+}
+
+resource "azurerm_role_assignment" "existing_vnet_assignment" {
+  count = var.name != null ? (var.add_uai_permissions ? length(var.roles) : 0) : 0
+  scope = data.azurerm_virtual_network.vnet[0].id
+  role_definition_name = var.roles[count.index]
+  principal_id = var.aks_uai_principal_id
+}

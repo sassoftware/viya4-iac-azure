@@ -31,13 +31,18 @@ resource "azurerm_kubernetes_cluster_node_pool" "autoscale_node_pool" {
   os_disk_type                 = var.community_os_disk_type
   kubelet_disk_type            = var.community_kubelet_disk_type
 
+  temporary_name_for_rotation  = substr("t${var.node_pool_name}", 0, 12)
+
   lifecycle {
     ignore_changes = [node_count]
   }
 
-  linux_os_config {
-    sysctl_config {
-      vm_max_map_count = try(var.linux_os_config.sysctl_config.vm_max_map_count,null)
+  dynamic "linux_os_config" {
+    for_each = var.linux_os_config[*]
+    content {
+      sysctl_config {
+        vm_max_map_count = var.linux_os_config.sysctl_config.vm_max_map_count
+      }
     }
   }
 }
@@ -69,9 +74,14 @@ resource "azurerm_kubernetes_cluster_node_pool" "static_node_pool" {
   os_disk_type                 = var.community_os_disk_type
   kubelet_disk_type            = var.community_kubelet_disk_type
 
-  linux_os_config {
-    sysctl_config {
-      vm_max_map_count = try(var.linux_os_config.sysctl_config.vm_max_map_count,null)
+  temporary_name_for_rotation  = substr("t${var.node_pool_name}", 0, 12)
+
+  dynamic "linux_os_config" {
+    for_each = var.linux_os_config[*]
+    content {
+      sysctl_config {
+        vm_max_map_count = var.linux_os_config.sysctl_config.vm_max_map_count
+      }
     }
   }
 }

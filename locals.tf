@@ -64,6 +64,14 @@ locals {
     : null
   )
 
+  aks_uai_principal_id = (var.aks_identity == "uai"
+    ? (var.aks_uai_name == null
+      ? azurerm_user_assigned_identity.uai[0].principal_id
+      : data.azurerm_user_assigned_identity.uai[0].principal_id
+    )
+    : null
+  )
+  
   cluster_egress_type = (var.cluster_egress_type == null
     ? (var.egress_public_ip_name == null
       ? "loadBalancer"
