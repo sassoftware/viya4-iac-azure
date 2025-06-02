@@ -95,11 +95,14 @@ Run the following commands from a terminal session:
 
 ```bash
 # clone this repo
-git clone https://github.com/sassoftware/viya4-iac-azure
+git clone -b <release-version-tag> https://github.com/sassoftware/viya4-iac-azure
 
 # move to the project directory
 cd viya4-iac-azure
 ```
+**NOTE:** To obtain a tagged release version of this project, always refer to the desired release version tag when cloning this repository as shown above. Alternatively, you can `git checkout <tag>` the tagged release version if you've already cloned the repository without a tag. 
+
+You can find the latest release version in the [releases page](https://github.com/sassoftware/viya4-iac-azure/releases).
 
 ### Authenticating Terraform to Access Microsoft Azure
 
