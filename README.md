@@ -21,7 +21,7 @@
 
 ## Overview
 
-This project helps you to automate the cluster-provisioning phase of SAS Viya platform deployment. It contains Terraform scripts to provision the Microsoft Azure Cloud infrastructure resources that are required to deploy SAS Viya platform product offerings. Here is a list of resources that this project can create:
+The project helps you to automate the cluster-provisioning phase of SAS Viya platform deployment. It contains Terraform scripts to provision the Microsoft Azure Cloud infrastructure resources that are required to deploy SAS Viya platform product offerings. Here is a list of resources that this project can create:
 
   >- Azure resource group(s): primary resource group and AKS resource group
   >- Virtual network, network security groups, and network security rules
@@ -42,7 +42,7 @@ This project addresses the first of three steps in [Steps for Getting Started](h
 
 **Note:** The scripts in this project are provided as examples. They do not provide comprehensive configuration. The second and third steps include additional configuration tasks. Some of those tasks (for example, enabling logging and specifying available IP addresses) are essential for a more secure deployment.
 
-Once the cloud resources are provisioned, use the [viya4-deployment](https://github.com/sassoftware/viya4-deployment) project to deploy 
+Once the cloud resources are provisioned, use the [viya4-deployment](https://github.com/sassoftware/viya4-deployment) project to deploy
 the SAS Viya platform in your cloud environment. To learn about all phases and options of the SAS Viya platform deployment process, see
 [Getting Started with SAS Viya and Azure Kubernetes Service](https://documentation.sas.com/?cdcId=itopscdc&cdcVersion=default&docsetId=itopscon&docsetTarget=n1d7qc4nfr3s5zn103a1qy0kj4l1.htm) in _SAS Viya Platform Operations_.
 
@@ -63,14 +63,14 @@ Use of these tools requires operational knowledge of the following technologies:
 - [Docker](https://www.docker.com/)
 - [Microsoft Azure Cloud](https://azure.microsoft.com/)
 - [Kubernetes](https://kubernetes.io/docs/concepts/)
- 
+
 
 ### Technical Prerequisites
 
 This project supports two options for running Terraform scripts:
 - Terraform installed on your local machine
 - Using a Docker container to run Terraform
-  
+
   For more information, see [Docker Usage](./docs/user/DockerUsage.md). Using Docker to run the Terraform scripts is recommended.
 
 Access to an **Azure Subscription** and an [**Identity**](./docs/user/TerraformAzureAuthentication.md) with the *Contributor* role are required.
@@ -100,7 +100,7 @@ git clone -b <release-version-tag> https://github.com/sassoftware/viya4-iac-azur
 # move to the project directory
 cd viya4-iac-azure
 ```
-**NOTE:** To obtain a tagged release version of this project, always refer to the desired release version tag when cloning this repository as shown above. Alternatively, you can `git checkout <tag>` the tagged release version if you've already cloned the repository without a tag. 
+**NOTE:** To obtain a tagged release version of this project, always refer to the desired release version tag when cloning this repository as shown above. Alternatively, you can `git checkout <tag>` the tagged release version if you've already cloned the repository without a tag.
 
 You can find the latest release version in the [releases page](https://github.com/sassoftware/viya4-iac-azure/releases).
 
@@ -112,7 +112,7 @@ identity with the required permissions. See [Terraform Azure Authentication](./d
 ### Customizing Input Values
 
 Terraform scripts require variable definitions as input. Review and modify default values to meet your requirements. Create a file named
-`terraform.tfvars` to customize any input variable value documented in the [CONFIG-VARS.md](docs/CONFIG-VARS.md) file. 
+`terraform.tfvars` to customize any input variable value documented in the [CONFIG-VARS.md](docs/CONFIG-VARS.md) file.
 
 To get started, you can copy one of the example variable definition files provided in the `./examples` folder. For more information about the
 variables that are declared in each file, refer to the [CONFIG-VARS.md](docs/CONFIG-VARS.md) file.
@@ -122,7 +122,7 @@ You have the option to specify variable definitions that are not included in `te
 
 ## Creating and Managing the Cloud Resources
 
-Create and manage the required cloud resources. Perform one of the following steps, based on whether you are using Docker: 
+Create and manage the required cloud resources. Perform one of the following steps, based on whether you are using Docker:
 
 - run [Terraform](docs/user/TerraformUsage.md) directly on your workstation
 - run the [Docker container](docs/user/DockerUsage.md) (recommended)
