@@ -14,6 +14,94 @@ All submissions to this project—including submissions from project members—r
 review. Our review process typically involves performing unit tests, development
 tests, integration tests, and security scans.
 
+## How To Open A Pull Request
+
+The following steps below demonstrate how to contribute to the [viya4-iac-azure](https://github.com/sassoftware/viya4-iac-azure) repository by forking it, making changes, and submitting a pull request (PR).
+
+1. Fork the Repository
+
+    - Navigate to the [viya4-iac-azure](https://github.com/sassoftware/viya4-iac-azure).
+    - Click the **“Fork”** button in the upper-right corner.
+    - This creates a copy of the repository under your GitHub account.
+
+    **Alternative (using GitHub CLI):**
+    If you have the [GitHub CLI](https://cli.github.com/) installed, run:
+    ```bash
+    gh repo fork https://github.com/sassoftware/viya4-iac-azure.git --clone
+    ```
+
+2. Clone the Forked Repository Locally
+
+        ```bash
+        git clone https://github.com/<YOUR_USERNAME>/<REPO_NAME>.git
+        ```
+
+3. Add the Original Repository as an Upstream Remote (Optional but recommended)
+
+    - To keep your fork in sync with the original [viya4-iac-azure](https://github.com/sassoftware/viya4-iac-azure) repository:
+
+    ```bash
+    git remote add upstream https://github.com/sassoftware/viya4-iac-azure.git
+    git fetch upstream
+    ```
+
+    - To sync changes from the original repo later:
+
+    ```bash
+    git checkout main
+    git pull upstream main
+    git push origin main
+    ```
+
+4. Create a New Branch for Your Contribution
+
+    ```bash
+    git checkout -b my-contribution-branch
+    ```
+
+5. Make Your Changes Locally
+
+    - Edit the files as needed using your preferred code editor.
+
+6. Stage and Commit Your Changes
+
+    ```bash
+    git add .
+    git commit -m "Your conventional commit message"
+    ```
+
+7. Push the Branch to Your Fork
+
+    ```bash
+    git push origin my-feature-branch
+    ```
+
+8. Create the Pull Request (PR)
+
+    - Go to your forked repository on GitHub.
+    - You will see a **“Compare & pull request”** button, click it.
+    - Check to ensure:
+        - The **base repository** is the original [viya4-iac-azure](https://github.com/sassoftware/viya4-iac-azure) repository.
+        - The **base branch** is `main`.
+        - The **head repository** and **compare branch** is correct.
+    - Click **“Create pull request.”**
+
+9. Keep Your Branch Up to Date (If Needed)
+
+    - If the base branch has changed and you need to rebase:
+
+    ```bash
+    git fetch upstream
+    git checkout my-feature-branch
+    git rebase upstream/main
+    ```
+
+    - Then resolve conflicts if any, and push:
+
+    ```bash
+    git push origin my-feature-branch --force
+    ```
+
 ## Pull Request Requirement
 
 ### Automated Tests
