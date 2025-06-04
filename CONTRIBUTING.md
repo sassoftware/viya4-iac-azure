@@ -16,7 +16,8 @@ tests, integration tests, and security scans.
 
 ## How To Open A Pull Request
 
-The following steps below demonstrate how to contribute to the [viya4-iac-azure](https://github.com/sassoftware/viya4-iac-azure) repository by forking it, making changes, and submitting a pull request (PR).
+The following steps below demonstrate how to contribute to the [viya4-iac-azure](https://github.com/sassoftware/viya4-iac-azure)
+repository by forking it, making changes, and submitting a pull request (PR).
 
 1. Fork the Repository
 
@@ -38,7 +39,8 @@ The following steps below demonstrate how to contribute to the [viya4-iac-azure]
 
 3. Add the Original Repository as an Upstream Remote (Optional but recommended)
 
-    - To keep your fork in sync with the original [viya4-iac-azure](https://github.com/sassoftware/viya4-iac-azure) repository:
+    - To keep your fork in sync with the original [viya4-iac-azure](https://github.com/sassoftware/viya4-iac-azure)
+    repository:
 
     ```bash
     git remote add upstream https://github.com/sassoftware/viya4-iac-azure.git
@@ -81,7 +83,8 @@ The following steps below demonstrate how to contribute to the [viya4-iac-azure]
     - Go to your forked repository on GitHub.
     - You will see a **“Compare & pull request”** button, click it.
     - Check to ensure:
-        - The **base repository** is the original [viya4-iac-azure](https://github.com/sassoftware/viya4-iac-azure) repository.
+        - The **base repository** is the original [viya4-iac-azure](https://github.com/sassoftware/viya4-iac-azure)
+        repository.
         - The **base branch** is `main`.
         - The **head repository** and **compare branch** is correct.
     - Click **“Create pull request.”**
