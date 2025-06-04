@@ -148,3 +148,7 @@ output "cluster_node_pool_mode" {
 output "cluster_api_mode" {
   value = var.cluster_api_mode
 }
+
+output "aks_network_plugin" {
+  value = var.aks_network_plugin
+}
