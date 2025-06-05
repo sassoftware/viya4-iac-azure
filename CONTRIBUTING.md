@@ -34,9 +34,9 @@ repository by forking it, making changes, and submitting a pull request (PR).
 
 2. Clone the Forked Repository Locally
 
-        ```bash
-        git clone https://github.com/<YOUR_USERNAME>/<REPO_NAME>.git
-        ```
+     ```bash
+    git clone https://github.com/<YOUR_USERNAME>/<REPO_NAME>.git
+    ```
 
 3. Add the Original Repository as an Upstream Remote (Optional but recommended)
 
