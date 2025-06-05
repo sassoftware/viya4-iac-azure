@@ -47,7 +47,7 @@ repository by forking it, making changes, and submitting a pull request (PR).
     git fetch upstream
     ```
 
-    - To sync changes from the original repo later:
+    - To sync changes from the original repo:
 
     ```bash
     git checkout main
@@ -69,7 +69,7 @@ repository by forking it, making changes, and submitting a pull request (PR).
 
     ```bash
     git add .
-    git commit -m "Your conventional commit message"
+    git commit -s -m "Your conventional commit message"
     ```
 
 7. Push the Branch to Your Fork
@@ -99,7 +99,7 @@ repository by forking it, making changes, and submitting a pull request (PR).
     git rebase upstream/main
     ```
 
-    - Then resolve conflicts if any, and push:
+    - After resolving any conflicts, force push your changes:
 
     ```bash
     git push origin my-feature-branch --force
