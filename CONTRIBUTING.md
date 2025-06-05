@@ -75,7 +75,7 @@ repository by forking it, making changes, and submitting a pull request (PR).
 7. Push the Branch to Your Fork
 
     ```bash
-    git push origin my-feature-branch
+    git push origin my-contribution-branch
     ```
 
 8. Create the Pull Request (PR)
@@ -95,14 +95,14 @@ repository by forking it, making changes, and submitting a pull request (PR).
 
     ```bash
     git fetch upstream
-    git checkout my-feature-branch
+    git checkout my-contribution-branch
     git rebase upstream/main
     ```
 
     - After resolving any conflicts, force push your changes:
 
     ```bash
-    git push origin my-feature-branch --force
+    git push origin my-contribution-branch --force
     ```
 
 ## Pull Request Requirement
