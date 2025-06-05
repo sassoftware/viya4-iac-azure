@@ -27,6 +27,7 @@ repository by forking it, making changes, and submitting a pull request (PR).
 
     **Alternative (using GitHub CLI):**
     If you have the [GitHub CLI](https://cli.github.com/) installed, run:
+
     ```bash
     gh repo fork https://github.com/sassoftware/viya4-iac-azure.git --clone
     ```
