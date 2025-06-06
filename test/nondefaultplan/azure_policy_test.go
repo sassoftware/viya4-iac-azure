@@ -15,6 +15,7 @@ func TestPlanAzurePolicy(t *testing.T) {
 
 	variables := helpers.GetDefaultPlanVars(t)
 	variables["aks_azure_policy_enabled"] = true
+	variables["aks_network_plugin"] = "azure"
 
 	tests := map[string]helpers.TestCase{
 		"azurePolicyEnabledTest": {
@@ -22,6 +23,16 @@ func TestPlanAzurePolicy(t *testing.T) {
 			ResourceMapName:   "module.aks.azurerm_kubernetes_cluster.aks",
 			AttributeJsonPath: "{$.azure_policy_enabled}",
 			Message:           "Unexpected azure_policy_enabled value",
+		},
+		"networkPluginTest": {
+			Expected:          "azure",
+			ResourceMapName:   "module.aks.azurerm_kubernetes_cluster.aks",
+			AttributeJsonPath: "{$.network_profile[0].network_plugin}",
+		},
+		"azurePluginAksPodCidrTest": {
+			Expected:        "192.168.0.0/16",
+			ResourceMapName: "aks_pod_cidr",
+			Retriever:       helpers.RetrieveFromRawPlanOutputChanges,
 		},
 	}
 
