@@ -42,6 +42,11 @@ func TestPlanNetwork(t *testing.T) {
 			ResourceMapName:   "module.aks.azurerm_kubernetes_cluster.aks",
 			AttributeJsonPath: "{$.expressions.aks_network_plugin_mode.reference[0]}",
 		},
+		"kubeletPluginAksPodCidrTest": {
+			Expected:        "10.244.0.0/16",
+			ResourceMapName: "aks_pod_cidr",
+			Retriever:       helpers.RetrieveFromRawPlanOutputChanges,
+		},
 	}
 
 	helpers.RunTests(t, tests, helpers.GetDefaultPlan(t))
