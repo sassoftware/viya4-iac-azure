@@ -5,6 +5,8 @@ go 1.23.0
 toolchain go1.23.2
 
 require (
+	github.com/Azure/azure-sdk-for-go v51.0.0+incompatible
+	github.com/Azure/go-autorest/autorest/to v0.4.0
 	github.com/gruntwork-io/terratest v0.48.2
 	github.com/hashicorp/terraform-json v0.23.0
 	github.com/stretchr/testify v1.10.0
@@ -13,7 +15,6 @@ require (
 
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
-	github.com/Azure/azure-sdk-for-go v51.0.0+incompatible // indirect
 	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.17.0 // indirect
 	github.com/Azure/azure-sdk-for-go/sdk/azidentity v1.7.0 // indirect
 	github.com/Azure/azure-sdk-for-go/sdk/internal v1.10.0 // indirect
@@ -24,7 +25,6 @@ require (
 	github.com/Azure/go-autorest/autorest/azure/auth v0.5.8 // indirect
 	github.com/Azure/go-autorest/autorest/azure/cli v0.4.2 // indirect
 	github.com/Azure/go-autorest/autorest/date v0.3.0 // indirect
-	github.com/Azure/go-autorest/autorest/to v0.4.0 // indirect
 	github.com/Azure/go-autorest/autorest/validation v0.3.1 // indirect
 	github.com/Azure/go-autorest/logger v0.2.1 // indirect
 	github.com/Azure/go-autorest/tracing v0.6.0 // indirect
