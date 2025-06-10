@@ -27,7 +27,8 @@ output "aks_cluster_password" {
 }
 
 output "aks_pod_cidr" {
-  value = var.aks_pod_cidr
+  # If the aks_network_plugin is set to azure, use the aks subnet address space as the pod CIDR.
+  value = var.aks_network_plugin == "kubenet" ? var.aks_pod_cidr : module.vnet.subnets["aks"].address_prefixes[0]
 }
 
 # postgres
@@ -147,4 +148,8 @@ output "cluster_node_pool_mode" {
 
 output "cluster_api_mode" {
   value = var.cluster_api_mode
+}
+
+output "aks_network_plugin" {
+  value = var.aks_network_plugin
 }
