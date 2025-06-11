@@ -104,7 +104,7 @@ To enable the FIPS support in your subscription, you first need to accept the le
 To accept the terms please run following az command before deploying cluster:
 
 ```bash
-az vm image terms accept --urn Canonical:0001-com-ubuntu-pro-focal-fips:pro-fips-22_04-gen2:latest --subscription $subscription_id
+az vm image terms accept --urn Canonical:0001-com-ubuntu-pro-jammy-fips:pro-fips-22_04:latest --subscription $subscription_id
 ```
 
 | Name | Description | Type | Default | Notes |
