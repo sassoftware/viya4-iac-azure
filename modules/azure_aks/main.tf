@@ -38,7 +38,10 @@ resource "azurerm_kubernetes_cluster" "aks" {
     network_plugin_mode = var.aks_network_plugin_mode
     service_cidr        = var.aks_service_cidr
     dns_service_ip      = var.aks_dns_service_ip
-    pod_cidr            = var.aks_network_plugin == "kubenet" ? var.aks_pod_cidr : null
+    pod_cidr = (
+      var.aks_network_plugin == "kubenet" ||
+      (var.aks_network_plugin == "azure" && var.aks_network_plugin_mode == "overlay")
+    ) ? var.aks_pod_cidr : null
     outbound_type       = var.cluster_egress_type
     load_balancer_sku   = "standard"
   }
