@@ -36,7 +36,7 @@ commandTests:
   - name: "kubectl version"
     command: "kubectl"
     args: ["version", "--client"]
-    expectedOutput: ["Client Version: v1.31.6"]
+    expectedOutput: ["Client Version: v1.32.6"]
 
 metadataTest:
   workdir: "/viya4-iac-azure"
