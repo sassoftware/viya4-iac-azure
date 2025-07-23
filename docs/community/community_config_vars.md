@@ -7,8 +7,11 @@ Community-contributed configuration variables are listed in the tables below. Th
 
 ## Table of Contents
 
-* [Spot Nodes](#spot_nodes)
-* [Netapp Volume Size](#netapp_volume_size)
+- [Community-Contributed Configuration Variables](#community-contributed-configuration-variables)
+  - [Table of Contents](#table-of-contents)
+  - [Spot Nodes](#spot-nodes)
+  - [Netapp Volume Size](#netapp-volume-size)
+  - [Netapp BYO Components](#netapp-byo-components)
 
 <a name="spot_nodes"></a>
 ## Spot Nodes
@@ -38,3 +41,15 @@ To control the Netapp Volume size use the below community-maintained variable li
 | Name | Description | Type | Default | Release Added | Notes |
 | :--- | ---: | ---: | ---: | ---: | ---: |
 | community_netapp_volume_size | Size of the netapp volume | number | 0 | 10.3.0 | Zero will disable, must be smaller than the Netapp Pool. The value is given in GB |
+
+<a name="netapp_byo_components"></a>
+## Netapp BYO Components
+
+BYO Netapp Component controls allow for the usage of pre-existing Netapp Resource Group, Netapp Accounts and Netapp Pools. This will allow for tools outside of Terraform to create these components.
+
+To utilize BYO Netapp components configure the below community-maintained variables. This will allow you to specify the target for where IaC will create the Netapp Volume. During the planning phase of Terraform the values entered will be search to ensure they are available for the creation of the volumes. What will not be checked is the available space within the Netapp Pool. There must be enough space in the pool for the addition of the new Netapp Volume. It there is not enough space, the Terraform apply step will fail.
+
+| Name | Description | Type | Default | Release Added | Notes |
+| community_netapp_resource_group | Resource Group for pre-existing netapp components | string | `""` | 10.4.3 | Empty string will disable |
+| community_netapp_account | Account for pre-existing Netapp components | string | `""` | 10.4.3 | Empty string will disable |
+| community_netapp_pool | Pool for pre-existing Netapp components | string | `""` | 10.4.3 | Empty string will disable |
