@@ -76,6 +76,11 @@ func TestPlanDefaults(t *testing.T) {
 			AttributeJsonPath: "{$.azure_policy_enabled}",
 			Message:           "Unexpected azure_policy_enabled value; disabled by default",
 		},
+		"communityNodeOsUpgradeChannelTest": {
+			Expected:          "NodeImage",
+			ResourceMapName:   "module.aks.azurerm_kubernetes_cluster.aks",
+			AttributeJsonPath: "{$.node_os_upgrade_channel}",
+		},
 	}
 
 	helpers.RunTests(t, tests, helpers.GetDefaultPlan(t))
