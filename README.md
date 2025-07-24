@@ -44,7 +44,7 @@ This project addresses the first of three steps in [Steps for Getting Started](h
 
 Once the cloud resources are provisioned, use the [viya4-deployment](https://github.com/sassoftware/viya4-deployment) project to deploy 
 the SAS Viya platform in your cloud environment. To learn about all phases and options of the SAS Viya platform deployment process, see
-[Getting Started with SAS Viya and Azure Kubernetes Service](https://documentation.sas.com/?cdcId=itopscdc&cdcVersion=default&docsetId=itopscon&docsetTarget=n1d7qc4nfr3s5zn103a1qy0kj4l1.htm) in _SAS Viya Platform Operations_.
+[Getting Started with SAS Viya and Azure Kubernetes Service](https://go.documentation.sas.com/doc/en/itopscdc/v_045/itopscon/n1d7qc4nfr3s5zn103a1qy0kj4l1.htm) in _SAS Viya Platform Operations_.
 
 
 This project follows the [SemVer](https://semver.org/#summary) versioning scheme. Given a version number MAJOR.MINOR.PATCH, we increment the:
