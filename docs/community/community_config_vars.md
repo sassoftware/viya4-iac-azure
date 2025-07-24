@@ -38,3 +38,14 @@ To control the Netapp Volume size use the below community-maintained variable li
 | Name | Description | Type | Default | Release Added | Notes |
 | :--- | ---: | ---: | ---: | ---: | ---: |
 | community_netapp_volume_size | Size of the netapp volume | number | 0 | 10.3.0 | Zero will disable, must be smaller than the Netapp Pool. The value is given in GB |
+
+<a name="netapp_volume_zone"></a>
+## Netapp Volume Zone
+
+Netapp Volume Zone control allows you to deploy the Netapp Volume to a particular hosting zone.
+
+To control the Netapp Volume size use the below community-maintained variable listed below. This will allow you to control the zone of the Netapp Volum. This value must be one of the following: 1, 2, 3. The availability of a particular zone in a particular region is not ensured. There is no validation for this during the planning phase of Terraform. If this is misconfigured, the Terraform Apply will fail when attempting to deploy the volume.
+
+| Name | Description | Type | Default | Release Added | Notes |
+| :--- | ---: | ---: | ---: | ---: | ---: |
+| community_netapp_volume_zone | Zone of the netapp volume | number | 0 | 10.4.3 | Zero will deploy non-zonal components. Must be one of 1, 2, or 3. Not all regions support all zones. |
