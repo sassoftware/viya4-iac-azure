@@ -178,6 +178,7 @@ module "aks" {
   aks_private_cluster                      = var.cluster_api_mode == "private" ? true : false
   depends_on                               = [module.vnet]
   aks_azure_policy_enabled                 = var.aks_azure_policy_enabled ? var.aks_azure_policy_enabled : false
+  community_node_os_upgrade_channel        = var.community_node_os_upgrade_channel
 }
 
 module "kubeconfig" {

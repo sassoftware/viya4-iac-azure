@@ -12,6 +12,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
 
   sku_tier                          = var.aks_cluster_sku_tier
   support_plan                      = var.cluster_support_tier
+  node_os_upgrade_channel           = var.community_node_os_upgrade_channel
   role_based_access_control_enabled = true
   http_application_routing_enabled  = false
   disk_encryption_set_id            = var.aks_node_disk_encryption_set_id
