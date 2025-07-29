@@ -32,7 +32,7 @@ func TestPlanDefaults(t *testing.T) {
 			AttributeJsonPath: "{$.network_profile[0].network_plugin}",
 		},
 		"k8sVersionTest": {
-			Expected:          "1.31",
+			Expected:          "1.32",
 			ResourceMapName:   "module.aks.azurerm_kubernetes_cluster.aks",
 			AttributeJsonPath: "{$.kubernetes_version}",
 		},
