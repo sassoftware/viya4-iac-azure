@@ -67,3 +67,16 @@ variable "community_netapp_volume_size" {
   type = number
   default = 0
 }
+
+# Netapp BYO Components
+variable "community_netapp_account" {
+  description = "Community Contributed field. Will manually set the Netapp Account for Netapp components."
+  type = string
+  default = ""
+}
+
+variable "community_netapp_pool" {
+  description = "Community Contributed field. Will manually set the Netapp Pool for Netapp components."
+  type = string
+  default = ""
+}
