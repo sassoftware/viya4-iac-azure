@@ -2,11 +2,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 output "netapp_account_id" {
-  value = azurerm_netapp_account.anf[0].id
+  value = var.community_netapp_account == "" ? azurerm_netapp_account.anf[0].id : null
 }
 
 output "netapp_pool_id" {
-  value = azurerm_netapp_pool.anf[0].id
+  value = var.community_netapp_pool == "" ? azurerm_netapp_pool.anf[0].id : null
 }
 
 output "netapp_endpoint" {
