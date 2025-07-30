@@ -34,7 +34,7 @@ This project helps you to automate the cluster-provisioning phase of SAS Viya pl
 
 [<img src="./docs/images/viya4-iac-azure-diag.png" alt="Architecture Diagram" width="750"/>](./docs/images/viya4-iac-azure-diag.png?raw=true)
 
-This project addresses the first of three steps in [Steps for Getting Started](https://documentation.sas.com/?cdcId=itopscdc&cdcVersion=default&docsetId=itopscon&docsetTarget=n12fgslcw9swbsn10rva4bp0mr2w.htm) in _SAS&reg; Viya&reg; Platform Operations_:
+This project addresses the first of three steps in [Steps for Getting Started](https://go.documentation.sas.com/doc/en/itopscdc/v_045/itopscon/n1d7qc4nfr3s5zn103a1qy0kj4l1.htm) in _SAS&reg; Viya&reg; Platform Operations_:
 
 1. Provision resources.
 1. Prepare for the deployment.
@@ -44,7 +44,7 @@ This project addresses the first of three steps in [Steps for Getting Started](h
 
 Once the cloud resources are provisioned, use the [viya4-deployment](https://github.com/sassoftware/viya4-deployment) project to deploy 
 the SAS Viya platform in your cloud environment. To learn about all phases and options of the SAS Viya platform deployment process, see
-[Getting Started with SAS Viya and Azure Kubernetes Service](https://documentation.sas.com/?cdcId=itopscdc&cdcVersion=default&docsetId=itopscon&docsetTarget=n1d7qc4nfr3s5zn103a1qy0kj4l1.htm) in _SAS Viya Platform Operations_.
+[Getting Started with SAS Viya and Azure Kubernetes Service](https://go.documentation.sas.com/doc/en/itopscdc/v_045/itopscon/n1d7qc4nfr3s5zn103a1qy0kj4l1.htm) in _SAS Viya Platform Operations_.
 
 
 This project follows the [SemVer](https://semver.org/#summary) versioning scheme. Given a version number MAJOR.MINOR.PATCH, we increment the:
