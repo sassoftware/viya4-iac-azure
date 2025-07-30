@@ -47,7 +47,7 @@ To control the Netapp Volume size use the below community-maintained variable li
 
 BYO Netapp Component controls allow for the usage of pre-existing Netapp Resource Group, Netapp Accounts and Netapp Pools. This will allow for tools outside of Terraform to create these components.
 
-To utilize BYO Netapp components configure the below community-maintained variables. This will allow you to specify the target for where IaC will create the Netapp Volume. During the planning phase of Terraform the values entered will be search to ensure they are available for the creation of the volumes. What will not be checked is the available space within the Netapp Pool. There must be enough space in the pool for the addition of the new Netapp Volume. It there is not enough space, the Terraform apply step will fail.
+To utilize BYO Netapp components configure the below community-maintained variables. This will allow you to specify the target for where IaC will create the Netapp Volume. During the planning phase of Terraform the values entered will be searched to ensure they are available for the creation of the volumes. What will not be checked is the available space within the Netapp Pool. There must be enough space in the pool for the addition of the new Netapp Volume. If there is not enough space, the Terraform apply step will fail.
 
 | Name | Description | Type | Default | Release Added | Notes |
 | community_netapp_resource_group | Resource Group for pre-existing netapp components | string | `""` | 10.4.3 | Empty string will disable |
