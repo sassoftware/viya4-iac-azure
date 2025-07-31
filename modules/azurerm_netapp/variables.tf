@@ -55,6 +55,24 @@ variable "allowed_clients" {
   default     = ["0.0.0.0/0"]
 }
 
+variable "netapp_enable_cmk_encryption" {
+  description = "Setting this variable to true enables CMK encryption on the netapp account.  Only relevant when storage_type=ha."
+  type        = bool
+  default     = false
+}
+
+variable "netapp_cmk_encryption_key_id" {
+  description = "The ID of the key in keyvault to Encrypt ANF with (i.e. https://<keyvault-name>.vault.azure.net/keys/<key-name>).  Must exist before running terraform.  Only relevant when storage_type=ha.  Required if enable_anf_cmk_encryption is true."
+  type        = string
+  default     = null
+}
+
+variable "netapp_cmk_encryption_key_uai" {
+  description = "The user assigned identity that will be used to access the key (i.e. /subscriptions/<sub>/resourceGroups/<rg>/providers/Microsoft.ManagedIdentity/userAssignedIdentities/<uai name>).  Must exist and have Key Vault Crypto Service Encryption User permission on the keyvault before running terraform.  Only relevant when storage_type=ha.  Required if enable_anf_cmk_encryption is true."
+  type        = string
+  default     = null
+}
+
 variable "tags" {
   description = "Map of tags to be placed on the Resources"
   type        = map(any)
