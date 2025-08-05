@@ -9,6 +9,7 @@ Community-contributed configuration variables are listed in the tables below. Th
 
 * [Spot Nodes](#spot_nodes)
 * [Netapp Volume Size](#netapp_volume_size)
+* [OS and Kubelet Disk Types](#os_kubelet_disk_types)
 
 <a name="spot_nodes"></a>
 ## Spot Nodes
@@ -38,3 +39,14 @@ To control the Netapp Volume size use the below community-maintained variable li
 | Name | Description | Type | Default | Release Added | Notes |
 | :--- | ---: | ---: | ---: | ---: | ---: |
 | community_netapp_volume_size | Size of the netapp volume | number | 0 | 10.3.0 | Zero will disable, must be smaller than the Netapp Pool. The value is given in GB |
+
+<a name="os_kubelet_disk_types"></a>
+## OS Disk Type and Kubelet Disk Type
+
+This gives the user the ability to choose the use the local temporary storage available to some nodes for the Operating system, and or the Kubelet.
+The benefit of doing this is the local temporary disk is typically a high performance type of storage medium. If the kubelet is set to use this fast storage, then local emptyDir volume can be used for workloads such as SASWORK. This configuration works well on E-series machines where there is one local temporary disk. For L-series machines with many high performance nvme drives, consider using Azure Container storage instead.
+
+| Name | Description | Type | Default | Release Added | Notes |
+| :--- | ---: | ---: | ---: | ---: | ---: |
+| community_os_disk_type | (Optional) The type of disk which should be used for the Operating System. Possible values are Ephemeral and Managed. Changing this forces a new resource to be created | string | `null` | 10.3.0 | |
+| community_kubelet_disk_type | (Optional) The type of disk which should be used for the Kubelet. Possible values are OS (Where the OS Disk Type is then used) and Temporary. Defaults to Managed. Changing this forces a new resource to be created | string | `null` | 10.3.0 | |

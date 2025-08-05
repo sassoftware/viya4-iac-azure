@@ -8,12 +8,12 @@
 #
 provider "azurerm" {
 
-  subscription_id = var.subscription_id
-  client_id       = var.client_id
-  client_secret   = var.client_secret
-  tenant_id       = var.tenant_id
-  partner_id      = var.partner_id
-  use_msi         = var.use_msi
+   subscription_id = var.subscription_id
+   client_id       = var.client_id
+   client_secret   = var.client_secret
+   tenant_id       = var.tenant_id
+   partner_id      = var.partner_id
+   use_msi         = var.use_msi
 
   features {}
 }
@@ -222,6 +222,8 @@ module "node_pools" {
   community_priority           = each.value.community_priority 
   community_eviction_policy    = each.value.community_eviction_policy
   community_spot_max_price     = each.value.community_spot_max_price
+  community_os_disk_type       = each.value.community_os_disk_type
+  community_kubelet_disk_type  = each.value.community_kubelet_disk_type  
 
 }
 

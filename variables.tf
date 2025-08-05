@@ -577,12 +577,13 @@ variable "node_pools" {
     community_priority     = optional(string, "Regular")
     community_eviction_policy = optional(string)
     community_spot_max_price = optional(string)
+    community_kubelet_disk_type = optional(string)
+    community_os_disk_type      = optional(string)  
     linux_os_config = optional(object({
       sysctl_config = optional(object({
         vm_max_map_count = optional(number)
       }))
     }))
-
   }))
 
   default = {
