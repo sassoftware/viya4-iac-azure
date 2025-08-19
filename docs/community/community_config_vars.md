@@ -50,6 +50,8 @@ Node OS Upgrade Channel control allows you to control the upgrade path for the N
 
 To control the Node OS Upgrade Channel configure the below community-maintained variable. The default value is NodeImage and the possible values are: `NodeImage`, `None`, `SecurityPatch`, and `Unmanaged`. These values will be validated during the Terraform Plan step to ensure that a valid option has been selected.
 
+**Reference**: For more information on Node OS upgrade channels and auto-upgrade options, see the official Azure documentation: [Auto-upgrade node OS image](https://learn.microsoft.com/en-us/azure/aks/auto-upgrade-node-os-image).
+
 | Name | Description | Type | Default | Release Added | Notes |
 | :--- | ---: | ---: | ---: | ---: | ---: |
 | community_node_os_upgrade_channel | Upgrade channel for the OS of the Node | string | `NodeImage` | 10.4.3 | Valid values are `NodeImage`, `None`, `SecurityPatch`, and `Unmanaged`. |
