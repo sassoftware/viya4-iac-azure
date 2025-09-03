@@ -127,6 +127,7 @@ nfs_raid_disk_type   = "Standard_LRS"
 
 # SingleStore configuration
 aks_network_plugin = "azure"
+aks_network_plugin_mode= "overlay
 
 # Subnets for SingleStore using azure network plugin
 subnets = {
@@ -145,16 +146,16 @@ subnets = {
     "service_delegations": {},
   }
   ## If using ha storage then the following is also added
-  netapp = {
-    "prefixes": ["192.168.9.0/24"],
-    "service_endpoints": [],
-    "private_endpoint_network_policies": "Disabled",
-    "private_link_service_network_policies_enabled": false,
-    "service_delegations": {
-      netapp = {
-        "name"    : "Microsoft.Netapp/volumes"
-        "actions" : ["Microsoft.Network/networkinterfaces/*", "Microsoft.Network/virtualNetworks/subnets/join/action"]
-      }
-    }
-  }
+  # netapp = {
+  #   "prefixes": ["192.168.9.0/24"],
+  #   "service_endpoints": [],
+  #   "private_endpoint_network_policies": "Disabled",
+  #   "private_link_service_network_policies_enabled": false,
+  #   "service_delegations": {
+  #     netapp = {
+  #       "name"    : "Microsoft.Netapp/volumes"
+  #       "actions" : ["Microsoft.Network/networkinterfaces/*", "Microsoft.Network/virtualNetworks/subnets/join/action"]
+  #     }
+  #   }
+  # }
 }
