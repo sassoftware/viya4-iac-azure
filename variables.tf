@@ -464,9 +464,15 @@ variable "nfs_raid_disk_type" {
   default     = "Standard_LRS"
 
   validation {
-    condition     = contains(["Standard_LRS", "Premium_LRS", "StandardSSD_LRS", "UltraSSD_LRS"], var.nfs_raid_disk_type)
+    condition     = contains(["StandardSSD_ZRS", "Premium_ZRS", "Standard_LRS", "Premium_LRS", "StandardSSD_LRS", "UltraSSD_LRS"], var.nfs_raid_disk_type)
     error_message = "ERROR: nfs_raid_disk_type - Valid values include - Standard_LRS, Premium_LRS, StandardSSD_LRS or UltraSSD_LRS."
   }
+}
+
+variable "os_disk_storage_account_type" {
+  description = "The Type of Storage Account which should back this the Internal OS Disk. Possible values are StandardSSD_ZRS, Premium_ZRS, Standard_LRS, StandardSSD_LRS and Premium_LRS. Changing this forces a new resource to be created"
+  type        = string
+  default     = "Standard_LRS"
 }
 
 variable "nfs_raid_disk_zone" {
