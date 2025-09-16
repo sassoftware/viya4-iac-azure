@@ -11,12 +11,8 @@ Community-contributed configuration variables are listed in the tables below. Th
   - [Table of Contents](#table-of-contents)
   - [Spot Nodes](#spot-nodes)
   - [Netapp Volume Size](#netapp-volume-size)
-  - [Netapp BYO Components](#netapp-byo-components)
-- [Community-Contributed Configuration Variables](#community-contributed-configuration-variables)
-  - [Table of Contents](#table-of-contents)
-  - [Spot Nodes](#spot-nodes)
-  - [Netapp Volume Size](#netapp-volume-size)
   - [Node OS Upgrade Channel](#node-os-upgrade-channel)
+  - [Netapp Volume Zone](#netapp-volume-zone)
 
 <a name="spot_nodes"></a>
 ## Spot Nodes
