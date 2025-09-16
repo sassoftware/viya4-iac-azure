@@ -7,8 +7,11 @@ Community-contributed configuration variables are listed in the tables below. Th
 
 ## Table of Contents
 
-* [Spot Nodes](#spot_nodes)
-* [Netapp Volume Size](#netapp_volume_size)
+- [Community-Contributed Configuration Variables](#community-contributed-configuration-variables)
+  - [Table of Contents](#table-of-contents)
+  - [Spot Nodes](#spot-nodes)
+  - [Netapp Volume Size](#netapp-volume-size)
+  - [Node OS Upgrade Channel](#node-os-upgrade-channel)
 
 <a name="spot_nodes"></a>
 ## Spot Nodes
@@ -38,6 +41,20 @@ To control the Netapp Volume size use the below community-maintained variable li
 | Name | Description | Type | Default | Release Added | Notes |
 | :--- | ---: | ---: | ---: | ---: | ---: |
 | community_netapp_volume_size | Size of the netapp volume | number | 0 | 10.3.0 | Zero will disable, must be smaller than the Netapp Pool. The value is given in GB |
+
+
+<a name="node_os_upgrade_channel"></a>
+## Node OS Upgrade Channel
+
+Node OS Upgrade Channel control allows you to control the upgrade path for the Node's OS for the AKS Cluster.
+
+To control the Node OS Upgrade Channel configure the below community-maintained variable. The default value is NodeImage and the possible values are: `NodeImage`, `None`, `SecurityPatch`, and `Unmanaged`. These values will be validated during the Terraform Plan step to ensure that a valid option has been selected.
+
+**Reference**: For more information on Node OS upgrade channels and auto-upgrade options, see the official Azure documentation: [Auto-upgrade node OS image](https://learn.microsoft.com/en-us/azure/aks/auto-upgrade-node-os-image).
+
+| Name | Description | Type | Default | Release Added | Notes |
+| :--- | ---: | ---: | ---: | ---: | ---: |
+| community_node_os_upgrade_channel | Upgrade channel for the OS of the Node | string | `NodeImage` | 10.4.3 | Valid values are `NodeImage`, `None`, `SecurityPatch`, and `Unmanaged`. |
 
 <a name="netapp_volume_zone"></a>
 ## Netapp Volume Zone

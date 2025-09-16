@@ -163,7 +163,7 @@ variable "default_nodepool_vm_type" {
 variable "kubernetes_version" {
   description = "The AKS cluster K8s version"
   type        = string
-  default     = "1.31"
+  default     = "1.32"
 }
 
 variable "default_nodepool_max_nodes" {
@@ -848,6 +848,17 @@ variable "community_netapp_volume_size" {
   description = "Community Contributed field. Will manually set the value of the Netapp Volume smaller than the Netapp Pool. This value is in GB."
   type = number
   default = 0
+}
+
+# Community Contribution
+variable "community_node_os_upgrade_channel" {
+  type = string
+  default = "NodeImage"
+  description = "Community Configuration Option. Controls the upgrade channel for the Node's OS. Available options are NodeImage(default), SecurityPatch, Unmanaged, and None."
+  validation {
+    condition     = contains(["None", "NodeImage", "SecurityPatch", "Unmanaged"], var.community_node_os_upgrade_channel)
+    error_message = "ERROR: Valid types are \"None\", \"NodeImage\", \"SecurityPatch\" and \"Unmanaged\"!"
+  }
 }
 
 # Netapp Zone
