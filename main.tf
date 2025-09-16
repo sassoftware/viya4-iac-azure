@@ -257,7 +257,7 @@ module "netapp" {
   count  = var.storage_type == "ha" ? 1 : 0
 
   prefix              = var.prefix
-  resource_group_name = local.aks_rg.name
+  resource_group_name = var.community_netapp_resource_group == "" ? local.aks_rg.name : var.community_netapp_resource_group
   location            = var.location
   subnet_id           = module.vnet.subnets["netapp"].id
   network_features    = var.netapp_network_features
@@ -269,7 +269,9 @@ module "netapp" {
   allowed_clients     = concat(module.vnet.subnets["aks"].address_prefixes, module.vnet.subnets["misc"].address_prefixes)
   depends_on          = [module.vnet]
 
-  community_netapp_volume_size = var.community_netapp_volume_size
+  community_netapp_volume_size  = var.community_netapp_volume_size
+  community_netapp_account      = var.community_netapp_account
+  community_netapp_pool         = var.community_netapp_pool
   community_netapp_volume_zone = var.community_netapp_volume_zone
 }
 
