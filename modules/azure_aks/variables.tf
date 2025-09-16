@@ -159,7 +159,7 @@ variable "aks_azure_policy_enabled" {
 variable "kubernetes_version" {
   description = "The AKS cluster K8s version"
   type        = string
-  default     = "1.31"
+  default     = "1.32"
 }
 
 variable "aks_cluster_endpoint_public_access_cidrs" {
@@ -276,4 +276,15 @@ variable "aks_cluster_run_command_enabled" {
 variable "node_resource_group_name" {
   type    = string
   default = ""
+}
+
+# Community Contribution
+variable "community_node_os_upgrade_channel" {
+  type = string
+  default = "NodeImage"
+  description = "Community Configuration Option. Controls the upgrade channel for the Node's OS. Available options are NodeImage(default), SecurityPatch, Unmanaged, and None."
+  validation {
+    condition     = contains(["None", "NodeImage", "SecurityPatch", "Unmanaged"], var.community_node_os_upgrade_channel)
+    error_message = "ERROR: Valid types are \"None\", \"NodeImage\", \"SecurityPatch\" and \"Unmanaged\"!"
+  }
 }

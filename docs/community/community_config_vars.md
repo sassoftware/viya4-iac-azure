@@ -12,6 +12,11 @@ Community-contributed configuration variables are listed in the tables below. Th
   - [Spot Nodes](#spot-nodes)
   - [Netapp Volume Size](#netapp-volume-size)
   - [Netapp BYO Components](#netapp-byo-components)
+- [Community-Contributed Configuration Variables](#community-contributed-configuration-variables)
+  - [Table of Contents](#table-of-contents)
+  - [Spot Nodes](#spot-nodes)
+  - [Netapp Volume Size](#netapp-volume-size)
+  - [Node OS Upgrade Channel](#node-os-upgrade-channel)
 
 <a name="spot_nodes"></a>
 ## Spot Nodes
@@ -42,14 +47,27 @@ To control the Netapp Volume size use the below community-maintained variable li
 | :--- | ---: | ---: | ---: | ---: | ---: |
 | community_netapp_volume_size | Size of the netapp volume | number | 0 | 10.3.0 | Zero will disable, must be smaller than the Netapp Pool. The value is given in GB |
 
-<a name="netapp_byo_components"></a>
-## Netapp BYO Components
 
-BYO Netapp Component controls allow for the usage of pre-existing Netapp Resource Group, Netapp Accounts and Netapp Pools. This will allow for tools outside of Terraform to create these components.
+<a name="node_os_upgrade_channel"></a>
+## Node OS Upgrade Channel
 
-To utilize BYO Netapp components configure the below community-maintained variables. This will allow you to specify the target for where IaC will create the Netapp Volume. During the planning phase of Terraform the values entered will be searched to ensure they are available for the creation of the volumes. What will not be checked is the available space within the Netapp Pool. There must be enough space in the pool for the addition of the new Netapp Volume. If there is not enough space, the Terraform apply step will fail.
+Node OS Upgrade Channel control allows you to control the upgrade path for the Node's OS for the AKS Cluster.
+
+To control the Node OS Upgrade Channel configure the below community-maintained variable. The default value is NodeImage and the possible values are: `NodeImage`, `None`, `SecurityPatch`, and `Unmanaged`. These values will be validated during the Terraform Plan step to ensure that a valid option has been selected.
+
+**Reference**: For more information on Node OS upgrade channels and auto-upgrade options, see the official Azure documentation: [Auto-upgrade node OS image](https://learn.microsoft.com/en-us/azure/aks/auto-upgrade-node-os-image).
 
 | Name | Description | Type | Default | Release Added | Notes |
-| community_netapp_resource_group | Resource Group for pre-existing netapp components | string | `""` | 10.4.3 | Empty string will disable |
-| community_netapp_account | Account for pre-existing Netapp components | string | `""` | 10.4.3 | Empty string will disable |
-| community_netapp_pool | Pool for pre-existing Netapp components | string | `""` | 10.4.3 | Empty string will disable |
+| :--- | ---: | ---: | ---: | ---: | ---: |
+| community_node_os_upgrade_channel | Upgrade channel for the OS of the Node | string | `NodeImage` | 10.4.3 | Valid values are `NodeImage`, `None`, `SecurityPatch`, and `Unmanaged`. |
+
+<a name="netapp_volume_zone"></a>
+## Netapp Volume Zone
+
+Netapp Volume Zone control allows you to deploy the Netapp Volume to a particular hosting zone.
+
+To control the Netapp Volume size use the below community-maintained variable listed below. This will allow you to control the zone of the Netapp Volume. This value must be one of the following: 1, 2, 3. The availability of a particular zone in a particular region is not ensured. There is no validation for this during the planning phase of Terraform. If this is misconfigured, the Terraform Apply will fail when attempting to deploy the volume.
+
+| Name | Description | Type | Default | Release Added | Notes |
+| :--- | ---: | ---: | ---: | ---: | ---: |
+| community_netapp_volume_zone | Zone of the netapp volume | number | 0 | 10.4.3 | Zero will deploy non-zonal components. Must be one of 1, 2, or 3. Not all regions support all zones. |

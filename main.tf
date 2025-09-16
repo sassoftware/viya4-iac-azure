@@ -178,6 +178,7 @@ module "aks" {
   aks_private_cluster                      = var.cluster_api_mode == "private" ? true : false
   depends_on                               = [module.vnet]
   aks_azure_policy_enabled                 = var.aks_azure_policy_enabled ? var.aks_azure_policy_enabled : false
+  community_node_os_upgrade_channel        = var.community_node_os_upgrade_channel
 }
 
 module "kubeconfig" {
@@ -271,6 +272,7 @@ module "netapp" {
   community_netapp_volume_size  = var.community_netapp_volume_size
   community_netapp_account      = var.community_netapp_account
   community_netapp_pool         = var.community_netapp_pool
+  community_netapp_volume_zone = var.community_netapp_volume_zone
 }
 
 data "external" "git_hash" {

@@ -8,6 +8,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"github.com/stretchr/testify/assert"
 )
 
 // Test the default variables when using the sample-input-defaults.tfvars file
@@ -92,6 +94,12 @@ func TestPlanNetApp(t *testing.T) {
 			Expected:          `nil`,
 			ResourceMapName:   "var.community_netapp_pool",
 			AttributeJsonPath: "{$}",
+			AssertFunction:    assert.Equal,
+		},
+		"communityNetappZone": {
+			Expected:          `0`,
+			ResourceMapName:   "module.netapp[0].azurerm_netapp_volume.anf",
+			AttributeJsonPath: "{$.zone}",
 			AssertFunction:    assert.Equal,
 		},
 	}

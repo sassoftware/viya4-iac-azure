@@ -32,7 +32,7 @@ func TestPlanDefaults(t *testing.T) {
 			AttributeJsonPath: "{$.network_profile[0].network_plugin}",
 		},
 		"k8sVersionTest": {
-			Expected:          "1.31",
+			Expected:          "1.32",
 			ResourceMapName:   "module.aks.azurerm_kubernetes_cluster.aks",
 			AttributeJsonPath: "{$.kubernetes_version}",
 		},
@@ -75,6 +75,11 @@ func TestPlanDefaults(t *testing.T) {
 			ResourceMapName:   "module.aks.azurerm_kubernetes_cluster.aks",
 			AttributeJsonPath: "{$.azure_policy_enabled}",
 			Message:           "Unexpected azure_policy_enabled value; disabled by default",
+		},
+		"communityNodeOsUpgradeChannelTest": {
+			Expected:          "NodeImage",
+			ResourceMapName:   "module.aks.azurerm_kubernetes_cluster.aks",
+			AttributeJsonPath: "{$.node_os_upgrade_channel}",
 		},
 	}
 

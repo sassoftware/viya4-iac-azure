@@ -37,6 +37,7 @@ resource "azurerm_netapp_volume" "anf" {
   protocols           = var.protocols
   storage_quota_in_gb = var.community_netapp_volume_size == 0 ? var.size_in_tb * 1024 : var.community_netapp_volume_size
   tags                = var.tags
+  zone                = var.community_netapp_volume_zone
 
   export_policy_rule {
     rule_index          = 1
