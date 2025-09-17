@@ -34,7 +34,7 @@ This project helps you to automate the cluster-provisioning phase of SAS Viya pl
 
 [<img src="./docs/images/viya4-iac-azure-diag.png" alt="Architecture Diagram" width="750"/>](./docs/images/viya4-iac-azure-diag.png?raw=true)
 
-This project addresses the first of three steps in [Steps for Getting Started](https://documentation.sas.com/?cdcId=itopscdc&cdcVersion=default&docsetId=itopscon&docsetTarget=n12fgslcw9swbsn10rva4bp0mr2w.htm) in _SAS&reg; Viya&reg; Platform Operations_:
+This project addresses the first of three steps in [Steps for Getting Started](https://go.documentation.sas.com/doc/en/itopscdc/v_045/itopscon/n1d7qc4nfr3s5zn103a1qy0kj4l1.htm) in _SAS&reg; Viya&reg; Platform Operations_:
 
 1. Provision resources.
 1. Prepare for the deployment.
@@ -44,7 +44,7 @@ This project addresses the first of three steps in [Steps for Getting Started](h
 
 Once the cloud resources are provisioned, use the [viya4-deployment](https://github.com/sassoftware/viya4-deployment) project to deploy 
 the SAS Viya platform in your cloud environment. To learn about all phases and options of the SAS Viya platform deployment process, see
-[Getting Started with SAS Viya and Azure Kubernetes Service](https://documentation.sas.com/?cdcId=itopscdc&cdcVersion=default&docsetId=itopscon&docsetTarget=n1d7qc4nfr3s5zn103a1qy0kj4l1.htm) in _SAS Viya Platform Operations_.
+[Getting Started with SAS Viya and Azure Kubernetes Service](https://go.documentation.sas.com/doc/en/itopscdc/v_045/itopscon/n1d7qc4nfr3s5zn103a1qy0kj4l1.htm) in _SAS Viya Platform Operations_.
 
 
 This project follows the [SemVer](https://semver.org/#summary) versioning scheme. Given a version number MAJOR.MINOR.PATCH, we increment the:
@@ -77,7 +77,7 @@ Access to an **Azure Subscription** and an [**Identity**](./docs/user/TerraformA
 
 #### Terraform Requirements:
 - [Terraform](https://www.terraform.io/downloads.html) - v1.10.5
-- [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl) - v1.31.6
+- [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl) - v1.32.6
 - [jq](https://stedolan.github.io/jq/) - v1.6
 - [Azure CLI](https://docs.microsoft.com/en-us/cli/azure) - (optional - useful as an alternative to the Azure Portal) - v2.70.0
 
@@ -95,11 +95,14 @@ Run the following commands from a terminal session:
 
 ```bash
 # clone this repo
-git clone https://github.com/sassoftware/viya4-iac-azure
+git clone -b <release-version-tag> https://github.com/sassoftware/viya4-iac-azure
 
 # move to the project directory
 cd viya4-iac-azure
 ```
+**NOTE:** To obtain a tagged release version of this project, always refer to the desired release version tag when cloning this repository as shown above. Alternatively, you can `git checkout <tag>` the tagged release version if you've already cloned the repository without a tag. 
+
+You can find the latest release version in the [releases page](https://github.com/sassoftware/viya4-iac-azure/releases).
 
 ### Authenticating Terraform to Access Microsoft Azure
 

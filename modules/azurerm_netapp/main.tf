@@ -6,6 +6,7 @@
 # Azure docs - https://docs.microsoft.com/en-us/azure/azure-netapp-files/
 
 resource "azurerm_netapp_account" "anf" {
+  count               = var.community_netapp_account == "" ? 1 : 0
   name                = "${var.prefix}-netappaccount"
   location            = var.location
   resource_group_name = var.resource_group_name
@@ -13,10 +14,11 @@ resource "azurerm_netapp_account" "anf" {
 }
 
 resource "azurerm_netapp_pool" "anf" {
+  count               = var.community_netapp_pool == "" ? 1 : 0
   name                = "${var.prefix}-netapppool"
   location            = var.location
   resource_group_name = var.resource_group_name
-  account_name        = azurerm_netapp_account.anf.name
+  account_name        = var.community_netapp_account == "" ? azurerm_netapp_account.anf[0].name : var.community_netapp_account
   service_level       = var.service_level
   size_in_tb          = var.size_in_tb
   tags                = var.tags
@@ -26,15 +28,16 @@ resource "azurerm_netapp_volume" "anf" {
   name                = "${var.prefix}-netappvolume"
   location            = var.location
   resource_group_name = var.resource_group_name
-  account_name        = azurerm_netapp_account.anf.name
+  account_name        = var.community_netapp_account == "" ? azurerm_netapp_account.anf[0].name : var.community_netapp_account
   service_level       = var.service_level
-  pool_name           = "${var.prefix}-netapppool"
+  pool_name           = var.community_netapp_pool == "" ? azurerm_netapp_pool.anf[0].name : var.community_netapp_pool
   volume_path         = var.volume_path
   subnet_id           = var.subnet_id
   network_features    = var.network_features
   protocols           = var.protocols
-  storage_quota_in_gb = var.size_in_tb * 1024
+  storage_quota_in_gb = var.community_netapp_volume_size == 0 ? var.size_in_tb * 1024 : var.community_netapp_volume_size
   tags                = var.tags
+  zone                = var.community_netapp_volume_zone
 
   export_policy_rule {
     rule_index          = 1

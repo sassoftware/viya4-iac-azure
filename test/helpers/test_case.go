@@ -5,10 +5,11 @@ package helpers
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 // TupleTestCase struct which encapsulates a range of tests against a single resource map.
@@ -45,6 +46,16 @@ func RetrieveFromRawPlan(plan *terraform.PlanStruct, outputName string, jsonPath
 	return value, nil
 }
 
+// RetrieveFromRawPlan Retriever that gets a value from the raw plan variables
+func RetrieveFromRawPlanOutputChanges(plan *terraform.PlanStruct, outputName string, jsonPath string) (string, error) {
+	output, exists := plan.RawPlan.OutputChanges[outputName]
+	if !exists {
+		return "nil", nil
+	}
+	value := fmt.Sprintf("%v", output.After)
+	return value, nil
+}
+
 // RetrieveFromResourcePlannedValuesMap Retriever that gets the value of a jsonpath query on a given *terraform.PlanStruct
 func RetrieveFromResourcePlannedValuesMap(plan *terraform.PlanStruct, resourceMapName string, jsonPath string) (string, error) {
 	valuesMap, exists := plan.ResourcePlannedValuesMap[resourceMapName]
@@ -61,6 +72,21 @@ func RetrieveFromRawPlanResource(plan *terraform.PlanStruct, resourceMapName str
 		return "", nil
 	}
 	return GetJsonPathFromPlannedVariablesMap(variables, jsonPath)
+}
+
+// RetrieveFromPlan is used by the apply logic to retrieve a value to compare the deployed resources against
+func RetrieveFromPlan(plan *terraform.PlanStruct, resourceMapName string, jsonPath string) func() string {
+	return func() string {
+		valuesMap, exists := plan.ResourcePlannedValuesMap[resourceMapName]
+		if !exists {
+			return "nil"
+		}
+		actual, err := GetJsonPathFromStateResource(valuesMap, jsonPath)
+		if err != nil {
+			return "nil"
+		}
+		return actual
+	}
 }
 
 // RunTest runs a test case

@@ -47,6 +47,12 @@ variable "resource_providers_to_register" {
   default     = null
 }
 
+variable "msi_network_roles" {
+    description = "Managed Identity permissions for VNet and Route Table"
+    type = list(string)
+    default = ["Network Contributor"]
+}
+
 variable "iac_tooling" {
   description = "Value used to identify the tooling used to generate this providers infrastructure."
   type        = string
@@ -174,7 +180,7 @@ variable "default_nodepool_vm_type" {
 variable "kubernetes_version" {
   description = "The AKS cluster K8s version"
   type        = string
-  default     = "1.31"
+  default     = "1.32"
 }
 
 variable "default_nodepool_max_nodes" {
@@ -327,7 +333,7 @@ variable "postgres_server_defaults" {
     server_version               = "15"
     ssl_enforcement_enabled      = true
     connectivity_method          = "public"
-    postgresql_configurations    = [{ name : "azure.extensions", value : "PLPGSQL,PGCRYPTO" }]
+    postgresql_configurations    = [{ name : "azure.extensions", value : "PGCRYPTO" }]
   }
 }
 
@@ -585,11 +591,15 @@ variable "node_pools" {
     max_pods     = string
     node_taints  = list(string)
     node_labels  = map(string)
+    community_priority     = optional(string, "Regular")
+    community_eviction_policy = optional(string)
+    community_spot_max_price = optional(string)
     linux_os_config = optional(object({
       sysctl_config = optional(object({
         vm_max_map_count = optional(number)
       }))
     }))
+
   }))
 
   default = {
@@ -846,5 +856,50 @@ variable "aks_cluster_run_command_enabled" {
 variable "node_resource_group_name" {
   description = "Resource group name for the AKS cluster resources."
   type    = string
+  default = ""
+}
+
+# Community Contribution
+# Netapp Volume Size control
+variable "community_netapp_volume_size" {
+  description = "Community Contributed field. Will manually set the value of the Netapp Volume smaller than the Netapp Pool. This value is in GB."
+  type = number
+  default = 0
+}
+
+# Community Contribution
+variable "community_node_os_upgrade_channel" {
+  type = string
+  default = "NodeImage"
+  description = "Community Configuration Option. Controls the upgrade channel for the Node's OS. Available options are NodeImage(default), SecurityPatch, Unmanaged, and None."
+  validation {
+    condition     = contains(["None", "NodeImage", "SecurityPatch", "Unmanaged"], var.community_node_os_upgrade_channel)
+    error_message = "ERROR: Valid types are \"None\", \"NodeImage\", \"SecurityPatch\" and \"Unmanaged\"!"
+  }
+}
+
+# Netapp Zone
+variable "community_netapp_volume_zone" {
+  description = "Community Contributed field. Will set the Zone for the Netapp Volume's hosting. By default this will be 0 which will deploy as non-zonal."
+  type = number
+  default = 0
+}
+
+# Netapp BYO Components
+variable "community_netapp_resource_group" {
+  description = "Community Contributed field. Will manually set the resource group for Netapp components."
+  type = string
+  default = ""
+}
+
+variable "community_netapp_account" {
+  description = "Community Contributed field. Will manually set the Netapp Account for Netapp components."
+  type = string
+  default = ""
+}
+
+variable "community_netapp_pool" {
+  description = "Community Contributed field. Will manually set the Netapp Pool for Netapp components."
+  type = string
   default = ""
 }

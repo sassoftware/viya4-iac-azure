@@ -4,9 +4,10 @@
 package nondefaultplan
 
 import (
-	"github.com/stretchr/testify/assert"
 	"test/helpers"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestPlanRbacEnabledGroupIds(t *testing.T) {
@@ -44,7 +45,7 @@ func TestPlanRbacEnabledGroupIds(t *testing.T) {
 	helpers.RunTests(t, tests, plan)
 }
 
-func TestNonDefaultRbacEnabledWithTenant(t *testing.T) {
+func TestPlanRbacEnabledWithTenant(t *testing.T) {
 	t.Parallel()
 
 	const TENANT_ID = "b1c14d5c-3625-45b3-a430-9552373a0c2f"
@@ -87,7 +88,7 @@ func TestNonDefaultRbacEnabledWithTenant(t *testing.T) {
 	helpers.RunTests(t, tests, plan)
 }
 
-func TestNonDefaultAzureRbacEnabledWithTenant(t *testing.T) {
+func TestPlanAzureRbacEnabledWithTenant(t *testing.T) {
 	t.Parallel()
 
 	const TENANT_ID = "b1c14d5c-3625-45b3-a430-9552373a0c2f"

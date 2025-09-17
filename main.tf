@@ -89,6 +89,9 @@ module "vnet" {
   resource_group_name = local.network_rg.name
   location            = var.location
   subnets             = local.subnets
+  roles               = var.msi_network_roles
+  aks_uai_principal_id = local.aks_uai_principal_id
+  add_uai_permissions = (var.aks_uai_name == null)
   existing_subnets    = var.subnet_names
   address_space       = [var.vnet_address_space]
   tags                = var.tags
@@ -177,6 +180,7 @@ module "aks" {
   aks_private_cluster                      = var.cluster_api_mode == "private" ? true : false
   depends_on                               = [module.vnet]
   aks_azure_policy_enabled                 = var.aks_azure_policy_enabled ? var.aks_azure_policy_enabled : false
+  community_node_os_upgrade_channel        = var.community_node_os_upgrade_channel
 }
 
 module "kubeconfig" {
@@ -218,6 +222,10 @@ module "node_pools" {
   host_encryption_enabled      = var.aks_cluster_enable_host_encryption
   tags                         = var.tags
   linux_os_config              = each.value.linux_os_config
+  community_priority           = each.value.community_priority 
+  community_eviction_policy    = each.value.community_eviction_policy
+  community_spot_max_price     = each.value.community_spot_max_price
+
 }
 
 # https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/postgresql_flexible_server
@@ -251,7 +259,7 @@ module "netapp" {
   count  = var.storage_type == "ha" ? 1 : 0
 
   prefix              = var.prefix
-  resource_group_name = local.aks_rg.name
+  resource_group_name = var.community_netapp_resource_group == "" ? local.aks_rg.name : var.community_netapp_resource_group
   location            = var.location
   subnet_id           = module.vnet.subnets["netapp"].id
   network_features    = var.netapp_network_features
@@ -262,6 +270,11 @@ module "netapp" {
   tags                = var.tags
   allowed_clients     = concat(module.vnet.subnets["aks"].address_prefixes, module.vnet.subnets["misc"].address_prefixes)
   depends_on          = [module.vnet]
+
+  community_netapp_volume_size  = var.community_netapp_volume_size
+  community_netapp_account      = var.community_netapp_account
+  community_netapp_pool         = var.community_netapp_pool
+  community_netapp_volume_zone = var.community_netapp_volume_zone
 }
 
 data "external" "git_hash" {

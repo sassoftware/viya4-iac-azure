@@ -59,3 +59,30 @@ variable "tags" {
   description = "Map of tags to be placed on the Resources"
   type        = map(any)
 }
+
+# Community Contribution
+# Netapp Volume Size control
+variable "community_netapp_volume_size" {
+  description = "Community Contributed field. Will manually set the value of the Netapp Volume smaller than the Netapp Pool. This value is in GB."
+  type = number
+  default = 0
+}
+
+# Netapp Zone
+variable "community_netapp_volume_zone" {
+  description = "Community Contributed field. Will set the Zone for the Netapp Volume's hosting. By default this will be 0 which will deploy as non-zonal."
+  type = number
+  default = 0
+}
+# Netapp BYO Components
+variable "community_netapp_account" {
+  description = "Community Contributed field. Will manually set the Netapp Account for Netapp components."
+  type = string
+  default = ""
+}
+
+variable "community_netapp_pool" {
+  description = "Community Contributed field. Will manually set the Netapp Pool for Netapp components."
+  type = string
+  default = ""
+}
