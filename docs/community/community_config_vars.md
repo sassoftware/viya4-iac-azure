@@ -12,7 +12,6 @@ Community-contributed configuration variables are listed in the tables below. Th
   - [Spot Nodes](#spot-nodes)
   - [Netapp Volume Size](#netapp-volume-size)
   - [Node OS Upgrade Channel](#node-os-upgrade-channel)
-  - [Netapp Volume Zone](#netapp-volume-zone)
 
 <a name="spot_nodes"></a>
 ## Spot Nodes

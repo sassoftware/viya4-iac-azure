@@ -8,8 +8,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-
-	"github.com/stretchr/testify/assert"
 )
 
 // Test the default variables when using the sample-input-defaults.tfvars file
@@ -25,24 +23,24 @@ func TestPlanNetApp(t *testing.T) {
 	tests := map[string]helpers.TestCase{
 		"accountExists": {
 			Expected:          `nil`,
-			ResourceMapName:   "module.netapp[0].azurerm_netapp_account.anf[0]",
+			ResourceMapName:   "module.netapp[0].azurerm_netapp_account.anf",
 			AttributeJsonPath: "{$}",
 			AssertFunction:    assert.NotEqual,
 		},
 		"poolExists": {
 			Expected:          `nil`,
-			ResourceMapName:   "module.netapp[0].azurerm_netapp_pool.anf[0]",
+			ResourceMapName:   "module.netapp[0].azurerm_netapp_pool.anf",
 			AttributeJsonPath: "{$}",
 			AssertFunction:    assert.NotEqual,
 		},
 		"poolServiceLevel": {
 			Expected:          `Premium`,
-			ResourceMapName:   "module.netapp[0].azurerm_netapp_pool.anf[0]",
+			ResourceMapName:   "module.netapp[0].azurerm_netapp_pool.anf",
 			AttributeJsonPath: "{$.service_level}",
 		},
 		"poolSize": {
 			Expected:          `4`,
-			ResourceMapName:   "module.netapp[0].azurerm_netapp_pool.anf[0]",
+			ResourceMapName:   "module.netapp[0].azurerm_netapp_pool.anf",
 			AttributeJsonPath: "{$.size_in_tb}",
 		},
 		"volumeExists": {
@@ -77,24 +75,6 @@ func TestPlanNetApp(t *testing.T) {
 			ResourceMapName:   "module.vnet.azurerm_subnet.subnet[\"netapp\"]",
 			AttributeJsonPath: "{$}",
 			AssertFunction:    assert.NotEqual,
-		},
-		"communityNetappResourceGroupEmpty": {
-			Expected:          `nil`,
-			ResourceMapName:   "var.community_netapp_resource_group",
-			AttributeJsonPath: "{$}",
-			AssertFunction:    assert.Equal,
-		},
-		"communityNetappAccountEmpty": {
-			Expected:          `nil`,
-			ResourceMapName:   "var.community_netapp_account",
-			AttributeJsonPath: "{$}",
-			AssertFunction:    assert.Equal,
-		},
-		"communityNetappPoolEmpty": {
-			Expected:          `nil`,
-			ResourceMapName:   "var.community_netapp_pool",
-			AttributeJsonPath: "{$}",
-			AssertFunction:    assert.Equal,
 		},
 		"communityNetappZone": {
 			Expected:          `0`,
