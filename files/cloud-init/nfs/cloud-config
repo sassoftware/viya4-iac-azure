@@ -43,7 +43,7 @@ runcmd:
   #
   - pvcreate $(find /dev/disk/azure/scsi1/ -type l | xargs)
   - vgcreate data-vg01 $(find /dev/disk/azure/scsi1/ -type l | xargs)
-  - lvcreate --type raid5 --extents 100%FREE --stripes 3 --name data-lv01 data-vg01
+  - lvcreate --type raid0 --extents 100%FREE --stripes 4 --stripesize 256 --name data-lv01 data-vg01
   - mkfs -t ext4 /dev/data-vg01/data-lv01
   #
   # Update /etc/fstab
