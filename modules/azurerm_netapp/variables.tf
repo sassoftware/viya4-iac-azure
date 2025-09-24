@@ -67,3 +67,10 @@ variable "community_netapp_volume_size" {
   type = number
   default = 0
 }
+
+# Netapp Zone
+variable "community_netapp_volume_zone" {
+  description = "Community Contributed field. Will set the Zone for the Netapp Volume's hosting. By default this will be 0 which will deploy as non-zonal."
+  type = number
+  default = 0
+}
