@@ -40,7 +40,6 @@ default_nodepool_vm_type   = "Standard_E8s_v5"
 
 # AKS Node Pools config
 node_pools = {
-
   cas = {
     "machine_type" = "Standard_E16ds_v5"
     "os_disk_size" = 200
@@ -85,17 +84,6 @@ node_pools = {
     "node_labels" = {
       "workload.sas.com/class" = "stateful"
     }
-  },
-  singlestore = {
-    "machine_type" = "Standard_E16ds_v5"         
-    "os_disk_size" = 200
-    "min_nodes" = 0
-    "max_nodes" = 7
-    "max_pods" = 110
-    "node_taints" = ["workload.sas.com/class=singlestore:NoSchedule"]
-    "node_labels" = {
-      "workload.sas.com/class" = "singlestore"
-    }
   }
 }
 
@@ -104,58 +92,19 @@ create_jump_public_ip = true
 jump_vm_admin        = "jumpuser"
 jump_vm_machine_type = "Standard_B2s"
 
-# Storage for Viya Compute Services
-# Supported storage_type values
-#    "standard" - Custom managed NFS Server VM and disks
-#    "ha"     - Azure NetApp Files managed service
-
-## Standard storage type
+# Storage for SAS Viya CAS/Compute
 storage_type = "standard"
 # required ONLY when storage_type is "standard" to create NFS Server VM
 create_nfs_public_ip = false
 nfs_vm_admin         = "nfsuser"
 nfs_vm_machine_type  = "Standard_D4s_v5"
 nfs_raid_disk_size   = 256
-nfs_raid_disk_type   = "Standard_LRS"
 
-## HA storage type
-# storage_type = "ha"
-# # required ONLY when storage_type = ha for Azure NetApp Files service
-# netapp_service_level    = "Premium"
-# netapp_size_in_tb       = 4
-# netapp_network_features = "Standard"    # For SingleStore configuration with ha storage 'netapp_network_features' should be set to 'Standard'
+# StandardSSD_ZRS and Premium_ZRS provides zone-redundant storage for high availability.
+nfs_raid_disk_type   = "StandardSSD_ZRS" 
+os_disk_storage_account_type   = "StandardSSD_ZRS"
+# Example configuration for multi-zone AKS deployment.
+# Specify the list of availability zones for the default node pool and additional node pools.
 
-# SingleStore configuration
-aks_network_plugin = "azure"
-aks_network_plugin_mode= "overlay
-
-# Subnets for SingleStore using azure network plugin
-subnets = {
-  aks = {
-    "prefixes": ["192.168.0.0/21"],
-    "service_endpoints": ["Microsoft.Sql"],
-    "private_endpoint_network_policies": "Disabled",
-    "private_link_service_network_policies_enabled": false,
-    "service_delegations": {},
-  }
-  misc = {
-    "prefixes": ["192.168.8.0/24"],
-    "service_endpoints": ["Microsoft.Sql"],
-    "private_endpoint_network_policies": "Disabled",
-    "private_link_service_network_policies_enabled": false,
-    "service_delegations": {},
-  }
-  ## If using ha storage then the following is also added
-  # netapp = {
-  #   "prefixes": ["192.168.9.0/24"],
-  #   "service_endpoints": [],
-  #   "private_endpoint_network_policies": "Disabled",
-  #   "private_link_service_network_policies_enabled": false,
-  #   "service_delegations": {
-  #     netapp = {
-  #       "name"    : "Microsoft.Netapp/volumes"
-  #       "actions" : ["Microsoft.Network/networkinterfaces/*", "Microsoft.Network/virtualNetworks/subnets/join/action"]
-  #     }
-  #   }
-  # }
-}
+default_nodepool_availability_zones = ["1", "2", "3"] 
+node_pools_availability_zones       = ["1", "2", "3"]
