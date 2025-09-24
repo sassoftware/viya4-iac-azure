@@ -453,7 +453,7 @@ variable "nfs_vm_zone" {
 }
 
 variable "nfs_raid_disk_size" {
-  description = "Size in Gb for each disk of the RAID5 cluster, when storage_type=standard"
+  description = "Size in Gb for each disk of the RAID0 cluster, when storage_type=standard"
   type        = number
   default     = 256
 }
