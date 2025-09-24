@@ -39,7 +39,7 @@ runcmd:
   - systemctl enable rpc-statd
   - systemctl start rpc-statd
   #
-  # Create Raid5 Array
+  # Create Raid0 Array
   #
   - pvcreate $(find /dev/disk/azure/scsi1/ -type l | xargs)
   - vgcreate data-vg01 $(find /dev/disk/azure/scsi1/ -type l | xargs)
