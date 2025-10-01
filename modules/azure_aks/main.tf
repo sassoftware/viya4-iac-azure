@@ -25,6 +25,9 @@ resource "azurerm_kubernetes_cluster" "aks" {
   private_dns_zone_id     = var.aks_private_cluster && var.aks_cluster_private_dns_zone_id != "" ? var.aks_cluster_private_dns_zone_id : (var.aks_private_cluster ? "System" : null)
   run_command_enabled     = var.aks_cluster_run_command_enabled
 
+  oidc_issuer_enabled       = true
+  workload_identity_enabled = true
+
   network_profile {
     # Docs on AKS Advanced Networking config
     # https://docs.microsoft.com/en-us/azure/architecture/aws-professional/networking
@@ -105,13 +108,6 @@ resource "azurerm_kubernetes_cluster" "aks" {
     content {
       type         = "UserAssigned"
       identity_ids = [var.aks_uai_id]
-    }
-  }
-
-  # Enable Workload Identity
-  security_profile {
-    workload_identity {
-      enabled = true
     }
   }
 
