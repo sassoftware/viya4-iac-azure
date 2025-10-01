@@ -108,6 +108,13 @@ resource "azurerm_kubernetes_cluster" "aks" {
     }
   }
 
+  # Enable Workload Identity
+  security_profile {
+    workload_identity {
+      enabled = true
+    }
+  }
+
   dynamic "oms_agent" {
     for_each = var.aks_oms_enabled ? ["oms_agent"] : []
     content {
