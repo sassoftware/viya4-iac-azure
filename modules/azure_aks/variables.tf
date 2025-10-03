@@ -46,6 +46,13 @@ variable "rbac_aad_tenant_id" {
   default     = null
 }
 
+## variable for Workload Identity in AKS
+variable "enable_workload_identity" {
+  description = "Enable Azure AD Workload Identity (also enables OIDC issuer for the cluster)"
+  type        = bool
+  default     = false
+}
+
 
 variable "aks_cluster_sku_tier" {
   description = "The SKU Tier that should be used for this Kubernetes Cluster. Possible values are Free, Standard (which includes the Uptime SLA) and Premium. Defaults to Free"

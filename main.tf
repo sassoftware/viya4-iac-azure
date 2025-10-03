@@ -179,6 +179,7 @@ module "aks" {
   depends_on                               = [module.vnet]
   aks_azure_policy_enabled                 = var.aks_azure_policy_enabled ? var.aks_azure_policy_enabled : false
   community_node_os_upgrade_channel        = var.community_node_os_upgrade_channel
+  enable_workload_identity                 = var.enable_workload_identity
 }
 
 module "kubeconfig" {
