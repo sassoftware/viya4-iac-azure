@@ -25,8 +25,9 @@ resource "azurerm_kubernetes_cluster" "aks" {
   private_dns_zone_id     = var.aks_private_cluster && var.aks_cluster_private_dns_zone_id != "" ? var.aks_cluster_private_dns_zone_id : (var.aks_private_cluster ? "System" : null)
   run_command_enabled     = var.aks_cluster_run_command_enabled
 
-  oidc_issuer_enabled       = true
-  workload_identity_enabled = true
+  # OIDC issuer must always be enabled if workload identity is enabled
+  oidc_issuer_enabled       = var.enable_workload_identity
+  workload_identity_enabled = var.enable_workload_identity
 
   network_profile {
     # Docs on AKS Advanced Networking config
