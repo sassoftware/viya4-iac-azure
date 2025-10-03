@@ -100,7 +100,7 @@ variable "aks_cluster_sku_tier" {
   }
 }
 
-## Workload Identity
+## variable for Workload Identity in AKS
 variable "enable_workload_identity" {
   description = "Enable Azure AD Workload Identity (also enables OIDC issuer for the cluster)"
   type        = bool
