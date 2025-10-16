@@ -270,7 +270,7 @@ module "netapp" {
   depends_on          = [module.vnet]
 
   community_netapp_volume_size = var.community_netapp_volume_size
-  community_netapp_volume_zone = var.community_netapp_volume_zone
+  community_netapp_volume_zone = var.node_pools_availability_zone != "" ? tonumber(var.node_pools_availability_zone) : var.community_netapp_volume_zone
 }
 
 data "external" "git_hash" {
