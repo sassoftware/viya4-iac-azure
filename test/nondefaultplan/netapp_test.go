@@ -4,10 +4,9 @@
 package nondefaultplan
 
 import (
+	"github.com/stretchr/testify/assert"
 	"test/helpers"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
 // Test the default variables when using the sample-input-defaults.tfvars file
@@ -75,12 +74,6 @@ func TestPlanNetApp(t *testing.T) {
 			ResourceMapName:   "module.vnet.azurerm_subnet.subnet[\"netapp\"]",
 			AttributeJsonPath: "{$}",
 			AssertFunction:    assert.NotEqual,
-		},
-		"communityNetappZone": {
-			Expected:          `0`,
-			ResourceMapName:   "module.netapp[0].azurerm_netapp_volume.anf",
-			AttributeJsonPath: "{$.zone}",
-			AssertFunction:    assert.Equal,
 		},
 	}
 

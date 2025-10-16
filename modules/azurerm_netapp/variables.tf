@@ -67,14 +67,3 @@ variable "community_netapp_volume_size" {
   type = number
   default = 0
 }
-
-# Netapp Zone
-variable "community_netapp_volume_zone" {
-  description = "Community Contributed field. Will set the Zone for the Netapp Volume's hosting. Use 1, 2, or 3 for specific zones, or null for non-zonal deployment."
-  type        = number
-  default     = 1
-  validation {
-    condition     = var.community_netapp_volume_zone == null || contains([1, 2, 3], var.community_netapp_volume_zone)
-    error_message = "NetApp volume zone must be 1, 2, 3, or null for non-zonal deployment."
-  }
-}
