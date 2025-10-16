@@ -77,7 +77,7 @@ func TestPlanNetApp(t *testing.T) {
 			AssertFunction:    assert.NotEqual,
 		},
 		"communityNetappZone": {
-			Expected:          `0`,
+			Expected:          `1`,
 			ResourceMapName:   "module.netapp[0].azurerm_netapp_volume.anf",
 			AttributeJsonPath: "{$.zone}",
 			AssertFunction:    assert.Equal,
