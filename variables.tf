@@ -856,10 +856,10 @@ variable "community_netapp_volume_size" {
   default = 0
 }
 
-# Community Contribution
+# Node OS upgrade channel control
 variable "community_node_os_upgrade_channel" {
-  type = string
-  default = "NodeImage"
+  type        = string
+  default     = "NodeImage"
   description = "Community Configuration Option. Controls the upgrade channel for the Node's OS. Available options are NodeImage(default), SecurityPatch, Unmanaged, and None."
   validation {
     condition     = contains(["None", "NodeImage", "SecurityPatch", "Unmanaged"], var.community_node_os_upgrade_channel)
