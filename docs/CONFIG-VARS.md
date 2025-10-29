@@ -110,6 +110,7 @@ az vm image terms accept --urn Canonical:0001-com-ubuntu-pro-jammy-fips:pro-fips
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
 | fips_enabled | Enables the Federal Information Processing Standard for all the nodes and VMs in this cluster | bool | false | Make sure to accept terms mentioned above before deploying. |
+| enable_workload_identity | Enable Azure Workload Identity for AKS | bool | false | Automatically enables OIDC issuer; requires Azure AD integration. |
 
 ## Networking
 

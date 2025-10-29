@@ -100,6 +100,13 @@ variable "aks_cluster_sku_tier" {
   }
 }
 
+## variable for Workload Identity in AKS
+variable "enable_workload_identity" {
+  description = "Enable Azure AD Workload Identity (also enables OIDC issuer for the cluster)"
+  type        = bool
+  default     = false
+}
+
 variable "cluster_support_tier" {
   description = "Specifies the support plan which should be used for this Kubernetes Cluster. Possible values are 'KubernetesOfficial' and 'AKSLongTermSupport'. Defaults to 'KubernetesOfficial'."
   type        = string
