@@ -41,11 +41,11 @@ default_nodepool_vm_type   = "Standard_E8s_v5"
 # This configuration is optimized for SAS Viya Programming-only deployments.
 # 
 # Two options for making CAS optional:
-# 1. Remove the entire 'cas' block from node_pools
+# 1. Keep the cas block commented out (no CAS node pool created)
 #    - No CAS node pool created
 #    - CAS cannot be deployed without infrastructure changes
 #
-# 2. Set min_nodes=0 for cas node pool (node pool created, but 0 VMs provisioned)
+# 2. Set min_nodes=0 for cas node pool (uncomment the cas block below)
 #    - Creates just node pool metadata
 #    - No VMs provisioned until CAS workload is deployed
 #    - Autoscaler provisions nodes on-demand when needed
