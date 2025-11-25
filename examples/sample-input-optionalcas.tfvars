@@ -45,8 +45,8 @@ default_nodepool_vm_type   = "Standard_E8s_v5"
 #    - No CAS node pool created
 #    - CAS cannot be deployed without infrastructure changes
 #
-# 2. Set min_nodes=0 for cas node pool (shown below)
-#    - Creates node pool metadata with $0 cost
+# 2. Set min_nodes=0 for cas node pool (node pool created, but 0 VMs provisioned)
+#    - Creates just node pool metadata
 #    - No VMs provisioned until CAS workload is deployed
 #    - Autoscaler provisions nodes on-demand when needed
 #    - Enables CAS deployment without infrastructure changes
