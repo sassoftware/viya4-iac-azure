@@ -113,3 +113,6 @@ nfs_vm_admin         = "nfsuser"
 nfs_vm_machine_type  = "Standard_D4s_v5"
 nfs_raid_disk_size   = 256
 nfs_raid_disk_type   = "Standard_LRS"
+
+# NOTE: For multi-zone deployments, keep the CAS configuration changes above
+#       and refer to sample-input-multizone.tfvars for additional zone settings
