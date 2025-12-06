@@ -251,6 +251,11 @@ module "flex_postgresql" {
   postgresql_configurations = each.value.ssl_enforcement_enabled ? concat(each.value.postgresql_configurations, local.default_postgres_configuration) : concat(
   each.value.postgresql_configurations, [{ name : "require_secure_transport", value : "OFF" }], local.default_postgres_configuration)
   tags = var.tags
+  
+  # Multi-AZ High Availability Configuration (Changes for PSCLOUD-133 comment)
+  availability_zone         = lookup(each.value, "availability_zone", "1")
+  high_availability_mode    = lookup(each.value, "high_availability_mode", null)
+  standby_availability_zone = lookup(each.value, "standby_availability_zone", "2")
 }
 
 module "netapp" {
@@ -272,6 +277,12 @@ module "netapp" {
 
   community_netapp_volume_size = var.community_netapp_volume_size
   community_netapp_volume_zone = var.node_pools_availability_zone != "" ? tonumber(var.node_pools_availability_zone) : var.community_netapp_volume_zone
+  
+  # Multi-AZ Cross-Zone Replication Configuration (Changes for PSCLOUD-133 comment)
+  netapp_availability_zone             = var.netapp_availability_zone
+  netapp_enable_cross_zone_replication = var.netapp_enable_cross_zone_replication
+  netapp_replication_zone              = var.netapp_replication_zone
+  netapp_replication_frequency         = var.netapp_replication_frequency
 }
 
 data "external" "git_hash" {
