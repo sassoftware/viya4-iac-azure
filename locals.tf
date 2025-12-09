@@ -16,7 +16,56 @@ locals {
   cluster_endpoint_public_access_cidrs = var.cluster_api_mode == "private" ? [] : (var.cluster_endpoint_public_access_cidrs == null ? local.default_public_access_cidrs : var.cluster_endpoint_public_access_cidrs)
   postgres_public_access_cidrs         = var.postgres_public_access_cidrs == null ? local.default_public_access_cidrs : var.postgres_public_access_cidrs
 
-  subnets = { for k, v in var.subnets : k => v if !(k == "netapp" && var.storage_type == "standard") }
+  # Subnets configuration - add appgw subnet when Application Gateway is enabled
+  subnets = merge(
+    {
+      aks = {
+        prefixes              = [var.aks_subnet_address_space]
+        service_endpoints     = []
+        delegation            = null
+        enforce_private_link  = false
+        nsg_name              = local.nsg.name
+        route_table_name      = null
+      }
+    },
+    var.storage_type == "ha" ? {
+      netapp = {
+        prefixes             = [var.netapp_subnet_cidr]
+        service_endpoints    = []
+        service_delegation   = { "netapp" = { service_name = "Microsoft.Netapp/volumes", service_actions = ["Microsoft.Network/networkinterfaces/*", "Microsoft.Network/virtualNetworks/subnets/join/action"] } }
+        nsg_name             = local.nsg.name
+        route_table_name     = ""
+      }
+    } : {},
+    var.postgres_servers != null ? length(var.postgres_servers) != 0 ? {
+      postgresql = {
+        prefixes             = [var.postgres_subnet_cidr]
+        service_endpoints    = []
+        service_delegation   = { "postgresql" = { service_name = "Microsoft.DBforPostgreSQL/flexibleServers", service_actions = ["Microsoft.Network/virtualNetworks/subnets/join/action"] } }
+        nsg_name             = local.nsg.name
+        route_table_name     = ""
+      }
+    } : {} : {},
+    var.create_jump_vm || var.create_nfs_public_ip ? {
+      misc = {
+        prefixes             = [var.misc_subnet_cidr]
+        service_endpoints    = []
+        service_delegation   = {}
+        nsg_name             = local.nsg.name
+        route_table_name     = ""
+      }
+    } : {},
+    var.create_app_gateway ? {
+      appgw = {
+        prefixes              = [var.appgw_subnet_address_space]
+        service_endpoints     = []
+        delegation            = null
+        enforce_private_link  = false
+        nsg_name              = local.nsg.name
+        route_table_name      = null
+      }
+    } : {}
+  )
 
   # Kubernetes
   kubeconfig_filename = "${var.prefix}-aks-kubeconfig.conf"

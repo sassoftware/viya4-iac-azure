@@ -156,3 +156,23 @@ output "cluster_api_mode" {
 output "aks_network_plugin" {
   value = var.aks_network_plugin
 }
+
+output "application_gateway_id" {
+  description = "Application Gateway ID"
+  value       = var.create_app_gateway ? module.app_gateway[0].id : null
+}
+
+output "application_gateway_name" {
+  description = "Application Gateway name"
+  value       = var.create_app_gateway ? module.app_gateway[0].name : null
+}
+
+output "application_gateway_public_ip" {
+  description = "Application Gateway public IP address"
+  value       = var.create_app_gateway ? module.app_gateway[0].public_ip_address : null
+}
+
+output "application_gateway_identity_principal_id" {
+  description = "Application Gateway identity principal ID"
+  value       = var.create_app_gateway ? module.app_gateway[0].identity_principal_id : null
+}
