@@ -60,7 +60,7 @@ func TestPlanACRPremium(t *testing.T) {
 	variables["create_container_registry"] = true
 	variables["container_registry_admin_enabled"] = true
 	variables["container_registry_sku"] = "Premium"
-	variables["container_registry_geo_replica_locs"] = []string{"southeastus5", "southeastus3"}
+	variables["container_registry_geo_replica_locs"] = []string{"westus2", "eastus2"}
 
 	tests := map[string]helpers.TestCase{
 		"locationsTest": {
