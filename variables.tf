@@ -639,6 +639,7 @@ variable "node_pools" {
     max_pods     = string
     node_taints  = list(string)
     node_labels  = map(string)
+    availability_zones = optional(list(string))
     community_priority     = optional(string, "Regular")
     community_eviction_policy = optional(string)
     community_spot_max_price = optional(string)
