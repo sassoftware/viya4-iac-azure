@@ -104,10 +104,10 @@ create_jump_public_ip = true
 jump_vm_admin        = "jumpuser"
 jump_vm_machine_type = "Standard_B2s"
 
-# Storage for Viya Compute Services
+# Storage for SAS Viya CAS/Compute Services
 # Supported storage_type values
 #    "standard" - Custom managed NFS Server VM and disks
-#    "ha"     - Azure NetApp Files managed service
+#    "zrs"      - Azure Files with Zone-Redundant Storage (recommended for multi-AZ)
 
 ## Standard storage type
 storage_type = "standard"
@@ -118,12 +118,11 @@ nfs_vm_machine_type  = "Standard_D4s_v5"
 nfs_raid_disk_size   = 256
 nfs_raid_disk_type   = "Standard_LRS"
 
-## HA storage type
-# storage_type = "ha"
-# # required ONLY when storage_type = ha for Azure NetApp Files service
-# netapp_service_level    = "Premium"
-# netapp_size_in_tb       = 4
-# netapp_network_features = "Standard"    # For SingleStore configuration with ha storage 'netapp_network_features' should be set to 'Standard'
+## Zone-Redundant Storage (ZRS) type - Recommended for multi-AZ deployments
+# storage_type = "zrs"
+# azure_files_storage_account_tier = "Premium"
+# azure_files_quota_gb = 5120
+# azure_files_create_private_endpoint = true
 
 # SingleStore configuration
 aks_network_plugin = "azure"

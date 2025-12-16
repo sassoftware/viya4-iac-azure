@@ -62,18 +62,6 @@ func TestPlanCustomSubnets(t *testing.T) {
 			"private_link_service_network_policies_enabled": false,
 			"service_delegations":                           map[string]interface{}{},
 		},
-		"netapp": map[string]interface{}{
-			"prefixes":                                      []string{"123.12.9.0/24"},
-			"service_endpoints":                             []string{""},
-			"private_endpoint_network_policies":             "Disabled",
-			"private_link_service_network_policies_enabled": false,
-			"service_delegations": map[string]interface{}{
-				"netapp": map[string]interface{}{
-					"name":    "Microsoft.Netapp/volumes",
-					"actions": []string{"Microsoft.Network/networkinterfaces/*", "Microsoft.Network/virtualNetworks/subnets/join/action"},
-				},
-			},
-		},
 	}
 
 	tests := map[string]helpers.TestCase{

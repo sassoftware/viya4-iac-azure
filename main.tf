@@ -258,31 +258,28 @@ module "flex_postgresql" {
   standby_availability_zone = lookup(each.value, "standby_availability_zone", "2")
 }
 
-module "netapp" {
-  source = "./modules/azurerm_netapp"
-  count  = var.storage_type == "ha" ? 1 : 0
+# Azure Files with Zone-Redundant Storage (ZRS) - For Multi-AZ Deployments
+module "azure_files_zrs" {
+  source = "./modules/azurerm_storage_account_zrs"
+  count  = var.storage_type == "zrs" ? 1 : 0
 
-  prefix              = var.prefix
-  resource_group_name = local.aks_rg.name
-  location            = var.location
-  subnet_id           = module.vnet.subnets["netapp"].id
-  network_features    = var.netapp_network_features
-  service_level       = var.netapp_service_level
-  size_in_tb          = var.netapp_size_in_tb
-  protocols           = var.netapp_protocols
-  volume_path         = "${var.prefix}-${var.netapp_volume_path}"
-  tags                = var.tags
-  allowed_clients     = concat(module.vnet.subnets["aks"].address_prefixes, module.vnet.subnets["misc"].address_prefixes)
-  depends_on          = [module.vnet]
-
-  community_netapp_volume_size = var.community_netapp_volume_size
-  community_netapp_volume_zone = var.node_pools_availability_zone != "" ? tonumber(var.node_pools_availability_zone) : var.community_netapp_volume_zone
+  storage_account_name = lower("${var.prefix}viyanfs")
+  resource_group_name  = local.aks_rg.name
+  location             = var.location
+  account_tier         = var.azure_files_storage_account_tier
+  share_name           = var.azure_files_share_name
+  quota_gb             = var.azure_files_quota_gb
   
-  # Multi-AZ Cross-Zone Replication Configuration (Changes for PSCLOUD-133 comment)
-  netapp_availability_zone             = var.netapp_availability_zone
-  netapp_enable_cross_zone_replication = var.netapp_enable_cross_zone_replication
-  netapp_replication_zone              = var.netapp_replication_zone
-  netapp_replication_frequency         = var.netapp_replication_frequency
+  # Network security
+  allowed_subnet_ids = [module.vnet.subnets["aks"].id, module.vnet.subnets["misc"].id]
+  allowed_ip_ranges  = var.default_public_access_cidrs
+  
+  # Private endpoint configuration
+  create_private_endpoint    = var.azure_files_create_private_endpoint
+  private_endpoint_subnet_id = module.vnet.subnets["misc"].id
+  
+  tags       = var.tags
+  depends_on = [module.vnet]
 }
 
 data "external" "git_hash" {

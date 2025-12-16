@@ -19,7 +19,6 @@ Supported configuration variables are listed in the tables below.  All variables
     - [Additional Node Pools](#additional-node-pools)
   - [Storage](#storage)
     - [NFS Server VM (only when `storage_type=standard`)](#nfs-server-vm-only-when-storage_typestandard)
-    - [Azure NetApp Files (only when `storage_type=ha`)](#azure-netapp-files-only-when-storage_typeha)
   - [Azure Container Registry (ACR)](#azure-container-registry-acr)
   - [Postgres Servers](#postgres-servers)
 
@@ -141,19 +140,6 @@ subnet = {
     "private_link_service_network_policies_enabled": false,
     "service_delegations": {},
   }
-  ## If using ha storage then the following is also added
-  netapp = {
-    "prefixes": ["192.168.3.0/24"],
-    "service_endpoints": [],
-    "private_endpoint_network_policies": "Enabled",
-    "private_link_service_network_policies_enabled": false,
-    "service_delegations": {
-      netapp = {
-        "name"    : "Microsoft.Netapp/volumes"
-        "actions" : ["Microsoft.Network/networkinterfaces/*", "Microsoft.Network/virtualNetworks/subnets/join/action"]
-      }
-    }
-  }
 }
 ```
 
@@ -186,10 +172,7 @@ Example for the `subnet_names` variable:
 subnet_names = {
   ## Required subnets
   'aks': '<my_aks_subnet_name>',
-  'misc': '<my_misc_subnet_name>',
-
-  ## If using ha storage then the following is also required
-  'netapp': '<my_netapp_subnet_name>'
+  'misc': '<my_misc_subnet_name>'
 }
 ```
 
@@ -323,14 +306,37 @@ In addition, you can control the placement for the additional node pools using t
 
 SAS Viya Platform multi-AZ deployments require **zone-redundant storage (ZRS)** for all persistent volumes to ensure data availability across zones. See [Requirements for Environments with Multiple Availability Zones](https://go.documentation.sas.com/doc/en/sasadmincdc/v_070/itopssr/n1kj7od7zbas1en17vyb6tv39eac.htm).
 
-**Storage Options for Multi-AZ:**
-- ❌ **Azure NetApp Files (`storage_type="ha"`)** - Cross-zone replication provides data protection but **requires manual intervention** during zone failures. Does NOT meet automatic failover requirements for production multi-AZ deployments.
-- ⚠️ **NFS Server VM (`storage_type="standard"`)** - Using ZRS-backed disks (`nfs_raid_disk_type="StandardSSD_ZRS"`) provides disk-level redundancy, but the VM itself remains single-zone. Limited zone failure protection.
-- ✅ **External storage solutions** - Consider Azure Files with ZRS or other cloud-native solutions that provide automatic cross-zone failover.
+**Storage Options:**
+- ✅ **Azure Files with ZRS (`storage_type="zrs"`)** - **RECOMMENDED for multi-AZ deployments.** Provides native zone-redundant storage with automatic failover (RTO < 2 min). Fully compliant with SAS multi-AZ requirements. See [example configuration](../examples/sample-input-multiaz-azure-files-zrs.tfvars).
+- ⚠️ **NFS Server VM (`storage_type="standard"`)** - Single-zone deployment. Using ZRS-backed disks (`nfs_raid_disk_type="StandardSSD_ZRS"`) provides disk-level redundancy, but the VM itself remains single-zone. Not recommended for multi-AZ.
 
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
-| storage_type | Type of Storage. Valid Values: "standard", "ha"  | string | "standard" | "standard" creates NFS server VM, "ha" creates Azure Netapp Files. **For multi-AZ deployments, neither option provides automatic zone failover.** |
+| storage_type | Type of Storage. Valid Values: "standard", "zrs"  | string | "standard" | "standard" creates NFS server VM, "zrs" creates Azure Files with Zone-Redundant Storage (recommended for multi-AZ). |
+
+### Azure Files with Zone-Redundant Storage (only when `storage_type=zrs`)
+
+When `storage_type=zrs`, Azure Files with zone-redundant storage is created. This is the **recommended option for multi-AZ deployments** as it provides automatic cross-zone failover.
+
+**Benefits:**
+- ✅ Automatic failover (RTO < 2 minutes)
+- ✅ Zone-redundant storage (meets SAS multi-AZ requirements)
+- ✅ Fully managed service (no VMs to maintain)
+- ✅ Single endpoint (no DNS updates needed)
+- ✅ Premium performance tier available with NFS 4.1 protocol
+
+**Performance (Premium tier, 5TB):**
+- Sequential Read: ~300 MB/s
+- Sequential Write: ~250 MB/s
+- Random IOPS: ~10,000
+- Cost: ~$1,882/month (East US)
+
+| Name | Description | Type | Default | Notes |
+| :--- | ---: | ---: | ---: | ---: |
+| azure_files_storage_account_tier | Storage account tier. Valid values: 'Standard', 'Premium' | string | "Premium" | Premium required for NFS 4.1 protocol |
+| azure_files_share_name | Name of the Azure Files NFS share | string | "viya" | |
+| azure_files_quota_gb | Quota in GB for Azure Files share | number | 5120 | Must be between 100 and 102400 (100TB) |
+| azure_files_create_private_endpoint | Create a private endpoint for secure VNet access | bool | true | Recommended for production |
 
 ### NFS Server VM (only when `storage_type=standard`)
 
@@ -350,31 +356,6 @@ When `storage_type=standard`, a NFS Server VM is created, only when these variab
 | nfs_raid_disk_type | Managed disk types | string | "Standard_LRS" | Supported values: Standard_LRS, Premium_LRS, StandardSSD_LRS or UltraSSD_LRS. When using `UltraSSD_LRS`, `nfs_vm_zone` and `nfs_raid_disk_zone` must be specified. See the [Azure documentation](https://docs.microsoft.com/en-us/azure/virtual-machines/disks-enable-ultra-ssd) for limitations on Availability Zones and VM types. |
 | nfs_raid_disk_size | Size in Gb for each disk of the RAID5 cluster on the NFS server VM | number | 256 | |
 | nfs_raid_disk_zone | The Availability Zone in which the Managed Disk should be located. Changing this property forces a new resource to be created. | string | null | |
-
-### Azure NetApp Files (only when `storage_type=ha`)
-
-When `storage_type=ha` (high availability), [Microsoft Azure NetApp Files](https://azure.microsoft.com/en-us/services/netapp/) service is created, only when these variables are applicable. Before using this storage option, read about how to [Register for Azure NetApp Files](https://docs.microsoft.com/en-us/azure/azure-netapp-files/azure-netapp-files-register) to ensure your Azure Subscription has been granted access to the service.
-
-**⚠️ CRITICAL LIMITATION FOR MULTI-AZ DEPLOYMENTS:**
-
-Azure NetApp Files with cross-zone replication **does NOT provide automatic failover** during zone failures:
-- Cross-zone replication keeps data synchronized across zones
-- When a zone fails, the replica volume must be **manually activated**
-- Failover requires breaking the replication relationship via Azure CLI/Portal
-- Kubernetes pods must be updated to mount the new volume
-- Expected RTO: 15-60+ minutes depending on response time
-
-**This does not meet SAS requirements for zone-redundant storage with automatic failover.** For production multi-AZ deployments, consider alternative storage solutions or accept manual failover procedures.
-
-Reference: [Reliability in Azure NetApp Files - Zone Failures](https://learn.microsoft.com/en-us/azure/reliability/reliability-netapp-files)
-
-| Name | Description | Type | Default | Notes |
-| :--- | ---: | ---: | ---: | ---: |
-| netapp_service_level | The target performance level of the file system. Valid values include Premium, Standard, or Ultra. | string | "Premium" | |
-| netapp_size_in_tb | Provisioned size of the pool in TB. Value must be between 4 and 500 | number | 4 | |
-| netapp_protocols | The target volume protocol expressed as a list. Supported single value include CIFS, NFSv3, or NFSv4.1. If argument is not defined, it defaults to NFSv4.1. Changing this forces a new resource to be created and data will be lost. | list of strings | ["NFSv4.1"] | |
-| netapp_volume_path |A unique file path for the volume. Used when creating mount targets. Changing this forces a new resource to be created. | string | "export" | |
-| netapp_network_features |Indicates which network feature to use, accepted values are `Basic` or `Standard`, it defaults to `Basic` if not defined. | string | "Basic" | This is a feature in public preview. For more information about it and how to register, please refer to [Configure network features for an Azure NetApp Files volume](https://docs.microsoft.com/en-us/azure/azure-netapp-files/configure-network-features)|
 
 ## Azure Container Registry (ACR)
 

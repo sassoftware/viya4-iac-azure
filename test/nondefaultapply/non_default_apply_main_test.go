@@ -17,7 +17,7 @@ func TestApplyNonDefaultMain(t *testing.T) {
 	overrides["container_registry_admin_enabled"] = true
 	overrides["container_registry_geo_replica_locs"] = []string{"southeastus5", "southeastus3"}
 	overrides["rbac_aad_enabled"] = true
-	overrides["storage_type"] = "ha"
+	overrides["storage_type"] = "zrs"
 
 	// deferred cleanup routine for the resources created by the terrafrom init and apply after the test have been run
 	terraformOptions, _ := helpers.InitPlanAndApply(t, overrides)

@@ -4,14 +4,14 @@
 locals {
   rwx_filestore_endpoint = (var.storage_type == "none"
     ? ""
-    : var.storage_type == "ha" ? module.netapp[0].netapp_endpoint : module.nfs[0].private_ip_address
+    : var.storage_type == "zrs" ? module.azure_files_zrs[0].private_endpoint_ip : module.nfs[0].private_ip_address
   )
 
-  protocol_version = var.storage_type == "ha" && startswith(var.netapp_protocols[0], "NFS") ? split("v", var.netapp_protocols[0])[1] : "4.1"
+  protocol_version = "4.1"
 
   rwx_filestore_path = (var.storage_type == "none"
     ? ""
-    : var.storage_type == "ha" ? module.netapp[0].netapp_path : "/export"
+    : var.storage_type == "zrs" ? module.azure_files_zrs[0].nfs_mount_path : "/export"
   )
 
   jump_cloudconfig = var.create_jump_vm ? templatefile("${path.module}/files/cloud-init/jump/cloud-config", {

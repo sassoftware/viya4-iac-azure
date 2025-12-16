@@ -13,8 +13,7 @@ vnet_resource_group_name = "<existing-resource-group-name>" # RG for BYO resourc
 vnet_name                = "<existing-vnet-name>"           # only needed if using pre-existing
 subnet_names             = {
   "aks": "<existing-subnet-name-for-aks>", 
-  "misc": "<existing-subnet-name-for-misc>", 
-  "netapp": "<existing-subnet-name-for-netapp>" # only needed if using ha storage (aka netapp)
+  "misc": "<existing-subnet-name-for-misc>"
 }
 # also available as BYO
 resource_group_name      = "<existing-resource-group-name>" # RG for aks resources

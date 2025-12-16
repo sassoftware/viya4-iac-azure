@@ -69,21 +69,3 @@ Error: Error creating NetApp Account "sse-vdsdp-ha1-netappaccount" (Resource Gro
  Check your Azure Subscription has been granted access to Azure NetApp Files service: [Azure Netapp Quickstart](https://docs.microsoft.com/en-us/azure/azure-netapp-files/azure-netapp-files-quickstart-set-up-account-create-volumes?tabs=azure-portal#before-you-begin)
 
 
-## Azure NetApp NFSv3 volume file lock issue
-In event of SAS Viya Platform deployment shutdown on an AKS cluster with Azure NetApp NFSv3 volume, the file locks persist and `sas-consul-server` cannot access raft.db until the file locks are broken. 
-
-### Resolution:
-There are two options to avoid this issue:
-
-1. Break the file locks from Azure Portal. For details see [Troubleshoot file locks on an Azure NetApp Files volume](https://learn.microsoft.com/en-us/azure/azure-netapp-files/troubleshoot-file-locks).
-
-2. Use Azure NetApp NFS volume version 4.1. Update to the latest version of `sassoftware/viya4-iac-azure` to use NFSv4.1 by default. If you are using sassoftware/viya4-iac-azure's release v7.2.0 or before, then add the variable `netapp_protocols` to your terraform.tfvars to switch to NFSv4.1.
-
-   **Note:** Changing this on existing cluster will result in data loss.
-   
-   Example:
-   ```bash
-   # Storage HA
-   storage_type = "ha"
-   netapp_protocols = ["NFSv4.1"]
-   ``` 

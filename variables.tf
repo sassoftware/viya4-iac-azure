@@ -426,13 +426,13 @@ variable "vm_disk_encryption_set_id" {
 }
 
 variable "storage_type" {
-  description = "Type of Storage. Valid Values: `standard`, `ha` and `none`. `standard` creates NFS server VM, `ha` creates Azure Netapp Files"
+  description = "Type of Storage. Valid Values: `standard`, `zrs`, and `none`. `standard` creates NFS server VM, `zrs` creates Azure Files with Zone-Redundant Storage (recommended for multi-AZ)"
   type        = string
   default     = "standard"
   # NOTE: storage_type=none is for internal use only
   validation {
-    condition     = contains(["standard", "ha", "none"], lower(var.storage_type))
-    error_message = "ERROR: Supported values for `storage_type` are - standard, ha, none."
+    condition     = contains(["standard", "zrs", "none"], lower(var.storage_type))
+    error_message = "ERROR: Supported values for `storage_type` are - standard, zrs, none."
   }
 }
 
@@ -520,95 +520,39 @@ variable "container_registry_geo_replica_locs" {
   default     = null
 }
 
-# Azure NetApp Files
-variable "netapp_service_level" {
-  description = "When storage_type=ha, The target performance of the file system. Valid values include Premium, Standard, or Ultra"
+# Azure Files with Zone-Redundant Storage (ZRS)
+variable "azure_files_storage_account_tier" {
+  description = "Storage account tier for Azure Files. Valid values: 'Standard', 'Premium'. Premium required for NFS 4.1 protocol"
   type        = string
   default     = "Premium"
 
   validation {
-    condition     = var.netapp_service_level != null ? contains(["Premium", "Standard", "Ultra"], var.netapp_service_level) : null
-    error_message = "ERROR: netapp_service_level - Valid values include - Premium, Standard, or Ultra."
+    condition     = contains(["Standard", "Premium"], var.azure_files_storage_account_tier)
+    error_message = "Valid values are: Standard, Premium."
   }
 }
 
-variable "netapp_size_in_tb" {
-  description = "When storage_type=ha, Provisioned size of the pool in TB. Value must be between 4 and 500"
+variable "azure_files_share_name" {
+  description = "Name of the Azure Files NFS share for SAS Viya storage"
+  type        = string
+  default     = "viya"
+}
+
+variable "azure_files_quota_gb" {
+  description = "Quota in GB for Azure Files share. Must be between 100 and 102400 (100TB)"
   type        = number
-  default     = 4
+  default     = 5120
 
   validation {
-    condition     = var.netapp_size_in_tb != null ? var.netapp_size_in_tb >= 4 && var.netapp_size_in_tb <= 500 : null
-    error_message = "ERROR: netapp_size_in_tb - value must be between 4 and 500."
+    condition     = var.azure_files_quota_gb >= 100 && var.azure_files_quota_gb <= 102400
+    error_message = "azure_files_quota_gb must be between 100 GB and 100 TB (102400 GB)."
   }
 }
 
-variable "netapp_protocols" {
-  description = "The target volume protocol expressed as a list. Supported single value include CIFS, NFSv3, or NFSv4.1. If argument is not defined it will default to NFSv4.1. Changing this forces a new resource to be created and data will be lost."
-  type        = list(string)
-  default     = ["NFSv4.1"]
-}
-
-variable "netapp_volume_path" {
-  description = "A unique file path for the volume. Used when creating mount targets. Changing this forces a new resource to be created"
-  type        = string
-  default     = "export"
-}
-
-variable "netapp_network_features" {
-  description = "Indicates which network feature to use, accepted values are Basic or Standard, it defaults to Basic if not defined."
-  type        = string
-  default     = "Basic"
-
-  validation {
-    condition     = contains(["Basic", "Standard"], var.netapp_network_features)
-    error_message = "Error: Currently the supported values are 'Basic' and 'Standard'."
-  }
-}
-
-# ✅ NEW: Multi-AZ NetApp Variables
-variable "netapp_availability_zone" {
-  description = "Primary availability zone for Azure NetApp Files volume. Set to '1', '2', or '3' for zonal deployment."
-  type        = string
-  default     = "1"
-  
-  validation {
-    condition     = var.netapp_availability_zone == null || contains(["1", "2", "3"], var.netapp_availability_zone)
-    error_message = "NetApp availability zone must be '1', '2', '3', or null."
-  }
-}
-
-variable "netapp_enable_cross_zone_replication" {
-  description = "Enable cross-zone replication for Azure NetApp Files to ensure zone failure resilience. Requires Standard network features."
+variable "azure_files_create_private_endpoint" {
+  description = "Create a private endpoint for Azure Files storage account (recommended for production)"
   type        = bool
-  default     = false
-}
-
-variable "netapp_replication_zone" {
-  description = "Target availability zone for NetApp cross-zone replication. Must be different from netapp_availability_zone."
-  type        = string
-  default     = "2"
-  
-  validation {
-    condition     = var.netapp_replication_zone == null || contains(["1", "2", "3"], var.netapp_replication_zone)
-    error_message = "NetApp replication zone must be '1', '2', '3', or null."
-  }
-  
-  validation {
-    condition     = !var.netapp_enable_cross_zone_replication || (var.netapp_replication_zone != null && var.netapp_replication_zone != var.netapp_availability_zone)
-    error_message = "When netapp_enable_cross_zone_replication is enabled, netapp_replication_zone must be set and differ from netapp_availability_zone to ensure proper cross-zone replication."
-  }
-}
-
-variable "netapp_replication_frequency" {
-  description = "Replication frequency for cross-zone replication. Valid values: 10minutes, hourly, daily"
-  type        = string
-  default     = "10minutes"
-  
-  validation {
-    condition     = contains(["10minutes", "hourly", "daily"], var.netapp_replication_frequency)
-    error_message = "Valid values are: 10minutes, hourly, daily."
-  }
+  default     = true
 }
 
 variable "node_pools_availability_zone" {
@@ -836,18 +780,6 @@ variable "subnets" {
       "private_link_service_network_policies_enabled" : false,
       "service_delegations" : {},
     }
-    netapp = {
-      "prefixes" : ["192.168.3.0/24"],
-      "service_endpoints" : [],
-      "private_endpoint_network_policies" : "Disabled",
-      "private_link_service_network_policies_enabled" : false,
-      "service_delegations" : {
-        netapp = {
-          "name" : "Microsoft.Netapp/volumes"
-          "actions" : ["Microsoft.Network/networkinterfaces/*", "Microsoft.Network/virtualNetworks/subnets/join/action"]
-        }
-      }
-    }
   }
 }
 
@@ -902,14 +834,6 @@ variable "node_resource_group_name" {
   default = ""
 }
 
-# Community Contribution
-# Netapp Volume Size control
-variable "community_netapp_volume_size" {
-  description = "Community Contributed field. Will manually set the value of the Netapp Volume smaller than the Netapp Pool. This value is in GB."
-  type = number
-  default = 0
-}
-
 # Node OS upgrade channel control
 variable "community_node_os_upgrade_channel" {
   type        = string
@@ -919,13 +843,4 @@ variable "community_node_os_upgrade_channel" {
     condition     = contains(["None", "NodeImage", "SecurityPatch", "Unmanaged"], var.community_node_os_upgrade_channel)
     error_message = "ERROR: Valid types are \"None\", \"NodeImage\", \"SecurityPatch\" and \"Unmanaged\"!"
   }
-}
-
-# Community Contribution - NetApp Zone
-# Note: NetApp multi-AZ zone variables (netapp_availability_zone, netapp_enable_cross_zone_replication,
-# netapp_replication_zone, netapp_replication_frequency) are defined earlier in this file (lines 570-609)
-variable "community_netapp_volume_zone" {
-  description = "Community Contributed field. Specifies the availability zone for the NetApp volume."
-  type        = number
-  default     = null
 }

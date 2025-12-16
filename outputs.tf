@@ -116,33 +116,23 @@ output "provider" {
 output "rwx_filestore_endpoint" {
   value = (var.storage_type == "none"
     ? null
-    : var.storage_type == "ha" ? module.netapp[0].netapp_endpoint : module.nfs[0].private_ip_address
+    : var.storage_type == "zrs"
+      ? module.azure_files_zrs[0].primary_file_host
+      : module.nfs[0].private_ip_address
   )
 }
 
 output "rwx_filestore_path" {
   value = (var.storage_type == "none"
     ? null
-    : var.storage_type == "ha" ? module.netapp[0].netapp_path : "/export"
+    : var.storage_type == "zrs"
+      ? "/${module.azure_files_zrs[0].storage_account_name}/${module.azure_files_zrs[0].share_name}"
+      : "/export"
   )
 }
 
 output "rwx_filestore_config" {
-  value = var.storage_type == "ha" ? jsonencode({
-    "version" : 1,
-    "storageDriverName" : "azure-netapp-files",
-    "subscriptionID" : split("/", data.azurerm_subscription.current.id)[2],
-    "tenantID" : data.azurerm_subscription.current.tenant_id,
-    "clientID" : var.client_id,
-    "clientSecret" : var.client_secret,
-    "location" : local.aks_rg.location,
-    "serviceLevel" : var.netapp_service_level,
-    "virtualNetwork" : module.vnet.name,
-    "subnet" : module.vnet.subnets["netapp"],
-    "defaults" : {
-      "exportRule" : element(tolist(module.vnet.address_space), 0),
-    }
-  }) : null
+  value = null
 }
 
 output "cluster_node_pool_mode" {
@@ -155,4 +145,21 @@ output "cluster_api_mode" {
 
 output "aks_network_plugin" {
   value = var.aks_network_plugin
+}
+
+# Azure Files ZRS
+output "azure_files_storage_account_name" {
+  value = var.storage_type == "zrs" ? module.azure_files_zrs[0].storage_account_name : null
+}
+
+output "azure_files_share_name" {
+  value = var.storage_type == "zrs" ? module.azure_files_zrs[0].share_name : null
+}
+
+output "azure_files_nfs_mount_path" {
+  value = var.storage_type == "zrs" ? module.azure_files_zrs[0].nfs_mount_path : null
+}
+
+output "azure_files_private_endpoint_ip" {
+  value = var.storage_type == "zrs" && var.azure_files_create_private_endpoint ? module.azure_files_zrs[0].private_endpoint_ip : null
 }
