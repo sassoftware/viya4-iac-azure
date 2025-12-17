@@ -13,7 +13,7 @@ resource "azurerm_storage_account" "zrs" {
   account_kind             = "FileStorage"
 
   # Security settings
-  enable_https_traffic_only       = true
+  https_traffic_only_enabled      = true
   min_tls_version                 = "TLS1_2"
   allow_nested_items_to_be_public = false
   shared_access_key_enabled       = true
@@ -32,7 +32,7 @@ resource "azurerm_storage_account" "zrs" {
 # NFS share for SAS Viya workloads
 resource "azurerm_storage_share" "viya" {
   name                 = var.share_name
-  storage_account_name = azurerm_storage_account.zrs.name
+  storage_account_id   = azurerm_storage_account.zrs.id
   quota                = var.quota_gb
 
   # NFS 4.1 protocol (required for Kubernetes NFS provisioner)

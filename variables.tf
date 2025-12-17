@@ -768,14 +768,14 @@ variable "subnets" {
   default = {
     aks = {
       "prefixes" : ["192.168.0.0/23"],
-      "service_endpoints" : ["Microsoft.Sql"],
+      "service_endpoints" : ["Microsoft.Sql", "Microsoft.Storage"],
       "private_endpoint_network_policies" : "Enabled",
       "private_link_service_network_policies_enabled" : false,
       "service_delegations" : {},
     }
     misc = {
       "prefixes" : ["192.168.2.0/24"],
-      "service_endpoints" : ["Microsoft.Sql"],
+      "service_endpoints" : ["Microsoft.Sql", "Microsoft.Storage"],
       "private_endpoint_network_policies" : "Enabled",
       "private_link_service_network_policies_enabled" : false,
       "service_delegations" : {},
