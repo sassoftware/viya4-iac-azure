@@ -7,20 +7,26 @@ locals {
 
   # Process backend trusted root certificates
   backend_trusted_root_certs = var.app_gateway_config != null && lookup(var.app_gateway_config, "backend_trusted_root_certificate", null) != null ? [
-    for cert in var.app_gateway_config.backend_trusted_root_certificate : {
-      name                = cert.name
-      data                = lookup(cert, "data", null) != null ? filebase64(cert.data) : null
-      key_vault_secret_id = lookup(cert, "key_vault_secret_id", null)
+    for i, cert in var.app_gateway_config.backend_trusted_root_certificate : {
+      name = cert.name
+      # Option 1: Local file upload
+      data = lookup(cert, "data", null) != null ? filebase64(cert.data) : null
+      # Option 2: Key Vault certificate name (auto-fetch secret_id)
+      key_vault_secret_id = lookup(cert, "certificate_name", null) != null && lookup(cert, "data", null) == null ? 
+        try(data.azurerm_key_vault_certificate.backend_cert[i].secret_id, null) : null
     }
   ] : []
 
   # Process SSL certificates
   ssl_certs = var.app_gateway_config != null && lookup(var.app_gateway_config, "ssl_certificate", null) != null ? [
-    for cert in var.app_gateway_config.ssl_certificate : {
-      name                = cert.name
-      data                = lookup(cert, "data", null) != null ? filebase64(cert.data) : null
-      password            = lookup(cert, "password", null)
-      key_vault_secret_id = lookup(cert, "key_vault_secret_id", null)
+    for i, cert in var.app_gateway_config.ssl_certificate : {
+      name     = cert.name
+      # Option 1: Local file upload
+      data     = lookup(cert, "data", null) != null ? filebase64(cert.data) : null
+      password = lookup(cert, "password", null)
+      # Option 2: Key Vault certificate name (auto-fetch secret_id)
+      key_vault_secret_id = lookup(cert, "certificate_name", null) != null && lookup(cert, "data", null) == null ? 
+        try(data.azurerm_key_vault_certificate.ssl_cert[i].secret_id, null) : null
     }
   ] : []
 
