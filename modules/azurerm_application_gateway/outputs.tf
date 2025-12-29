@@ -35,15 +35,15 @@ output "waf_enabled" {
 
 output "identity_id" {
   description = "User-Assigned Identity ID (if created)"
-  value       = var.create_identity && var.create_app_gateway ? azurerm_user_assigned_identity.appgw[0].id : null
+  value       = var.create_app_gateway ? try(azurerm_user_assigned_identity.appgw[0].id, null) : null
 }
 
 output "identity_principal_id" {
   description = "User-Assigned Identity Principal ID (if created)"
-  value       = var.create_identity && var.create_app_gateway ? azurerm_user_assigned_identity.appgw[0].principal_id : null
+  value       = var.create_app_gateway ? try(azurerm_user_assigned_identity.appgw[0].principal_id, null) : null
 }
 
 output "identity_client_id" {
   description = "User-Assigned Identity Client ID (if created)"
-  value       = var.create_identity && var.create_app_gateway ? azurerm_user_assigned_identity.appgw[0].client_id : null
+  value       = var.create_app_gateway ? try(azurerm_user_assigned_identity.appgw[0].client_id, null) : null
 }
