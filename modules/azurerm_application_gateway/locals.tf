@@ -12,8 +12,7 @@ locals {
       # Option 1: Local file upload
       data = lookup(cert, "data", null) != null ? filebase64(cert.data) : null
       # Option 2: Key Vault certificate name (auto-fetch secret_id)
-      key_vault_secret_id = lookup(cert, "certificate_name", null) != null && lookup(cert, "data", null) == null ? 
-        try(data.azurerm_key_vault_certificate.backend_cert[i].secret_id, null) : null
+      key_vault_secret_id = lookup(cert, "certificate_name", null) != null && lookup(cert, "data", null) == null ? try(data.azurerm_key_vault_certificate.backend_cert[i].secret_id, null) : null
     }
   ] : []
 
@@ -25,8 +24,7 @@ locals {
       data     = lookup(cert, "data", null) != null ? filebase64(cert.data) : null
       password = lookup(cert, "password", null)
       # Option 2: Key Vault certificate name (auto-fetch secret_id)
-      key_vault_secret_id = lookup(cert, "certificate_name", null) != null && lookup(cert, "data", null) == null ? 
-        try(data.azurerm_key_vault_certificate.ssl_cert[i].secret_id, null) : null
+      key_vault_secret_id = lookup(cert, "certificate_name", null) != null && lookup(cert, "data", null) == null ? try(data.azurerm_key_vault_certificate.ssl_cert[i].secret_id, null) : null
     }
   ] : []
 
