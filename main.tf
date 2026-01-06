@@ -92,6 +92,7 @@ module "vnet" {
   add_uai_permissions = (var.aks_uai_name == null)
   existing_subnets    = var.subnet_names
   address_space       = [var.vnet_address_space]
+  enable_ipv6         = var.enable_ipv6
   ipv6_address_space  = var.enable_ipv6 ? [var.vnet_ipv6_address_space] : null
   tags                = var.tags
 }

@@ -34,6 +34,12 @@ variable "ipv6_address_space" {
   default     = null
 }
 
+variable "enable_ipv6" {
+  description = "Enable IPv6 dual-stack subnets. When true, allocates /64 IPv6 prefixes to each subnet from the ipv6_address_space."
+  type        = bool
+  default     = false
+}
+
 # If no values specified, this defaults to Azure DNS 
 variable "dns_servers" {
   description = "The DNS servers to be used with vNet."
