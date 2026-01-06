@@ -227,7 +227,28 @@ variable "aks_service_cidr" {
     condition     = var.aks_service_cidr != null ? can(cidrnetmask(var.aks_service_cidr)) : false
     error_message = "ERROR: aks_service_cidr - value must not be null and must be a valid CIDR."
   }
+}
 
+variable "aks_service_ipv6_cidr" {
+  description = "The IPv6 Network Range used by the Kubernetes service. Required when enable_ipv6=true and aks_network_plugin='azure'. Must be a /108 CIDR block."
+  type        = string
+  default     = "2001:db8:1::/108"
+
+  validation {
+    condition     = var.aks_service_ipv6_cidr != null ? can(cidrnetmask(var.aks_service_ipv6_cidr)) && can(regex("/108$", var.aks_service_ipv6_cidr)) : true
+    error_message = "ERROR: aks_service_ipv6_cidr - value must be a valid IPv6 CIDR with /108 prefix."
+  }
+}
+
+variable "load_balancer_sku" {
+  description = "The SKU of the Load Balancer. Possible values are Standard and Basic. For IPv6 dual-stack support, Standard is required."
+  type        = string
+  default     = "Standard"
+
+  validation {
+    condition     = contains(["Standard", "Basic"], var.load_balancer_sku)
+    error_message = "ERROR: load_balancer_sku - Possible values are Standard and Basic."
+  }
 }
 
 variable "aks_cluster_tags" {

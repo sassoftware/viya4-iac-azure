@@ -92,6 +92,7 @@ module "vnet" {
   add_uai_permissions = (var.aks_uai_name == null)
   existing_subnets    = var.subnet_names
   address_space       = [var.vnet_address_space]
+  ipv6_address_space  = var.enable_ipv6 ? [var.vnet_ipv6_address_space] : null
   tags                = var.tags
 }
 
@@ -126,6 +127,23 @@ resource "azurerm_network_security_rule" "acr" {
   destination_port_range      = "5000"
   source_address_prefixes     = local.acr_public_access_cidrs
   destination_address_prefix  = "*"
+  resource_group_name         = local.nsg_rg_name
+  network_security_group_name = local.nsg.name
+}
+
+# IPv6 Egress rule for dual-stack load balancer support
+resource "azurerm_network_security_rule" "ipv6_lb_outbound" {
+  name                        = "SAS-IPv6-LB-Outbound"
+  description                 = "Allow IPv6 outbound traffic for load balancer"
+  count                       = var.enable_ipv6 ? 1 : 0
+  priority                    = 190
+  direction                   = "Outbound"
+  access                      = "Allow"
+  protocol                    = "*"
+  source_port_range           = "*"
+  destination_port_range      = "*"
+  source_address_prefix       = "::/0"
+  destination_address_prefix  = "::/0"
   resource_group_name         = local.nsg_rg_name
   network_security_group_name = local.nsg.name
 }
@@ -167,6 +185,8 @@ module "aks" {
   cluster_egress_type                      = local.cluster_egress_type
   aks_pod_cidr                             = var.aks_pod_cidr
   aks_service_cidr                         = var.aks_service_cidr
+  aks_service_ipv6_cidr                    = var.enable_ipv6 ? var.aks_service_ipv6_cidr : null
+  load_balancer_sku                        = var.load_balancer_sku
   aks_cluster_tags                         = var.tags
   aks_uai_id                               = local.aks_uai_id
   client_id                                = var.client_id

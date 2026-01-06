@@ -28,6 +28,12 @@ variable "address_space" {
   type        = list(string)
 }
 
+variable "ipv6_address_space" {
+  description = "The IPv6 address space that is used by the virtual network. Must be /48 CIDR block."
+  type        = list(string)
+  default     = null
+}
+
 # If no values specified, this defaults to Azure DNS 
 variable "dns_servers" {
   description = "The DNS servers to be used with vNet."

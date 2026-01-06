@@ -120,6 +120,10 @@ variables that are declared in each file, refer to the [CONFIG-VARS.md](docs/CON
 You have the option to specify variable definitions that are not included in `terraform.tfvars` or to use a variable definition file other than
 `terraform.tfvars`. See [Advanced Terraform Usage](docs/user/AdvancedTerraformUsage.md) for more information.
 
+#### IPv6 Dual-Stack Networking (Optional)
+
+This project supports optional IPv6 dual-stack networking for AKS clusters. To enable IPv6 support alongside IPv4, see [IPv6 Dual Stack Configuration](docs/IPv6_DUAL_STACK.md) for detailed setup instructions, CIDR planning guidelines, and known limitations.
+
 ## Creating and Managing the Cloud Resources
 
 Create and manage the required cloud resources. Perform one of the following steps, based on whether you are using Docker: 

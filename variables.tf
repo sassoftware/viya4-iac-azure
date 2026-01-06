@@ -64,6 +64,12 @@ variable "location" {
   default     = "eastus"
 }
 
+variable "enable_ipv6" {
+  description = "Enable IPv6 on VNet, subnets, and AKS. When true, AKS cluster uses IPv6 dual-stack (pods get IPv6 addresses). Note: IPv6 subnets must be /64."
+  type        = bool
+  default     = false
+}
+
 ## Azure AD
 variable "rbac_aad_enabled" {
   type        = bool
@@ -275,6 +281,28 @@ variable "aks_service_cidr" {
   validation {
     condition     = var.aks_service_cidr != null ? can(cidrnetmask(var.aks_service_cidr)) : false
     error_message = "ERROR: aks_service_cidr - value must not be null and must be a valid CIDR."
+  }
+}
+
+variable "aks_service_ipv6_cidr" {
+  description = "The IPv6 Network Range used by the Kubernetes service. Used when enable_ipv6=true and aks_network_plugin='azure'. Must be a /108 CIDR block."
+  type        = string
+  default     = "2001:db8:1::/108"
+
+  validation {
+    condition     = var.aks_service_ipv6_cidr != null ? can(cidrnetmask(var.aks_service_ipv6_cidr)) && can(regex("/108$", var.aks_service_ipv6_cidr)) : true
+    error_message = "ERROR: aks_service_ipv6_cidr - value must be a valid IPv6 CIDR with /108 prefix."
+  }
+}
+
+variable "load_balancer_sku" {
+  description = "The SKU of the Load Balancer. Possible values are Standard and Basic. For IPv6 dual-stack support, Standard is required."
+  type        = string
+  default     = "Standard"
+
+  validation {
+    condition     = contains(["Standard", "Basic"], var.load_balancer_sku)
+    error_message = "ERROR: load_balancer_sku - Possible values are Standard and Basic."
   }
 }
 
@@ -736,6 +764,17 @@ variable "vnet_address_space" {
   description = "Address space for created vnet"
   type        = string
   default     = "192.168.0.0/16"
+}
+
+variable "vnet_ipv6_address_space" {
+  description = "IPv6 address space for created vnet. Used when enable_ipv6=true. Must be a /48 CIDR block."
+  type        = string
+  default     = "2001:db8::/48"
+
+  validation {
+    condition     = var.vnet_ipv6_address_space != null ? can(cidrnetmask(var.vnet_ipv6_address_space)) && can(regex("/48$", var.vnet_ipv6_address_space)) : true
+    error_message = "ERROR: vnet_ipv6_address_space - value must be a valid IPv6 CIDR with /48 prefix."
+  }
 }
 
 variable "nsg_name" {
