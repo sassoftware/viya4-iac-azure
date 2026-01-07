@@ -23,8 +23,12 @@ resource "azurerm_virtual_network" "vnet" {
   location            = var.location
   address_space       = var.address_space
   dns_servers         = var.dns_servers
-  ipv6_address_space  = var.enable_ipv6 ? var.ipv6_address_space : null
   tags                = var.tags
+
+  # NOTE: IPv6 is managed at the subnet level via ipv6_address_prefix.
+  # The Terraform azurerm provider does not support ipv6_address_space
+  # as a VNet-level argument. IPv6 subnets are created with /64 prefixes
+  # allocated from the ipv6_address_space when enable_ipv6=true.
 }
 
 data "azurerm_subnet" "subnet" {
@@ -41,7 +45,6 @@ resource "azurerm_subnet" "subnet" {
   resource_group_name                           = var.resource_group_name
   virtual_network_name                          = local.vnet_name
   address_prefixes                              = each.value.prefixes
-  ipv6_address_prefix                           = var.enable_ipv6 ? cidrsubnet(var.ipv6_address_space[0], 16, index(keys(var.subnets), each.key)) : null
   service_endpoints                             = each.value.service_endpoints
   private_endpoint_network_policies             = each.value.private_endpoint_network_policies
   private_link_service_network_policies_enabled = each.value.private_link_service_network_policies_enabled
@@ -56,6 +59,16 @@ resource "azurerm_subnet" "subnet" {
       }
     }
   }
+
+  # NOTE: IPv6 subnet prefix allocation is not yet supported by the Terraform
+  # azurerm provider. To enable IPv6 on subnets, you can:
+  #  - Use the `azapi` provider for IPv6 subnet configuration
+  #  - Or configure IPv6 subnets manually via Azure Portal/CLI after initial VNet creation
+  # IPv6 prefixes must be /64 CIDR blocks allocated from the VNet's /48 space.
+  # Example prefixes (to be applied manually or via azapi):
+  #  - aks subnet:     2001:db8:0000::/64
+  #  - misc subnet:    2001:db8:0001::/64
+  #  - netapp subnet:  2001:db8:0002::/64
 
   depends_on = [data.azurerm_virtual_network.vnet, azurerm_virtual_network.vnet]
 }

@@ -185,9 +185,11 @@ module "aks" {
   aks_dns_service_ip                       = var.aks_dns_service_ip
   cluster_egress_type                      = local.cluster_egress_type
   aks_pod_cidr                             = var.aks_pod_cidr
+  aks_pod_ipv6_cidr                        = var.enable_ipv6 ? var.aks_pod_ipv6_cidr : null
   aks_service_cidr                         = var.aks_service_cidr
   aks_service_ipv6_cidr                    = var.enable_ipv6 ? var.aks_service_ipv6_cidr : null
   load_balancer_sku                        = var.load_balancer_sku
+  enable_ipv6                              = var.enable_ipv6
   aks_cluster_tags                         = var.tags
   aks_uai_id                               = local.aks_uai_id
   client_id                                = var.client_id

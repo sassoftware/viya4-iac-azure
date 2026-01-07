@@ -35,7 +35,7 @@ variable "ipv6_address_space" {
 }
 
 variable "enable_ipv6" {
-  description = "Enable IPv6 dual-stack subnets. When true, allocates /64 IPv6 prefixes to each subnet from the ipv6_address_space."
+  description = "Enable IPv6 dual-stack configuration planning. NOTE: Actual IPv6 subnet prefix allocation requires manual configuration via Azure CLI/Portal or the azapi provider, as the Terraform azurerm provider does not yet support ipv6_address_prefix on subnets."
   type        = bool
   default     = false
 }

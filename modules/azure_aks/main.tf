@@ -24,6 +24,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   private_cluster_enabled = var.aks_private_cluster
   private_dns_zone_id     = var.aks_private_cluster && var.aks_cluster_private_dns_zone_id != "" ? var.aks_cluster_private_dns_zone_id : (var.aks_private_cluster ? "System" : null)
   run_command_enabled     = var.aks_cluster_run_command_enabled
+  ip_family               = var.enable_ipv6 ? "dualstack" : null
 
   # OIDC issuer must always be enabled if workload identity is enabled
   oidc_issuer_enabled       = var.enable_workload_identity
@@ -47,7 +48,13 @@ resource "azurerm_kubernetes_cluster" "aks" {
       var.aks_network_plugin == "kubenet" ||
       (var.aks_network_plugin == "azure" && var.aks_network_plugin_mode == "overlay")
     ) ? var.aks_pod_cidr : null
-    service_ipv6_cidr = var.aks_service_ipv6_cidr
+    # IPv6 pod CIDR configuration for dual-stack Azure CNI
+    ipv6_pod_cidr = var.enable_ipv6 ? var.aks_pod_ipv6_cidr : null
+    # NOTE: service_ipv6_cidr is not supported by the current Terraform azurerm
+    # provider for azurerm_kubernetes_cluster. IPv6 service CIDR configuration
+    # requires either a provider update or manual configuration via Azure CLI.
+    # Example: az aks update --resource-group <rg> --name <cluster> \
+    #   --enable-ipv6 --ipv6-service-ipv6-cidr 2001:db8:1::/108
     outbound_type       = var.cluster_egress_type
     load_balancer_sku   = var.load_balancer_sku
   }

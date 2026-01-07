@@ -273,6 +273,17 @@ variable "aks_pod_cidr" {
   }
 }
 
+variable "aks_pod_ipv6_cidr" {
+  description = "The IPv6 CIDR to use for pod IP addresses when enable_ipv6=true. Must be a /64 CIDR block. Required for dual-stack with Azure CNI."
+  type        = string
+  default     = "2001:db8::/64"
+
+  validation {
+    condition     = var.aks_pod_ipv6_cidr != null ? can(regex("^([0-9a-fA-F]{1,4}:)+:/64$", var.aks_pod_ipv6_cidr)) : true
+    error_message = "ERROR: aks_pod_ipv6_cidr - value must be a valid IPv6 CIDR with /64 prefix (e.g., 2001:db8::/64)."
+  }
+}
+
 variable "aks_service_cidr" {
   description = "The Network Range used by the Kubernetes service. Changing this forces a new resource to be created."
   type        = string
@@ -290,19 +301,19 @@ variable "aks_service_ipv6_cidr" {
   default     = "2001:db8:1::/108"
 
   validation {
-    condition     = var.aks_service_ipv6_cidr != null ? can(cidrnetmask(var.aks_service_ipv6_cidr)) && can(regex("/108$", var.aks_service_ipv6_cidr)) : true
-    error_message = "ERROR: aks_service_ipv6_cidr - value must be a valid IPv6 CIDR with /108 prefix."
+    condition     = var.aks_service_ipv6_cidr != null ? can(regex("^([0-9a-fA-F]{1,4}:)+:/108$", var.aks_service_ipv6_cidr)) : true
+    error_message = "ERROR: aks_service_ipv6_cidr - value must be a valid IPv6 CIDR with /108 prefix (e.g., 2001:db8:1::/108)."
   }
 }
 
 variable "load_balancer_sku" {
-  description = "The SKU of the Load Balancer. Possible values are Standard and Basic. For IPv6 dual-stack support, Standard is required."
+  description = "The SKU of the Load Balancer. Possible values are standard and basic. For IPv6 dual-stack support, standard is required."
   type        = string
-  default     = "Standard"
+  default     = "standard"
 
   validation {
-    condition     = contains(["Standard", "Basic"], var.load_balancer_sku)
-    error_message = "ERROR: load_balancer_sku - Possible values are Standard and Basic."
+    condition     = contains(["standard", "basic"], var.load_balancer_sku)
+    error_message = "ERROR: load_balancer_sku - Possible values are standard and basic."
   }
 }
 
@@ -772,8 +783,8 @@ variable "vnet_ipv6_address_space" {
   default     = "2001:db8::/48"
 
   validation {
-    condition     = var.vnet_ipv6_address_space != null ? can(cidrnetmask(var.vnet_ipv6_address_space)) && can(regex("/48$", var.vnet_ipv6_address_space)) : true
-    error_message = "ERROR: vnet_ipv6_address_space - value must be a valid IPv6 CIDR with /48 prefix."
+    condition     = var.vnet_ipv6_address_space != null ? can(regex("^([0-9a-fA-F]{1,4}:)+:/48$", var.vnet_ipv6_address_space)) : true
+    error_message = "ERROR: vnet_ipv6_address_space - value must be a valid IPv6 CIDR with /48 prefix (e.g., 2001:db8::/48)."
   }
 }
 
