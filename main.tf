@@ -324,3 +324,94 @@ EOT
 
   depends_on = [module.aks]
 }
+
+# Enable IPv6 dual-stack on AKS cluster and subnets using ARM template deployment
+resource "azurerm_resource_group_template_deployment" "enable_ipv6" {
+  count               = var.enable_ipv6 ? 1 : 0
+  name                = "${var.prefix}-ipv6-dualstack"
+  resource_group_name = local.aks_rg.name
+  deployment_mode     = "Incremental"
+
+  template_content = jsonencode({
+    $schema        = "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"
+    contentVersion = "1.0.0.0"
+    resources = [
+      {
+        type       = "Microsoft.Network/virtualNetworks/subnets"
+        apiVersion = "2023-04-01"
+        name       = "${module.vnet.name}/aks-subnet"
+        properties = {
+          addressPrefix = module.vnet.subnets["aks"].address_prefixes[0]
+          ipv6AddressPrefixes = [
+            var.aks_pod_ipv6_cidr
+          ]
+          serviceEndpoints = [
+            {
+              service = "Microsoft.Sql"
+            }
+          ]
+        }
+      },
+      {
+        type       = "Microsoft.Network/virtualNetworks/subnets"
+        apiVersion = "2023-04-01"
+        name       = "${module.vnet.name}/misc-subnet"
+        properties = {
+          addressPrefix = module.vnet.subnets["misc"].address_prefixes[0]
+          ipv6AddressPrefixes = [
+            "2001:db8:0001::/64"
+          ]
+          serviceEndpoints = [
+            {
+              service = "Microsoft.Sql"
+            }
+          ]
+        }
+      },
+      {
+        type       = "Microsoft.Network/virtualNetworks/subnets"
+        apiVersion = "2023-04-01"
+        name       = "${module.vnet.name}/netapp-subnet"
+        properties = {
+          addressPrefix = module.vnet.subnets["netapp"].address_prefixes[0]
+          ipv6AddressPrefixes = [
+            "2001:db8:0002::/64"
+          ]
+          delegations = [
+            {
+              name       = "Microsoft.Netapp/volumes"
+              properties = {
+                serviceName = "Microsoft.Netapp/volumes"
+              }
+            }
+          ]
+        }
+      },
+      {
+        type       = "Microsoft.ContainerService/managedClusters"
+        apiVersion = "2023-10-01"
+        name       = module.aks.name
+        location   = var.location
+        properties = {
+          networkProfile = {
+            ipFamilies = [
+              "IPv4",
+              "IPv6"
+            ]
+            ipFamilyPolicy = "RequireDualStack"
+            serviceCidrs = [
+              var.aks_service_cidr,
+              var.aks_service_ipv6_cidr
+            ]
+            podCidrs = [
+              var.aks_pod_cidr,
+              var.aks_pod_ipv6_cidr
+            ]
+          }
+        }
+      }
+    ]
+  })
+
+  depends_on = [module.aks, module.vnet]
+}

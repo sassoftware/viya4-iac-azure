@@ -24,7 +24,8 @@ resource "azurerm_kubernetes_cluster" "aks" {
   private_cluster_enabled = var.aks_private_cluster
   private_dns_zone_id     = var.aks_private_cluster && var.aks_cluster_private_dns_zone_id != "" ? var.aks_cluster_private_dns_zone_id : (var.aks_private_cluster ? "System" : null)
   run_command_enabled     = var.aks_cluster_run_command_enabled
-  ip_family               = var.enable_ipv6 ? "dualstack" : null
+  # NOTE: ip_family = "dualstack" is not yet supported by azurerm provider
+  # IPv6 dual-stack requires provider upgrade or manual Azure CLI configuration
 
   # OIDC issuer must always be enabled if workload identity is enabled
   oidc_issuer_enabled       = var.enable_workload_identity
@@ -42,19 +43,22 @@ resource "azurerm_kubernetes_cluster" "aks" {
     network_plugin      = var.aks_network_plugin
     network_policy      = var.aks_network_policy
     network_plugin_mode = var.aks_network_plugin_mode
+    # Dual-stack IPv4 + IPv6 configuration
     service_cidr        = var.aks_service_cidr
     dns_service_ip      = var.aks_dns_service_ip
     pod_cidr = (
       var.aks_network_plugin == "kubenet" ||
       (var.aks_network_plugin == "azure" && var.aks_network_plugin_mode == "overlay")
     ) ? var.aks_pod_cidr : null
-    # IPv6 pod CIDR configuration for dual-stack Azure CNI
-    ipv6_pod_cidr = var.enable_ipv6 ? var.aks_pod_ipv6_cidr : null
-    # NOTE: service_ipv6_cidr is not supported by the current Terraform azurerm
-    # provider for azurerm_kubernetes_cluster. IPv6 service CIDR configuration
-    # requires either a provider update or manual configuration via Azure CLI.
-    # Example: az aks update --resource-group <rg> --name <cluster> \
-    #   --enable-ipv6 --ipv6-service-ipv6-cidr 2001:db8:1::/108
+    # NOTE: ipv6_pod_cidr and service_ipv6_cidr are not yet supported by azurerm
+    # provider. IPv6 dual-stack configuration requires provider upgrade or manual
+    # configuration via Azure CLI. Example for IPv6 pod CIDR:
+    # az aks update --resource-group <rg> --name <cluster> \
+    #   --ip-family IPvDualStack \
+    #   --pod-ipv6-cidr 2001:db8::/64
+    # For IPv6 service CIDR:
+    # az aks update --resource-group <rg> --name <cluster> \
+    #   --ipv6-service-ipv6-cidr 2001:db8:1::/108
     outbound_type       = var.cluster_egress_type
     load_balancer_sku   = var.load_balancer_sku
   }

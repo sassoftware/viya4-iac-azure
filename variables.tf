@@ -65,7 +65,7 @@ variable "location" {
 }
 
 variable "enable_ipv6" {
-  description = "Enable IPv6 on VNet, subnets, and AKS. When true, AKS cluster uses IPv6 dual-stack (pods get IPv6 addresses). Note: IPv6 subnets must be /64."
+  description = "Enable IPv6 dual-stack support (IPv4 + IPv6). When true, AKS cluster uses dual-stack networking with both IPv4 and IPv6 pod/service CIDRs. Requires aks_network_plugin='azure' and load_balancer_sku='standard'."
   type        = bool
   default     = false
 }

@@ -199,7 +199,7 @@ variable "aks_network_plugin_mode" {
 }
 
 variable "enable_ipv6" {
-  description = "Enable IPv6 dual-stack support on the AKS cluster. Requires aks_network_plugin='azure' and load_balancer_sku='standard'."
+  description = "Enable IPv6 dual-stack support on the AKS cluster (IPv4 + IPv6). Requires aks_network_plugin='azure' and load_balancer_sku='standard'."
   type        = bool
   default     = false
 }
