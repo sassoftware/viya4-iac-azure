@@ -566,10 +566,11 @@ variable "netapp_network_features" {
   }
 }
 
-# ✅ NEW: Multi-AZ NetApp Variables
+# Multi-AZ NetApp Variables
 variable "netapp_availability_zone" {
   description = "Primary availability zone for Azure NetApp Files volume. Set to '1', '2', or '3' for zonal deployment."
   type        = string
+  nullable    = true
   default     = "1"
   
   validation {
@@ -587,6 +588,7 @@ variable "netapp_enable_cross_zone_replication" {
 variable "netapp_replication_zone" {
   description = "Target availability zone for NetApp cross-zone replication. Must be different from netapp_availability_zone."
   type        = string
+  nullable    = true
   default     = "2"
   
   validation {
@@ -919,13 +921,4 @@ variable "community_node_os_upgrade_channel" {
     condition     = contains(["None", "NodeImage", "SecurityPatch", "Unmanaged"], var.community_node_os_upgrade_channel)
     error_message = "ERROR: Valid types are \"None\", \"NodeImage\", \"SecurityPatch\" and \"Unmanaged\"!"
   }
-}
-
-# Community Contribution - NetApp Zone
-# Note: NetApp multi-AZ zone variables (netapp_availability_zone, netapp_enable_cross_zone_replication,
-# netapp_replication_zone, netapp_replication_frequency) are defined earlier in this file (lines 570-609)
-variable "community_netapp_volume_zone" {
-  description = "Community Contributed field. Specifies the availability zone for the NetApp volume."
-  type        = number
-  default     = null
 }

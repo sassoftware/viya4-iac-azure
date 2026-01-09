@@ -77,6 +77,7 @@ variable "community_netapp_volume_size" {
 variable "netapp_availability_zone" {
   description = "Primary availability zone for Azure NetApp Files volume. Set to '1', '2', or '3' for zonal deployment."
   type        = string
+  nullable    = true
   default     = "1"
   
   validation {
@@ -94,6 +95,7 @@ variable "netapp_enable_cross_zone_replication" {
 variable "netapp_replication_zone" {
   description = "Target availability zone for NetApp cross-zone replication. Must be different from netapp_availability_zone."
   type        = string
+  nullable    = true
   default     = "2"
   
   validation {

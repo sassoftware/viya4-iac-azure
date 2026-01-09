@@ -276,7 +276,6 @@ module "netapp" {
   depends_on          = [module.vnet]
 
   community_netapp_volume_size = var.community_netapp_volume_size
-  community_netapp_volume_zone = var.node_pools_availability_zone != "" ? tonumber(var.node_pools_availability_zone) : var.community_netapp_volume_zone
   
   # Multi-AZ Cross-Zone Replication Configuration (Changes for PSCLOUD-133 comment)
   netapp_availability_zone             = var.netapp_availability_zone
