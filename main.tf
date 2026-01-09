@@ -325,93 +325,78 @@ EOT
   depends_on = [module.aks]
 }
 
-# Enable IPv6 dual-stack on AKS cluster and subnets using ARM template deployment
-resource "azurerm_resource_group_template_deployment" "enable_ipv6" {
+# Enable IPv6 dual-stack on AKS cluster and subnets
+# Step 1: Configure subnets with IPv6 prefixes via ARM template
+resource "azurerm_resource_group_template_deployment" "enable_ipv6_subnets" {
   count               = var.enable_ipv6 ? 1 : 0
-  name                = "${var.prefix}-ipv6-dualstack"
+  name                = "${var.prefix}-ipv6-subnets"
   resource_group_name = local.aks_rg.name
   deployment_mode     = "Incremental"
 
   template_content = jsonencode({
-    $schema        = "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"
+    "$schema"      = "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"
     contentVersion = "1.0.0.0"
-    resources = [
-      {
-        type       = "Microsoft.Network/virtualNetworks/subnets"
-        apiVersion = "2023-04-01"
-        name       = "${module.vnet.name}/aks-subnet"
-        properties = {
-          addressPrefix = module.vnet.subnets["aks"].address_prefixes[0]
-          ipv6AddressPrefixes = [
-            var.aks_pod_ipv6_cidr
-          ]
-          serviceEndpoints = [
-            {
-              service = "Microsoft.Sql"
-            }
-          ]
-        }
-      },
-      {
-        type       = "Microsoft.Network/virtualNetworks/subnets"
-        apiVersion = "2023-04-01"
-        name       = "${module.vnet.name}/misc-subnet"
-        properties = {
-          addressPrefix = module.vnet.subnets["misc"].address_prefixes[0]
-          ipv6AddressPrefixes = [
-            "2001:db8:0001::/64"
-          ]
-          serviceEndpoints = [
-            {
-              service = "Microsoft.Sql"
-            }
-          ]
-        }
-      },
-      {
-        type       = "Microsoft.Network/virtualNetworks/subnets"
-        apiVersion = "2023-04-01"
-        name       = "${module.vnet.name}/netapp-subnet"
-        properties = {
-          addressPrefix = module.vnet.subnets["netapp"].address_prefixes[0]
-          ipv6AddressPrefixes = [
-            "2001:db8:0002::/64"
-          ]
-          delegations = [
-            {
-              name       = "Microsoft.Netapp/volumes"
-              properties = {
-                serviceName = "Microsoft.Netapp/volumes"
-              }
-            }
-          ]
-        }
-      },
-      {
-        type       = "Microsoft.ContainerService/managedClusters"
-        apiVersion = "2023-10-01"
-        name       = module.aks.name
-        location   = var.location
-        properties = {
-          networkProfile = {
-            ipFamilies = [
-              "IPv4",
-              "IPv6"
-            ]
-            ipFamilyPolicy = "RequireDualStack"
-            serviceCidrs = [
-              var.aks_service_cidr,
-              var.aks_service_ipv6_cidr
-            ]
-            podCidrs = [
-              var.aks_pod_cidr,
-              var.aks_pod_ipv6_cidr
-            ]
+    resources = concat(
+      [
+        # AKS Subnet with IPv6
+        {
+          type       = "Microsoft.Network/virtualNetworks/subnets"
+          apiVersion = "2023-04-01"
+          name       = "${module.vnet.name}/aks-subnet"
+          properties = {
+            addressPrefix  = module.vnet.subnets["aks"].address_prefixes[0]
+            ipv6AddressPrefix = var.aks_pod_ipv6_cidr
+          }
+        },
+        # Misc Subnet with IPv6
+        {
+          type       = "Microsoft.Network/virtualNetworks/subnets"
+          apiVersion = "2023-04-01"
+          name       = "${module.vnet.name}/misc-subnet"
+          properties = {
+            addressPrefix  = module.vnet.subnets["misc"].address_prefixes[0]
+            ipv6AddressPrefix = "2001:db8:0001::/64"
           }
         }
-      }
-    ]
+      ],
+      # Conditionally add NetApp subnet if it exists
+      contains(keys(module.vnet.subnets), "netapp") ? [
+        {
+          type       = "Microsoft.Network/virtualNetworks/subnets"
+          apiVersion = "2023-04-01"
+          name       = "${module.vnet.name}/netapp-subnet"
+          properties = {
+            addressPrefix  = module.vnet.subnets["netapp"].address_prefixes[0]
+            ipv6AddressPrefix = "2001:db8:0002::/64"
+          }
+        }
+      ] : []
+    )
   })
 
-  depends_on = [module.aks, module.vnet]
+  depends_on = [module.vnet]
+}
+
+# Step 2: Configure AKS cluster for dual-stack using Azure CLI
+# The azurerm provider doesn't support IPv6 dual-stack configuration yet,
+# so we use the Azure CLI to update the cluster after subnets are ready
+resource "null_resource" "enable_ipv6_cluster" {
+  count = var.enable_ipv6 ? 1 : 0
+
+  provisioner "local-exec" {
+    command = <<-EOT
+    echo "Enabling IPv6 dual-stack on AKS cluster..."
+    az aks update \
+      --resource-group "${local.aks_rg.name}" \
+      --name "${module.aks.name}" \
+      --ip-families IPv4 IPv6 \
+      --ip-family-policy RequireDualStack \
+      --pod-ipv6-cidr "${var.aks_pod_ipv6_cidr}" \
+      --service-ipv6-cidr "${var.aks_service_ipv6_cidr}" \
+      --subscription "${var.subscription_id}"
+    echo "IPv6 dual-stack enabled successfully"
+    EOT
+  }
+
+  depends_on = [module.aks, azurerm_resource_group_template_deployment.enable_ipv6_subnets]
 }
