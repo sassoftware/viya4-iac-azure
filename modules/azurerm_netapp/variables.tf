@@ -1,7 +1,5 @@
 # Copyright © 2020-2024, SAS Institute Inc., Cary, NC, USA. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
-#
-# MULTI-AZ ENHANCED VERSION - Compare with variables.tf
 
 variable "prefix" {
   description = "A prefix used in the name for all the Azure resources created by this script."
@@ -75,18 +73,7 @@ variable "community_netapp_volume_size" {
   default = 0
 }
 
-# Netapp Zone
-variable "community_netapp_volume_zone" {
-  description = "Community Contributed field. Will set the Zone for the Netapp Volume's hosting. Use 1, 2, or 3 for specific zones, or null for non-zonal deployment."
-  type        = number
-  default     = 1
-  validation {
-    condition     = var.community_netapp_volume_zone == null || contains([1, 2, 3], var.community_netapp_volume_zone)
-    error_message = "NetApp volume zone must be 1, 2, 3, or null for non-zonal deployment."
-  }
-}
-
-# ✅ NEW: Multi-AZ Variables
+# Multi-AZ Variables
 variable "netapp_availability_zone" {
   description = "Primary availability zone for Azure NetApp Files volume. Set to '1', '2', or '3' for zonal deployment."
   type        = string
