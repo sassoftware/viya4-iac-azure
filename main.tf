@@ -79,8 +79,25 @@ data "azurerm_public_ip" "nat-ip" {
   resource_group_name = local.network_rg.name
 }
 
+data "azurerm_subnet" "aks_ipv6" {
+  count              = var.enable_ipv6 ? 1 : 0
+  name               = "${var.prefix}-aks-subnet"
+  virtual_network_name = "${var.prefix}-vnet"
+  resource_group_name  = local.network_rg.name
+  depends_on           = [azurerm_resource_group_template_deployment.vnet_ipv6]
+}
+
+data "azurerm_virtual_network" "ipv6_vnet" {
+  count               = var.enable_ipv6 ? 1 : 0
+  name                = "${var.prefix}-vnet"
+  resource_group_name = local.network_rg.name
+  depends_on          = [azurerm_resource_group_template_deployment.vnet_ipv6]
+}
+
 module "vnet" {
   source = "./modules/azurerm_vnet"
+
+  count = var.enable_ipv6 ? 0 : 1
 
   name                = var.vnet_name
   prefix              = var.prefix
@@ -92,9 +109,51 @@ module "vnet" {
   add_uai_permissions = (var.aks_uai_name == null)
   existing_subnets    = var.subnet_names
   address_space       = [var.vnet_address_space]
-  enable_ipv6         = var.enable_ipv6
-  ipv6_address_space  = var.enable_ipv6 ? [var.vnet_ipv6_address_space] : null
   tags                = var.tags
+}
+
+# IPv6 path: Use ARM template to create VNet with native dual-stack support
+resource "azurerm_resource_group_template_deployment" "vnet_ipv6" {
+  count               = var.enable_ipv6 ? 1 : 0
+  name                = "${var.prefix}-vnet-ipv6"
+  resource_group_name = local.network_rg.name
+  deployment_mode     = "Incremental"
+
+  template_content = jsonencode({
+    "$schema"      = "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"
+    contentVersion = "1.0.0.0"
+    resources = [
+      {
+        type       = "Microsoft.Network/virtualNetworks"
+        apiVersion = "2023-04-01"
+        name       = "${var.prefix}-vnet"
+        location   = var.location
+        properties = {
+          addressSpace = {
+            addressPrefixes = [var.vnet_address_space, var.vnet_ipv6_address_space]
+          }
+          subnets = [
+            {
+              name       = "${var.prefix}-aks-subnet"
+              properties = {
+                addressPrefixes = ["192.168.0.0/23", var.aks_pod_ipv6_cidr]
+                serviceEndpoints = ["Microsoft.Sql"]
+              }
+            },
+            {
+              name       = "${var.prefix}-misc-subnet"
+              properties = {
+                addressPrefixes = ["192.168.2.0/24", "2001:db8:0001::/64"]
+                serviceEndpoints = ["Microsoft.Sql"]
+              }
+            }
+          ]
+        }
+      }
+    ]
+  })
+
+  depends_on = []
 }
 
 resource "azurerm_container_registry" "acr" {
@@ -173,7 +232,7 @@ module "aks" {
   aks_cluster_run_command_enabled          = var.aks_cluster_run_command_enabled
   aks_cluster_ssh_public_key               = try(file(var.ssh_public_key), "")
   aks_cluster_private_dns_zone_id          = var.aks_cluster_private_dns_zone_id
-  aks_vnet_subnet_id                       = module.vnet.subnets["aks"].id
+  aks_vnet_subnet_id                       = var.enable_ipv6 ? data.azurerm_subnet.aks_ipv6[0].id : module.vnet[0].subnets["aks"].id
   kubernetes_version                       = var.kubernetes_version
   aks_cluster_endpoint_public_access_cidrs = var.cluster_api_mode == "private" ? [] : local.cluster_endpoint_public_access_cidrs # "Private cluster cannot be enabled with AuthorizedIPRanges.""
   aks_availability_zones                   = var.default_nodepool_availability_zones
@@ -227,7 +286,7 @@ module "node_pools" {
 
   node_pool_name               = each.key
   aks_cluster_id               = module.aks.cluster_id
-  vnet_subnet_id               = module.vnet.subnets["aks"].id
+  vnet_subnet_id               = var.enable_ipv6 ? data.azurerm_subnet.aks_ipv6[0].id : module.vnet[0].subnets["aks"].id
   machine_type                 = each.value.machine_type
   fips_enabled                 = var.fips_enabled
   os_disk_size                 = each.value.os_disk_size
@@ -270,7 +329,7 @@ module "flex_postgresql" {
   firewall_rules               = local.postgres_firewall_rules
   connectivity_method          = each.value.connectivity_method
   virtual_network_id           = each.value.connectivity_method == "private" ? module.vnet.id : null
-  delegated_subnet_id          = each.value.connectivity_method == "private" ? module.vnet.subnets["postgresql"].id : null
+  delegated_subnet_id          = each.value.connectivity_method == "private" ? (var.enable_ipv6 ? null : module.vnet[0].subnets["postgresql"].id) : null
   postgresql_configurations = each.value.ssl_enforcement_enabled ? concat(each.value.postgresql_configurations, local.default_postgres_configuration) : concat(
   each.value.postgresql_configurations, [{ name : "require_secure_transport", value : "OFF" }], local.default_postgres_configuration)
   tags = var.tags
@@ -283,14 +342,14 @@ module "netapp" {
   prefix              = var.prefix
   resource_group_name = local.aks_rg.name
   location            = var.location
-  subnet_id           = module.vnet.subnets["netapp"].id
+  subnet_id           = var.enable_ipv6 ? null : module.vnet[0].subnets["netapp"].id
   network_features    = var.netapp_network_features
   service_level       = var.netapp_service_level
   size_in_tb          = var.netapp_size_in_tb
   protocols           = var.netapp_protocols
   volume_path         = "${var.prefix}-${var.netapp_volume_path}"
   tags                = var.tags
-  allowed_clients     = concat(module.vnet.subnets["aks"].address_prefixes, module.vnet.subnets["misc"].address_prefixes)
+  allowed_clients     = var.enable_ipv6 ? [] : concat(module.vnet[0].subnets["aks"].address_prefixes, module.vnet[0].subnets["misc"].address_prefixes)
   depends_on          = [module.vnet]
 
   community_netapp_volume_size = var.community_netapp_volume_size
@@ -325,78 +384,41 @@ EOT
   depends_on = [module.aks]
 }
 
-# Enable IPv6 dual-stack on AKS cluster and subnets
-# Step 1: Configure subnets with IPv6 prefixes via ARM template
-resource "azurerm_resource_group_template_deployment" "enable_ipv6_subnets" {
+# Enable IPv6 dual-stack on AKS cluster (optional, only when enable_ipv6 = true)
+# VNet and subnets are created with IPv6 natively via the azurerm_vnet module
+# This patch only configures the AKS cluster for dual-stack IP families
+resource "azurerm_resource_group_template_deployment" "aks_ipv6_dual_stack" {
   count               = var.enable_ipv6 ? 1 : 0
-  name                = "${var.prefix}-ipv6-subnets"
+  name                = "${var.prefix}-aks-ipv6-patch"
   resource_group_name = local.aks_rg.name
   deployment_mode     = "Incremental"
 
   template_content = jsonencode({
     "$schema"      = "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"
     contentVersion = "1.0.0.0"
-    resources = concat(
-      [
-        # AKS Subnet with IPv6
-        {
-          type       = "Microsoft.Network/virtualNetworks/subnets"
-          apiVersion = "2023-04-01"
-          name       = "${module.vnet.name}/aks-subnet"
-          properties = {
-            addressPrefix  = module.vnet.subnets["aks"].address_prefixes[0]
-            ipv6AddressPrefix = var.aks_pod_ipv6_cidr
-          }
-        },
-        # Misc Subnet with IPv6
-        {
-          type       = "Microsoft.Network/virtualNetworks/subnets"
-          apiVersion = "2023-04-01"
-          name       = "${module.vnet.name}/misc-subnet"
-          properties = {
-            addressPrefix  = module.vnet.subnets["misc"].address_prefixes[0]
-            ipv6AddressPrefix = "2001:db8:0001::/64"
+    resources = [
+      {
+        type       = "Microsoft.ContainerService/managedClusters"
+        apiVersion = "2023-07-01"
+        name       = module.aks.name
+        location   = var.location
+        properties = {
+          networkProfile = {
+            ipFamilies = ["IPv4", "IPv6"]
+            podCidrs = [
+              "10.244.0.0/16",
+              var.aks_pod_ipv6_cidr
+            ]
+            serviceCidrs = [
+              "10.0.0.0/16",
+              var.aks_service_ipv6_cidr
+            ]
+            ipFamilyPolicy = "RequireDualStack"
           }
         }
-      ],
-      # Conditionally add NetApp subnet if it exists
-      contains(keys(module.vnet.subnets), "netapp") ? [
-        {
-          type       = "Microsoft.Network/virtualNetworks/subnets"
-          apiVersion = "2023-04-01"
-          name       = "${module.vnet.name}/netapp-subnet"
-          properties = {
-            addressPrefix  = module.vnet.subnets["netapp"].address_prefixes[0]
-            ipv6AddressPrefix = "2001:db8:0002::/64"
-          }
-        }
-      ] : []
-    )
+      }
+    ]
   })
 
-  depends_on = [module.vnet]
-}
-
-# Step 2: Configure AKS cluster for dual-stack using Azure CLI
-# The azurerm provider doesn't support IPv6 dual-stack configuration yet,
-# so we use the Azure CLI to update the cluster after subnets are ready
-resource "null_resource" "enable_ipv6_cluster" {
-  count = var.enable_ipv6 ? 1 : 0
-
-  provisioner "local-exec" {
-    command = <<-EOT
-    echo "Enabling IPv6 dual-stack on AKS cluster..."
-    az aks update \
-      --resource-group "${local.aks_rg.name}" \
-      --name "${module.aks.name}" \
-      --ip-families IPv4 IPv6 \
-      --ip-family-policy RequireDualStack \
-      --pod-ipv6-cidr "${var.aks_pod_ipv6_cidr}" \
-      --service-ipv6-cidr "${var.aks_service_ipv6_cidr}" \
-      --subscription "${var.subscription_id}"
-    echo "IPv6 dual-stack enabled successfully"
-    EOT
-  }
-
-  depends_on = [module.aks, azurerm_resource_group_template_deployment.enable_ipv6_subnets]
+  depends_on = [module.aks]
 }

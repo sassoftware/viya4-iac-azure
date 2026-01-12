@@ -18,6 +18,9 @@ locals {
 
   subnets = { for k, v in var.subnets : k => v if !(k == "netapp" && var.storage_type == "standard") }
 
+  # Conditional: Use module.vnet for IPv4, or extract from ARM template for IPv6
+  vnet = var.enable_ipv6 ? null : module.vnet[0]
+
   # Kubernetes
   kubeconfig_filename = "${var.prefix}-aks-kubeconfig.conf"
   kubeconfig_path     = var.iac_tooling == "docker" ? "/workspace/${local.kubeconfig_filename}" : local.kubeconfig_filename

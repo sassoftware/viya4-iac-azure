@@ -73,7 +73,7 @@ module "jump" {
   disk_encryption_set_id       = var.vm_disk_encryption_set_id
   os_disk_storage_account_type = var.os_disk_storage_account_type
   # Jump VM mounts NFS path hence dependency on 'module.nfs'
-  depends_on = [module.vnet, module.nfs]
+  depends_on = var.enable_ipv6 ? [azurerm_resource_group_template_deployment.vnet_ipv6[0], module.nfs] : [module.vnet[0], module.nfs]
 }
 
 data "cloudinit_config" "nfs" {
@@ -114,7 +114,7 @@ module "nfs" {
   data_disk_zone                 = var.nfs_raid_disk_zone
   encryption_at_host_enabled     = var.enable_vm_host_encryption
   disk_encryption_set_id         = var.vm_disk_encryption_set_id
-  depends_on                     = [module.vnet]
+  depends_on                     = var.enable_ipv6 ? [azurerm_resource_group_template_deployment.vnet_ipv6[0]] : [module.vnet[0]]
 }
 
 resource "azurerm_network_security_rule" "vm-ssh" {
