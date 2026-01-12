@@ -101,7 +101,7 @@ variable "delegated_subnet_id" {
   type        = string
 }
 
-# ✅ NEW: Multi-AZ Variables
+# Multi-AZ Variables
 variable "availability_zone" {
   description = "The availability zone for the primary PostgreSQL Flexible Server. Values: '1', '2', or '3'"
   type        = string

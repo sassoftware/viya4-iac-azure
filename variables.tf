@@ -327,7 +327,7 @@ variable "postgres_server_defaults" {
     connectivity_method          = "public"
     postgresql_configurations    = [{ name : "azure.extensions", value : "PGCRYPTO" }]
     
-    # ✅ NEW: Multi-AZ High Availability Configuration
+    # Multi-AZ High Availability Configuration
     high_availability_mode       = null              # Set to "ZoneRedundant" or "SameZone" to enable HA
     availability_zone            = "1"               # Primary zone (1, 2, or 3)
     standby_availability_zone    = "2"               # Standby zone (must differ from primary for ZoneRedundant)

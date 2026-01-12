@@ -46,10 +46,10 @@ resource "azurerm_postgresql_flexible_server" "flexpsql" {
   private_dns_zone_id          = try(azurerm_private_dns_zone.flexpsql[0].id, null)
   public_network_access_enabled = var.connectivity_method == "public" ? true : false
   
-  # ✅ NEW: Set availability zone for primary server
+  # Set availability zone for primary server
   zone                         = var.availability_zone
   
-  # ✅ NEW: High Availability Configuration
+  # High Availability Configuration
   # When enabled, creates a standby replica in a different zone (for ZoneRedundant mode)
   # or in the same zone (for SameZone mode)
   dynamic "high_availability" {
@@ -100,7 +100,7 @@ resource "azurerm_postgresql_flexible_server_firewall_rule" "azure_public" {
   end_ip_address   = "0.0.0.0"
 }
 
-# ✅ NEW: Output high availability status for monitoring
+# Output high availability status for monitoring
 output "high_availability_enabled" {
   description = "Whether high availability is enabled on this PostgreSQL server"
   value       = var.high_availability_mode != null ? true : false
