@@ -324,9 +324,9 @@ In addition, you can control the placement for the additional node pools using t
 SAS Viya Platform multi-AZ deployments require **zone-redundant storage (ZRS)** for all persistent volumes to ensure data availability across zones. See [Requirements for Environments with Multiple Availability Zones](https://go.documentation.sas.com/doc/en/sasadmincdc/v_070/itopssr/n1kj7od7zbas1en17vyb6tv39eac.htm).
 
 **Storage Options for Multi-AZ:**
-- ❌ **Azure NetApp Files (`storage_type="ha"`)** - Cross-zone replication provides data protection but **requires manual intervention** during zone failures. Does NOT meet automatic failover requirements for production multi-AZ deployments.
-- ⚠️ **NFS Server VM (`storage_type="standard"`)** - Using ZRS-backed disks (`nfs_raid_disk_type="StandardSSD_ZRS"`) provides disk-level redundancy, but the VM itself remains single-zone. Limited zone failure protection.
-- ✅ **External storage solutions** - Consider Azure Files with ZRS or other cloud-native solutions that provide automatic cross-zone failover.
+- **Azure NetApp Files (`storage_type="ha"`)** - Cross-zone replication provides data protection but **requires manual intervention** during zone failures. Does NOT meet automatic failover requirements for production multi-AZ deployments.
+- **NFS Server VM (`storage_type="standard"`)** - Using ZRS-backed disks (`nfs_raid_disk_type="StandardSSD_ZRS"`) provides disk-level redundancy, but the VM itself remains single-zone. Limited zone failure protection.
+- **External storage solutions** - Consider Azure Files with ZRS or other cloud-native solutions that provide automatic cross-zone failover.
 
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
