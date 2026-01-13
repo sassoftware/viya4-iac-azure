@@ -788,6 +788,12 @@ variable "vnet_ipv6_address_space" {
   }
 }
 
+variable "misc_subnet_ipv6_cidr" {
+  description = "(Optional) IPv6 CIDR for misc subnet. Auto-calculated from vnet_ipv6_address_space if not provided."
+  type        = string
+  default     = null
+}
+
 variable "nsg_name" {
   description = "Name of pre-exising NSG. Leave blank to have one created"
   type        = string

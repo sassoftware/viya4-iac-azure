@@ -125,7 +125,7 @@ resource "azurerm_resource_group_template_deployment" "vnet_ipv6" {
   count               = var.enable_ipv6 ? 1 : 0
   name                = "${var.prefix}-vnet-ipv6"
   resource_group_name = local.network_rg.name
-  deployment_mode     = "Complete"
+  deployment_mode     = "Incremental"
 
   template_content = jsonencode({
     "$schema"      = "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"
@@ -212,7 +212,10 @@ resource "azurerm_resource_group_template_deployment" "vnet_ipv6" {
     ]
   })
 
-  depends_on = []
+  depends_on = [
+    azurerm_network_security_group.nsg,
+    azurerm_user_assigned_identity.uai
+  ]
 }
 
 resource "azurerm_container_registry" "acr" {
