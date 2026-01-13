@@ -18,6 +18,12 @@ locals {
 
   subnets = { for k, v in var.subnets : k => v if !(k == "netapp" && var.storage_type == "standard") }
 
+  # IPv6: Calculate valid subnet ranges from VNet address space
+  # For /48 VNet: carve out /64 subnets (difference of 16 bits)
+  # For /16 VNet: carve out /24 subnets (difference of 8 bits)
+  ipv6_aks_subnet_cidr = var.enable_ipv6 ? cidrsubnet(var.vnet_ipv6_address_space, 16, 0) : null
+  ipv6_misc_subnet_cidr = var.enable_ipv6 ? cidrsubnet(var.vnet_ipv6_address_space, 16, 1) : null
+
   # Conditional: Use module.vnet for IPv4, or extract from ARM template for IPv6
   vnet = var.enable_ipv6 ? null : module.vnet[0]
 

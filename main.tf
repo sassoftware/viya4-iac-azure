@@ -87,6 +87,14 @@ data "azurerm_subnet" "aks_ipv6" {
   depends_on           = [azurerm_resource_group_template_deployment.vnet_ipv6]
 }
 
+data "azurerm_subnet" "misc_ipv6" {
+  count              = var.enable_ipv6 ? 1 : 0
+  name               = "${var.prefix}-misc-subnet"
+  virtual_network_name = "${var.prefix}-vnet"
+  resource_group_name  = local.network_rg.name
+  depends_on           = [azurerm_resource_group_template_deployment.vnet_ipv6]
+}
+
 data "azurerm_virtual_network" "ipv6_vnet" {
   count               = var.enable_ipv6 ? 1 : 0
   name                = "${var.prefix}-vnet"
@@ -117,34 +125,85 @@ resource "azurerm_resource_group_template_deployment" "vnet_ipv6" {
   count               = var.enable_ipv6 ? 1 : 0
   name                = "${var.prefix}-vnet-ipv6"
   resource_group_name = local.network_rg.name
-  deployment_mode     = "Incremental"
+  deployment_mode     = "Complete"
 
   template_content = jsonencode({
     "$schema"      = "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"
     contentVersion = "1.0.0.0"
+    parameters = {
+      vnetAddressSpace = {
+        type         = "string"
+        defaultValue = var.vnet_address_space
+      }
+      vnetIpv6AddressSpace = {
+        type         = "string"
+        defaultValue = var.vnet_ipv6_address_space
+      }
+      aksSubnetIpv4 = {
+        type         = "string"
+        defaultValue = var.subnets["aks"].prefixes[0]
+      }
+      aksSubnetIpv6 = {
+        type         = "string"
+        defaultValue = local.ipv6_aks_subnet_cidr
+      }
+      miscSubnetIpv4 = {
+        type         = "string"
+        defaultValue = var.subnets["misc"].prefixes[0]
+      }
+      miscSubnetIpv6 = {
+        type         = "string"
+        defaultValue = local.ipv6_misc_subnet_cidr
+      }
+      prefix = {
+        type         = "string"
+        defaultValue = var.prefix
+      }
+      location = {
+        type         = "string"
+        defaultValue = var.location
+      }
+    }
     resources = [
       {
         type       = "Microsoft.Network/virtualNetworks"
         apiVersion = "2023-04-01"
-        name       = "${var.prefix}-vnet"
-        location   = var.location
+        name       = "[concat(parameters('prefix'), '-vnet')]"
+        location   = "[parameters('location')]"
         properties = {
           addressSpace = {
-            addressPrefixes = [var.vnet_address_space, var.vnet_ipv6_address_space]
+            addressPrefixes = [
+              "[parameters('vnetAddressSpace')]",
+              "[parameters('vnetIpv6AddressSpace')]"
+            ]
           }
           subnets = [
             {
-              name       = "${var.prefix}-aks-subnet"
+              name       = "[concat(parameters('prefix'), '-aks-subnet')]"
               properties = {
-                addressPrefixes = ["192.168.0.0/23", var.aks_pod_ipv6_cidr]
-                serviceEndpoints = ["Microsoft.Sql"]
+                addressPrefixes = [
+                  "[parameters('aksSubnetIpv4')]",
+                  "[parameters('aksSubnetIpv6')]"
+                ]
+                serviceEndpoints = [
+                  {
+                    service = "Microsoft.Sql"
+                  }
+                ]
               }
             },
             {
-              name       = "${var.prefix}-misc-subnet"
+              name       = "[concat(parameters('prefix'), '-misc-subnet')]"
               properties = {
-                addressPrefixes = ["192.168.2.0/24", "2001:db8:0001::/64"]
-                serviceEndpoints = ["Microsoft.Sql"]
+                addressPrefixes = [
+                  "[parameters('miscSubnetIpv4')]",
+                  "[parameters('miscSubnetIpv6')]"
+                ]
+                serviceEndpoints = [
+                  {
+                    service = "Microsoft.Sql"
+                  }
+                ]
               }
             }
           ]
