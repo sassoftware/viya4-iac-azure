@@ -86,6 +86,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
     node_labels             = {}
     fips_enabled            = var.fips_enabled
     host_encryption_enabled = var.aks_cluster_enable_host_encryption
+    os_sku                  = var.fips_enabled ? "Ubuntu" : null
     max_pods                = var.aks_cluster_max_pods
     os_disk_size_gb         = var.aks_cluster_os_disk_size
     max_count               = var.aks_cluster_max_nodes

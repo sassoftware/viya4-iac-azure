@@ -15,6 +15,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "autoscale_node_pool" {
   vm_size                      = var.machine_type
   os_disk_size_gb              = var.os_disk_size
   os_type                      = var.os_type
+  os_sku                       = var.fips_enabled ? "Ubuntu" : null
   auto_scaling_enabled         = var.auto_scaling_enabled
   node_public_ip_enabled       = var.node_public_ip_enabled
   node_count                   = var.node_count
@@ -56,6 +57,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "static_node_pool" {
   vm_size                      = var.machine_type
   os_disk_size_gb              = var.os_disk_size
   os_type                      = var.os_type
+  os_sku                       = var.fips_enabled ? "Ubuntu" : null
   auto_scaling_enabled         = var.auto_scaling_enabled
   node_count                   = var.node_count
   max_count                    = var.max_nodes
