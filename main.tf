@@ -476,11 +476,20 @@ resource "azurerm_resource_group_template_deployment" "aks_ipv6_dual_stack" {
               var.aks_service_ipv6_cidr
             ]
             ipFamilyPolicy = "RequireDualStack"
+            loadBalancerProfile = {
+              managedOutboundIPs = {
+                count     = 1
+                countIPv6 = 1
+              }
+            }
           }
         }
       }
     ]
   })
 
-  depends_on = [module.aks]
+  depends_on = [
+    module.aks,
+    module.node_pools
+  ]
 }
