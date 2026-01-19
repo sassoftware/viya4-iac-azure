@@ -27,7 +27,7 @@ ssh_public_key              = "~/.ssh/id_rsa.pub"
 # Tags can be specified matching your tagging strategy.
 tags = {} # for example: { "owner|email" = "<you>@<domain>.<com>", "key1" = "value1", "key2" = "value2" }
 
-# ✅ MULTI-AZ POSTGRESQL CONFIGURATION
+# MULTI-AZ POSTGRESQL CONFIGURATION
 # Postgres config with Zone-Redundant High Availability
 # Primary in Zone 1, Standby in Zone 2 for automatic failover
 postgres_servers = {
@@ -106,7 +106,7 @@ create_jump_public_ip = true
 jump_vm_admin        = "jumpuser"
 jump_vm_machine_type = "Standard_B2s"
 
-# ✅ OPTION 1: MULTI-AZ WITH AZURE NETAPP FILES (Recommended for production)
+# OPTION 1: MULTI-AZ WITH AZURE NETAPP FILES (Recommended for production)
 # Storage for SAS Viya CAS/Compute with Cross-Zone Replication
 storage_type = "ha"
 
@@ -115,13 +115,13 @@ netapp_service_level                 = "Premium"
 netapp_size_in_tb                    = 4
 netapp_network_features              = "Standard"  # Required for cross-zone replication
 
-# ✅ Multi-AZ NetApp configuration
+# Multi-AZ NetApp configuration
 netapp_availability_zone             = "1"         # Primary volume in Zone 1
 netapp_enable_cross_zone_replication = true        # Enable cross-zone replication
 netapp_replication_zone              = "2"         # Replica volume in Zone 2
 netapp_replication_frequency         = "10minutes" # Replication frequency (10minutes, hourly, daily)
 
-# ✅ OPTION 2: STANDARD NFS WITH ZONE-REDUNDANT STORAGE (Limited HA)
+# OPTION 2: STANDARD NFS WITH ZONE-REDUNDANT STORAGE (Limited HA)
 # Uncomment these lines if using standard NFS instead of NetApp
 # NOTE: With standard storage, the NFS VM is still in a single zone
 # Even with ZRS disks, the VM won't auto-restart in another zone during zone failure
@@ -134,11 +134,11 @@ netapp_replication_frequency         = "10minutes" # Replication frequency (10mi
 # nfs_raid_disk_size   = 256
 # nfs_vm_zone          = "1"                     # NFS VM in Zone 1 (single point of failure)
 
-# ✅ Zone-redundant storage disks (survives zone failure but VM doesn't auto-recover)
+# Zone-redundant storage disks (survives zone failure but VM doesn't auto-recover)
 # nfs_raid_disk_type            = "StandardSSD_ZRS"  # Zone-redundant data disks
 # os_disk_storage_account_type  = "StandardSSD_ZRS"  # Zone-redundant OS disk
 
-# ✅ MULTI-ZONE AKS CONFIGURATION
+# MULTI-ZONE AKS CONFIGURATION
 # Spread AKS node pools across all availability zones
 default_nodepool_availability_zones = ["1", "2", "3"] 
 node_pools_availability_zones       = ["1", "2", "3"]
@@ -147,23 +147,23 @@ node_pools_availability_zones       = ["1", "2", "3"]
 # SUMMARY OF MULTI-AZ PROTECTION:
 # ============================================================================
 # 
-# ✅ PostgreSQL: Zone-Redundant HA
+# PostgreSQL: Zone-Redundant HA
 #    - Primary in Zone 1, Standby in Zone 2
 #    - Automatic failover if Zone 1 fails
 #    - No data loss, minimal downtime
 #
-# ✅ Storage (Option 1 - NetApp): Cross-Zone Replication
+# Storage (Option 1 - NetApp): Cross-Zone Replication
 #    - Primary volume in Zone 1
 #    - Replica volume in Zone 2
 #    - 10-minute replication frequency
 #    - Manual failover required (but data is protected)
 #
-# ⚠️ Storage (Option 2 - NFS): Limited HA
+# Storage (Option 2 - NFS): Limited HA
 #    - Zone-redundant disks (ZRS) survive zone failure
 #    - BUT: NFS VM is in single zone and won't auto-restart
 #    - Requires Azure Site Recovery or manual intervention
 #
-# ✅ AKS Node Pools: Multi-Zone Distribution
+# AKS Node Pools: Multi-Zone Distribution
 #    - Nodes spread across zones 1, 2, and 3
 #    - Continues running if one zone fails
 #    - Kubernetes automatically reschedules pods
@@ -173,10 +173,10 @@ node_pools_availability_zones       = ["1", "2", "3"]
 # ============================================================================
 #
 # With this configuration:
-# ✅ PostgreSQL automatically fails over to Zone 2
-# ✅ AKS continues running with nodes in Zones 2 and 3
-# ✅ NetApp data is safe in Zone 2 replica (manual failover needed)
-# ⚠️ Standard NFS requires manual recovery even with ZRS disks
+# PostgreSQL automatically fails over to Zone 2
+# AKS continues running with nodes in Zones 2 and 3
+# NetApp data is safe in Zone 2 replica (manual failover needed)
+# Standard NFS requires manual recovery even with ZRS disks
 #
 # Result: Minimal downtime, no data loss (with NetApp)
 # ============================================================================
