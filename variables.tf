@@ -884,3 +884,49 @@ variable "community_netapp_volume_zone" {
     error_message = "NetApp volume zone must be 1, 2, 3, or null for non-zonal deployment."
   }
 }
+
+# Application Gateway
+variable "create_app_gateway" {
+  description = "Create Application Gateway"
+  type        = bool
+  default     = false
+}
+
+variable "enable_waf" {
+  description = "Enable WAF (default true)"
+  type        = bool
+  default     = true
+}
+
+variable "appgw_subnet_address_space" {
+  description = "Application Gateway subnet CIDR"
+  type        = string
+  default     = "192.168.5.0/24"
+}
+
+variable "appgw_sku_capacity" {
+  description = "Application Gateway capacity"
+  type        = number
+  default     = 2
+}
+
+variable "app_gateway_config" {
+  description = "Application Gateway configuration"
+  type = object({
+    backend_host_name = optional(string)
+    backend_address_pool_fqdn = optional(list(string))
+    backend_trusted_root_certificate = optional(list(object({
+      name                = string
+      data                = optional(string)
+      key_vault_secret_id = optional(string)
+    })))
+    ssl_certificate = optional(list(object({
+      name                = string
+      data                = optional(string)
+      password            = optional(string)
+      key_vault_secret_id = optional(string)
+    })))
+  })
+  default   = null
+  sensitive = true
+}

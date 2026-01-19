@@ -95,6 +95,29 @@ module "vnet" {
   tags                = var.tags
 }
 
+# Application Gateway Module
+module "app_gateway" {
+  source = "./modules/azurerm_application_gateway"
+  count  = var.create_app_gateway ? 1 : 0
+
+  prefix              = var.prefix
+  resource_group_name = local.aks_rg.name
+  location            = var.location
+  tags                = var.tags
+
+  # Subnet from VNet module
+  subnet_id = module.vnet.subnets["appgw"].id
+
+  # WAF and SKU
+  enable_waf   = var.enable_waf
+  sku_capacity = var.appgw_sku_capacity
+
+  # Configuration
+  app_gateway_config = var.app_gateway_config
+
+  depends_on = [module.vnet]
+}
+
 resource "azurerm_container_registry" "acr" {
   count               = var.create_container_registry ? 1 : 0
   name                = join("", regexall("[a-zA-Z0-9]+", "${var.prefix}acr")) # alpha numeric characters only are allowed
