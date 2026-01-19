@@ -12,6 +12,24 @@ This document describes the configuration variables for deploying SAS Viya with 
   - [Complete Multi-AZ Example](#complete-multi-az-example)
   - [Validation Rules](#validation-rules)
   - [Zone Failure Scenarios](#zone-failure-scenarios)
+  - [Backward Compatibility](#backward-compatibility)
+  - [Default Values](#default-values)
+  - [Cost Considerations](#cost-considerations)
+  - [NetApp Cross-Zone Replication Limitations](#netapp-cross-zone-replication-limitations)
+    - [1. Manual Failover Required](#1-manual-failover-required)
+    - [2. Recovery Time & Data Loss Objectives](#2-recovery-time--data-loss-objectives)
+    - [3. Replica is Read-Only During Normal Operations](#3-replica-is-read-only-during-normal-operations)
+    - [4. Network Features Requirement & Cost](#4-network-features-requirement--cost)
+    - [5. Manual Break-Peering During Zone Failures](#5-manual-break-peering-during-zone-failures)
+    - [6. Replication Direction is One-Way Only](#6-replication-direction-is-one-way-only)
+    - [7. Failback Complexity After Zone Recovery](#7-failback-complexity-after-zone-recovery)
+    - [8. Dual Capacity Pool Management Overhead](#8-dual-capacity-pool-management-overhead)
+    - [9. No Automatic Application Failover](#9-no-automatic-application-failover)
+    - [10. Network Latency During Cross-Zone Replication](#10-network-latency-during-cross-zone-replication)
+  - [NetApp vs PostgreSQL High Availability Comparison](#netapp-vs-postgresql-high-availability-comparison)
+  - [Recommended Architecture](#recommended-architecture)
+  - [Best Practices for NetApp Multi-AZ](#best-practices-for-netapp-multi-az)
+  - [Limitations Summary](#limitations-summary)
   - [References](#references)
 
 ## Overview
@@ -378,6 +396,261 @@ Enabling multi-AZ features increases Azure costs:
 
 ---
 
+## NetApp Cross-Zone Replication Limitations
+
+- **Important:** While NetApp cross-zone replication provides data protection, it does **NOT provide automatic high availability**. Manual intervention is required during zone failure scenarios.
+
+## 1. Manual Failover Required
+
+Azure NetApp Files cross-zone replication is **passive** and **read-only**. Unlike PostgreSQL which has automatic failover:
+
+- **Primary zone failure**: Replica volume remains in **read-only mode**
+- **No automatic failover**: Applications continue trying to reach failed primary
+- **Manual switching required**: Applications must be manually reconfigured to use replica
+- **No automatic DNS updates**: Connection strings must be manually updated
+
+**Example scenario:**
+```
+Zone 1 (Primary) FAILS
+  ↓
+Replica in Zone 2 is available but READ-ONLY
+  ↓
+Applications still trying to reach Zone 1 → FAIL
+  ↓
+Manual intervention: Update app config to Zone 2 → Works (read-only)
+```
+
+## 2. Recovery Time & Data Loss Objectives
+
+| Metric | Value | Notes |
+|--------|-------|-------|
+| **RTO (Recovery Time Objective)** | Manual | Depends on how quickly you can redirect traffic |
+| **RPO (Recovery Point Objective)** | Configurable | Based on replication frequency setting |
+
+**RPO by Replication Frequency:**
+- `10minutes`: Up to 10 minutes of data loss possible
+- `hourly`: Up to 1 hour of data loss possible
+- `daily`: Up to 24 hours of data loss possible
+
+**Example with 10-minute replication:**
+```
+14:00 - Data written to primary
+14:05 - Replication sync to replica
+14:10 - Primary fails
+        → Data written between 14:05-14:10 may be lost
+        → RPO = 5 minutes of potential data loss
+```
+
+## 3. Replica is Read-Only During Normal Operations
+
+- Replica volume **cannot accept writes** while primary is operational
+- Cannot balance load across zones (unlike PostgreSQL replicas)
+- Replica serves **no operational purpose** during normal times
+- Only becomes usable when primary fails
+
+**Implications:**
+```
+Normal Operation:
+  App Server 1 (Zone 1) → Writes to Primary (Zone 1)
+  App Server 2 (Zone 2) → Still reads from Primary (Zone 1) Cross-zone traffic
+
+During Zone 1 Failure:
+  App Server 1 → Manual failover to Replica (Zone 2) Manual step
+  App Server 2 → Can now read from Replica (Zone 2) 
+```
+
+## 4. Network Features Requirement & Cost
+
+Cross-zone replication **requires Standard network features**:
+
+```
+Basic Network Features     Standard Network Features
+├─ Lower cost             ├─ Higher cost
+├─ Limited performance    ├─ Better performance
+├─ No replication support ├─ Supports cross-zone replication
+└─ Single zone only       └─ Multi-zone capable
+```
+
+**Cost Impact:**
+- Standard network features cost more than Basic
+- Two capacity pools required (primary + replica)
+- Doubles NetApp storage infrastructure costs
+
+## 5. Manual Break-Peering During Zone Failures
+
+**Critical Limitation**: If your deployment uses VNet peering with BYO (Bring Your Own) networks:
+
+During zone failure:
+1. Primary zone fails
+2. Replica becomes read-only in different zone
+3. VNet peering connections may require **manual verification/re-establishment**
+4. Applications may lose connectivity to replica even if it's available
+
+**Required Manual Steps:**
+```
+Zone Failure Detected
+  ↓
+Verify VNet peering status
+  ↓
+If peering broken:
+  ├─ Break existing peering (if needed)
+  ├─ Re-establish new peering relationship
+  └─ Verify connectivity restored
+  ↓
+Switch application to replica volume
+  ↓
+Update DNS/connection strings
+  ↓
+Service restored (manual process = hours not minutes)
+```
+
+**References:**
+- [Azure VNet Peering Troubleshooting](https://learn.microsoft.com/en-us/azure/virtual-network/virtual-network-troubleshoot-peering-issues)
+- [Peering Best Practices](https://learn.microsoft.com/en-us/azure/virtual-network/virtual-network-peering-overview#best-practices)
+
+## 6. Replication Direction is One-Way Only
+
+```
+Primary Volume (Zone 1)  ──Replication──→  Replica Volume (Zone 2)
+     (Read/Write)                               (Read-Only)
+     
+Normal Operation:
+  - Apps write to Primary only
+  - Replica cannot accept writes
+  - Unidirectional traffic
+
+After Zone 1 Failure (Manual Failover):
+  - Apps must manually switch to Replica
+  - Cannot automatically failback to Primary once it recovers
+  - Requires break/recreate replication for failback
+```
+
+## 7. Failback Complexity After Zone Recovery
+
+When the primary zone recovers, failback requires **manual steps**:
+
+```
+Zone 1 Recovers
+  ↓
+Replica still in "replicating" state (one-way)
+  ↓
+Manual Steps Required:
+  1. Break replication relationship
+  2. Decide on data direction (primary or replica state?)
+  3. Promote appropriate volume to primary
+  4. Re-establish replication if needed
+  5. Update applications
+  ↓
+Process takes hours/days, not automatic
+```
+
+## 8. Dual Capacity Pool Management Overhead
+
+Cross-zone replication requires **two separate capacity pools**:
+
+```
+Primary Pool               Replica Pool
+├─ Zone 1                 ├─ Zone 2
+├─ Service Level: Premium ├─ Service Level: Premium (must match)
+├─ Size: 4 TB             ├─ Size: 4 TB (must match)
+├─ Cost: $X               ├─ Cost: $X
+└─ Primary Volume         └─ Replica Volume
+
+Total Cost = 2x capacity pool cost (not 1x)
+```
+
+**Operational Overhead:**
+- Monitor two capacity pools instead of one
+- Maintain sizing consistency across zones
+- Plan capacity for both pools
+- Double the NetApp infrastructure to manage
+
+## 9. No Automatic Application Failover
+
+Unlike database-level HA (PostgreSQL), NetApp replication doesn't handle:
+
+- Automatic connection switching
+- Automatic DNS updates
+- Automatic read-only to read-write promotion
+- Automatic application reconfiguration
+- Automatic failback
+
+**All require manual intervention** through:
+- Application reconfiguration
+- Kubernetes persistent volume updates
+- Connection string changes
+- Possible application restart
+
+## 10. Network Latency During Cross-Zone Replication
+
+Replication traffic crosses availability zones:
+
+```
+Zone 1 Primary → Cross-Zone Network → Zone 2 Replica
+   ↑
+   └─ Network latency: 1-5ms (typical)
+   └─ Network bandwidth shared with app traffic
+   └─ May impact primary zone performance during heavy writes
+```
+
+## NetApp vs PostgreSQL High Availability Comparison
+
+| Aspect | PostgreSQL HA | NetApp Replication |
+|--------|---------------|-------------------|
+| **Failover Type** | Automatic | Manual |
+| **RTO** | < 60 seconds | Hours/Days (manual) |
+| **RPO** | < 30 seconds | Configurable (10min-daily) |
+| **Read Load Balancing** | Yes (read replicas) | No (read-only replica) |
+| **Automatic Failback** | Yes | No (requires manual steps) |
+| **Cost** | Moderate | High (dual pools) |
+| **Operational Complexity** | Low | High |
+| **Use Case** | Database HA | Data protection only |
+
+## Recommended Architecture
+
+For **true multi-AZ resilience**, use **both** together:
+
+```
+Zone 1                          Zone 2
+├─ PostgreSQL Primary (RW)      ├─ PostgreSQL Standby (RO)
+├─ NetApp Primary (RW)          ├─ NetApp Replica (RO)
+├─ AKS Nodes (Apps)             ├─ AKS Nodes (Apps)
+└─ Auto-failover               └─ Auto-failover
+   (Database)                      (Database)
+
+Zone 1 Failure:
+  PostgreSQL: Auto-failover to Zone 2 standby (60s)
+  NetApp: Manual failover to Zone 2 replica (requires app config change)
+  AKS: Kubernetes reschedules pods to Zone 2/3 nodes (automatic)
+```
+
+## Best Practices for NetApp Multi-AZ
+
+1. **Use NetApp for compliance/backup**, not primary HA
+2. **Rely on PostgreSQL automatic failover** for database HA
+3. **Keep replication frequency at `10minutes`** for RTO/RPO balance
+4. **Monitor replication status** continuously
+5. **Document manual failover procedures** for NetApp
+6. **Test failover scenarios** regularly (not just database)
+7. **Have runbooks for**:
+   - Zone failure detection
+   - VNet peering recovery
+   - Application failover to replica
+   - Failback after zone recovery
+
+## Limitations Summary
+
+| Limitation | Severity | Mitigation |
+|-----------|----------|-----------|
+| Manual failover required | **High** | Rely on PostgreSQL HA for DB failover |
+| RTO/RPO constraints | **High** | Use 10min replication frequency |
+| Read-only replica | **Medium** | Cannot load-balance across zones |
+| VNet peering manual fix | **High** | Document procedures; monitor peering |
+| Dual pool cost | **Medium** | Budget for 2x NetApp cost |
+| One-way replication | **Medium** | Plan failback procedure beforehand |
+| Failback complexity | **High** | Have documented runbooks |
+| No automatic failover | **High** | Combine with PostgreSQL HA |
+
 ## References
 
 ### Azure Documentation
@@ -385,56 +658,9 @@ Enabling multi-AZ features increases Azure costs:
 - [Azure NetApp Files Reliability](https://learn.microsoft.com/en-us/azure/reliability/reliability-netapp-files)
 - [NetApp Cross-Zone Replication](https://learn.microsoft.com/en-us/azure/azure-netapp-files/create-cross-zone-replication)
 - [Azure Availability Zones](https://learn.microsoft.com/en-us/azure/reliability/availability-zones-overview)
+- [NetApp SnapMirror Replication](https://learn.microsoft.com/en-us/azure/azure-netapp-files/snapshots-restore-new-volume)
+- [Azure High Availability Patterns](https://learn.microsoft.com/en-us/azure/architecture/reference-architectures/data/managed-postgres-ha)
 
 ### Related Configuration Files
 - [CONFIG-VARS.md](CONFIG-VARS.md) - All configuration variables
 - [examples/sample-input-multizone-enhanced.tfvars](../examples/sample-input-multizone-enhanced.tfvars) - Complete example configuration
-
----
-
-## Troubleshooting
-
-### Validation Error: Zone Mismatch
-
-**Error:**
-```
-Error: Invalid value for variable
-
-When high_availability_mode is 'ZoneRedundant', standby_availability_zone 
-must differ from availability_zone...
-```
-
-**Solution:** Ensure `standby_availability_zone` ≠ `availability_zone`
-
-### Validation Error: Network Features
-
-**Error:**
-```
-Error: Invalid value for variable
-
-When netapp_enable_cross_zone_replication is enabled, network_features 
-must be set to 'Standard'...
-```
-
-**Solution:** Set `netapp_network_features = "Standard"` when enabling replication
-
-### Validation Error: Invalid Zone Value
-
-**Error:**
-```
-Error: Invalid value for variable
-
-NetApp availability zone must be '1', '2', '3', or null.
-```
-
-**Solution:** Use only `"1"`, `"2"`, `"3"`, or `null` for zone values
-
----
-
-## Support
-
-For issues or questions:
-- Check [CONFIG-VARS.md](CONFIG-VARS.md) for general variable documentation
-- Review [examples/sample-input-multizone-enhanced.tfvars](../examples/sample-input-multizone-enhanced.tfvars) for complete examples
-- Run `terraform validate` to check configuration syntax
-- Run `terraform plan` to validate all rules before deploying
