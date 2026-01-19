@@ -24,18 +24,28 @@ tags = {} # for example: { "owner|email" = "<you>@<domain>.<com>", "key1" = "val
 enable_ipv6             = true
 aks_network_plugin      = "azure"
 aks_network_plugin_mode = "overlay"
-# vnet_ipv6_address_space = "2001:db8::/48" # Default testing range - see below for production guidance
-aks_pod_ipv6_cidr       = "fd00:10:244::/64"
-aks_service_ipv6_cidr   = "fd00:10:0::/108"
+
+# IPv6 Address Space Configuration:
+# vnet_ipv6_address_space = "fd00:1234:5678::/48" # Default: ULA range (production-safe for internal clusters)
+# aks_pod_ipv6_cidr       = "fd00:10:244::/64"     # Default: ULA range (production-safe overlay)
+# aks_service_ipv6_cidr   = "fd00:10:0::/108"      # Default: ULA range (production-safe overlay)
 # NOTE: VNet subnet IPv6 ranges are auto-calculated: first /64 (aks), second /64 (misc)
 #
-# IPv6 Address Space Guidance:
-# - Default: 2001:db8::/48 (RFC 3849 documentation range - testing only)
-# - Production options:
-#   1. Azure-assigned: Contact Azure support to request IPv6 prefix for your subscription
-#   2. Customer-owned: Use your organization's globally routable IPv6 prefix (if available)
-#   3. Private network: Use Unique Local Addresses (ULA) fd00::/8 range (not routable on internet)
-# - Must be a /48 CIDR block for proper subnet allocation
+# ⚠️  IPv6 PREFIX SELECTION FOR PRODUCTION:
+# The defaults use Unique Local Addresses (ULA) fd00::/8 range which is:
+#   Production-ready for internal-only clusters
+#   Private and isolated (similar to RFC 1918 for IPv4)
+#   NOT routable on the public internet
+#
+# For internet-facing clusters with external IPv6 connectivity:
+#   1. Azure-assigned prefix: Contact Azure support for a globally routable /48 allocation
+#   2. Organization prefix: Use your company's IPv6 allocation from ISP/RIR
+#
+# For customizing ULA prefix (recommended for production):
+#   - Generate unique random bits: https://www.unique-local-ipv6.com/
+#   - Example: vnet_ipv6_address_space = "fd00:abcd:ef01::/48"
+#
+# DO NOT USE: 2001:db8::/32 range - reserved for documentation only (RFC 3849)
 
 # Postgres config - By having this entry a database server is created. If you do not
 #                   need an external database server remove the 'postgres_servers'
