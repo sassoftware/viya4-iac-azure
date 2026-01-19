@@ -102,6 +102,7 @@ func GetDefaultPlanVars(t *testing.T) map[string]interface{} {
 	variables["prefix"] = "default"
 	variables["location"] = "eastus"
 	variables["default_public_access_cidrs"] = []string{"123.45.67.89/16"}
+	variables["enable_ipv6"] = false // Explicitly disable IPv6 for default tests
 
 	return variables
 }
