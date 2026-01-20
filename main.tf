@@ -215,7 +215,7 @@ module "node_pools" {
   max_pods                     = each.value.max_pods == null ? 110 : each.value.max_pods
   node_taints                  = each.value.node_taints
   node_labels                  = each.value.node_labels
-  zones                        = (var.node_pools_availability_zone == "" || var.node_pools_proximity_placement == true) ? [] : (var.node_pools_availability_zones != null) ? var.node_pools_availability_zones : [var.node_pools_availability_zone]
+  zones                        = each.value.availability_zones != null ? each.value.availability_zones : (var.node_pools_availability_zone == "" || var.node_pools_proximity_placement == true) ? [] : (var.node_pools_availability_zones != null) ? var.node_pools_availability_zones : [var.node_pools_availability_zone]
   proximity_placement_group_id = element(coalescelist(azurerm_proximity_placement_group.proximity[*].id, [""]), 0)
   orchestrator_version         = var.kubernetes_version
   host_encryption_enabled      = var.aks_cluster_enable_host_encryption
@@ -251,6 +251,11 @@ module "flex_postgresql" {
   postgresql_configurations = each.value.ssl_enforcement_enabled ? concat(each.value.postgresql_configurations, local.default_postgres_configuration) : concat(
   each.value.postgresql_configurations, [{ name : "require_secure_transport", value : "OFF" }], local.default_postgres_configuration)
   tags = var.tags
+  
+  # Multi-AZ High Availability Configuration (Changes for PSCLOUD-133 comment)
+  availability_zone         = lookup(each.value, "availability_zone", "1")
+  high_availability_mode    = lookup(each.value, "high_availability_mode", null)
+  standby_availability_zone = lookup(each.value, "standby_availability_zone", "2")
 }
 
 module "netapp" {
@@ -271,7 +276,12 @@ module "netapp" {
   depends_on          = [module.vnet]
 
   community_netapp_volume_size = var.community_netapp_volume_size
-  community_netapp_volume_zone = var.node_pools_availability_zone != "" ? tonumber(var.node_pools_availability_zone) : var.community_netapp_volume_zone
+  
+  # Multi-AZ Cross-Zone Replication Configuration (Changes for PSCLOUD-133 comment)
+  netapp_availability_zone             = var.netapp_availability_zone
+  netapp_enable_cross_zone_replication = var.netapp_enable_cross_zone_replication
+  netapp_replication_zone              = var.netapp_replication_zone
+  netapp_replication_frequency         = var.netapp_replication_frequency
 }
 
 data "external" "git_hash" {
