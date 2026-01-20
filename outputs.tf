@@ -31,7 +31,7 @@ output "aks_pod_cidr" {
   value = (
     var.aks_network_plugin == "kubenet" ||
     (var.aks_network_plugin == "azure" && var.aks_network_plugin_mode == "overlay")
-  ) ? var.aks_pod_cidr : local.vnet.subnets["aks"].address_prefixes[0]
+  ) ? var.aks_pod_cidr : (var.enable_ipv6 ? data.azurerm_subnet.aks_ipv6[0].address_prefixes[0] : local.vnet.subnets["aks"].address_prefixes[0])
 }
 
 # postgres

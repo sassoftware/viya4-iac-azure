@@ -294,7 +294,7 @@ module "aks" {
   aks_cluster_run_command_enabled          = var.aks_cluster_run_command_enabled
   aks_cluster_ssh_public_key               = try(file(var.ssh_public_key), "")
   aks_cluster_private_dns_zone_id          = var.aks_cluster_private_dns_zone_id
-  aks_vnet_subnet_id                       = var.enable_ipv6 ? data.azurerm_subnet.aks_ipv6[0].id : module.vnet[0].subnets["aks"].id
+  aks_vnet_subnet_id                       = var.enable_ipv6 ? data.azurerm_subnet.aks_ipv6[0].id : local.vnet.subnets["aks"].id
   kubernetes_version                       = var.kubernetes_version
   aks_cluster_endpoint_public_access_cidrs = var.cluster_api_mode == "private" ? [] : local.cluster_endpoint_public_access_cidrs # "Private cluster cannot be enabled with AuthorizedIPRanges.""
   aks_availability_zones                   = var.default_nodepool_availability_zones
@@ -348,7 +348,7 @@ module "node_pools" {
 
   node_pool_name               = each.key
   aks_cluster_id               = module.aks.cluster_id
-  vnet_subnet_id               = var.enable_ipv6 ? data.azurerm_subnet.aks_ipv6[0].id : module.vnet[0].subnets["aks"].id
+  vnet_subnet_id               = var.enable_ipv6 ? data.azurerm_subnet.aks_ipv6[0].id : local.vnet.subnets["aks"].id
   machine_type                 = each.value.machine_type
   fips_enabled                 = var.fips_enabled
   os_disk_size                 = each.value.os_disk_size
@@ -390,8 +390,8 @@ module "flex_postgresql" {
   firewall_rule_prefix         = "${var.prefix}-${each.key}-postgres-firewall-"
   firewall_rules               = local.postgres_firewall_rules
   connectivity_method          = each.value.connectivity_method
-  virtual_network_id           = each.value.connectivity_method == "private" ? module.vnet.id : null
-  delegated_subnet_id          = each.value.connectivity_method == "private" ? (var.enable_ipv6 ? null : module.vnet[0].subnets["postgresql"].id) : null
+  virtual_network_id           = each.value.connectivity_method == "private" ? (var.enable_ipv6 ? null : local.vnet.id) : null
+  delegated_subnet_id          = each.value.connectivity_method == "private" ? (var.enable_ipv6 ? null : local.vnet.subnets["postgresql"].id) : null
   postgresql_configurations = each.value.ssl_enforcement_enabled ? concat(each.value.postgresql_configurations, local.default_postgres_configuration) : concat(
   each.value.postgresql_configurations, [{ name : "require_secure_transport", value : "OFF" }], local.default_postgres_configuration)
   tags = var.tags
@@ -404,14 +404,14 @@ module "netapp" {
   prefix              = var.prefix
   resource_group_name = local.aks_rg.name
   location            = var.location
-  subnet_id           = var.enable_ipv6 ? null : module.vnet[0].subnets["netapp"].id
+  subnet_id           = var.enable_ipv6 ? null : local.vnet.subnets["netapp"].id
   network_features    = var.netapp_network_features
   service_level       = var.netapp_service_level
   size_in_tb          = var.netapp_size_in_tb
   protocols           = var.netapp_protocols
   volume_path         = "${var.prefix}-${var.netapp_volume_path}"
   tags                = var.tags
-  allowed_clients     = var.enable_ipv6 ? [] : concat(module.vnet[0].subnets["aks"].address_prefixes, module.vnet[0].subnets["misc"].address_prefixes)
+  allowed_clients     = var.enable_ipv6 ? [] : concat(local.vnet.subnets["aks"].address_prefixes, local.vnet.subnets["misc"].address_prefixes)
   depends_on          = [module.vnet]
 
   community_netapp_volume_size = var.community_netapp_volume_size
