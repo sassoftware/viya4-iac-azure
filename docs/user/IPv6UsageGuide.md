@@ -27,15 +27,18 @@ This comprehensive guide covers the complete lifecycle of IPv6 dual-stack implem
 ### Part 2: Deployment Guide
 7. [Prerequisites](#7-prerequisites)
 8. [Configuration](#8-configuration)
-9. [Deployment Steps](#9-deployment-steps)
-10. [Post-Deployment Setup](#10-post-deployment-setup)
 
 ### Part 3: Validation and Operations
-11. [Infrastructure Validation](#11-infrastructure-validation)
-12. [Cluster Validation](#12-cluster-validation)
-13. [Workload Validation](#13-workload-validation)
-14. [Troubleshooting](#14-troubleshooting)
-15. [Future Enhancements](#15-future-enhancements)
+9. [Infrastructure Validation](#9-infrastructure-validation)
+10. [Cluster Validation](#10-cluster-validation)
+11. [Workload Validation](#11-workload-validation)
+12. [Troubleshooting](#12-troubleshooting)
+
+### Appendix
+- [Reference Architecture Comparison](#appendix)
+- [Subnet Calculation Examples](#a-subnet-calculation-examples)
+- [Glossary](#b-glossary)
+- [Quick Reference Commands](#c-quick-reference-commands)
 
 ---
 
@@ -179,13 +182,13 @@ This comprehensive guide covers the complete lifecycle of IPv6 dual-stack implem
 #### Layer 2: Overlay Networks (Kubernetes)
 
 **Pod CIDR - Overlay network for pod IPs**:
-- IPv4: `10.244.0.0/16` (65,536 addresses) - Hardcoded
-- IPv6: `fd00:10:244::/64` (2^64 addresses) - Default, user-configurable
+- IPv4: `10.244.0.0/16` (65,536 addresses) - Default, user-configurable via `aks_pod_cidr`
+- IPv6: `fd00:10:244::/64` (2^64 addresses) - Default, user-configurable via `aks_pod_ipv6_cidr`
 - Uses Unique Local Addresses (ULA) to avoid VNet conflicts
 
 **Service CIDR - Cluster service IPs**:
-- IPv4: `10.0.0.0/16` (65,536 addresses) - Hardcoded
-- IPv6: `fd00:10:0::/108` (2^20 addresses) - Default, user-configurable
+- IPv4: `10.0.0.0/16` (65,536 addresses) - Default, user-configurable via `aks_service_cidr`
+- IPv6: `fd00:10:0::/108` (2^20 addresses) - Default, user-configurable via `aks_service_ipv6_cidr`
 - Uses ULA range for isolation
 
 ### 3.3 Network Traffic Flow
@@ -269,28 +272,42 @@ Your ISP/RIR allocated prefix (e.g., 2001:0xxx:xxxx::/48)
 
 ```terraform
 variable "enable_ipv6" {
-  description = "Enable IPv6 dual-stack support"
+  description = "Enable IPv6 dual-stack support (IPv4 + IPv6). When true, AKS cluster uses dual-stack networking with both IPv4 and IPv6 pod/service CIDRs. Requires aks_network_plugin='azure' and load_balancer_sku='standard'."
   type        = bool
   default     = false
 }
 
 variable "vnet_ipv6_address_space" {
-  description = "IPv6 address space for VNet (/48 CIDR)"
+  description = "IPv6 address space for created vnet. Used when enable_ipv6=true. Must be a /48 CIDR block. Default uses ULA (Unique Local Address) range suitable for production internal-only clusters. For internet-facing clusters, use an Azure-assigned or organization-allocated globally routable prefix."
   type        = string
-  default     = "fd00:1234:5678::/48"  # ULA range - production-safe for internal use
-  # For internet-facing clusters, use Azure-assigned or org-allocated prefix
+  default     = "fd00:1234:5678::/48"  # ULA range - production safe for internal use. Customize with unique random bits.
+
+  validation {
+    condition     = var.vnet_ipv6_address_space != null ? can(regex("^([0-9a-fA-F]{1,4}:)+:/48$", var.vnet_ipv6_address_space)) : true
+    error_message = "ERROR: vnet_ipv6_address_space - value must be a valid IPv6 CIDR with /48 prefix (e.g., fd00:1234:5678::/48 for ULA or your assigned prefix)."
+  }
 }
 
 variable "aks_pod_ipv6_cidr" {
-  description = "IPv6 CIDR for pod overlay network"
+  description = "The IPv6 CIDR to use for pod IP addresses when enable_ipv6=true. Must be a /64 CIDR block. Required for dual-stack with Azure CNI. Default uses ULA (Unique Local Address) range suitable for production overlay networks."
   type        = string
-  default     = "fd00:10:244::/64"  # ULA range - suitable for production
+  default     = "fd00:10:244::/64"  # ULA range - production safe for pod overlay network
+
+  validation {
+    condition     = var.aks_pod_ipv6_cidr != null ? can(regex("^([0-9a-fA-F]{1,4}:)+:/64$", var.aks_pod_ipv6_cidr)) : true
+    error_message = "ERROR: aks_pod_ipv6_cidr - value must be a valid IPv6 CIDR with /64 prefix (e.g., fd00:10:244::/64)."
+  }
 }
 
 variable "aks_service_ipv6_cidr" {
-  description = "IPv6 CIDR for services"
+  description = "The IPv6 Network Range used by the Kubernetes service. Used when enable_ipv6=true and aks_network_plugin='azure'. Must be a /108 CIDR block. Default uses ULA (Unique Local Address) range suitable for production service networks."
   type        = string
-  default     = "fd00:10:0::/108"  # ULA range - suitable for production
+  default     = "fd00:10:0::/108"  # ULA range - production safe for service network
+
+  validation {
+    condition     = var.aks_service_ipv6_cidr != null ? can(regex("^([0-9a-fA-F]{1,4}:)+:/108$", var.aks_service_ipv6_cidr)) : true
+    error_message = "ERROR: aks_service_ipv6_cidr - value must be a valid IPv6 CIDR with /108 prefix (e.g., fd00:10:0::/108)."
+  }
 }
 ```
 
@@ -391,11 +408,11 @@ resource "azurerm_resource_group_template_deployment" "aks_ipv6_dual_stack" {
           ipFamilies     = ["IPv4", "IPv6"]
           ipFamilyPolicy = "RequireDualStack"
           podCidrs = [
-            "10.244.0.0/16",           # IPv4 (hardcoded)
+            var.aks_pod_cidr,          # IPv4 (configurable)
             var.aks_pod_ipv6_cidr      # IPv6 (configurable)
           ]
           serviceCidrs = [
-            "10.0.0.0/16",             # IPv4 (hardcoded)
+            var.aks_service_cidr,      # IPv4 (configurable)
             var.aks_service_ipv6_cidr  # IPv6 (configurable)
           ]
           loadBalancerProfile = {
@@ -440,18 +457,7 @@ resource "azurerm_network_security_rule" "ipv6_lb_outbound" {
 
 ## 5. Code Changes Summary
 
-### 5.1 Files Modified
-
-| File | Changes | Lines | Purpose |
-|------|---------|-------|---------|
-| `variables.tf` | Added 4 IPv6 variables | ~50 | Configuration inputs |
-| `locals.tf` | Subnet calculation logic | ~5 | Auto-calculate IPv6 subnets |
-| `main.tf` | Major networking changes | ~200 | Core IPv6 implementation |
-| `modules/azure_aks/main.tf` | Comments & passthrough | ~20 | Module integration |
-| `modules/azure_aks/variables.tf` | IPv6 variable declarations | ~20 | Module interface |
-| `examples/sample-input-ipv6.tfvars` | New sample file | ~90 | User guidance |
-
-### 5.2 New Resources Created
+### 5.1 New Resources Created
 
 1. **`azurerm_resource_group_template_deployment.vnet_ipv6`**
    - Creates dual-stack VNet and subnets
@@ -470,7 +476,7 @@ resource "azurerm_network_security_rule" "ipv6_lb_outbound" {
    - Reference ARM-created resources in Terraform
    - Conditional: Only when `enable_ipv6 = true`
 
-### 5.3 Deployment Flow
+### 5.2 Deployment Flow
 
 ```
 User sets enable_ipv6 = true
@@ -513,22 +519,26 @@ User sets enable_ipv6 = true
 
 **Impact**: Infrastructure components accessible via IPv4 only. Kubernetes workloads unaffected.
 
-### 6.2 Hardcoded IPv4 Values
+### 6.2 IPv4 CIDR Configuration
 
-In ARM template (`main.tf` lines 474-476):
+In ARM template patch resource (`main.tf` azurerm_resource_group_template_deployment.aks_ipv6_dual_stack):
 ```terraform
 podCidrs = [
-  "10.244.0.0/16",          # Hardcoded IPv4
+  var.aks_pod_cidr,         # Configurable IPv4
   var.aks_pod_ipv6_cidr     # Configurable IPv6
 ]
 serviceCidrs = [
-  "10.0.0.0/16",            # Hardcoded IPv4
+  var.aks_service_cidr,     # Configurable IPv4
   var.aks_service_ipv6_cidr # Configurable IPv6
 ]
 ```
 
-**Impact**: IPv4 pod/service CIDRs not customizable in IPv6 mode.  
-**Future Enhancement**: Add `aks_pod_cidr` and `aks_service_cidr` variables.
+**Status**: Both IPv4 and IPv6 CIDRs are now fully configurable via variables.  
+**Variables**: 
+- `aks_pod_cidr` - IPv4 pod CIDR (default: "10.244.0.0/16")
+- `aks_service_cidr` - IPv4 service CIDR (default: "10.0.0.0/16")
+- `aks_pod_ipv6_cidr` - IPv6 pod CIDR (default: "fd00:10:244::/64")
+- `aks_service_ipv6_cidr` - IPv6 service CIDR (default: "fd00:10:0::/108")
 
 ### 6.3 Default Kubernetes Service
 
@@ -568,14 +578,7 @@ serviceCidrs = [
   - [ ] For **production internal-only**: Use default ULA `fd00:1234:5678::/48` or generate unique prefix
   - [ ] For **testing/examples only**: Can use `2001:db8::/48` (NOT for production)
 
-### 7.2 Required Azure Permissions
-
-- Microsoft.ContainerService/* (for AKS)
-- Microsoft.Network/* (for VNet, subnets, NSG)
-- Microsoft.Resources/deployments/* (for ARM templates)
-- Microsoft.Authorization/roleAssignments/write (for UAI)
-
-### 7.3 Network Planning
+### 7.2 Network Planning
 
 Before deployment, plan your IPv6 address space:
 
@@ -660,160 +663,13 @@ aks_service_ipv6_cidr   = "fd00:10:0::/108"       # ULA for services (internal)
 kubernetes_version = "1.32"
 ```
 
-### 8.3 Complete Configuration Template
-
-Copy and customize `examples/sample-input-ipv6.tfvars`:
-
-```bash
-cd viya4-iac-azure
-cp examples/sample-input-ipv6.tfvars terraform.tfvars
-vim terraform.tfvars
-```
-
-Required customizations:
-- `prefix`: Unique identifier for your resources
-- `location`: Azure region
-- `default_public_access_cidrs`: Your IP ranges for access
-- `ssh_public_key`: Path to your SSH public key
-- `tags`: Your organizational tags
-
----
-
-## 9. Deployment Steps
-
-### 9.1 Initialize Terraform
-
-```bash
-cd viya4-iac-azure
-
-# Initialize Terraform (download providers)
-terraform init
-
-# Optional: Validate configuration
-terraform validate
-```
-
-### 9.2 Plan Deployment
-
-```bash
-# Create execution plan
-terraform plan -out=tfplan
-
-# Review the plan carefully for these resources:
-# - azurerm_resource_group_template_deployment.vnet_ipv6
-# - azurerm_resource_group_template_deployment.aks_ipv6_dual_stack
-# - data.azurerm_subnet.aks_ipv6
-# - data.azurerm_subnet.misc_ipv6
-# - azurerm_network_security_rule.ipv6_lb_outbound
-```
-
-**Expected Changes**:
-- ~100-150 resources to create
-- 2 ARM template deployments (VNet + AKS patch)
-- Several data sources for IPv6 resources
-- NSG rule for IPv6 egress
-
-### 9.3 Deploy Infrastructure
-
-```bash
-# Apply the plan
-terraform apply tfplan
-
-# Deployment typically takes 20-30 minutes:
-# - VNet creation: 2-3 minutes
-# - AKS cluster: 10-15 minutes
-# - Node pools: 6-8 minutes
-# - IPv6 patch: 5-10 minutes
-```
-
-**Monitoring Progress**:
-```bash
-# In another terminal, monitor ARM deployments
-az deployment group list \
-  --resource-group <your-rg-name> \
-  --query "[?properties.provisioningState=='Running'].{name:name,state:properties.provisioningState}" \
-  --output table
-```
-
-### 9.4 Handle Common Deployment Issues
-
-#### Issue: Resource Group Already Exists
-```bash
-# If previous deployment failed, destroy and retry
-terraform destroy -target=azurerm_resource_group.network_rg
-terraform apply tfplan
-```
-
-#### Issue: Node Pool Operation in Progress
-```
-Error: Operation not allowed because there's an in progress create node pool operation
-```
-**Solution**: Wait 5-10 minutes for operation to complete, then:
-```bash
-terraform apply tfplan
-```
-
-#### Issue: IPv6 Patch Fails
-**Solution**: Already handled via `depends_on` in code. If error persists:
-```bash
-# Check node pools are complete
-az aks nodepool list -g <rg> --cluster-name <cluster> --query "[].provisioningState"
-
-# Should all show "Succeeded"
-# Then re-apply
-terraform apply
-```
-
----
-
-## 10. Post-Deployment Setup
-
-### 10.1 Get Cluster Credentials
-
-```bash
-# Method 1: Using Terraform output
-terraform output kube_config > ~/.kube/config-viya-ipv6
-export KUBECONFIG=~/.kube/config-viya-ipv6
-
-# Method 2: Using Azure CLI
-az aks get-credentials \
-  --resource-group <your-rg-name> \
-  --name <your-prefix>-aks \
-  --overwrite-existing
-
-# Verify access
-kubectl cluster-info
-kubectl get nodes
-```
-
-### 10.2 Quick Health Check
-
-```bash
-# Check nodes have dual-stack IPs
-kubectl get nodes -o wide
-
-# Expected: Each node shows both IPv4 and IPv6 addresses
-```
-
-### 10.3 Set Up Access
-
-```bash
-# If using Jump VM, SSH into it
-JUMP_IP=$(terraform output jump_public_ip | tr -d '"')
-ssh jumpuser@$JUMP_IP
-
-# From Jump VM, access AKS
-az aks get-credentials --resource-group <rg> --name <aks>
-kubectl get nodes
-```
-
 ---
 
 # Part 3: Validation and Operations
 
-## 11. Infrastructure Validation
+## 9. Infrastructure Validation
 
-### 11.1 Verify Virtual Network
+### 9.1 Verify Virtual Network
 
 ```bash
 # Set your variables
@@ -837,7 +693,7 @@ az network vnet show \
 - One IPv4 (192.168.0.0/16 or custom)
 - One IPv6 (fd00::/8 ULA or assigned prefix)
 
-### 11.2 Verify Subnets
+### 9.2 Verify Subnets
 
 ```bash
 # Check AKS subnet
@@ -869,7 +725,7 @@ az network vnet subnet show \
 - Each subnet has 2 address prefixes (IPv4 + IPv6)
 - IPv6 prefixes are /64 subnets
 
-### 11.3 Verify Network Security Group
+### 9.3 Verify Network Security Group
 
 ```bash
 # Check for IPv6 NSG rule
@@ -886,9 +742,9 @@ az network nsg rule show \
 
 ---
 
-## 12. Cluster Validation
+## 10. Cluster Validation
 
-### 12.1 Verify AKS Network Profile
+### 10.1 Verify AKS Network Profile
 
 ```bash
 AKS_NAME="<your-prefix>-aks"
@@ -950,7 +806,7 @@ az aks show \
 - `serviceCidrs`: 2 entries
 - `loadBalancerProfile`: countIPv6 = 1
 
-### 12.2 Verify Node IP Addresses
+### 10.2 Verify Node IP Addresses
 
 ```bash
 # List all nodes with their IPs
@@ -978,9 +834,9 @@ echo "Nodes: $NODE_COUNT, IPv6 addresses: $IPV6_COUNT"
 
 ---
 
-## 13. Workload Validation
+## 11. Workload Validation
 
-### 13.1 Deploy Test Pod
+### 11.1 Deploy Test Pod
 
 ```bash
 # Create test pod with network tools
@@ -1001,7 +857,7 @@ kubectl get pod ipv6-test-pod -o jsonpath='{.status.podIPs[*].ip}' && echo
 - First IP from IPv4 pod CIDR (10.244.0.0/16)
 - Second IP from IPv6 pod CIDR (fd00:10:244::/64)
 
-### 13.2 Test Pod-to-Pod IPv6 Connectivity
+### 11.2 Test Pod-to-Pod IPv6 Connectivity
 
 ```bash
 # Deploy second test pod
@@ -1023,7 +879,7 @@ kubectl exec ipv6-test-pod -- ping6 -c 3 $TARGET_IPV6
 - Shows IPv6 addresses
 - RTT < 10ms typically
 
-### 13.3 Create and Test Dual-Stack Service
+### 11.3 Create and Test Dual-Stack Service
 
 > **Note**: Complete these steps in order
 
@@ -1074,9 +930,9 @@ kubectl get svc ipv6-nginx-svc -o jsonpath='{.spec.ipFamilies[*]}' && echo
 - Second IP from IPv6 service CIDR (fd00:10:0::/108)
 - ipFamilies: [IPv4, IPv6]
 
-### 13.4 Test Service Connectivity
+### 11.4 Test Service Connectivity
 
-> **Prerequisite**: Service must exist (complete section 13.3 first)
+> **Prerequisite**: Service must exist (complete section 11.3 first)
 
 ```bash
 # Verify service exists
@@ -1104,7 +960,7 @@ kubectl exec ipv6-test-pod -- dig ipv6-nginx-svc.default.svc.cluster.local ANY +
 - DNS returns both IPv4 and IPv6 addresses
 - Both A (IPv4) and AAAA (IPv6) records present
 
-### 13.5 Verify System Pods
+### 11.5 Verify System Pods
 
 ```bash
 # Check CoreDNS pods have dual-stack IPs
@@ -1122,7 +978,7 @@ IPs:.status.podIPs[*].ip | head -15
 - Most system pods have dual-stack IPs
 - Some DaemonSets use hostNetwork (expected to have node IPs)
 
-### 13.6 Automated Validation Script
+### 11.6 Automated Validation Script
 
 Save as `validate-ipv6-cluster.sh`:
 
@@ -1224,9 +1080,9 @@ chmod +x validate-ipv6-cluster.sh
 
 ---
 
-## 14. Troubleshooting
+## 12. Troubleshooting
 
-### 14.1 Common Deployment Issues
+### 12.1 Common Deployment Issues
 
 #### Issue: Pod CIDR Overlap Error
 
@@ -1354,7 +1210,7 @@ az network nsg rule list -g $RESOURCE_GROUP --nsg-name <nsg>
 - Verify NSG allows IPv6 traffic
 - Test from IPv6-enabled network
 
-### 14.2 Debugging Commands
+### 12.2 Debugging Commands
 
 #### Verify Infrastructure
 ```bash
@@ -1403,7 +1259,7 @@ kubectl logs -n kube-system -l k8s-app=kube-dns --tail=50
 kubectl logs -n kube-system -l component=kube-proxy --tail=50
 ```
 
-### 14.3 Recovery Procedures
+### 12.3 Recovery Procedures
 
 #### Reset Failed Deployment
 
@@ -1434,7 +1290,7 @@ az group list --query "[?contains(name,'<your-prefix>')].name" -o table
 terraform apply
 ```
 
-### 14.4 Support Resources
+### 12.4 Support Resources
 
 - **Azure AKS IPv6 Documentation**: https://learn.microsoft.com/azure/aks/configure-kubenet-dual-stack
 - **Kubernetes Dual-Stack**: https://kubernetes.io/docs/concepts/services-networking/dual-stack/
@@ -1443,79 +1299,9 @@ terraform apply
 
 ---
 
-## 15. Future Enhancements
+# Appendix
 
-### 15.1 Short-Term (Next Release)
-
-1. **Parameterize IPv4 CIDRs**
-   - Make `10.244.0.0/16` and `10.0.0.0/16` configurable
-   - Add `aks_pod_cidr` and `aks_service_cidr` variables
-
-2. **Enhanced Validation**
-   - Add Terraform `validation` blocks for CIDR overlap detection
-   - Pre-deployment checks for common misconfigurations
-
-3. **Automated Testing**
-   - Add IPv6 CI/CD test cases
-   - Automated validation after deployment
-
-### 15.2 Medium-Term (Future Releases)
-
-1. **Infrastructure VM IPv6 Support**
-   - Enable IPv6 on Jump VM NICs
-   - Configure IPv6 on NFS VM
-   - Document manual setup process
-
-2. **LoadBalancer Services**
-   - Example dual-stack LoadBalancer configurations
-   - Ingress controller IPv6 examples
-
-3. **Multi-Region Support**
-   - Test IPv6 in all Azure regions
-   - Document region-specific limitations
-
-### 15.3 Long-Term (Exploration)
-
-1. **Native Provider Support**
-   - Migrate from ARM templates when azurerm adds full support
-   - Simplify codebase
-
-2. **Advanced Networking**
-   - IPv6 Network Policies
-   - Service Mesh dual-stack support
-
-3. **IPv6-Only Mode**
-   - Single-stack IPv6 deployments (no IPv4)
-   - Requires platform validation
-
----
-
-## Appendix
-
-### A. Reference Architecture Comparison
-
-#### IPv4-Only (Standard)
-```
-VNet: 192.168.0.0/16
-├─ AKS Subnet: 192.168.0.0/23
-├─ Misc Subnet: 192.168.2.0/24
-└─ NetApp Subnet: 192.168.3.0/24
-
-Pods: 10.244.0.0/16 (overlay)
-Services: 10.0.0.0/16
-```
-
-#### IPv6 Dual-Stack (New)
-```
-VNet: 192.168.0.0/16 + fd00:abcd:1234::/48 (or assigned prefix)
-├─ AKS Subnet: 192.168.0.0/23 + fd00:abcd:1234::/64
-└─ Misc Subnet: 192.168.2.0/24 + fd00:abcd:1234:0:1::/64
-
-Pods: 10.244.0.0/16 + fd00:10:244::/64 (overlay)
-Services: 10.0.0.0/16 + fd00:10:0::/108
-```
-
-### B. Subnet Calculation Examples
+## A. Subnet Calculation Examples
 
 For VNet prefix `fd00:1234:5678::/48`:
 
@@ -1526,7 +1312,7 @@ For VNet prefix `fd00:1234:5678::/48`:
 | Reserved | `fd00:1234:5678:0:2::/64` | Future use | `cidrsubnet(prefix, 16, 2)` |
 | ... | ... | ... | Up to 65,536 /64 subnets |
 
-### C. Glossary
+## B. Glossary
 
 | Term | Definition |
 |------|------------|
@@ -1539,7 +1325,7 @@ For VNet prefix `fd00:1234:5678::/48`:
 | **/48** | IPv6 prefix - 80 bits for host addresses (2^80 IPs) |
 | **/64** | IPv6 subnet standard - 64 bits for hosts (2^64 IPs) |
 
-### D. Quick Reference Commands
+## C. Quick Reference Commands
 
 ```bash
 # Deployment
@@ -1566,40 +1352,8 @@ kubectl delete pod test
 kubectl delete deployment app
 kubectl delete svc app
 ```
-
-### E. Changelog
-
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.0.0 | Jan 2026 | Initial IPv6 dual-stack implementation |
-| | | - ARM templates for VNet and AKS |
-| | | - Auto-subnet calculation |
-| | | - ULA defaults (production-safe) |
-| | | - Comprehensive documentation |
-
 ---
 
 ## Conclusion
 
 The IPv6 dual-stack implementation for viya4-iac-azure provides production-ready networking for modern SAS Viya deployments. The solution seamlessly integrates with existing infrastructure while maintaining backward compatibility.
-
-**Key Achievements**:
-- Full dual-stack networking for AKS clusters
-- Production-safe ULA defaults
-- Comprehensive validation procedures
-- Backward compatible (IPv4-only remains default)
-- Validated on 6-node production cluster
-
-**Business Value**:
-- Enables IPv6-required customer environments
-- Future-proofs infrastructure
-- Demonstrates technical leadership
-- Provides competitive advantage
-
----
-
-**Document Version**: 1.0  
-**Last Updated**: January 19, 2026  
-**Author**: Abhishek Kumar  
-**Contact**: abhishek.kumar@sas.com  
-**JIRA**: PSCLOUD-409

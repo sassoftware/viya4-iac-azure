@@ -468,11 +468,11 @@ resource "azurerm_resource_group_template_deployment" "aks_ipv6_dual_stack" {
           networkProfile = {
             ipFamilies = ["IPv4", "IPv6"]
             podCidrs = [
-              "10.244.0.0/16",
+              var.aks_pod_cidr,
               var.aks_pod_ipv6_cidr
             ]
             serviceCidrs = [
-              "10.0.0.0/16",
+              var.aks_service_cidr,
               var.aks_service_ipv6_cidr
             ]
             ipFamilyPolicy = "RequireDualStack"
