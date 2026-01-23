@@ -2,6 +2,31 @@
 # Customize this file to add any variables from 'CONFIG-VARS.md' whose default values you
 # want to change.
 
+# ========================================================================
+# MULTI-AVAILABILITY ZONE DEPLOYMENT EXAMPLE
+# ========================================================================
+# This example configures an AKS cluster spanning multiple availability zones.
+# 
+# ⚠️  CRITICAL STORAGE LIMITATION:
+# SAS requires zone-redundant storage (ZRS) for multi-AZ deployments.
+# The storage options in this example have limitations:
+#
+# - NFS Server VM (storage_type="standard") with ZRS disks:
+#   ✓ Disk-level redundancy across zones
+#   ✗ VM remains in single zone (limited zone failure protection)
+#
+# - Azure NetApp Files (storage_type="ha") with cross-zone replication:
+#   ✓ Data replicated across zones
+#   ✗ Requires MANUAL intervention during zone failures (15-60+ min RTO)
+#   ✗ Does NOT meet automatic failover requirements
+#
+# For production multi-AZ deployments requiring automatic failover:
+# - Consider external storage solutions (Azure Files with ZRS, etc.)
+# - OR accept manual failover procedures with documented runbooks
+#
+# Reference: https://go.documentation.sas.com/doc/en/sasadmincdc/v_070/itopssr/n1kj7od7zbas1en17vyb6tv39eac.htm
+# ========================================================================
+
 # ****************  REQUIRED VARIABLES  ****************
 # These required variables' values MUST be provided by the User
 prefix   = "<prefix-value>" # this is a prefix that you assign for the resources to be created
@@ -34,7 +59,7 @@ container_registry_sku              = "Standard"
 container_registry_admin_enabled    = false
 
 # AKS config
-kubernetes_version         = "1.32"
+kubernetes_version         = "1.33"
 default_nodepool_min_nodes = 2
 default_nodepool_vm_type   = "Standard_E8s_v5"
 

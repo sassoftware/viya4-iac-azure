@@ -1,5 +1,7 @@
 # Copyright © 2020-2024, SAS Institute Inc., Cary, NC, USA. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
+# 
+# MULTI-AZ ENHANCED VERSION - Compare with variables.tf
 
 ## Global
 variable "client_id" {
@@ -176,7 +178,7 @@ variable "default_nodepool_vm_type" {
 variable "kubernetes_version" {
   description = "The AKS cluster K8s version"
   type        = string
-  default     = "1.32"
+  default     = "1.33"
 }
 
 variable "default_nodepool_max_nodes" {
@@ -257,7 +259,7 @@ variable "aks_dns_service_ip" {
   default     = "10.0.0.10"
 
   validation {
-    condition     = var.aks_dns_service_ip != null ? can(regex("^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$", var.aks_dns_service_ip)) : false
+    condition     = can(regex("^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$", var.aks_dns_service_ip))
     error_message = "ERROR: aks_dns_service_ip - value must not be null and must be a valid IP address."
   }
 }
@@ -350,7 +352,7 @@ variable "tags" {
 
 # Defaults
 variable "postgres_server_defaults" {
-  description = ""
+  description = "Default PostgreSQL server configuration with multi-AZ HA support"
   type        = any
   default = {
     sku_name                     = "GP_Standard_D4s_v3"
@@ -363,6 +365,11 @@ variable "postgres_server_defaults" {
     ssl_enforcement_enabled      = true
     connectivity_method          = "public"
     postgresql_configurations    = [{ name : "azure.extensions", value : "PGCRYPTO" }]
+    
+    # Multi-AZ High Availability Configuration
+    high_availability_mode       = null              # Set to "ZoneRedundant" or "SameZone" to enable HA
+    availability_zone            = "1"               # Primary zone (1, 2, or 3)
+    standby_availability_zone    = "2"               # Standby zone (must differ from primary for ZoneRedundant)
   }
 }
 
@@ -598,6 +605,53 @@ variable "netapp_network_features" {
   }
 }
 
+# Multi-AZ NetApp Variables
+variable "netapp_availability_zone" {
+  description = "Primary availability zone for Azure NetApp Files volume. Set to '1', '2', or '3' for zonal deployment."
+  type        = string
+  nullable    = true
+  default     = "1"
+  
+  validation {
+    condition     = var.netapp_availability_zone == null || contains(["1", "2", "3"], var.netapp_availability_zone)
+    error_message = "NetApp availability zone must be '1', '2', '3', or null."
+  }
+}
+
+variable "netapp_enable_cross_zone_replication" {
+  description = "Enable cross-zone replication for Azure NetApp Files to ensure zone failure resilience. Requires Standard network features."
+  type        = bool
+  default     = false
+}
+
+variable "netapp_replication_zone" {
+  description = "Target availability zone for NetApp cross-zone replication. Must be different from netapp_availability_zone."
+  type        = string
+  nullable    = true
+  default     = "2"
+  
+  validation {
+    condition     = var.netapp_replication_zone == null || contains(["1", "2", "3"], var.netapp_replication_zone)
+    error_message = "NetApp replication zone must be '1', '2', '3', or null."
+  }
+  
+  validation {
+    condition     = !var.netapp_enable_cross_zone_replication || (var.netapp_replication_zone != null && var.netapp_replication_zone != var.netapp_availability_zone)
+    error_message = "When netapp_enable_cross_zone_replication is enabled, netapp_replication_zone must be set and differ from netapp_availability_zone to ensure proper cross-zone replication."
+  }
+}
+
+variable "netapp_replication_frequency" {
+  description = "Replication frequency for cross-zone replication. Valid values: 10minutes, hourly, daily"
+  type        = string
+  default     = "10minutes"
+  
+  validation {
+    condition     = contains(["10minutes", "hourly", "daily"], var.netapp_replication_frequency)
+    error_message = "Valid values are: 10minutes, hourly, daily."
+  }
+}
+
 variable "node_pools_availability_zone" {
   description = "Specifies a Availability Zone in which the Kubernetes Cluster Node Pool should be located."
   type        = string
@@ -626,6 +680,7 @@ variable "node_pools" {
     max_pods     = string
     node_taints  = list(string)
     node_labels  = map(string)
+    availability_zones = optional(list(string))
     community_priority     = optional(string, "Regular")
     community_eviction_policy = optional(string)
     community_spot_max_price = optional(string)
@@ -810,12 +865,6 @@ variable "subnet_names" {
   description = "Map subnet usage roles to existing subnet names"
   type        = map(string)
   default     = {}
-  # Example:
-  # subnet_names = {
-  #   'aks': 'my_aks_subnet',
-  #   'misc': 'my_misc_subnet',
-  #   'netapp': 'my_netapp_subnet'
-  # }
 }
 
 variable "subnets" {
@@ -927,16 +976,5 @@ variable "community_node_os_upgrade_channel" {
   validation {
     condition     = contains(["None", "NodeImage", "SecurityPatch", "Unmanaged"], var.community_node_os_upgrade_channel)
     error_message = "ERROR: Valid types are \"None\", \"NodeImage\", \"SecurityPatch\" and \"Unmanaged\"!"
-  }
-}
-
-# Netapp Zone
-variable "community_netapp_volume_zone" {
-  description = "Community Contributed field. Will set the Zone for the Netapp Volume's hosting. Use 1, 2, or 3 for specific zones, or null for non-zonal deployment."
-  type        = number
-  default     = 1
-  validation {
-    condition     = var.community_netapp_volume_zone == null || contains([1, 2, 3], var.community_netapp_volume_zone)
-    error_message = "NetApp volume zone must be 1, 2, 3, or null for non-zonal deployment."
   }
 }

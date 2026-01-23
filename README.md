@@ -28,9 +28,15 @@ This project helps you to automate the cluster-provisioning phase of SAS Viya pl
   >- Managed Azure Kubernetes Service (AKS) cluster
   >- System and User AKS Node pools with required Labels and Taints
   >- Infrastructure to deploy SAS Viya platform CAS in SMP or MPP mode
-  >- Storage options for SAS Viya platform -  NFS Server (Standard) or Azure NetApp Files (HA)
+  >- Storage options for SAS Viya platform -  NFS Server (Standard) or Azure NetApp Files (HA)*
   >- Azure DB for PostgreSQL, optional
   >- Azure Container Registry, optional
+
+**Note on Multi-Availability Zone Deployments:*** For multi-AZ deployments (2025.10+), SAS requires zone-redundant storage (ZRS) with automatic failover. The current storage options (NFS VM and Azure NetApp Files) have limitations:
+- Azure NetApp Files cross-zone replication requires manual intervention during zone failures
+- NFS Server VM with ZRS disks provides disk redundancy but remains single-zone
+- Consider external storage solutions that provide automatic cross-zone failover for production multi-AZ deployments
+- See [CONFIG-VARS.md](docs/CONFIG-VARS.md#storage) for detailed information
 
 [<img src="./docs/images/viya4-iac-azure-diag.png" alt="Architecture Diagram" width="750"/>](./docs/images/viya4-iac-azure-diag.png?raw=true)
 
@@ -77,7 +83,7 @@ Access to an **Azure Subscription** and an [**Identity**](./docs/user/TerraformA
 
 #### Terraform Requirements:
 - [Terraform](https://www.terraform.io/downloads.html) - v1.10.5
-- [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl) - v1.32.6
+- [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl) - v1.33.6
 - [jq](https://stedolan.github.io/jq/) - v1.6
 - [Azure CLI](https://docs.microsoft.com/en-us/cli/azure) - (optional - useful as an alternative to the Azure Portal) - v2.70.0
 

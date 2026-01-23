@@ -1,5 +1,7 @@
 # Copyright © 2020-2024, SAS Institute Inc., Cary, NC, USA. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
+#
+# MULTI-AZ ENHANCED VERSION - Compare with variables.tf
 
 variable "resource_group_name" {
   description = "The name of the Resource Group where the PostgreSQL Flexible Server should exist. Changing this forces a new PostgreSQL Flexible Server to be created."
@@ -97,4 +99,43 @@ variable "virtual_network_id" {
 variable "delegated_subnet_id" {
   description = "The ID of the virtual network subnet to create the PostgreSQL Flexible Server. The provided subnet should not have any other resource deployed in it and this subnet will be delegated to the PostgreSQL Flexible Server, if not already delegated. Changing this forces a new PostgreSQL Flexible Server to be created."
   type        = string
+}
+
+# Multi-AZ Variables
+variable "availability_zone" {
+  description = "The availability zone for the primary PostgreSQL Flexible Server. Values: '1', '2', or '3'"
+  type        = string
+  default     = "1"
+  
+  validation {
+    condition     = var.availability_zone == null || contains(["1", "2", "3"], var.availability_zone)
+    error_message = "Availability zone must be '1', '2', '3', or null."
+  }
+}
+
+variable "high_availability_mode" {
+  description = "High availability mode. Valid values: 'ZoneRedundant' (standby in different zone), 'SameZone' (standby in same zone), or null to disable HA"
+  type        = string
+  default     = null
+  
+  validation {
+    condition     = var.high_availability_mode == null || contains(["ZoneRedundant", "SameZone"], var.high_availability_mode)
+    error_message = "Valid values are: 'ZoneRedundant', 'SameZone', or null."
+  }
+}
+
+variable "standby_availability_zone" {
+  description = "The availability zone for the standby server. Must be different from availability_zone when using ZoneRedundant mode."
+  type        = string
+  default     = "2"
+  
+  validation {
+    condition     = var.standby_availability_zone == null || contains(["1", "2", "3"], var.standby_availability_zone)
+    error_message = "Standby availability zone must be '1', '2', '3', or null."
+  }
+  
+  validation {
+    condition     = var.high_availability_mode != "ZoneRedundant" || (var.standby_availability_zone != null && var.standby_availability_zone != var.availability_zone)
+    error_message = "When high_availability_mode is 'ZoneRedundant', standby_availability_zone must be set and differ from availability_zone to ensure proper zone-redundant high availability."
+  }
 }

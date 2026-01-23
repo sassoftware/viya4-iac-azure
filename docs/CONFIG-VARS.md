@@ -204,7 +204,7 @@ Ubuntu 22.04 LTS is the operating system used on the Jump/NFS servers. Ubuntu cr
 | :--- | ---: | ---: | ---: | ---: |
 | partner_id | A GUID that is registered with Microsoft to facilitate partner resource usage attribution | string | "5d27f3ae-e49c-4dea-9aa3-b44e4750cd8c" | Defaults to SAS partner GUID. When you deploy this Terraform configuration, Microsoft can identify the installation of SAS software with the deployed Azure resources. Microsoft can then correlate the resources that are used to support the software. Microsoft collects this information to provide the best experiences with their products and to operate their business. The data is collected and governed by Microsoft's privacy policies, located at https://www.microsoft.com/trustcenter. |
 | create_static_kubeconfig | Allows the user to create a provider / service account-based kubeconfig file | bool | true | A value of `false` will default to using the cloud provider's mechanism for generating the kubeconfig file. A value of `true` will create a static kubeconfig that uses a `Service Account` and `Cluster Role Binding` to provide credentials. |
-| kubernetes_version | The AKS cluster Kubernetes version | string | "1.32" | Use of specific versions is still supported. If you need exact kubernetes version please use format `x.y.z`, where `x` is the major version, `y` is the minor version, and `z` is the patch version |
+| kubernetes_version | The AKS cluster Kubernetes version | string | "1.33" | Use of specific versions is still supported. If you need exact kubernetes version please use format `x.y.z`, where `x` is the major version, `y` is the minor version, and `z` is the patch version |
 | create_jump_vm | Create bastion host | bool | true | |
 | create_jump_public_ip | Add public IP address to the jump VM | bool | true | |
 | enable_jump_public_static_ip | Enables `Static` allocation method for the public IP address of Jump Server. Setting false will enable `Dynamic` allocation method. | bool | true | Only used with `create_jump_public_ip=true` |
@@ -253,6 +253,7 @@ Additional node pools can be created separate from the default node pool. This i
 | max_pods | Maximum number of pods per node | number | Default is 110 |
 | node_taints | Taints for the node pool VMs | list of strings | |
 | node_labels | Labels to add to the node pool VMs | map | |
+| availability_zones (Optional) | Availability zones for this specific node pool | list of strings | Overrides global `node_pools_availability_zones` setting for this pool. Useful for keeping CAS MPP in a single zone while other workloads span multiple zones. Example: `"availability_zones" = ["1"]` |
 | vm_max_map_count (Optional) | Linux kernel parameter that defines the maximum number of memory map areas that a process can have | map | Value is set as follows: "linux_os_config" = {"sysctl_config" = {"vm_max_map_count" = 262144}} |
 
 The default values for the `node_pools` variable are as follows:
@@ -315,13 +316,24 @@ In addition, you can control the placement for the additional node pools using t
 | :--- | ---: | ---: | ---: | ---: |
 | node_pools_availability_zone | Availability Zone for the additional node pools and the NFS VM, for `storage_type="standard"`| string | "1" | The possible values depend on the region set in the "location" variable. |
 | node_pools_proximity_placement | Co-locates all node pool VMs for improved application performance. | bool | false | Selecting proximity placement imposes an additional constraint on VM creation and can lead to more frequent denials of VM allocation requests. We recommend that you set `node_pools_availability_zone=""` and allocate all required resources at one time by setting `min_nodes` and `max_nodes` to the same value for all node pools.  Additional information: [Proximity Group Placement](./user/ProximityPlacementGroup.md). |
-| node_pools_availability_zones | Defines the zones in which user node pools will be distributed.	| list of strings | null | Use multiple values to enable multi-AZ for the user node pool. Example `node_pools_availability_zones: ["1","2","3"]` |
+| node_pools_availability_zones | Defines the zones in which user node pools will be distributed.	| list of strings | null | Use multiple values to enable multi-AZ for the user node pool. Example `node_pools_availability_zones: ["1","2","3"]`. This is a global default that can be overridden per node pool using the `availability_zones` field within each pool definition. |
+
+**Note on CAS MPP and Availability Zones**: For CAS MPP deployments, all CAS pods should run in the same availability zone to minimize inter-zone latency. Use the per-node-pool `availability_zones` field to confine CAS to a single zone while allowing other workloads to span multiple zones. See `examples/sample-input-multizone-enhanced.tfvars` for a complete example.
 
 ## Storage
 
+**IMPORTANT - Multi-Availability Zone Deployments:**
+
+SAS Viya Platform multi-AZ deployments require **zone-redundant storage (ZRS)** for all persistent volumes to ensure data availability across zones. See [Requirements for Environments with Multiple Availability Zones](https://go.documentation.sas.com/doc/en/sasadmincdc/v_070/itopssr/n1kj7od7zbas1en17vyb6tv39eac.htm).
+
+**Storage Options for Multi-AZ:**
+- **Azure NetApp Files (`storage_type="ha"`)** - Cross-zone replication provides data protection but **requires manual intervention** during zone failures. Does NOT meet automatic failover requirements for production multi-AZ deployments.
+- **NFS Server VM (`storage_type="standard"`)** - Using ZRS-backed disks (`nfs_raid_disk_type="StandardSSD_ZRS"`) provides disk-level redundancy, but the VM itself remains single-zone. Limited zone failure protection.
+- **External storage solutions** - Consider Azure Files with ZRS or other cloud-native solutions that provide automatic cross-zone failover.
+
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
-| storage_type | Type of Storage. Valid Values: "standard", "ha"  | string | "standard" | "standard" creates NFS server VM, "ha" creates Azure Netapp Files|
+| storage_type | Type of Storage. Valid Values: "standard", "ha"  | string | "standard" | "standard" creates NFS server VM, "ha" creates Azure Netapp Files. **For multi-AZ deployments, neither option provides automatic zone failover.** |
 
 ### NFS Server VM (only when `storage_type=standard`)
 
@@ -345,6 +357,19 @@ When `storage_type=standard`, a NFS Server VM is created, only when these variab
 ### Azure NetApp Files (only when `storage_type=ha`)
 
 When `storage_type=ha` (high availability), [Microsoft Azure NetApp Files](https://azure.microsoft.com/en-us/services/netapp/) service is created, only when these variables are applicable. Before using this storage option, read about how to [Register for Azure NetApp Files](https://docs.microsoft.com/en-us/azure/azure-netapp-files/azure-netapp-files-register) to ensure your Azure Subscription has been granted access to the service.
+
+**⚠️ CRITICAL LIMITATION FOR MULTI-AZ DEPLOYMENTS:**
+
+Azure NetApp Files with cross-zone replication **does NOT provide automatic failover** during zone failures:
+- Cross-zone replication keeps data synchronized across zones
+- When a zone fails, the replica volume must be **manually activated**
+- Failover requires breaking the replication relationship via Azure CLI/Portal
+- Kubernetes pods must be updated to mount the new volume
+- Expected RTO: 15-60+ minutes depending on response time
+
+**This does not meet SAS requirements for zone-redundant storage with automatic failover.** For production multi-AZ deployments, consider alternative storage solutions or accept manual failover procedures.
+
+Reference: [Reliability in Azure NetApp Files - Zone Failures](https://learn.microsoft.com/en-us/azure/reliability/reliability-netapp-files)
 
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |

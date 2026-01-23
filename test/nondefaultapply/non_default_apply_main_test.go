@@ -12,7 +12,7 @@ import (
 func TestApplyNonDefaultMain(t *testing.T) {
 	// terraform init and apply using a non-default values in the plan
 	overrides := make(map[string]interface{})
-	overrides["kubernetes_version"] = "1.32.0"
+	overrides["kubernetes_version"] = "1.33.0"
 	overrides["create_container_registry"] = true
 	overrides["container_registry_admin_enabled"] = true
 	overrides["container_registry_geo_replica_locs"] = []string{"southeastus5", "southeastus3"}

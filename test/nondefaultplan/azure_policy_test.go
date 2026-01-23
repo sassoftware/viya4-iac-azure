@@ -14,6 +14,7 @@ func TestPlanAzurePolicy(t *testing.T) {
 	t.Parallel()
 
 	variables := helpers.GetDefaultPlanVars(t)
+	variables["prefix"] = "azurepolicy"
 	variables["aks_azure_policy_enabled"] = true
 	variables["aks_network_plugin"] = "azure"
 
@@ -46,6 +47,7 @@ func TestPlanCustomSubnets(t *testing.T) {
 	t.Parallel()
 
 	variables := helpers.GetDefaultPlanVars(t)
+	variables["prefix"] = "customsubnets"
 	variables["aks_network_plugin"] = "azure"
 	variables["subnets"] = map[string]interface{}{
 		"aks": map[string]interface{}{
