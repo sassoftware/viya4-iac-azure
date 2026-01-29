@@ -124,6 +124,45 @@ resource "azurerm_netapp_volume" "anf_replica" {
   ]
 }
 
+# Private DNS Zone for Cross-Zone Replication resilience
+# Creates a stable hostname that can be updated during ANF failover
+resource "azurerm_private_dns_zone" "anf_dns" {
+  count = var.netapp_enable_cross_zone_replication ? 1 : 0
+
+  name                = var.netapp_dns_zone_name
+  resource_group_name = var.resource_group_name
+  tags                = merge(var.tags, { "purpose" = "anf-czr-resilience" })
+}
+
+# Link Private DNS Zone to VNet
+resource "azurerm_private_dns_zone_virtual_network_link" "anf_dns_link" {
+  count = var.netapp_enable_cross_zone_replication ? 1 : 0
+
+  name                  = "${var.prefix}-anf-dns-link"
+  resource_group_name   = var.resource_group_name
+  private_dns_zone_name = azurerm_private_dns_zone.anf_dns[0].name
+  virtual_network_id    = var.vnet_id
+  registration_enabled  = false
+  tags                  = var.tags
+
+  depends_on = [azurerm_private_dns_zone.anf_dns]
+}
+
+# DNS A Record pointing to primary ANF volume
+# This record should be updated to the new primary IP during failover
+resource "azurerm_private_dns_a_record" "anf_primary" {
+  count = var.netapp_enable_cross_zone_replication ? 1 : 0
+
+  name                = var.netapp_dns_record_name
+  zone_name           = azurerm_private_dns_zone.anf_dns[0].name
+  resource_group_name = var.resource_group_name
+  ttl                 = 300
+  records             = [azurerm_netapp_volume.anf.mount_ip_addresses[0]]
+  tags                = merge(var.tags, { "role" = "primary-endpoint" })
+
+  depends_on = [azurerm_private_dns_zone.anf_dns]
+}
+
 # Output replica information for monitoring
 output "replica_volume_id" {
   description = "The ID of the replica NetApp volume (if cross-zone replication is enabled)"

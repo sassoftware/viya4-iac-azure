@@ -375,6 +375,19 @@ Reference: [Reliability in Azure NetApp Files - Zone Failures](https://learn.mic
 | netapp_protocols | The target volume protocol expressed as a list. Supported single value include CIFS, NFSv3, or NFSv4.1. If argument is not defined, it defaults to NFSv4.1. Changing this forces a new resource to be created and data will be lost. | list of strings | ["NFSv4.1"] | |
 | netapp_volume_path |A unique file path for the volume. Used when creating mount targets. Changing this forces a new resource to be created. | string | "export" | |
 | netapp_network_features |Indicates which network feature to use, accepted values are `Basic` or `Standard`, it defaults to `Basic` if not defined. | string | "Basic" | This is a feature in public preview. For more information about it and how to register, please refer to [Configure network features for an Azure NetApp Files volume](https://docs.microsoft.com/en-us/azure/azure-netapp-files/configure-network-features)|
+| netapp_availability_zone | Primary availability zone for Azure NetApp Files volume | string | "1" | Set to "1", "2", or "3" for zonal deployment. Required for multi-AZ configurations. |
+| netapp_enable_cross_zone_replication | Enable cross-zone replication for zone failure resilience | bool | false | When enabled, automatically creates Private DNS Zone for stable NFS hostname. Requires `netapp_network_features = "Standard"`. See [ANF-CZR-RECOVERY.md](./ANF-CZR-RECOVERY.md) for recovery procedures. |
+| netapp_replication_zone | Target availability zone for cross-zone replication | string | "2" | Must differ from `netapp_availability_zone`. Only used when `netapp_enable_cross_zone_replication = true`. |
+| netapp_replication_frequency | Replication frequency for cross-zone replication | string | "10minutes" | Valid values: "10minutes", "hourly", "daily". Only used when `netapp_enable_cross_zone_replication = true`. |
+| netapp_dns_zone_name | Private DNS Zone name for ANF CZR hostname resolution | string | "sas-viya.internal" | Used to provide stable NFS mount point during failover. Only created when `netapp_enable_cross_zone_replication = true`. |
+| netapp_dns_record_name | DNS A record name for NFS mount point | string | "nfs" | The FQDN will be `<record_name>.<zone_name>`. Only created when `netapp_enable_cross_zone_replication = true`. |
+
+**Note on Cross-Zone Replication:** When `netapp_enable_cross_zone_replication = true`, the IaC automatically provisions a Private DNS Zone that provides a stable hostname (e.g., `nfs.sas-viya.internal`) for NFS mounts. This eliminates the need for static IP addresses in storage classes and significantly simplifies recovery after ANF failover. The `rwx_filestore_endpoint` output automatically returns the DNS hostname instead of the IP address when CZR is enabled. For complete recovery procedures, see [ANF-CZR-RECOVERY.md](./ANF-CZR-RECOVERY.md).
+
+**Validation Requirements:**
+- When `netapp_enable_cross_zone_replication = true`, `netapp_network_features` must be set to "Standard"
+- When `netapp_enable_cross_zone_replication = true`, `netapp_replication_zone` must differ from `netapp_availability_zone`
+- `netapp_replication_frequency` must be one of: "10minutes", "hourly", "daily"
 
 ## Azure Container Registry (ACR)
 

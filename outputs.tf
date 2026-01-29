@@ -116,7 +116,10 @@ output "provider" {
 output "rwx_filestore_endpoint" {
   value = (var.storage_type == "none"
     ? null
-    : var.storage_type == "ha" ? module.netapp[0].netapp_endpoint : module.nfs[0].private_ip_address
+    : var.storage_type == "ha" ? (
+      # Use DNS hostname for CZR, otherwise use direct IP
+      var.netapp_enable_cross_zone_replication ? module.netapp[0].netapp_dns_hostname : module.netapp[0].netapp_endpoint
+    ) : module.nfs[0].private_ip_address
   )
 }
 
@@ -125,6 +128,27 @@ output "rwx_filestore_path" {
     ? null
     : var.storage_type == "ha" ? module.netapp[0].netapp_path : "/export"
   )
+}
+
+# Additional outputs for ANF CZR management
+output "netapp_primary_ip" {
+  description = "Primary ANF volume IP address. Update DNS A record to this IP after failover."
+  value       = var.storage_type == "ha" ? module.netapp[0].netapp_endpoint : null
+}
+
+output "netapp_replica_ip" {
+  description = "Replica ANF volume IP address. Use this as new primary IP after failover."
+  value       = var.storage_type == "ha" && var.netapp_enable_cross_zone_replication ? module.netapp[0].replica_mount_ip[0] : null
+}
+
+output "netapp_dns_hostname" {
+  description = "Stable DNS hostname for NFS mount when CZR is enabled. Use this in Viya storage class."
+  value       = var.storage_type == "ha" && var.netapp_enable_cross_zone_replication ? module.netapp[0].netapp_dns_hostname : null
+}
+
+output "netapp_dns_zone_id" {
+  description = "Private DNS Zone ID for ANF CZR. Use for DNS record updates during failover."
+  value       = var.storage_type == "ha" && var.netapp_enable_cross_zone_replication ? module.netapp[0].netapp_dns_zone_id : null
 }
 
 output "rwx_filestore_config" {

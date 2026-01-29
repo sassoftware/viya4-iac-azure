@@ -122,22 +122,24 @@ standby_availability_zone = "1"  # ERROR: Must differ from primary
 
 ## Azure NetApp Files Cross-Zone Replication
 
-Enable cross-zone replication for Azure NetApp Files storage. Data is replicated to a volume in a different availability zone for disaster recovery.
+Enable cross-zone replication for Azure NetApp Files storage. Data is replicated to a volume in a different availability zone for disaster recovery. When enabled, the IaC automatically provisions a **Private DNS Zone** that provides a stable hostname for NFS mounts, eliminating the need for static IP addresses and simplifying failover recovery.
 
 ### Configuration Variables
 
 | Name | Description | Type | Default | Notes |
 | :--- | :--- | :--- | :--- | :--- |
 | `netapp_availability_zone` | Primary volume availability zone | string | `"1"` | Valid values: `"1"`, `"2"`, `"3"` |
-| `netapp_enable_cross_zone_replication` | Enable cross-zone replication | bool | `false` | Requires `netapp_network_features = "Standard"` |
+| `netapp_enable_cross_zone_replication` | Enable cross-zone replication and DNS zone | bool | `false` | Requires `netapp_network_features = "Standard"`. Automatically creates Private DNS Zone. |
 | `netapp_replication_zone` | Replica volume availability zone | string | `"2"` | **Must differ from `netapp_availability_zone`** |
 | `netapp_replication_frequency` | Replication frequency | string | `"10minutes"` | Options: `"10minutes"`, `"hourly"`, `"daily"` |
 | `netapp_network_features` | Network features required for replication | string | `"Basic"` | Must be `"Standard"` when replication is enabled |
+| `netapp_dns_zone_name` | Private DNS Zone name for NFS hostname | string | `"sas-viya.internal"` | Stable DNS zone for failover resilience |
+| `netapp_dns_record_name` | DNS A record name for NFS endpoint | string | `"nfs"` | FQDN: `<record>.<zone>` (e.g., `nfs.sas-viya.internal`) |
 
 ### Usage Example
 
 ```hcl
-# Enable NetApp Cross-Zone Replication
+# Enable NetApp Cross-Zone Replication with DNS
 storage_type                         = "ha"
 netapp_service_level                 = "Premium"
 netapp_size_in_tb                    = 4
@@ -145,10 +147,45 @@ netapp_network_features              = "Standard"     # Required for cross-zone 
 
 # Multi-AZ Configuration
 netapp_availability_zone             = "1"            # Primary volume in zone 1
-netapp_enable_cross_zone_replication = true
+netapp_enable_cross_zone_replication = true           # Enables CZR + DNS Zone
 netapp_replication_zone              = "2"            # Replica in zone 2
 netapp_replication_frequency         = "10minutes"    # Replicate every 10 minutes
+
+# Optional: Customize DNS (defaults shown)
+netapp_dns_zone_name   = "sas-viya.internal"          # DNS zone name
+netapp_dns_record_name = "nfs"                        # DNS record name
+# Result: NFS mount at nfs.sas-viya.internal
 ```
+
+### DNS-Based Failover Resilience
+
+**Key Benefits:**
+
+1. **Stable Hostname**: Storage classes reference `nfs.sas-viya.internal` instead of a static IP
+2. **Simplified Recovery**: Update DNS A record instead of recreating PVCs
+3. **Automatic Provisioning**: DNS zone, VNet link, and A record created when CZR is enabled
+
+**Resources Created:**
+- **Private DNS Zone**: `<netapp_dns_zone_name>` (default: `sas-viya.internal`)
+- **VNet Link**: Connects DNS zone to your VNet for resolution
+- **DNS A Record**: `<netapp_dns_record_name>.<netapp_dns_zone_name>` → Primary volume IP
+
+**Storage Class Configuration:**
+
+The `rwx_filestore_endpoint` output automatically returns the DNS hostname when CZR is enabled:
+
+```yaml
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: sas-nfs-storageclass
+provisioner: kubernetes.io/nfs
+parameters:
+  server: nfs.sas-viya.internal  # DNS hostname, not static IP
+  path: /export
+```
+
+**For complete failover recovery procedures**, see [ANF-CZR-RECOVERY.md](./ANF-CZR-RECOVERY.md).
 
 ### NetApp Replication Behavior
 
