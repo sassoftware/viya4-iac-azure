@@ -55,9 +55,24 @@ variable "sku_tier" {
 }
 
 variable "sku_capacity" {
-  description = "SKU capacity"
+  description = "SKU capacity (ignored if enable_autoscaling is true)"
   type        = number
   default     = 2
+}
+
+variable "enable_autoscaling" {
+  description = "Enable autoscaling (mutually exclusive with fixed sku_capacity)"
+  type        = bool
+  default     = false
+}
+
+variable "autoscale_configuration" {
+  description = "Autoscale configuration (min_capacity required, max_capacity optional)"
+  type = object({
+    min_capacity = number
+    max_capacity = optional(number)
+  })
+  default = null
 }
 
 variable "create_public_ip" {

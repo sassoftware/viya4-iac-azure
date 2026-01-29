@@ -42,7 +42,15 @@ resource "azurerm_application_gateway" "appgw" {
   sku {
     name     = var.enable_waf ? "WAF_v2" : var.sku_name
     tier     = var.enable_waf ? "WAF_v2" : var.sku_tier
-    capacity = var.sku_capacity
+    capacity = var.enable_autoscaling ? null : var.sku_capacity
+  }
+
+  dynamic "autoscale_configuration" {
+    for_each = var.enable_autoscaling && var.autoscale_configuration != null ? [var.autoscale_configuration] : []
+    content {
+      min_capacity = autoscale_configuration.value.min_capacity
+      max_capacity = lookup(autoscale_configuration.value, "max_capacity", null)
+    }
   }
 
   dynamic "identity" {

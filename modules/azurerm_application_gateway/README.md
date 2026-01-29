@@ -566,6 +566,30 @@ module "app_gateway" {
 - ✅ Health probe (HTTPS to backend)
 - ✅ Enforced TLS security (CustomV2, TLS 1.2/1.3)
 
+### Scaling Configuration
+
+#### Option 1: Fixed Capacity (Default)
+
+```hcl
+sku_capacity = 2  # Fixed instance count
+```
+
+#### Option 2: Autoscaling (Recommended for Production)
+
+```hcl
+enable_autoscaling = true
+autoscale_configuration = {
+  min_capacity = 2    # Required: Minimum instances (0-125)
+  max_capacity = 10   # Optional: Maximum instances
+}
+```
+
+**Notes:**
+- Autoscaling requires v2 SKU (Standard_v2 or WAF_v2)
+- When `enable_autoscaling = true`, `sku_capacity` is ignored
+- If `max_capacity` is omitted, Azure uses a default based on SKU
+- Autoscaling provides better cost optimization and performance
+
 ### Default Component Details
 
 #### Default Frontend Ports
