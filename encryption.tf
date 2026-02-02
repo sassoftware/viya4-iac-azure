@@ -13,7 +13,7 @@ locals {
   create_encryption_resources = var.create_disk_encryption_set
   
   # Use provided resource group or default to AKS resource group
-  encryption_rg = var.disk_encryption_resource_group_name != null ? var.disk_encryption_resource_group_name : local.aks_rg_name
+  encryption_rg = var.disk_encryption_resource_group_name != null ? var.disk_encryption_resource_group_name : local.aks_rg.name
   
   # Generate names with prefix
   key_vault_name = var.key_vault_name != null ? var.key_vault_name : "${var.prefix}kv${random_id.kv_suffix[0].hex}"
