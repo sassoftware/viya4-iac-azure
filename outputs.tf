@@ -156,3 +156,30 @@ output "cluster_api_mode" {
 output "aks_network_plugin" {
   value = var.aks_network_plugin
 }
+
+## Disk Encryption Outputs
+output "key_vault_id" {
+  description = "ID of the created Key Vault (if create_disk_encryption_set is true)"
+  value       = var.create_disk_encryption_set ? azurerm_key_vault.encryption[0].id : null
+}
+
+output "key_vault_uri" {
+  description = "URI of the created Key Vault (if create_disk_encryption_set is true)"
+  value       = var.create_disk_encryption_set ? azurerm_key_vault.encryption[0].vault_uri : null
+}
+
+output "disk_encryption_key_id" {
+  description = "ID of the encryption key (if create_disk_encryption_set is true)"
+  value       = var.create_disk_encryption_set ? azurerm_key_vault_key.encryption[0].id : null
+  sensitive   = true
+}
+
+output "disk_encryption_set_id" {
+  description = "ID of the Disk Encryption Set used for AKS nodes and VMs"
+  value       = local.create_encryption_resources ? azurerm_disk_encryption_set.des[0].id : null
+}
+
+output "disk_encryption_set_identity" {
+  description = "Managed Identity of the Disk Encryption Set"
+  value       = var.create_disk_encryption_set ? azurerm_disk_encryption_set.des[0].identity[0].principal_id : null
+}

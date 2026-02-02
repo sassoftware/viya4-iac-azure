@@ -149,7 +149,7 @@ module "aks" {
   aks_cluster_os_disk_size                 = var.default_nodepool_os_disk_size
   aks_cluster_node_vm_size                 = var.default_nodepool_vm_type
   aks_cluster_enable_host_encryption       = var.aks_cluster_enable_host_encryption
-  aks_node_disk_encryption_set_id          = var.aks_node_disk_encryption_set_id
+  aks_node_disk_encryption_set_id          = local.computed_aks_encryption_set_id
   aks_cluster_node_admin                   = var.node_vm_admin
   aks_cluster_run_command_enabled          = var.aks_cluster_run_command_enabled
   aks_cluster_ssh_public_key               = try(file(var.ssh_public_key), "")

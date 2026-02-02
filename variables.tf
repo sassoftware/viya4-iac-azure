@@ -211,16 +211,107 @@ variable "aks_cluster_enable_host_encryption" {
   default     = false
 }
 
+variable "enforce_aks_node_disk_encryption" {
+  description = "Require disk encryption for AKS nodes. Set to false to disable enforcement (not recommended for production)."
+  type        = bool
+  default     = true
+}
+
 variable "aks_node_disk_encryption_set_id" {
-  description = "The ID of the Disk Encryption Set which should be used for the Nodes and Volumes. Changing this forces a new resource to be created."
+  description = "The ID of the Disk Encryption Set which should be used for the Nodes and Volumes. Required if enforce_aks_node_disk_encryption is true. Changing this forces a new resource to be created."
   type        = string
   default     = null
+  
+  validation {
+    condition     = !var.enforce_aks_node_disk_encryption || (var.aks_node_disk_encryption_set_id != null && var.aks_node_disk_encryption_set_id != "" && can(regex("^/subscriptions/.+/resourceGroups/.+/providers/Microsoft.Compute/diskEncryptionSets/.+$", var.aks_node_disk_encryption_set_id)))
+    error_message = "AKS node disk encryption is enforced. Provide a valid aks_node_disk_encryption_set_id in format: /subscriptions/{sub-id}/resourceGroups/{rg}/providers/Microsoft.Compute/diskEncryptionSets/{des-name}, or set enforce_aks_node_disk_encryption = false (not recommended for production)."
+  }
 }
 
 variable "aks_azure_policy_enabled" {
   description = "Enables the Azure Policy Add-On for Azure Kubernetes Service."
   type        = bool
   default     = false
+}
+
+## Disk Encryption Set Creation (Optional)
+variable "create_disk_encryption_set" {
+  description = "Create Azure Key Vault, encryption key, and Disk Encryption Set automatically. If false, you must provide existing encryption set IDs."
+  type        = bool
+  default     = false
+}
+
+variable "disk_encryption_resource_group_name" {
+  description = "Resource group name for encryption resources (Key Vault and Disk Encryption Set). If null, uses the AKS resource group."
+  type        = string
+  default     = null
+}
+
+variable "key_vault_name" {
+  description = "Name for the Key Vault. If null, generates name with prefix. Must be globally unique (3-24 alphanumeric characters)."
+  type        = string
+  default     = null
+  
+  validation {
+    condition     = var.key_vault_name == null || (length(var.key_vault_name) >= 3 && length(var.key_vault_name) <= 24 && can(regex("^[a-zA-Z0-9-]+$", var.key_vault_name)))
+    error_message = "Key Vault name must be 3-24 characters, alphanumeric and hyphens only."
+  }
+}
+
+variable "key_vault_sku" {
+  description = "SKU for Key Vault. Use 'premium' for FIPS 140-2 Level 3 compliance (HSM-backed keys)."
+  type        = string
+  default     = "standard"
+  
+  validation {
+    condition     = contains(["standard", "premium"], var.key_vault_sku)
+    error_message = "Key Vault SKU must be 'standard' or 'premium'."
+  }
+}
+
+variable "disk_encryption_key_name" {
+  description = "Name for the encryption key in Key Vault. If null, generates name with prefix."
+  type        = string
+  default     = null
+}
+
+variable "disk_encryption_key_type" {
+  description = "Type of encryption key. 'RSA' for standard, 'RSA-HSM' for FIPS 140-2 Level 3 compliance."
+  type        = string
+  default     = "RSA"
+  
+  validation {
+    condition     = contains(["RSA", "RSA-HSM", "EC", "EC-HSM"], var.disk_encryption_key_type)
+    error_message = "Key type must be 'RSA', 'RSA-HSM', 'EC', or 'EC-HSM'."
+  }
+}
+
+variable "disk_encryption_key_size" {
+  description = "Size of RSA key in bits. Use 2048 or 4096."
+  type        = number
+  default     = 4096
+  
+  validation {
+    condition     = contains([2048, 3072, 4096], var.disk_encryption_key_size)
+    error_message = "Key size must be 2048, 3072, or 4096."
+  }
+}
+
+variable "disk_encryption_set_name" {
+  description = "Name for the Disk Encryption Set. If null, generates name with prefix."
+  type        = string
+  default     = null
+}
+
+variable "disk_encryption_type" {
+  description = "Encryption type: 'EncryptionAtRestWithCustomerKey' (single encryption) or 'EncryptionAtRestWithPlatformAndCustomerKeys' (double encryption)."
+  type        = string
+  default     = "EncryptionAtRestWithCustomerKey"
+  
+  validation {
+    condition     = contains(["EncryptionAtRestWithCustomerKey", "EncryptionAtRestWithPlatformAndCustomerKeys"], var.disk_encryption_type)
+    error_message = "Encryption type must be 'EncryptionAtRestWithCustomerKey' or 'EncryptionAtRestWithPlatformAndCustomerKeys'."
+  }
 }
 
 # AKS advanced network config
@@ -419,10 +510,21 @@ variable "enable_vm_host_encryption" {
   default     = false
 }
 
+variable "enforce_vm_disk_encryption" {
+  description = "Require disk encryption for Jump and NFS VMs. Set to false to disable enforcement (not recommended for production)."
+  type        = bool
+  default     = true
+}
+
 variable "vm_disk_encryption_set_id" {
-  description = "The ID of the Disk Encryption Set which should be used to Encrypt this OS Disk. This setting applies to both Jump and NFS VM."
+  description = "The ID of the Disk Encryption Set which should be used to Encrypt this OS Disk. Required if enforce_vm_disk_encryption is true. This setting applies to both Jump and NFS VM."
   type        = string
   default     = null
+  
+  validation {
+    condition     = !var.enforce_vm_disk_encryption || (var.vm_disk_encryption_set_id != null && var.vm_disk_encryption_set_id != "" && can(regex("^/subscriptions/.+/resourceGroups/.+/providers/Microsoft.Compute/diskEncryptionSets/.+$", var.vm_disk_encryption_set_id)))
+    error_message = "VM disk encryption is enforced. Provide a valid vm_disk_encryption_set_id in format: /subscriptions/{sub-id}/resourceGroups/{rg}/providers/Microsoft.Compute/diskEncryptionSets/{des-name}, or set enforce_vm_disk_encryption = false (not recommended for production)."
+  }
 }
 
 variable "storage_type" {
