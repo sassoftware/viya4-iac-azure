@@ -79,5 +79,18 @@ locals {
     )
     : var.cluster_egress_type
   )
+
+  # Disk encryption enforcement validation
+  validate_aks_encryption = (
+    !var.enforce_aks_node_disk_encryption || 
+    var.create_disk_encryption_set || 
+    var.aks_node_disk_encryption_set_id != null
+  ) ? true : tobool("AKS node disk encryption is enforced. Either set create_disk_encryption_set = true for automated creation, provide aks_node_disk_encryption_set_id, or set enforce_aks_node_disk_encryption = false (not recommended for production).")
+
+  validate_vm_encryption = (
+    !var.enforce_vm_disk_encryption || 
+    var.create_disk_encryption_set || 
+    var.vm_disk_encryption_set_id != null
+  ) ? true : tobool("VM disk encryption is enforced. Either set create_disk_encryption_set = true for automated creation, provide vm_disk_encryption_set_id, or set enforce_vm_disk_encryption = false (not recommended for production).")
 }
 

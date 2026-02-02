@@ -223,8 +223,8 @@ variable "aks_node_disk_encryption_set_id" {
   default     = null
   
   validation {
-    condition     = !var.enforce_aks_node_disk_encryption || var.create_disk_encryption_set || (var.aks_node_disk_encryption_set_id != null && var.aks_node_disk_encryption_set_id != "" && can(regex("^/subscriptions/.+/resourceGroups/.+/providers/Microsoft.Compute/diskEncryptionSets/.+$", var.aks_node_disk_encryption_set_id)))
-    error_message = "AKS node disk encryption is enforced. Either set create_disk_encryption_set = true for automated creation, provide a valid aks_node_disk_encryption_set_id in format: /subscriptions/{sub-id}/resourceGroups/{rg}/providers/Microsoft.Compute/diskEncryptionSets/{des-name}, or set enforce_aks_node_disk_encryption = false (not recommended for production)."
+    condition     = var.aks_node_disk_encryption_set_id == null || can(regex("^/subscriptions/.+/resourceGroups/.+/providers/Microsoft.Compute/diskEncryptionSets/.+$", var.aks_node_disk_encryption_set_id))
+    error_message = "aks_node_disk_encryption_set_id must be in format: /subscriptions/{sub-id}/resourceGroups/{rg}/providers/Microsoft.Compute/diskEncryptionSets/{des-name}"
   }
 }
 
@@ -522,8 +522,8 @@ variable "vm_disk_encryption_set_id" {
   default     = null
   
   validation {
-    condition     = !var.enforce_vm_disk_encryption || var.create_disk_encryption_set || (var.vm_disk_encryption_set_id != null && var.vm_disk_encryption_set_id != "" && can(regex("^/subscriptions/.+/resourceGroups/.+/providers/Microsoft.Compute/diskEncryptionSets/.+$", var.vm_disk_encryption_set_id)))
-    error_message = "VM disk encryption is enforced. Either set create_disk_encryption_set = true for automated creation, provide a valid vm_disk_encryption_set_id in format: /subscriptions/{sub-id}/resourceGroups/{rg}/providers/Microsoft.Compute/diskEncryptionSets/{des-name}, or set enforce_vm_disk_encryption = false (not recommended for production)."
+    condition     = var.vm_disk_encryption_set_id == null || can(regex("^/subscriptions/.+/resourceGroups/.+/providers/Microsoft.Compute/diskEncryptionSets/.+$", var.vm_disk_encryption_set_id))
+    error_message = "vm_disk_encryption_set_id must be in format: /subscriptions/{sub-id}/resourceGroups/{rg}/providers/Microsoft.Compute/diskEncryptionSets/{des-name}"
   }
 }
 
