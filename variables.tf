@@ -218,13 +218,13 @@ variable "enforce_aks_node_disk_encryption" {
 }
 
 variable "aks_node_disk_encryption_set_id" {
-  description = "The ID of the Disk Encryption Set which should be used for the Nodes and Volumes. Required if enforce_aks_node_disk_encryption is true. Changing this forces a new resource to be created."
+  description = "The ID of the Disk Encryption Set which should be used for the Nodes and Volumes. Required if enforce_aks_node_disk_encryption is true and create_disk_encryption_set is false. Changing this forces a new resource to be created."
   type        = string
   default     = null
   
   validation {
-    condition     = !var.enforce_aks_node_disk_encryption || (var.aks_node_disk_encryption_set_id != null && var.aks_node_disk_encryption_set_id != "" && can(regex("^/subscriptions/.+/resourceGroups/.+/providers/Microsoft.Compute/diskEncryptionSets/.+$", var.aks_node_disk_encryption_set_id)))
-    error_message = "AKS node disk encryption is enforced. Provide a valid aks_node_disk_encryption_set_id in format: /subscriptions/{sub-id}/resourceGroups/{rg}/providers/Microsoft.Compute/diskEncryptionSets/{des-name}, or set enforce_aks_node_disk_encryption = false (not recommended for production)."
+    condition     = !var.enforce_aks_node_disk_encryption || var.create_disk_encryption_set || (var.aks_node_disk_encryption_set_id != null && var.aks_node_disk_encryption_set_id != "" && can(regex("^/subscriptions/.+/resourceGroups/.+/providers/Microsoft.Compute/diskEncryptionSets/.+$", var.aks_node_disk_encryption_set_id)))
+    error_message = "AKS node disk encryption is enforced. Either set create_disk_encryption_set = true for automated creation, provide a valid aks_node_disk_encryption_set_id in format: /subscriptions/{sub-id}/resourceGroups/{rg}/providers/Microsoft.Compute/diskEncryptionSets/{des-name}, or set enforce_aks_node_disk_encryption = false (not recommended for production)."
   }
 }
 
@@ -253,7 +253,7 @@ variable "key_vault_name" {
   default     = null
   
   validation {
-    condition     = var.key_vault_name == null || (length(var.key_vault_name) >= 3 && length(var.key_vault_name) <= 24 && can(regex("^[a-zA-Z0-9-]+$", var.key_vault_name)))
+    condition     = var.key_vault_name == null || (can(length(var.key_vault_name)) && length(var.key_vault_name) >= 3 && length(var.key_vault_name) <= 24 && can(regex("^[a-zA-Z0-9-]+$", var.key_vault_name)))
     error_message = "Key Vault name must be 3-24 characters, alphanumeric and hyphens only."
   }
 }
@@ -517,13 +517,13 @@ variable "enforce_vm_disk_encryption" {
 }
 
 variable "vm_disk_encryption_set_id" {
-  description = "The ID of the Disk Encryption Set which should be used to Encrypt this OS Disk. Required if enforce_vm_disk_encryption is true. This setting applies to both Jump and NFS VM."
+  description = "The ID of the Disk Encryption Set which should be used to Encrypt this OS Disk. Required if enforce_vm_disk_encryption is true and create_disk_encryption_set is false. This setting applies to both Jump and NFS VM."
   type        = string
   default     = null
   
   validation {
-    condition     = !var.enforce_vm_disk_encryption || (var.vm_disk_encryption_set_id != null && var.vm_disk_encryption_set_id != "" && can(regex("^/subscriptions/.+/resourceGroups/.+/providers/Microsoft.Compute/diskEncryptionSets/.+$", var.vm_disk_encryption_set_id)))
-    error_message = "VM disk encryption is enforced. Provide a valid vm_disk_encryption_set_id in format: /subscriptions/{sub-id}/resourceGroups/{rg}/providers/Microsoft.Compute/diskEncryptionSets/{des-name}, or set enforce_vm_disk_encryption = false (not recommended for production)."
+    condition     = !var.enforce_vm_disk_encryption || var.create_disk_encryption_set || (var.vm_disk_encryption_set_id != null && var.vm_disk_encryption_set_id != "" && can(regex("^/subscriptions/.+/resourceGroups/.+/providers/Microsoft.Compute/diskEncryptionSets/.+$", var.vm_disk_encryption_set_id)))
+    error_message = "VM disk encryption is enforced. Either set create_disk_encryption_set = true for automated creation, provide a valid vm_disk_encryption_set_id in format: /subscriptions/{sub-id}/resourceGroups/{rg}/providers/Microsoft.Compute/diskEncryptionSets/{des-name}, or set enforce_vm_disk_encryption = false (not recommended for production)."
   }
 }
 
