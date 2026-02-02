@@ -382,7 +382,14 @@ Reference: [Reliability in Azure NetApp Files - Zone Failures](https://learn.mic
 | netapp_dns_zone_name | Private DNS Zone name for ANF CZR hostname resolution | string | "sas-viya.internal" | Used to provide stable NFS mount point during failover. Only created when `netapp_enable_cross_zone_replication = true`. |
 | netapp_dns_record_name | DNS A record name for NFS mount point | string | "nfs" | The FQDN will be `<record_name>.<zone_name>`. Only created when `netapp_enable_cross_zone_replication = true`. |
 
-**Note on Cross-Zone Replication:** When `netapp_enable_cross_zone_replication = true`, the IaC automatically provisions a Private DNS Zone that provides a stable hostname (e.g., `nfs.sas-viya.internal`) for NFS mounts. This eliminates the need for static IP addresses in storage classes and significantly simplifies recovery after ANF failover. The `rwx_filestore_endpoint` output automatically returns the DNS hostname instead of the IP address when CZR is enabled. For complete recovery procedures, see [ANF-CZR-RECOVERY.md](./ANF-CZR-RECOVERY.md).
+**Note on Cross-Zone Replication:** When `netapp_enable_cross_zone_replication = true`, the IaC automatically provisions:
+1. **Private DNS Zone** for stable hostname (e.g., `nfs.sas-viya.internal`) eliminating static IPs in storage classes
+2. **Identical export paths** on both primary and replica volumes for seamless failover
+3. **Automatic output configuration** - `rwx_filestore_endpoint` returns DNS hostname when CZR enabled
+
+**CRITICAL:** Both primary and replica volumes use the **same NFS export path** (e.g., `/export`). This ensures that when DNS switches to the replica IP, the StorageClass mount path remains valid. The replica volume does NOT use a `-replica` suffix in its path.
+
+For complete recovery procedures, see [ANF-CZR-RECOVERY.md](./ANF-CZR-RECOVERY.md).
 
 **Validation Requirements:**
 - When `netapp_enable_cross_zone_replication = true`, `netapp_network_features` must be set to "Standard"

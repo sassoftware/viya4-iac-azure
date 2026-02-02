@@ -88,7 +88,9 @@ resource "azurerm_netapp_volume" "anf_replica" {
   account_name        = azurerm_netapp_account.anf.name
   service_level       = var.service_level
   pool_name           = "${var.prefix}-netapppool-replica"
-  volume_path         = "${var.volume_path}-replica"
+  # CRITICAL: Use SAME volume_path as primary to ensure identical export paths
+  # This allows StorageClass to mount using same path after DNS failover
+  volume_path         = var.volume_path  # Changed from "${var.volume_path}-replica"
   subnet_id           = var.subnet_id
   network_features    = var.network_features
   protocols           = var.protocols

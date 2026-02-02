@@ -146,6 +146,11 @@ output "netapp_dns_hostname" {
   value       = var.storage_type == "ha" && var.netapp_enable_cross_zone_replication ? module.netapp[0].netapp_dns_hostname : null
 }
 
+output "netapp_replica_path" {
+  description = "Replica NFS export path. MUST match primary path for seamless failover."
+  value       = var.storage_type == "ha" && var.netapp_enable_cross_zone_replication ? module.netapp[0].netapp_replica_path : null
+}
+
 output "netapp_dns_zone_id" {
   description = "Private DNS Zone ID for ANF CZR. Use for DNS record updates during failover."
   value       = var.storage_type == "ha" && var.netapp_enable_cross_zone_replication ? module.netapp[0].netapp_dns_zone_id : null
