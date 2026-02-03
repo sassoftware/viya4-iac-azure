@@ -253,7 +253,7 @@ variable "key_vault_name" {
   default     = null
   
   validation {
-    condition     = var.key_vault_name == null || (can(length(var.key_vault_name)) && length(var.key_vault_name) >= 3 && length(var.key_vault_name) <= 24 && can(regex("^[a-zA-Z0-9-]+$", var.key_vault_name)))
+    condition     = var.key_vault_name == null || can(regex("^[a-zA-Z0-9-]{3,24}$", var.key_vault_name))
     error_message = "Key Vault name must be 3-24 characters, alphanumeric and hyphens only."
   }
 }
