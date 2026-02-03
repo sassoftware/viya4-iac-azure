@@ -45,10 +45,12 @@ resource "azurerm_key_vault" "encryption" {
   # Enable for disk encryption
   enabled_for_disk_encryption = true
   
-  # Network rules
+  # Network rules - deny public access to comply with Azure Policy
+  # Allow specific IPs for deployment and management
   network_acls {
-    default_action = "Allow"
-    bypass         = "AzureServices"
+    default_action             = "Deny"
+    bypass                     = "AzureServices"
+    ip_rules                   = var.key_vault_allowed_cidrs
   }
   
   tags = merge(

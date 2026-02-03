@@ -253,7 +253,7 @@ variable "key_vault_name" {
   default     = null
   
   validation {
-    condition     = var.key_vault_name == null || can(regex("^[a-zA-Z0-9-]{3,24}$", var.key_vault_name))
+    condition     = var.key_vault_name == null || (can(length(var.key_vault_name)) && length(var.key_vault_name) >= 3 && length(var.key_vault_name) <= 24 && can(regex("^[a-zA-Z0-9-]+$", var.key_vault_name)))
     error_message = "Key Vault name must be 3-24 characters, alphanumeric and hyphens only."
   }
 }
@@ -312,6 +312,12 @@ variable "disk_encryption_type" {
     condition     = contains(["EncryptionAtRestWithCustomerKey", "EncryptionAtRestWithPlatformAndCustomerKeys"], var.disk_encryption_type)
     error_message = "Encryption type must be 'EncryptionAtRestWithCustomerKey' or 'EncryptionAtRestWithPlatformAndCustomerKeys'."
   }
+}
+
+variable "key_vault_allowed_cidrs" {
+  description = "List of CIDR blocks allowed to access Key Vault. Required when creating Key Vault with network restrictions. Use your deployment machine's public IP."
+  type        = list(string)
+  default     = []
 }
 
 # AKS advanced network config
