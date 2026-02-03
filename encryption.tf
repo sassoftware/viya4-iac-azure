@@ -50,7 +50,7 @@ resource "azurerm_key_vault" "encryption" {
   network_acls {
     default_action             = "Deny"
     bypass                     = "AzureServices"
-    ip_rules                   = var.key_vault_allowed_cidrs
+    ip_rules                   = local.key_vault_public_access_cidrs
   }
   
   tags = merge(

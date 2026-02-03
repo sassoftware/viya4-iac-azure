@@ -15,6 +15,7 @@ locals {
   acr_public_access_cidrs              = var.acr_public_access_cidrs == null ? local.default_public_access_cidrs : var.acr_public_access_cidrs
   cluster_endpoint_public_access_cidrs = var.cluster_api_mode == "private" ? [] : (var.cluster_endpoint_public_access_cidrs == null ? local.default_public_access_cidrs : var.cluster_endpoint_public_access_cidrs)
   postgres_public_access_cidrs         = var.postgres_public_access_cidrs == null ? local.default_public_access_cidrs : var.postgres_public_access_cidrs
+  key_vault_public_access_cidrs        = local.default_public_access_cidrs
 
   subnets = { for k, v in var.subnets : k => v if !(k == "netapp" && var.storage_type == "standard") }
 

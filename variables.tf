@@ -314,12 +314,6 @@ variable "disk_encryption_type" {
   }
 }
 
-variable "key_vault_allowed_cidrs" {
-  description = "List of CIDR blocks allowed to access Key Vault. Required when creating Key Vault with network restrictions. Use your deployment machine's public IP."
-  type        = list(string)
-  default     = []
-}
-
 # AKS advanced network config
 variable "aks_network_plugin" {
   description = "Network plugin to use for networking. Currently supported values are azure and kubenet. Changing this forces a new resource to be created."
