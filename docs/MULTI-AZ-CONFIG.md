@@ -185,7 +185,64 @@ parameters:
   path: /export
 ```
 
-**For complete failover recovery procedures**, see [ANF-CZR-RECOVERY.md](./ANF-CZR-RECOVERY.md).
+### CZR Failover Recovery
+
+When an ANF zone failure occurs, follow these steps to recover:
+
+**1. Identify New Primary IP**
+```bash
+# Get replica volume IP (becomes new primary)
+terraform output netapp_replica_ip
+# Output: ["10.X.Y.Z"]
+```
+
+**2. Update DNS A Record**
+```bash
+# Using Azure CLI
+DNS_ZONE=$(terraform output -raw netapp_dns_hostname | cut -d. -f2-)
+RECORD_NAME=$(terraform output -raw netapp_dns_hostname | cut -d. -f1)
+NEW_IP=$(terraform output -raw netapp_replica_ip | jq -r '.[0]')
+RG_NAME="<your-resource-group>"
+
+az network private-dns record-set a update \
+  --resource-group $RG_NAME \
+  --zone-name $DNS_ZONE \
+  --name $RECORD_NAME \
+  --set aRecords[0].ipv4Address=$NEW_IP
+
+# Verify DNS updated
+nslookup nfs.sas-viya.internal
+```
+
+**3. Restart Viya Services**
+```bash
+# Scale down and back up to reconnect NFS mounts
+kubectl scale deployment --all --replicas=0 -n <viya-namespace>
+kubectl wait --for=delete pod --all -n <viya-namespace> --timeout=300s
+kubectl scale deployment --all --replicas=1 -n <viya-namespace>
+```
+
+**4. Validate Recovery**
+```bash
+# Verify NFS mounts
+kubectl get pods -n <viya-namespace>
+kubectl exec -it <pod-name> -n <viya-namespace> -- df -h | grep sas-viya.internal
+```
+
+**Key Terraform Outputs for Recovery:**
+
+| Output | Description | Use Case |
+|--------|-------------|----------|
+| `netapp_dns_hostname` | Stable DNS hostname (e.g., `nfs.sas-viya.internal`) | Reference in storage classes |
+| `netapp_primary_ip` | Current primary volume IP | Pre-failover reference |
+| `netapp_replica_ip` | Current replica volume IP | New primary IP after failover |
+| `netapp_dns_zone_id` | Private DNS Zone resource ID | Automation scripts |
+
+**Important Notes:**
+- **CRITICAL**: Both primary and replica volumes use **identical export paths** (e.g., `/export`). No `-replica` suffix is used to ensure seamless failover.
+- DNS TTL is 300 seconds (5 minutes). Pods may take up to 5 minutes to pick up new IP.
+- Replica volume is **read-only** until you break replication peering after failover.
+- For Azure documentation, see: [Azure NetApp Files Cross-Zone Replication](https://learn.microsoft.com/en-us/azure/azure-netapp-files/create-cross-zone-replication)
 
 ### NetApp Replication Behavior
 

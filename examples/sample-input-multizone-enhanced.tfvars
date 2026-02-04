@@ -126,7 +126,7 @@ netapp_replication_frequency         = "10minutes" # Replication frequency (10mi
 # netapp_dns_zone_name   = "sas-viya.internal"     # Private DNS zone name
 # netapp_dns_record_name = "nfs"                   # DNS A record name
 # Result: NFS mount at nfs.sas-viya.internal instead of static IP
-# See docs/ANF-CZR-RECOVERY.md for failover recovery procedures
+# See docs/MULTI-AZ-CONFIG.md#czr-failover-recovery for failover recovery procedures
 
 # OPTION 2: STANDARD NFS WITH ZONE-REDUNDANT STORAGE (Limited HA)
 # Uncomment these lines if using standard NFS instead of NetApp

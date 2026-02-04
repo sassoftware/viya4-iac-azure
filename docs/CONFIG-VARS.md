@@ -376,7 +376,7 @@ Reference: [Reliability in Azure NetApp Files - Zone Failures](https://learn.mic
 | netapp_volume_path |A unique file path for the volume. Used when creating mount targets. Changing this forces a new resource to be created. | string | "export" | |
 | netapp_network_features |Indicates which network feature to use, accepted values are `Basic` or `Standard`, it defaults to `Basic` if not defined. | string | "Basic" | This is a feature in public preview. For more information about it and how to register, please refer to [Configure network features for an Azure NetApp Files volume](https://docs.microsoft.com/en-us/azure/azure-netapp-files/configure-network-features)|
 | netapp_availability_zone | Primary availability zone for Azure NetApp Files volume | string | "1" | Set to "1", "2", or "3" for zonal deployment. Required for multi-AZ configurations. |
-| netapp_enable_cross_zone_replication | Enable cross-zone replication for zone failure resilience | bool | false | When enabled, automatically creates Private DNS Zone for stable NFS hostname. Requires `netapp_network_features = "Standard"`. See [ANF-CZR-RECOVERY.md](./ANF-CZR-RECOVERY.md) for recovery procedures. |
+| netapp_enable_cross_zone_replication | Enable cross-zone replication for zone failure resilience | bool | false | When enabled, automatically creates Private DNS Zone for stable NFS hostname. Requires `netapp_network_features = "Standard"`. See [MULTI-AZ-CONFIG.md](./MULTI-AZ-CONFIG.md#czr-failover-recovery) for recovery procedures. |
 | netapp_replication_zone | Target availability zone for cross-zone replication | string | "2" | Must differ from `netapp_availability_zone`. Only used when `netapp_enable_cross_zone_replication = true`. |
 | netapp_replication_frequency | Replication frequency for cross-zone replication | string | "10minutes" | Valid values: "10minutes", "hourly", "daily". Only used when `netapp_enable_cross_zone_replication = true`. |
 | netapp_dns_zone_name | Private DNS Zone name for ANF CZR hostname resolution | string | "sas-viya.internal" | Used to provide stable NFS mount point during failover. Only created when `netapp_enable_cross_zone_replication = true`. |
@@ -389,7 +389,7 @@ Reference: [Reliability in Azure NetApp Files - Zone Failures](https://learn.mic
 
 **CRITICAL:** Both primary and replica volumes use the **same NFS export path** (e.g., `/export`). This ensures that when DNS switches to the replica IP, the StorageClass mount path remains valid. The replica volume does NOT use a `-replica` suffix in its path.
 
-For complete recovery procedures, see [ANF-CZR-RECOVERY.md](./ANF-CZR-RECOVERY.md).
+For complete recovery procedures, see [MULTI-AZ-CONFIG.md](./MULTI-AZ-CONFIG.md#czr-failover-recovery).
 
 **Validation Requirements:**
 - When `netapp_enable_cross_zone_replication = true`, `netapp_network_features` must be set to "Standard"
