@@ -243,7 +243,15 @@ Contact Azure support -> Get /48 allocation
 - Globally routable
 - Production-ready for public services
 - Official Azure allocation
-- Process: Open Azure support ticket
+- **Process**: See detailed steps in [Section 3.5](#35-how-to-request-azure-public-ipv6-space)
+
+**Example Azure-assigned prefix**: `2603:10a6:20b:2::/48`
+
+**When to use**:
+- Internet-facing SAS Viya deployments
+- Public IPv6 services required
+- External IPv6 client access needed
+- Multi-region IPv6 connectivity
 
 #### Option 3: Organization Prefix - Enterprise Deployments
 ```
@@ -261,6 +269,130 @@ Your ISP/RIR allocated prefix (e.g., 2001:0xxx:xxxx::/48)
 - **NOT routable** anywhere
 - **NEVER use in production** (RFC 3849)
 - Use ONLY in documentation or completely isolated test labs
+
+---
+
+### 3.5 How to Request Azure Public IPv6 Space
+
+If you need globally routable IPv6 addresses for internet-facing deployments, follow these steps:
+
+#### Step 1: Open Azure Support Request
+
+1. **Navigate to Azure Portal**: https://portal.azure.com
+2. **Go to Support**: Click "Help + support" in left menu
+3. **Create Support Request**: Click "+ Create a support request"
+
+#### Step 2: Fill Out Support Request
+
+**Basics Tab:**
+- **Issue Type**: Select `Service and subscription limits (quotas)`
+- **Subscription**: Select your Azure subscription
+- **Quota Type**: Select `Networking`
+- **Problem Type**: Select `IPv6 for Virtual Network`
+
+**Details Tab:**
+- **Summary**: "Request IPv6 address space allocation for AKS cluster"
+- **Description**: 
+  ```
+  Request: IPv6 address space allocation for production AKS cluster
+  
+  Details:
+  - Deployment: Azure Kubernetes Service (AKS)
+  - Purpose: Internet-facing SAS Viya deployment with IPv6 dual-stack
+  - Region: [Your Azure region, e.g., East US 2]
+  - Requested prefix size: /48 (recommended) or /56 (minimum)
+  - Business justification: [Explain your use case]
+  
+  Technical Details:
+  - Virtual Network: [VNet name or "New VNet"]
+  - Resource Group: [RG name]
+  - Expected usage: Dual-stack AKS nodes and services
+  ```
+
+**Contact Information:**
+- Fill in your contact details
+- Preferred contact method: Email or Phone
+
+#### Step 3: Wait for Azure to Assign Prefix
+
+**Timeline**: 
+- Typical response: 1-3 business days
+- Assignment: Usually within 5-7 business days
+
+**What Azure will provide**:
+```
+Example allocation:
+  Prefix: 2603:10a6:20b:2::/48
+  Region: eastus2
+  Subscription: xxxxx-xxxxx-xxxxx
+```
+
+#### Step 4: Configure Your Deployment
+
+Once you receive your IPv6 prefix from Azure:
+
+```hcl
+# terraform.tfvars
+
+enable_ipv6             = true
+aks_network_plugin      = "azure"
+aks_network_plugin_mode = "overlay"
+
+# Use your Azure-assigned prefix
+vnet_ipv6_address_space = "2603:10a6:20b:2::/48"  # Replace with YOUR assigned prefix
+
+# Keep ULA for overlay networks (internal use)
+aks_pod_ipv6_cidr       = "fd00:10:244::/64"
+aks_service_ipv6_cidr   = "fd00:10:0::/108"
+```
+
+#### Step 5: Verify Assignment
+
+After deployment, verify the IPv6 addresses:
+
+```bash
+# Check VNet has Azure-assigned prefix
+az network vnet show \
+  --resource-group $RG \
+  --name $VNET_NAME \
+  --query "addressSpace.addressPrefixes"
+
+# Expected output:
+# [
+#   "192.168.0.0/16",
+#   "2603:10a6:20b:2::/48"  # Your assigned prefix
+# ]
+
+# Check node IPs are from assigned range
+kubectl get nodes -o wide
+# Should show IPv6 addresses like: 2603:10a6:20b:2::8
+```
+
+#### Important Notes
+
+**Prefix Size Recommendations**:
+- **/48**: Recommended for production (provides 65,536 /64 subnets)
+- **/56**: Minimum acceptable (provides 256 /64 subnets)
+- **/64**: Single subnet only (not recommended for multi-subnet deployments)
+
+**Costs**:
+- IPv6 prefix allocation is **free**
+- No additional charges for IPv6 addresses in Azure
+- Standard Azure networking charges apply
+
+**Best Practices**:
+- Request /48 for future growth
+- Document your assigned prefix in your organization's IP management system
+- Use the same prefix for all VNets in the same region (if possible)
+- Keep overlay networks (pods/services) on ULA ranges (fd00::/8)
+
+**Alternative: Use ULA for Internal Deployments**
+
+If you don't need internet-facing IPv6:
+```hcl
+# No support request needed - use default ULA
+vnet_ipv6_address_space = "fd00:1234:5678::/48"  # Generate unique at https://www.unique-local-ipv6.com/
+```
 
 ---
 
@@ -560,6 +692,72 @@ serviceCidrs = [
 - Azure VNet IPv6 egress routing configured
 - Load balancer with public IPv6 frontend (created automatically)
 - Internet-facing services need `ipFamilyPolicy: PreferDualStack` or `RequireDualStack`
+
+### 6.5 Terraform Destroy Limitation (Azure Provider Issue)
+
+**Issue**: Node pool 404 errors during `terraform destroy`
+
+**Symptom**:
+```
+Error: deleting Agent Pool: unexpected status 404 (404 Not Found) 
+with error: ResourceNotFound: The Resource 
+'Microsoft.ContainerService/managedClusters/xxx-aks' was not found.
+```
+
+**Root Cause**: 
+- Azure automatically cascade-deletes all node pools when the parent AKS cluster is deleted
+- The azurerm Terraform provider (v4.57.0) attempts to explicitly delete the already-deleted node pools
+- The provider does not gracefully handle 404 errors for resources that were already removed by Azure
+- **This issue is specific to IPv6 deployments** due to how subnet data sources are referenced
+
+**Why This Happens in IPv6 Deployments**:
+1. IPv6 uses data source references: `data.azurerm_subnet.aks_ipv6[0].id`
+2. These data sources query the ARM-created VNet during destroy
+3. When the VNet/subnets are destroyed, the data source queries fail or return empty
+4. This can cause Terraform's dependency graph to become fragile during destroy
+5. Without stable references, Terraform may delete the cluster before node pools complete
+6. Azure's cascade delete immediately removes all child node pools
+7. Terraform then tries to delete node pools that no longer exist
+8. Provider throws 404 error instead of treating it as success
+
+**Why IPv4 Deployments Don't Have This Issue**:
+- IPv4 uses direct module references: `local.vnet.subnets["aks"].id`
+- Module outputs maintain stable references throughout the destroy process
+- Terraform's dependency tracking ensures cluster waits for node pools
+- No data source queries during destroy means no fragile dependencies
+- Node pools are destroyed before cluster, so no 404 errors occur
+
+**Impact**: 
+- Destroy operation fails but most resources are already deleted
+- Orphaned node pool references remain in Terraform state
+- Requires manual state cleanup to complete destroy
+
+**Workaround**:
+
+When you encounter node pool 404 errors:
+
+```bash
+# Option 1: Automated cleanup (bash)
+terraform state list | grep azurerm_kubernetes_cluster_node_pool | while read resource; do 
+  terraform state rm "$resource"
+done
+terraform destroy
+
+# Option 2: Manual cleanup
+terraform state list | grep node_pool
+# Then remove each one:
+terraform state rm 'module.node_pools["compute"].azurerm_kubernetes_cluster_node_pool.static_node_pool[0]'
+terraform state rm 'module.node_pools["cas"].azurerm_kubernetes_cluster_node_pool.static_node_pool[0]'
+# ... repeat for other node pools
+terraform destroy
+```
+
+**Note**: This limitation is specific to IPv6 deployments due to the use of ARM template data source queries during destroy, which can cause fragile dependency chains. IPv4-only deployments use stable module references and don't experience this issue.
+
+**Future**: This could be resolved by:
+1. Converting VNet creation to use native Terraform resources that support dual-stack (when azurerm provider adds support)
+2. Using computed locals with stable fallbacks to prevent data source evaluation during destroy
+3. Updating the azurerm provider to treat 404 errors on node pool deletion as success rather than failure
 
 ---
 
