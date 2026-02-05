@@ -189,6 +189,8 @@ parameters:
 
 When an ANF zone failure occurs, follow these steps to recover:
 
+> **⚠️ CRITICAL**: Existing pods will NOT automatically reconnect after DNS update. Service restart is **MANDATORY**. NFS clients cache the resolved IP at mount time and do not re-resolve DNS until remounted.
+
 **1. Identify New Primary IP**
 ```bash
 # Get replica volume IP (becomes new primary)
@@ -214,20 +216,48 @@ az network private-dns record-set a update \
 nslookup nfs.sas-viya.internal
 ```
 
-**3. Restart Viya Services**
+**3. Restart ALL Viya Services (REQUIRED)**
 ```bash
-# Scale down and back up to reconnect NFS mounts
+# IMPORTANT: Scale down ALL deployments and statefulsets to force remount
+# Partial restart will cause split-brain issues (some pods on old IP, some on new IP)
+
+# Scale down deployments
 kubectl scale deployment --all --replicas=0 -n <viya-namespace>
-kubectl wait --for=delete pod --all -n <viya-namespace> --timeout=300s
+
+# Scale down statefulsets (CAS, RabbitMQ, Consul, Redis, etc.)
+kubectl scale statefulset --all --replicas=0 -n <viya-namespace>
+
+# Wait for all pods to terminate
+kubectl wait --for=delete pod --all -n <viya-namespace> --timeout=600s
+
+# Scale up deployments
 kubectl scale deployment --all --replicas=1 -n <viya-namespace>
+
+# Scale up statefulsets back to original replica counts
+kubectl scale statefulset sas-cacheserver --replicas=3 -n <viya-namespace>
+kubectl scale statefulset sas-cas-server-default --replicas=3 -n <viya-namespace>
+# ... scale other statefulsets as needed
 ```
 
 **4. Validate Recovery**
 ```bash
-# Verify NFS mounts
+# Verify all pods are running
 kubectl get pods -n <viya-namespace>
-kubectl exec -it <pod-name> -n <viya-namespace> -- df -h | grep sas-viya.internal
+
+# Verify NFS mounts point to NEW IP (should show addr=<NEW_IP>)
+kubectl exec -it <pod-name> -n <viya-namespace> -- mount | grep nfs.sas-viya.internal
+
+# Example expected output:
+# nfs.sas-viya.internal:/export/pvs/... on /path type nfs4 (...,addr=192.168.3.5)
 ```
+
+**Troubleshooting:**
+
+| Issue | Symptom | Root Cause | Solution |
+|-------|---------|------------|----------|
+| CAS pods cycling | CAS controller/backup-controller in CrashLoopBackOff | Mixed IP states: some pods on old IP, some on new IP | Restart ALL CAS pods together using StatefulSet scale down/up |
+| New pods mount, old pods fail | Some pods work, others show "access denied" | Old pods still using old IP (blocked by export policy) | Complete service restart required |
+| Pods stuck in ContainerCreating | Mount errors: "connection timed out" | DNS not propagated or old IP still in use | Wait 5 min for DNS TTL, verify nslookup, restart pods |
 
 **Key Terraform Outputs for Recovery:**
 
@@ -240,8 +270,11 @@ kubectl exec -it <pod-name> -n <viya-namespace> -- df -h | grep sas-viya.interna
 
 **Important Notes:**
 - **CRITICAL**: Both primary and replica volumes use **identical export paths** (e.g., `/export`). No `-replica` suffix is used to ensure seamless failover.
-- DNS TTL is 300 seconds (5 minutes). Pods may take up to 5 minutes to pick up new IP.
-- Replica volume is **read-only** until you break replication peering after failover.
+- **Service restart is MANDATORY**: Existing NFS mounts cache the resolved IP and will NOT automatically reconnect after DNS update. Only newly created pods will use the new IP.
+- **Complete restart required**: Partial restart causes "split-brain" state where some pods connect to old IP (unavailable) and some to new IP (working), causing application failures especially for CAS.
+- DNS TTL is 300 seconds (5 minutes). Allow time for DNS propagation before validating.
+- Replica volume is **read-only** during normal operations. After failover, you must break replication peering to make it read-write.
+- **Validated behavior**: New compute-server pods successfully mounted from replica IP (192.168.3.5) after DNS update WITHOUT service restart. However, existing CAS pods remained connected to old IP (192.168.3.4), causing controller cycling until full service restart was performed.
 - For Azure documentation, see: [Azure NetApp Files Cross-Zone Replication](https://learn.microsoft.com/en-us/azure/azure-netapp-files/create-cross-zone-replication)
 
 ### NetApp Replication Behavior
