@@ -15,17 +15,19 @@ This document describes the configuration variables for deploying SAS Viya with 
   - [Backward Compatibility](#backward-compatibility)
   - [Default Values](#default-values)
   - [Cost Considerations](#cost-considerations)
+  - [NFS VM with Zone-Redundant Storage](#nfs-vm-with-zone-redundant-storage)
+  - [AKS Node Pool Zone Configuration](#aks-node-pool-zone-configuration)
+  - [Multi-AZ Deployment Scenarios](#multi-az-deployment-scenarios)
   - [NetApp Cross-Zone Replication Limitations](#netapp-cross-zone-replication-limitations)
     - [1. Manual Failover Required](#1-manual-failover-required)
     - [2. Recovery Time & Data Loss Objectives](#2-recovery-time--data-loss-objectives)
     - [3. Replica is Read-Only During Normal Operations](#3-replica-is-read-only-during-normal-operations)
     - [4. Network Features Requirement & Cost](#4-network-features-requirement--cost)
-    - [5. Manual Break-Peering During Zone Failures](#5-manual-break-peering-during-zone-failures)
-    - [6. Replication Direction is One-Way Only](#6-replication-direction-is-one-way-only)
-    - [7. Failback Complexity After Zone Recovery](#7-failback-complexity-after-zone-recovery)
-    - [8. Dual Capacity Pool Management Overhead](#8-dual-capacity-pool-management-overhead)
-    - [9. No Automatic Application Failover](#9-no-automatic-application-failover)
-    - [10. Network Latency During Cross-Zone Replication](#10-network-latency-during-cross-zone-replication)
+    - [5. Replication Direction is One-Way Only](#5-replication-direction-is-one-way-only)
+    - [6. Failback Complexity After Zone Recovery](#6-failback-complexity-after-zone-recovery)
+    - [7. Dual Capacity Pool Management Overhead](#7-dual-capacity-pool-management-overhead)
+    - [8. No Automatic Application Failover](#8-no-automatic-application-failover)
+    - [9. Network Latency During Cross-Zone Replication](#9-network-latency-during-cross-zone-replication)
   - [NetApp vs PostgreSQL High Availability Comparison](#netapp-vs-postgresql-high-availability-comparison)
   - [Recommended Architecture](#recommended-architecture)
   - [Best Practices for NetApp Multi-AZ](#best-practices-for-netapp-multi-az)
@@ -191,14 +193,32 @@ When an ANF zone failure occurs, follow these steps to recover:
 
 > **⚠️ CRITICAL**: Existing pods will NOT automatically reconnect after DNS update. Service restart is **MANDATORY**. NFS clients cache the resolved IP at mount time and do not re-resolve DNS until remounted.
 
-**1. Identify New Primary IP**
+**1. Break Replication Peering (Make Replica Read-Write)**
+```bash
+# IMPORTANT: Break replication to promote replica to read-write
+az netappfiles volume replication remove \
+  --resource-group <rg-name> \
+  --account-name <account-name> \
+  --pool-name <pool-name> \
+  --volume-name <volume-name>-replica
+
+# Wait for replication break to complete (check status)
+az netappfiles volume replication status \
+  --resource-group <rg-name> \
+  --account-name <account-name> \
+  --pool-name <pool-name> \
+  --volume-name <volume-name>-replica
+# Wait until status shows "Broken" or "Uninitialized"
+```
+
+**2. Identify New Primary IP**
 ```bash
 # Get replica volume IP (becomes new primary)
 terraform output netapp_replica_ip
 # Output: ["10.X.Y.Z"]
 ```
 
-**2. Update DNS A Record**
+**3. Update DNS A Record**
 ```bash
 # Using Azure CLI
 DNS_ZONE=$(terraform output -raw netapp_dns_hostname | cut -d. -f2-)
@@ -216,7 +236,7 @@ az network private-dns record-set a update \
 nslookup nfs.sas-viya.internal
 ```
 
-**3. Restart ALL Viya Services (REQUIRED)**
+**4. Restart ALL Viya Services (REQUIRED)**
 ```bash
 # IMPORTANT: Scale down ALL deployments and statefulsets to force remount
 # Partial restart will cause split-brain issues (some pods on old IP, some on new IP)
@@ -239,7 +259,7 @@ kubectl scale statefulset sas-cas-server-default --replicas=3 -n <viya-namespace
 # ... scale other statefulsets as needed
 ```
 
-**4. Validate Recovery**
+**5. Validate Recovery**
 ```bash
 # Verify all pods are running
 kubectl get pods -n <viya-namespace>
@@ -313,6 +333,225 @@ netapp_network_features              = "Basic"  # ERROR: Must be "Standard"
 # ERROR 3: Invalid replication frequency
 netapp_replication_frequency = "every-5-minutes"  # ERROR: Invalid value
 ```
+
+---
+
+## NFS VM with Zone-Redundant Storage
+
+For deployments using standard NFS server VM (`storage_type = "standard"`), you can deploy the NFS VM in a specific zone with zone-redundant storage (ZRS) disks.
+
+### Configuration Variables
+
+| Name | Description | Type | Default | Notes |
+| :--- | :--- | :--- | :--- | :--- |
+| `nfs_vm_zone` | Zone in which NFS server VM should be created | string | `null` | Valid values: `"1"`, `"2"`, `"3"` |
+| `nfs_raid_disk_type` | Managed disk type for RAID disks | string | `"Standard_LRS"` | Use `"StandardSSD_ZRS"` or `"Premium_ZRS"` for zone-redundant storage |
+| `os_disk_storage_account_type` | OS disk type | string | `"StandardSSD_LRS"` | Use `"StandardSSD_ZRS"` or `"Premium_ZRS"` for zone-redundant storage |
+
+### Usage Example
+
+```hcl
+# NFS VM with Zone-Redundant Storage
+storage_type = "standard"
+
+# Place NFS VM in Zone 1
+nfs_vm_zone = "1"
+
+# Use zone-redundant disks (survive zone failure)
+nfs_raid_disk_type           = "StandardSSD_ZRS"
+os_disk_storage_account_type = "StandardSSD_ZRS"
+
+# NFS VM configuration
+create_nfs_public_ip = false
+nfs_vm_admin         = "nfsuser"
+nfs_vm_machine_type  = "Standard_D4s_v5"
+nfs_raid_disk_size   = 256
+```
+
+### NFS VM Limitations
+
+⚠️ **IMPORTANT**: Zone-redundant disks provide data protection but **NOT VM-level high availability:
+
+| Aspect | Behavior |
+| :--- | :--- |
+| **Data Protection** | ZRS disks replicate data across 3 zones ✅ |
+| **VM Location** | VM remains in single zone (e.g., Zone 1) |
+| **Zone Failure** | Data survives, but VM becomes unavailable |
+| **Recovery** | VM does **NOT** auto-restart in another zone |
+| **Manual Intervention** | Admin must recreate VM or use Azure Site Recovery |
+| **RTO** | Hours (manual VM recovery) |
+
+**Comparison with NetApp CZR:**
+
+```
+NFS VM with ZRS:                    NetApp CZR:
+- Data survives zone failure ✅    - Data survives zone failure ✅
+- VM stuck in failed zone ❌       - Replica volume in different zone ✅
+- VM won't auto-restart ❌         - Can access replica volume immediately ✅
+- Requires VM recreation ❌        - Just update DNS + restart pods ✅
+- RTO: Hours ❌                    - RTO: ~10-15 minutes ✅
+```
+
+**Recommendation**: For production multi-AZ deployments, use **Azure NetApp Files with CZR** instead of NFS VM, even though it requires manual failover. The recovery time is significantly better (minutes vs hours).
+
+---
+
+## AKS Node Pool Zone Configuration
+
+### Global Zone Configuration
+
+Applies to all node pools unless overridden:
+
+```hcl
+# All node pools will span zones 1, 2, and 3
+default_nodepool_availability_zones = ["1", "2", "3"]
+node_pools_availability_zones       = ["1", "2", "3"]
+```
+
+### Per-Node-Pool Zone Configuration
+
+You can specify zones individually for each node pool:
+
+```hcl
+node_pools = {
+  cas = {
+    "machine_type" = "Standard_E16ds_v5"
+    "min_nodes"    = 3
+    "max_nodes"    = 5
+    "availability_zones" = ["1"]  # CAS only in Zone 1
+  },
+  compute = {
+    "machine_type" = "Standard_D4ds_v5"
+    "min_nodes"    = 3
+    "max_nodes"    = 5
+    "availability_zones" = ["1", "2", "3"]  # Compute across all zones
+  },
+  stateless = {
+    "machine_type" = "Standard_D4s_v5"
+    "min_nodes"    = 3
+    "max_nodes"    = 6
+    "availability_zones" = ["1", "2", "3"]  # Stateless across all zones
+  },
+  stateful = {
+    "machine_type" = "Standard_D4s_v5"
+    "min_nodes"    = 3
+    "max_nodes"    = 5
+    "availability_zones" = ["1", "2", "3"]  # Stateful across all zones
+  }
+}
+```
+
+**Use Cases:**
+
+- **CAS in single zone**: When using ANF CZR with primary in Zone 1, keep CAS in Zone 1 for lowest latency
+- **Compute across zones**: Distribute compute pods for resilience
+- **Stateless across zones**: Maximum availability for web/API services
+- **Stateful across zones**: Data services benefit from zone distribution
+
+---
+
+## Multi-AZ Deployment Scenarios
+
+### Scenario 1: AKS Multi-Zone Only (No Storage HA)
+
+**Configuration:**
+```hcl
+# Multi-zone AKS
+default_nodepool_availability_zones = ["1", "2", "3"]
+node_pools_availability_zones       = ["1", "2", "3"]
+
+# Single-zone PostgreSQL (no HA)
+postgres_servers = {
+  default = {}
+}
+
+# Single-zone storage (NFS or NetApp without replication)
+storage_type = "standard"
+nfs_vm_zone  = "1"
+```
+
+**Protection Level:**
+- ✅ AKS pods reschedule to other zones if one zone fails
+- ❌ PostgreSQL single point of failure
+- ❌ Storage single point of failure
+- **Use Case**: Development/testing environments
+
+---
+
+### Scenario 2: Full Multi-AZ (PostgreSQL + NetApp CZR + AKS)
+
+**Configuration:**
+```hcl
+# Multi-zone AKS
+default_nodepool_availability_zones = ["1", "2", "3"]
+node_pools_availability_zones       = ["1", "2", "3"]
+
+# Zone-redundant PostgreSQL
+postgres_servers = {
+  default = {
+    high_availability_mode    = "ZoneRedundant"
+    availability_zone         = "1"
+    standby_availability_zone = "2"
+  }
+}
+
+# NetApp with Cross-Zone Replication
+storage_type                         = "ha"
+netapp_enable_cross_zone_replication = true
+netapp_availability_zone             = "1"
+netapp_replication_zone              = "2"
+netapp_network_features              = "Standard"
+```
+
+**Protection Level:**
+- ✅ AKS pods reschedule automatically
+- ✅ PostgreSQL auto-failover (< 60 seconds)
+- ✅ Storage data protected (manual failover ~10-15 min)
+- **Use Case**: Production deployments requiring high availability
+
+---
+
+### Scenario 3: PostgreSQL HA + NFS VM ZRS + AKS
+
+**Configuration:**
+```hcl
+# Multi-zone AKS
+default_nodepool_availability_zones = ["1", "2", "3"]
+node_pools_availability_zones       = ["1", "2", "3"]
+
+# Zone-redundant PostgreSQL
+postgres_servers = {
+  default = {
+    high_availability_mode    = "ZoneRedundant"
+    availability_zone         = "1"
+    standby_availability_zone = "2"
+  }
+}
+
+# NFS VM with ZRS disks
+storage_type                     = "standard"
+nfs_vm_zone                      = "1"
+nfs_raid_disk_type               = "StandardSSD_ZRS"
+os_disk_storage_account_type     = "StandardSSD_ZRS"
+```
+
+**Protection Level:**
+- ✅ AKS pods reschedule automatically
+- ✅ PostgreSQL auto-failover (< 60 seconds)
+- ⚠️ Storage data survives but VM stuck in failed zone (manual recovery hours)
+- **Use Case**: Budget-constrained production (lower cost than NetApp but weaker storage HA)
+
+---
+
+### Scenario Comparison
+
+| Scenario | AKS HA | PostgreSQL HA | Storage HA | RTO (Zone Failure) | Cost | Use Case |
+|----------|---------|---------------|------------|--------------------|---------|-----------|
+| **1: AKS Only** | ✅ Auto | ❌ No | ❌ No | Hours | $ | Dev/Test |
+| **2: Full Multi-AZ** | ✅ Auto | ✅ Auto | ⚠️ Manual | ~15 min | $$$ | Production |
+| **3: PostgreSQL + NFS ZRS** | ✅ Auto | ✅ Auto | ⚠️ Manual (slow) | Hours | $$ | Budget Production |
+
+**Recommendation**: Use **Scenario 2** (Full Multi-AZ) for production workloads requiring true high availability.
 
 ---
 
@@ -533,25 +772,35 @@ Azure NetApp Files cross-zone replication is **passive** and **read-only**. Unli
 
 - **Primary zone failure**: Replica volume remains in **read-only mode**
 - **No automatic failover**: Applications continue trying to reach failed primary
-- **Manual switching required**: Applications must be manually reconfigured to use replica
-- **No automatic DNS updates**: Connection strings must be manually updated
+- **Manual break-replication required**: Administrator must break replication to make replica read-write
+- **DNS-based recovery** (when CZR DNS is enabled): Update DNS A record instead of recreating PVCs
 
-**Example scenario:**
+**With DNS-based failover (this IaC):**
 ```
 Zone 1 (Primary) FAILS
   ↓
 Replica in Zone 2 is available but READ-ONLY
   ↓
-Applications still trying to reach Zone 1 → FAIL
+Manual Steps:
+  1. Break replication peering (make replica R/W)
+  2. Update DNS A record to replica IP
+  3. Restart Viya services (force NFS remount)
   ↓
-Manual intervention: Update app config to Zone 2 → Works (read-only)
+Applications reconnect to new primary → WORKS
+  ↓
+RTO: ~10-15 minutes (vs hours with manual PVC recreation)
 ```
+
+**Without DNS** (legacy approach):
+- Must delete and recreate 100+ PVCs
+- Update StorageClass with new IP address
+- RTO: Hours, high risk of errors
 
 ## 2. Recovery Time & Data Loss Objectives
 
 | Metric | Value | Notes |
 |--------|-------|-------|
-| **RTO (Recovery Time Objective)** | Manual | Depends on how quickly you can redirect traffic |
+| **RTO (Recovery Time Objective)** | ~10-15 minutes | With DNS-based failover: break replication (1-2 min) + update DNS (1 min) + restart services (5-10 min) |
 | **RPO (Recovery Point Objective)** | Configurable | Based on replication frequency setting |
 
 **RPO by Replication Frequency:**
@@ -603,39 +852,7 @@ Basic Network Features     Standard Network Features
 - Two capacity pools required (primary + replica)
 - Doubles NetApp storage infrastructure costs
 
-## 5. Manual Break-Peering During Zone Failures
-
-**Critical Limitation**: If your deployment uses VNet peering with BYO (Bring Your Own) networks:
-
-During zone failure:
-1. Primary zone fails
-2. Replica becomes read-only in different zone
-3. VNet peering connections may require **manual verification/re-establishment**
-4. Applications may lose connectivity to replica even if it's available
-
-**Required Manual Steps:**
-```
-Zone Failure Detected
-  ↓
-Verify VNet peering status
-  ↓
-If peering broken:
-  ├─ Break existing peering (if needed)
-  ├─ Re-establish new peering relationship
-  └─ Verify connectivity restored
-  ↓
-Switch application to replica volume
-  ↓
-Update DNS/connection strings
-  ↓
-Service restored (manual process = hours not minutes)
-```
-
-**References:**
-- [Azure VNet Peering Troubleshooting](https://learn.microsoft.com/en-us/azure/virtual-network/virtual-network-troubleshoot-peering-issues)
-- [Peering Best Practices](https://learn.microsoft.com/en-us/azure/virtual-network/virtual-network-peering-overview#best-practices)
-
-## 6. Replication Direction is One-Way Only
+## 5. Replication Direction is One-Way Only
 
 ```
 Primary Volume (Zone 1)  ──Replication──→  Replica Volume (Zone 2)
@@ -652,7 +869,7 @@ After Zone 1 Failure (Manual Failover):
   - Requires break/recreate replication for failback
 ```
 
-## 7. Failback Complexity After Zone Recovery
+## 6. Failback Complexity After Zone Recovery
 
 When the primary zone recovers, failback requires **manual steps**:
 
@@ -671,7 +888,7 @@ Manual Steps Required:
 Process takes hours/days, not automatic
 ```
 
-## 8. Dual Capacity Pool Management Overhead
+## 7. Dual Capacity Pool Management Overhead
 
 Cross-zone replication requires **two separate capacity pools**:
 
@@ -692,23 +909,27 @@ Total Cost = 2x capacity pool cost (not 1x)
 - Plan capacity for both pools
 - Double the NetApp infrastructure to manage
 
-## 9. No Automatic Application Failover
+## 8. No Automatic Application Failover
 
 Unlike database-level HA (PostgreSQL), NetApp replication doesn't handle:
 
 - Automatic connection switching
-- Automatic DNS updates
-- Automatic read-only to read-write promotion
+- Automatic read-only to read-write promotion (requires breaking replication)
 - Automatic application reconfiguration
 - Automatic failback
 
-**All require manual intervention** through:
-- Application reconfiguration
-- Kubernetes persistent volume updates
-- Connection string changes
-- Possible application restart
+**Manual intervention required:**
+- Break replication peering
+- Update DNS A record (when CZR DNS enabled) OR recreate PVCs (without DNS)
+- **Mandatory** application restart (NFS client caches IP at mount time)
 
-## 10. Network Latency During Cross-Zone Replication
+**DNS-based failover improvement** (this IaC):
+- ✅ No PVC recreation needed
+- ✅ No StorageClass updates needed
+- ✅ No connection string changes needed
+- ⚠️ Still requires service restart (NFS client behavior)
+
+## 9. Network Latency During Cross-Zone Replication
 
 Replication traffic crosses availability zones:
 
@@ -722,16 +943,16 @@ Zone 1 Primary → Cross-Zone Network → Zone 2 Replica
 
 ## NetApp vs PostgreSQL High Availability Comparison
 
-| Aspect | PostgreSQL HA | NetApp Replication |
-|--------|---------------|-------------------|
-| **Failover Type** | Automatic | Manual |
-| **RTO** | < 60 seconds | Hours/Days (manual) |
-| **RPO** | < 30 seconds | Configurable (10min-daily) |
-| **Read Load Balancing** | Yes (read replicas) | No (read-only replica) |
-| **Automatic Failback** | Yes | No (requires manual steps) |
-| **Cost** | Moderate | High (dual pools) |
-| **Operational Complexity** | Low | High |
-| **Use Case** | Database HA | Data protection only |
+| Aspect | PostgreSQL HA | NetApp Replication (with DNS) | NetApp Replication (without DNS) |
+|--------|---------------|-------------------------------|----------------------------------|
+| **Failover Type** | Automatic | Manual | Manual |
+| **RTO** | < 60 seconds | ~10-15 minutes | Hours (PVC recreation) |
+| **RPO** | < 30 seconds | Configurable (10min-daily) | Configurable (10min-daily) |
+| **Read Load Balancing** | Yes (read replicas) | No (read-only replica) | No (read-only replica) |
+| **Automatic Failback** | Yes | No (requires manual steps) | No (requires manual steps) |
+| **Cost** | Moderate | High (dual pools) | High (dual pools) |
+| **Operational Complexity** | Low | Medium (DNS simplifies) | High (manual PVC recreation) |
+| **Use Case** | Database HA | Data protection + simplified recovery | Data protection only |
 
 ## Recommended Architecture
 
@@ -769,14 +990,14 @@ Zone 1 Failure:
 
 | Limitation | Severity | Mitigation |
 |-----------|----------|-----------|
-| Manual failover required | **High** | Rely on PostgreSQL HA for DB failover |
-| RTO/RPO constraints | **High** | Use 10min replication frequency |
+| Manual failover required | **High** | Use DNS-based failover (this IaC) to simplify; rely on PostgreSQL HA for DB |
+| RTO ~10-15 minutes (with DNS) | **Medium** | Use 10min replication frequency; document procedures |
 | Read-only replica | **Medium** | Cannot load-balance across zones |
-| VNet peering manual fix | **High** | Document procedures; monitor peering |
+| Break replication required | **High** | Documented in recovery procedure |
 | Dual pool cost | **Medium** | Budget for 2x NetApp cost |
 | One-way replication | **Medium** | Plan failback procedure beforehand |
 | Failback complexity | **High** | Have documented runbooks |
-| No automatic failover | **High** | Combine with PostgreSQL HA |
+| Mandatory service restart | **High** | NFS client behavior; unavoidable; plan for 5-10 min downtime |
 
 ## References
 
