@@ -96,9 +96,7 @@ When `high_availability_mode = "ZoneRedundant"`:
 | **Primary Server** | Deployed in `availability_zone` |
 | **Standby Server** | Deployed in `standby_availability_zone` |
 | **Replication** | Synchronous (no data loss) |
-| **Failover** | Automatic (typically < 60 seconds) |
-| **RPO** | ~0 seconds (synchronous) |
-| **RTO** | < 60 seconds (automatic failover) |
+| **Failover** | Automatic |
 
 ### Validation
 
@@ -288,14 +286,143 @@ kubectl exec -it <pod-name> -n <viya-namespace> -- mount | grep nfs.sas-viya.int
 | `netapp_replica_ip` | Current replica volume IP | New primary IP after failover |
 | `netapp_dns_zone_id` | Private DNS Zone resource ID | Automation scripts |
 
+**Retrieve Terraform Outputs:**
+```bash
+# Get DNS hostname
+terraform output -raw netapp_dns_hostname
+# Output: nfs.sas-viya.internal
+
+# Get primary volume IP
+terraform output -json netapp_primary_ip
+# Output: ["192.168.3.4"]
+
+# Get replica volume IP
+terraform output -json netapp_replica_ip
+# Output: ["192.168.3.5"]
+
+# Get DNS zone ID
+terraform output -raw netapp_dns_zone_id
+```
+
 **Important Notes:**
-- **CRITICAL**: Both primary and replica volumes use **identical export paths** (e.g., `/export`). No `-replica` suffix is used to ensure seamless failover.
+- **CRITICAL**: Both primary and replica volumes use **identical export paths** (e.g., `/export`). **Design Decision**: No `-replica` suffix is used on the replica volume path to enable seamless DNS-based failover. After DNS update, storage classes continue using the same mount path without requiring PVC recreation.
 - **Service restart is MANDATORY**: Existing NFS mounts cache the resolved IP and will NOT automatically reconnect after DNS update. Only newly created pods will use the new IP.
 - **Complete restart required**: Partial restart causes "split-brain" state where some pods connect to old IP (unavailable) and some to new IP (working), causing application failures especially for CAS.
-- DNS TTL is 300 seconds (5 minutes). Allow time for DNS propagation before validating.
+- **DNS TTL is 300 seconds (5 minutes)**. DNS propagation is typically fast. The main time factors during failover are: (1) Breaking replication, (2) Updating DNS record, and (3) Service restart to force remount.
 - Replica volume is **read-only** during normal operations. After failover, you must break replication peering to make it read-write.
 - **Validated behavior**: New compute-server pods successfully mounted from replica IP (192.168.3.5) after DNS update WITHOUT service restart. However, existing CAS pods remained connected to old IP (192.168.3.4), causing controller cycling until full service restart was performed.
 - For Azure documentation, see: [Azure NetApp Files Cross-Zone Replication](https://learn.microsoft.com/en-us/azure/azure-netapp-files/create-cross-zone-replication)
+
+### CZR Failback After Zone Recovery
+
+When the primary zone recovers and you want to failback from replica to original primary:
+
+> **⚠️ IMPORTANT**: Export policies must remain identical on both volumes. Verify before failback.
+
+**Option 1: Simple DNS Flip (Quick Failback)**
+
+Use this when data written to replica after failover is NOT critical and can be discarded.
+
+```bash
+# 1. Break replication on CURRENT primary (former replica)
+az netappfiles volume replication remove \
+  --resource-group <rg-name> \
+  --account-name <account-name> \
+  --pool-name <pool-name> \
+  --volume-name <volume-name>-replica
+
+# 2. Update DNS back to original primary IP
+DNS_ZONE=$(terraform output -raw netapp_dns_hostname | cut -d. -f2-)
+RECORD_NAME=$(terraform output -raw netapp_dns_hostname | cut -d. -f1)
+ORIGINAL_PRIMARY_IP=$(terraform output -raw netapp_primary_ip | jq -r '.[0]')
+RG_NAME="<your-resource-group>"
+
+az network private-dns record-set a update \
+  --resource-group $RG_NAME \
+  --zone-name $DNS_ZONE \
+  --name $RECORD_NAME \
+  --set aRecords[0].ipv4Address=$ORIGINAL_PRIMARY_IP
+
+# 3. Restart ALL Viya services (MANDATORY)
+kubectl scale deployment --all --replicas=0 -n <viya-namespace>
+kubectl scale statefulset --all --replicas=0 -n <viya-namespace>
+kubectl wait --for=delete pod --all -n <viya-namespace> --timeout=600s
+# Scale back up with original replica counts
+
+# Data Loss: Changes made to replica after failover are LOST
+```
+
+**Option 2: Reverse Replication (No Data Loss)**
+
+Use this when data written to replica after failover MUST be preserved.
+
+```bash
+# 1. Break replication on current primary (former replica)
+az netappfiles volume replication remove \
+  --resource-group <rg-name> \
+  --account-name <account-name> \
+  --pool-name <pool-name> \
+  --volume-name <volume-name>-replica
+
+# 2. Configure REVERSE replication (replica → original primary)
+# This syncs data FROM replica (Zone 2) TO original primary (Zone 1)
+az netappfiles volume replication approve \
+  --resource-group <rg-name> \
+  --account-name <account-name> \
+  --pool-name <pool-name> \
+  --volume-name <volume-name> \
+  --remote-volume-resource-id "/subscriptions/.../volumes/<volume-name>-replica"
+
+# 3. Wait for reverse replication to complete (may take hours depending on data)
+az netappfiles volume replication status show \
+  --resource-group <rg-name> \
+  --account-name <account-name> \
+  --pool-name <pool-name> \
+  --volume-name <volume-name>
+# Wait for Mirror State: "Mirrored"
+
+# 4. Break reverse replication (makes original primary R/W)
+az netappfiles volume replication remove \
+  --resource-group <rg-name> \
+  --account-name <account-name> \
+  --pool-name <pool-name> \
+  --volume-name <volume-name>
+
+# 5. Update DNS back to original primary
+# (Same as Option 1 Step 2)
+
+# 6. Restart ALL Viya services
+# (Same as Option 1 Step 3)
+
+# 7. Re-establish original replication direction
+# (primary → replica) via Terraform or Azure Portal
+
+# Time Required: Varies based on data size for reverse replication
+# Data Loss: None (all data preserved)
+```
+
+**Failback Decision Matrix:**
+
+| Scenario | Data on Replica Critical? | Recommended Option | Data Loss |
+|----------|---------------------------|-----------------------|----------|
+| Short outage (< 1 hour) | No | Option 1 (DNS Flip) | Yes (replica changes lost) |
+| Short outage (< 1 hour) | Yes | Option 2 (Reverse Replication) | No |
+| Extended outage (> 1 day) | Yes (significant writes) | Option 2 (Reverse Replication) | No |
+| Testing/DR drill | No | Option 1 (DNS Flip) | Yes (test data) |
+
+**Post-Failback Validation:**
+```bash
+# Verify DNS points to original primary
+nslookup nfs.sas-viya.internal
+# Should resolve to original primary IP (e.g., 192.168.3.4)
+
+# Verify pods mount from original primary
+kubectl exec -it <pod-name> -n <viya-namespace> -- mount | grep nfs.sas-viya.internal
+# Should show addr=<original-primary-ip>
+
+# Verify all pods running
+kubectl get pods -n <viya-namespace>
+```
 
 ### NetApp Replication Behavior
 
@@ -307,8 +434,6 @@ When `netapp_enable_cross_zone_replication = true`:
 | **Replica Volume** | Deployed in `netapp_replication_zone` |
 | **Replication Type** | Asynchronous (near-real-time) |
 | **Failover** | Manual (requires user action) |
-| **RPO** | Based on replication frequency (10 min to daily) |
-| **RTO** | 5-15 minutes (manual failover) |
 
 ### Validation
 
@@ -379,7 +504,6 @@ nfs_raid_disk_size   = 256
 | **Zone Failure** | Data survives, but VM becomes unavailable |
 | **Recovery** | VM does **NOT** auto-restart in another zone |
 | **Manual Intervention** | Admin must recreate VM or use Azure Site Recovery |
-| **RTO** | Hours (manual VM recovery) |
 
 **Comparison with NetApp CZR:**
 
@@ -389,7 +513,6 @@ NFS VM with ZRS:                    NetApp CZR:
 - VM stuck in failed zone ❌       - Replica volume in different zone ✅
 - VM won't auto-restart ❌         - Can access replica volume immediately ✅
 - Requires VM recreation ❌        - Just update DNS + restart pods ✅
-- RTO: Hours ❌                    - RTO: ~10-15 minutes ✅
 ```
 
 **Recommendation**: For production multi-AZ deployments, use **Azure NetApp Files with CZR** instead of NFS VM, even though it requires manual failover. The recovery time is significantly better (minutes vs hours).
@@ -505,8 +628,8 @@ netapp_network_features              = "Standard"
 
 **Protection Level:**
 - ✅ AKS pods reschedule automatically
-- ✅ PostgreSQL auto-failover (< 60 seconds)
-- ✅ Storage data protected (manual failover ~10-15 min)
+- ✅ PostgreSQL auto-failover
+- ✅ Storage data protected (manual failover required)
 - **Use Case**: Production deployments requiring high availability
 
 ---
@@ -537,8 +660,8 @@ os_disk_storage_account_type     = "StandardSSD_ZRS"
 
 **Protection Level:**
 - ✅ AKS pods reschedule automatically
-- ✅ PostgreSQL auto-failover (< 60 seconds)
-- ⚠️ Storage data survives but VM stuck in failed zone (manual recovery hours)
+- ✅ PostgreSQL auto-failover
+- ⚠️ Storage data survives but VM stuck in failed zone (manual recovery required)
 - **Use Case**: Budget-constrained production (lower cost than NetApp but weaker storage HA)
 
 ---
@@ -671,7 +794,7 @@ The following rules are enforced at `terraform plan` time:
 
 | Component | Configuration | Behavior |
 | :--- | :--- | :--- |
-| **PostgreSQL** | `availability_zone = "1"`, `high_availability_mode = "ZoneRedundant"` | Auto-failover to Zone 2 standby (< 60 sec) |
+| **PostgreSQL** | `availability_zone = "1"`, `high_availability_mode = "ZoneRedundant"` | Auto-failover to Zone 2 standby |
 | **NetApp** | `netapp_availability_zone = "1"`, replication enabled | Primary volume unavailable; manual failover to Zone 2 replica needed |
 | **AKS Nodes** | Zones 1, 2, 3 | Pods rescheduled to Zones 2 & 3 |
 
@@ -685,7 +808,7 @@ When an entire availability zone is lost:
    - PostgreSQL automatically fails over to standby
 
 2. **Recovery Steps:**
-   - Monitor PostgreSQL failover completion (typically < 60 seconds)
+   - Monitor PostgreSQL failover completion
    - Access NetApp replica data in backup zone (manual process)
    - AKS cluster continues running in remaining zones
 
@@ -787,8 +910,6 @@ Manual Steps:
   3. Restart Viya services (force NFS remount)
   ↓
 Applications reconnect to new primary → WORKS
-  ↓
-RTO: ~10-15 minutes (vs hours with manual PVC recreation)
 ```
 
 **Without DNS** (legacy approach):
@@ -796,26 +917,20 @@ RTO: ~10-15 minutes (vs hours with manual PVC recreation)
 - Update StorageClass with new IP address
 - RTO: Hours, high risk of errors
 
-## 2. Recovery Time & Data Loss Objectives
+## 2. Recovery Time & Data Loss Considerations
 
-| Metric | Value | Notes |
-|--------|-------|-------|
-| **RTO (Recovery Time Objective)** | ~10-15 minutes | With DNS-based failover: break replication (1-2 min) + update DNS (1 min) + restart services (5-10 min) |
-| **RPO (Recovery Point Objective)** | Configurable | Based on replication frequency setting |
+**Failover Time Components:**
+- Break replication peering (making replica read-write)
+- Update DNS A record to point to replica IP
+- Restart all Viya services (mandatory for NFS remount)
 
-**RPO by Replication Frequency:**
-- `10minutes`: Up to 10 minutes of data loss possible
-- `hourly`: Up to 1 hour of data loss possible
-- `daily`: Up to 24 hours of data loss possible
+**Data Loss Risk:**
+Data loss depends on replication frequency setting:
+- `10minutes`: Data written since last replication may be lost
+- `hourly`: Up to the last hour of data may be lost
+- `daily`: Up to the last day of data may be lost
 
-**Example with 10-minute replication:**
-```
-14:00 - Data written to primary
-14:05 - Replication sync to replica
-14:10 - Primary fails
-        → Data written between 14:05-14:10 may be lost
-        → RPO = 5 minutes of potential data loss
-```
+Choose replication frequency based on your data criticality and acceptable data loss tolerance.
 
 ## 3. Replica is Read-Only During Normal Operations
 
@@ -941,13 +1056,33 @@ Zone 1 Primary → Cross-Zone Network → Zone 2 Replica
    └─ May impact primary zone performance during heavy writes
 ```
 
+## 10. Terraform Destroy Blocked by Active Replication
+
+Azure does not allow deletion of NetApp volumes with active replication peering:
+
+- **Terraform destroy fails**: Cannot destroy infrastructure while replication is active
+- **Pre-requisite**: Must break replication peering before running terraform destroy
+- **Manual step required**: Use Azure Portal or CLI to break replication, wait for "Broken" status (1-3 minutes)
+- **No automatic cleanup**: Terraform cannot automatically break replication during destroy operations
+
+**Breaking replication before destroy:**
+```bash
+# Break replication on replica volume
+az netappfiles volume replication remove \
+  --resource-group <rg-name> \
+  --account-name <account-name> \
+  --pool-name <pool-name> \
+  --volume-name <volume-name>-replica
+
+# Wait for status "Broken" before terraform destroy
+```
+
 ## NetApp vs PostgreSQL High Availability Comparison
 
 | Aspect | PostgreSQL HA | NetApp Replication (with DNS) | NetApp Replication (without DNS) |
 |--------|---------------|-------------------------------|----------------------------------|
 | **Failover Type** | Automatic | Manual | Manual |
-| **RTO** | < 60 seconds | ~10-15 minutes | Hours (PVC recreation) |
-| **RPO** | < 30 seconds | Configurable (10min-daily) | Configurable (10min-daily) |
+| **Data Loss** | Minimal (synchronous replication) | Based on replication frequency | Based on replication frequency |
 | **Read Load Balancing** | Yes (read replicas) | No (read-only replica) | No (read-only replica) |
 | **Automatic Failback** | Yes | No (requires manual steps) | No (requires manual steps) |
 | **Cost** | Moderate | High (dual pools) | High (dual pools) |
@@ -967,7 +1102,7 @@ Zone 1                          Zone 2
    (Database)                      (Database)
 
 Zone 1 Failure:
-  PostgreSQL: Auto-failover to Zone 2 standby (60s)
+  PostgreSQL: Auto-failover to Zone 2 standby
   NetApp: Manual failover to Zone 2 replica (requires app config change)
   AKS: Kubernetes reschedules pods to Zone 2/3 nodes (automatic)
 ```
@@ -976,28 +1111,47 @@ Zone 1 Failure:
 
 1. **Use NetApp for compliance/backup**, not primary HA
 2. **Rely on PostgreSQL automatic failover** for database HA
-3. **Keep replication frequency at `10minutes`** for RTO/RPO balance
-4. **Monitor replication status** continuously
+3. **Keep replication frequency at `10minutes`** for best balance of data protection and performance
+4. **Monitor replication status** continuously using:
+   ```bash
+   # Check replication status
+   az netappfiles volume replication status show \
+     --resource-group <rg-name> \
+     --account-name <account-name> \
+     --pool-name <pool-name> \
+     --volume-name <volume-name>-replica
+   
+   # Key metrics to monitor:
+   # - Mirror State: Should be "Mirrored" during normal operations
+   # - Mirror State: "Broken" after failover
+   # - Health Status: Should be "Healthy"
+   # - Lag Time: Should be < replication frequency (e.g., < 10 minutes)
+   
+   # Set up alerts for:
+   # - Mirror State != "Mirrored" (indicates replication issue)
+   # - Lag Time > 2x replication frequency (indicates sync lag)
+   # - Health Status != "Healthy" (indicates errors)
+   ```
 5. **Document manual failover procedures** for NetApp
 6. **Test failover scenarios** regularly (not just database)
 7. **Have runbooks for**:
    - Zone failure detection
    - VNet peering recovery
    - Application failover to replica
-   - Failback after zone recovery
+   - Failback after zone recovery (Option 1 vs Option 2 decision)
 
 ## Limitations Summary
 
 | Limitation | Severity | Mitigation |
 |-----------|----------|-----------|
-| Manual failover required | **High** | Use DNS-based failover (this IaC) to simplify; rely on PostgreSQL HA for DB |
-| RTO ~10-15 minutes (with DNS) | **Medium** | Use 10min replication frequency; document procedures |
-| Read-only replica | **Medium** | Cannot load-balance across zones |
-| Break replication required | **High** | Documented in recovery procedure |
-| Dual pool cost | **Medium** | Budget for 2x NetApp cost |
-| One-way replication | **Medium** | Plan failback procedure beforehand |
-| Failback complexity | **High** | Have documented runbooks |
-| Mandatory service restart | **High** | NFS client behavior; unavoidable; plan for 5-10 min downtime |
+| Manual failover required | **Medium** | DNS-based failover simplifies procedure; documented recovery steps |
+| Read-only replica | **Medium** | Cannot load-balance across zones; use for DR only |
+| Break replication required | **High** | Manual step required; documented in recovery procedure |
+| Dual pool cost | **Medium** | Budget for 2x NetApp cost; weigh against downtime cost |
+| One-way replication | **Medium** | Plan failback procedure beforehand; two options documented |
+| Failback complexity | **High** | Choose between quick DNS flip (data loss) or reverse replication (no data loss) |
+| Mandatory service restart | **High** | NFS client behavior; unavoidable; plan for downtime during failover |
+| Terraform destroy blocked | **Low** | Simple workaround: break replication first, then destroy; documented |
 
 ## References
 
