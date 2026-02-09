@@ -734,23 +734,40 @@ with error: ResourceNotFound: The Resource
 
 **Workaround**:
 
-When you encounter node pool 404 errors:
+When you encounter node pool 404 errors during destroy, you need to clean up both node pool state and Kubernetes resource state:
 
 ```bash
-# Option 1: Automated cleanup (bash)
+# Step 1: Remove node pool state references (handles 404 errors)
 terraform state list | grep azurerm_kubernetes_cluster_node_pool | while read resource; do 
   terraform state rm "$resource"
 done
-terraform destroy
 
-# Option 2: Manual cleanup
-terraform state list | grep node_pool
-# Then remove each one:
-terraform state rm 'module.node_pools["compute"].azurerm_kubernetes_cluster_node_pool.static_node_pool[0]'
-terraform state rm 'module.node_pools["cas"].azurerm_kubernetes_cluster_node_pool.static_node_pool[0]'
-# ... repeat for other node pools
+# Step 2: Remove Kubernetes resource state references (handles connection refused errors)
+# These resources lived inside the deleted cluster and can't be deleted
+terraform state list | grep -E 'kubernetes_config_map|kubernetes_service_account|kubernetes_cluster_role_binding|kubernetes_secret' | while read resource; do 
+  terraform state rm "$resource"
+done
+
+# Step 3: Retry destroy
 terraform destroy
 ```
+
+**PowerShell version:**
+```powershell
+# Step 1: Remove node pool state
+terraform state list | Select-String "azurerm_kubernetes_cluster_node_pool" | ForEach-Object { terraform state rm $_.Line }
+
+# Step 2: Remove Kubernetes resource state
+terraform state list | Select-String -Pattern "kubernetes_config_map|kubernetes_service_account|kubernetes_cluster_role_binding|kubernetes_secret" | ForEach-Object { terraform state rm $_.Line }
+
+# Step 3: Retry destroy
+terraform destroy
+```
+
+**Common errors after cluster deletion:**
+- `404 Not Found` - Node pools already cascade-deleted, Fixed by removing node pool state
+- `connection refused` - Kubernetes resources in deleted cluster, Fixed by removing Kubernetes resource state
+- `Invalid index` on `data.azurerm_subnet.aks_ipv6[0]` - Data source queries fail, Continue with destroy after state cleanup
 
 **Note**: This limitation is specific to IPv6 deployments due to the use of ARM template data source queries during destroy, which can cause fragile dependency chains. IPv4-only deployments use stable module references and don't experience this issue.
 
@@ -767,10 +784,6 @@ terraform destroy
 
 ### 7.1 Prerequisites Checklist
 
-- [ ] Azure subscription with AKS permissions
-- [ ] Terraform >= 1.0 installed
-- [ ] Azure CLI >= 2.40 (optional, for validation)
-- [ ] kubectl >= 1.21 (for testing)
 - [ ] **IPv6 address prefix planned**:
   - [ ] For **production with internet access**: Obtain IPv6 prefix from Azure support
   - [ ] For **production internal-only**: Use default ULA `fd00:1234:5678::/48` or generate unique prefix
