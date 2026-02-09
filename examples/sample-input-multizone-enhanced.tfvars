@@ -110,16 +110,23 @@ jump_vm_machine_type = "Standard_B2s"
 # Storage for SAS Viya CAS/Compute with Cross-Zone Replication
 storage_type = "ha"
 
-# NetApp configuration with cross-zone replication
+# NetApp configuration with cross-zone replication and DNS-based failover resilience
 netapp_service_level                 = "Premium"
 netapp_size_in_tb                    = 4
 netapp_network_features              = "Standard"  # Required for cross-zone replication
 
 # Multi-AZ NetApp configuration
 netapp_availability_zone             = "1"         # Primary volume in Zone 1
-netapp_enable_cross_zone_replication = true        # Enable cross-zone replication
+netapp_enable_cross_zone_replication = true        # Enable CZR + automatic DNS zone creation
 netapp_replication_zone              = "2"         # Replica volume in Zone 2
 netapp_replication_frequency         = "10minutes" # Replication frequency (10minutes, hourly, daily)
+
+# Optional: Customize DNS for NFS mount point (defaults shown)
+# When CZR is enabled, a Private DNS Zone is automatically created
+# netapp_dns_zone_name   = "sas-viya.internal"     # Private DNS zone name
+# netapp_dns_record_name = "nfs"                   # DNS A record name
+# Result: NFS mount at nfs.sas-viya.internal instead of static IP
+# See docs/MULTI-AZ-CONFIG.md#czr-failover-recovery for failover recovery procedures
 
 # OPTION 2: STANDARD NFS WITH ZONE-REDUNDANT STORAGE (Limited HA)
 # Uncomment these lines if using standard NFS instead of NetApp

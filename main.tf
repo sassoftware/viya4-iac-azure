@@ -410,6 +410,7 @@ module "netapp" {
   resource_group_name = local.aks_rg.name
   location            = var.location
   subnet_id           = var.enable_ipv6 ? null : local.vnet.subnets["netapp"].id
+  vnet_id             = module.vnet.id
   network_features    = var.netapp_network_features
   service_level       = var.netapp_service_level
   size_in_tb          = var.netapp_size_in_tb
@@ -426,6 +427,10 @@ module "netapp" {
   netapp_enable_cross_zone_replication = var.netapp_enable_cross_zone_replication
   netapp_replication_zone              = var.netapp_replication_zone
   netapp_replication_frequency         = var.netapp_replication_frequency
+  
+  # Private DNS Zone for CZR resilience
+  netapp_dns_zone_name   = var.netapp_dns_zone_name
+  netapp_dns_record_name = var.netapp_dns_record_name
 }
 
 data "external" "git_hash" {
