@@ -20,9 +20,7 @@ This comprehensive guide covers the complete lifecycle of IPv6 dual-stack implem
 1. [Background and Motivation](#1-background-and-motivation)
 2. [Technical Requirements](#2-technical-requirements)
 3. [Architecture Overview](#3-architecture-overview)
-4. [Implementation Details](#4-implementation-details)
-5. [Code Changes Summary](#5-code-changes-summary)
-6. [Known Limitations](#6-known-limitations)
+4. [Known Limitations](#4-known-limitations)
 
 ### Part 2: Deployment Guide
 7. [Prerequisites](#7-prerequisites)
@@ -396,289 +394,274 @@ vnet_ipv6_address_space = "fd00:1234:5678::/48"  # Generate unique at https://ww
 
 ---
 
-## 4. Implementation Details
+### 3.6 Deployment Flow
 
-### 4.1 Key Components Modified
+Understanding the deployment sequence helps troubleshoot issues and explains why certain dependencies exist:
 
-#### New Variables Added (`variables.tf`)
-
-```terraform
-variable "enable_ipv6" {
-  description = "Enable IPv6 dual-stack support (IPv4 + IPv6). When true, AKS cluster uses dual-stack networking with both IPv4 and IPv6 pod/service CIDRs. Requires aks_network_plugin='azure' and load_balancer_sku='standard'."
-  type        = bool
-  default     = false
-}
-
-variable "vnet_ipv6_address_space" {
-  description = "IPv6 address space for created vnet. Used when enable_ipv6=true. Must be a /48 CIDR block. Default uses ULA (Unique Local Address) range suitable for production internal-only clusters. For internet-facing clusters, use an Azure-assigned or organization-allocated globally routable prefix."
-  type        = string
-  default     = "fd00:1234:5678::/48"  # ULA range - production safe for internal use. Customize with unique random bits.
-
-  validation {
-    condition     = var.vnet_ipv6_address_space != null ? can(regex("^([0-9a-fA-F]{1,4}:)+:/48$", var.vnet_ipv6_address_space)) : true
-    error_message = "ERROR: vnet_ipv6_address_space - value must be a valid IPv6 CIDR with /48 prefix (e.g., fd00:1234:5678::/48 for ULA or your assigned prefix)."
-  }
-}
-
-variable "aks_pod_ipv6_cidr" {
-  description = "The IPv6 CIDR to use for pod IP addresses when enable_ipv6=true. Must be a /64 CIDR block. Required for dual-stack with Azure CNI. Default uses ULA (Unique Local Address) range suitable for production overlay networks."
-  type        = string
-  default     = "fd00:10:244::/64"  # ULA range - production safe for pod overlay network
-
-  validation {
-    condition     = var.aks_pod_ipv6_cidr != null ? can(regex("^([0-9a-fA-F]{1,4}:)+:/64$", var.aks_pod_ipv6_cidr)) : true
-    error_message = "ERROR: aks_pod_ipv6_cidr - value must be a valid IPv6 CIDR with /64 prefix (e.g., fd00:10:244::/64)."
-  }
-}
-
-variable "aks_service_ipv6_cidr" {
-  description = "The IPv6 Network Range used by the Kubernetes service. Used when enable_ipv6=true and aks_network_plugin='azure'. Must be a /108 CIDR block. Default uses ULA (Unique Local Address) range suitable for production service networks."
-  type        = string
-  default     = "fd00:10:0::/108"  # ULA range - production safe for service network
-
-  validation {
-    condition     = var.aks_service_ipv6_cidr != null ? can(regex("^([0-9a-fA-F]{1,4}:)+:/108$", var.aks_service_ipv6_cidr)) : true
-    error_message = "ERROR: aks_service_ipv6_cidr - value must be a valid IPv6 CIDR with /108 prefix (e.g., fd00:10:0::/108)."
-  }
-}
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ Phase 1: Pre-Infrastructure (Standard for both IPv4 and IPv6)  │
+└─────────────────────────────────────────────────────────────────┘
+        │
+        v
+User sets enable_ipv6 = true in terraform.tfvars
+        │
+        v
+terraform init && terraform plan
+        │
+        v
+┌─────────────────────────────────────────────────────────────────┐
+│ Phase 2: Base Azure Resources                                   │
+│ - Resource Groups (AKS RG, Network RG)                          │
+│ - Network Security Group (NSG)                                  │
+│ - User Assigned Identity (UAI) for AKS                          │
+│ - Proximity Placement Groups (if enabled)                       │
+└─────────────────────────────────────────────────────────────────┘
+        │
+        v
+┌─────────────────────────────────────────────────────────────────┐
+│ Phase 3: Networking (IPv6-specific path diverges here)         │
+└─────────────────────────────────────────────────────────────────┘
+        │
+        ├─── IPv6 Path (enable_ipv6=true)
+        │         │
+        │         v
+        │    ARM Template: Create dual-stack VNet
+        │    - VNet with IPv4 + IPv6 address spaces
+        │    - Subnets with dual-stack prefixes
+        │    - aks-subnet:      192.168.0.0/23 + fd00:xxxx::/64
+        │    - misc-subnet:     192.168.2.0/24 + fd00:xxxx:1::/64
+        │    - netapp-subnet:   192.168.3.0/24 + fd00:xxxx:2::/64
+        │    - postgresql-subnet: 192.168.4.0/24 + fd00:xxxx:3::/64
+        │         │
+        │         v
+        │    Data Sources: Fetch VNet/Subnet IDs
+        │    - data.azurerm_virtual_network.ipv6_vnet
+        │    - data.azurerm_subnet.aks_ipv6
+        │    - data.azurerm_subnet.misc_ipv6
+        │    - data.azurerm_subnet.netapp_ipv6
+        │    - data.azurerm_subnet.postgresql_ipv6
+        │         │
+        └─── IPv4 Path (enable_ipv6=false)
+                  │
+                  v
+             Module: azurerm_vnet
+             - Standard Terraform VNet resource
+             - IPv4-only subnets
+                  │
+                  v
+        ┌─────────────────────────────────────────────────────────┐
+        │ Both paths converge here                                │
+        └─────────────────────────────────────────────────────────┘
+        │
+        v
+┌─────────────────────────────────────────────────────────────────┐
+│ Phase 4: AKS Cluster Creation (Initially IPv4 only)            │
+│ - AKS cluster with system node pool                            │
+│ - Network plugin: Azure CNI (Overlay mode for IPv6)            │
+│ - Load balancer: Standard SKU                                  │
+│ - IPv4 configuration applied                                   │
+│ - IPv6 NOT YET configured (comes in Phase 6)                   │
+└─────────────────────────────────────────────────────────────────┘
+        │
+        v
+┌─────────────────────────────────────────────────────────────────┐
+│ Phase 5: Additional Resources                                  │
+│ - All AKS Node Pools (cas, compute, stateless, stateful)      │
+│ - Jump VM (if enabled)                                         │
+│ - NFS VM (if storage_type=standard)                            │
+│ - Azure NetApp Files (if storage_type=ha)                      │
+│ - PostgreSQL Flexible Server (if configured)                   │
+│ - Container Registry (if enabled)                              │
+│                                                                 │
+│ CRITICAL: All node pools must complete before Phase 6          │
+└─────────────────────────────────────────────────────────────────┘
+        │
+        v
+┌─────────────────────────────────────────────────────────────────┐
+│ Phase 6: IPv6 Configuration (Only if enable_ipv6=true)         │
+│ ARM Template Patch: Configure AKS for Dual-Stack               │
+│ - ipFamilies: ["IPv4", "IPv6"]                                 │
+│ - ipFamilyPolicy: "RequireDualStack"                           │
+│ - podCidrs: [IPv4 CIDR, IPv6 CIDR]                             │
+│ - serviceCidrs: [IPv4 CIDR, IPv6 CIDR]                         │
+│ - loadBalancerProfile:                                          │
+│     - managedOutboundIPs: count=1 (IPv4)                       │
+│     - countIPv6=1 (IPv6)                                        │
+│                                                                 │
+│ depends_on: [module.aks, module.node_pools]                    │
+└─────────────────────────────────────────────────────────────────┘
+        │
+        v
+┌─────────────────────────────────────────────────────────────────┐
+│ Phase 7: Post-Configuration                                    │
+│ - Kubeconfig generation                                         │
+│ - Kubernetes ConfigMap (sas-iac-buildinfo)                     │
+│ - NSG rules for IPv6 (if enabled)                              │
+└─────────────────────────────────────────────────────────────────┘
+        │
+        v
+┌─────────────────────────────────────────────────────────────────┐
+│ Deployment Complete - Cluster Ready                            │
+│                                                                 │
+│ IPv6 Deployment:                                                │
+│ - Dual-stack VNet and subnets                                  │
+│ - AKS cluster with dual-stack networking                       │
+│ - Pods receive both IPv4 and IPv6 addresses                    │
+│ - Services can use dual-stack                                  │
+│ - Load balancer has IPv4 + IPv6 public IPs                     │
+│ - Infrastructure services (VMs, NetApp, PG) IPv4 only          │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
-#### Local Calculations (`locals.tf`)
+**Key Points**:
 
-Auto-calculated subnet ranges from VNet /48:
+1. **Two-Stage AKS Configuration**: 
+   - Stage 1 (Phase 4): Cluster created with IPv4 networking
+   - Stage 2 (Phase 6): Cluster patched to add IPv6 dual-stack
+   - This is required because Terraform azurerm provider doesn't support dual-stack natively
 
-```terraform
-locals {
-  # Calculate /64 subnets from /48 VNet space
-  ipv6_aks_subnet_cidr  = var.enable_ipv6 ? cidrsubnet(var.vnet_ipv6_address_space, 16, 0) : null
-  ipv6_misc_subnet_cidr = var.enable_ipv6 ? cidrsubnet(var.vnet_ipv6_address_space, 16, 1) : null
-}
-```
+2. **Critical Dependency**: 
+   - Phase 6 (IPv6 patch) MUST wait for all node pools to complete (Phase 5)
+   - Implemented via `depends_on = [module.aks, module.node_pools]`
+   - Prevents race conditions and 404 errors
 
-**Calculation Logic**:
-- Input: `/48` VNet space (e.g., `fd00:1234:5678::/48`)
-- Operation: `cidrsubnet(space, 16, index)` creates `/64` subnets
-- Result: 
-  - Index 0 -> `fd00:1234:5678::/64` (AKS subnet)
-  - Index 1 -> `fd00:1234:5678:0:1::/64` (Misc subnet)
+3. **ARM Templates Used**:
+   - `vnet_ipv6` (Phase 3): Creates dual-stack VNet/subnets
+   - `aks_ipv6_dual_stack` (Phase 6): Configures AKS dual-stack
+   - Required because native Terraform resources don't support these features yet
 
-### 4.2 VNet Creation
+4. **Data Sources**:
+   - Used to reference ARM-created resources in Terraform state
+   - Allows Terraform to manage dependencies correctly
+   - Required for subnet references in node pools and VMs
 
-**Conditional VNet Module** (skipped when IPv6 enabled):
-```terraform
-module "vnet" {
-  source = "./modules/azurerm_vnet"
-  count  = var.enable_ipv6 ? 0 : 1  # Skip if IPv6 enabled
-  # ... IPv4-only configuration
-}
-```
-
-**IPv6 VNet via ARM Template** (`main.tf`):
-
-```terraform
-resource "azurerm_resource_group_template_deployment" "vnet_ipv6" {
-  count = var.enable_ipv6 ? 1 : 0
-  name  = "${var.prefix}-vnet-ipv6"
-  
-  template_content = jsonencode({
-    resources = [{
-      type       = "Microsoft.Network/virtualNetworks"
-      apiVersion = "2023-04-01"
-      properties = {
-        addressSpace = {
-          addressPrefixes = [
-            var.vnet_address_space,        # IPv4
-            var.vnet_ipv6_address_space    # IPv6
-          ]
-        }
-        subnets = [
-          {
-            name = "${var.prefix}-aks-subnet"
-            properties = {
-              addressPrefixes = [
-                var.subnets["aks"].prefixes[0],  # IPv4
-                local.ipv6_aks_subnet_cidr       # IPv6
-              ]
-            }
-          },
-          {
-            name = "${var.prefix}-misc-subnet"
-            properties = {
-              addressPrefixes = [
-                var.subnets["misc"].prefixes[0], # IPv4
-                local.ipv6_misc_subnet_cidr      # IPv6
-              ]
-            }
-          }
-        ]
-      }
-    }]
-  })
-}
-```
-
-**Why ARM Template?**
-- Azure Terraform provider doesn't support dual-stack subnet configuration natively
-- ARM templates provide access to latest Azure API features
-- Incremental deployment mode allows safe updates
-
-### 4.3 AKS Cluster Configuration
-
-**IPv6 Dual-Stack Patch** (`main.tf`):
-
-```terraform
-resource "azurerm_resource_group_template_deployment" "aks_ipv6_dual_stack" {
-  count = var.enable_ipv6 ? 1 : 0
-  name  = "${var.prefix}-aks-ipv6-patch"
-  
-  template_content = jsonencode({
-    resources = [{
-      type       = "Microsoft.ContainerService/managedClusters"
-      apiVersion = "2023-07-01"
-      properties = {
-        networkProfile = {
-          ipFamilies     = ["IPv4", "IPv6"]
-          ipFamilyPolicy = "RequireDualStack"
-          podCidrs = [
-            var.aks_pod_cidr,          # IPv4 (configurable)
-            var.aks_pod_ipv6_cidr      # IPv6 (configurable)
-          ]
-          serviceCidrs = [
-            var.aks_service_cidr,      # IPv4 (configurable)
-            var.aks_service_ipv6_cidr  # IPv6 (configurable)
-          ]
-          loadBalancerProfile = {
-            managedOutboundIPs = {
-              count     = 1  # IPv4 outbound IP
-              countIPv6 = 1  # IPv6 outbound IP
-            }
-          }
-        }
-      }
-    }]
-  })
-  
-  depends_on = [
-    module.aks,
-    module.node_pools  # Critical: wait for all node pools
-  ]
-}
-```
-
-**Why Post-Creation Patch?**
-- Terraform azurerm provider doesn't support `ipFamilies` and `podCidrs` array natively
-- ARM template can update existing cluster with dual-stack configuration
-- `depends_on` prevents race conditions with node pool creation
-
-### 4.4 Network Security Rules
-
-```terraform
-resource "azurerm_network_security_rule" "ipv6_lb_outbound" {
-  name        = "SAS-IPv6-LB-Outbound"
-  count       = var.enable_ipv6 ? 1 : 0
-  priority    = 190
-  direction   = "Outbound"
-  access      = "Allow"
-  protocol    = "*"
-  source_address_prefix      = "::/0"  # All IPv6
-  destination_address_prefix = "::/0"  # All IPv6
-}
-```
+5. **Why Not Single-Step?**:
+   - Azure API requires cluster to exist before applying dual-stack configuration
+   - Node pools must be created before network profile can be updated
+   - ARM template "Incremental" mode safely updates existing cluster
 
 ---
 
-## 5. Code Changes Summary
+## 4. Known Limitations
 
-### 5.1 New Resources Created
+### 4.0 PostgreSQL + IPv6 Fundamental Incompatibility
 
-1. **`azurerm_resource_group_template_deployment.vnet_ipv6`**
-   - Creates dual-stack VNet and subnets
-   - Conditional: Only when `enable_ipv6 = true`
+**CRITICAL - DEPLOYMENT BLOCKER**: Azure PostgreSQL Flexible Server and IPv6 are **MUTUALLY EXCLUSIVE**.
 
-2. **`azurerm_resource_group_template_deployment.aks_ipv6_dual_stack`**
-   - Configures AKS cluster for dual-stack
-   - Conditional: Only when `enable_ipv6 = true`
-   - Critical dependency on node pools completion
+**Official Azure Documentation Statement**:
+> "Azure Database for PostgreSQL - Flexible Server doesn't currently support IPv6. Even if the subnet for the Postgres Flexible Server doesn't have any IPv6 addresses assigned, it can't be deployed if there are IPv6 addresses in the virtual network."
+>
+> Source: [Azure Virtual Network IPv6 Overview](https://learn.microsoft.com/en-us/azure/virtual-network/ip-services/ipv6-overview)
 
-3. **`azurerm_network_security_rule.ipv6_lb_outbound`**
-   - Allows IPv6 outbound traffic
-   - Conditional: Only when `enable_ipv6 = true`
+**What This Means**:
+- PostgreSQL Flexible Server **CANNOT be deployed** in any VNet with IPv6 address space
+- This applies **even if** the PostgreSQL subnet has no IPv6 addresses assigned
+- The restriction is at the **VNet level**, not the subnet level
+- You **MUST choose** between PostgreSQL and IPv6 - you cannot have both
 
-4. **Data Sources**: `aks_ipv6`, `misc_ipv6`
-   - Reference ARM-created resources in Terraform
-   - Conditional: Only when `enable_ipv6 = true`
+**Impact on Deployment**:
 
-### 5.2 Deployment Flow
+| Scenario | PostgreSQL | IPv6 | Result |
+|----------|-----------|------|--------|
+| IPv6 Enabled | ❌ **BLOCKED** | ✅ Supported | PostgreSQL deployment will fail |
+| IPv6 Disabled | ✅ Supported | ❌ Not available | PostgreSQL deploys successfully |
 
+**Deployment Options**:
+
+**Option A: IPv6 Dual-Stack (No PostgreSQL)**
+```hcl
+enable_ipv6 = true
+vnet_ipv6_address_space = "2001:db8::/48"
+# Comment out or remove postgres_servers block entirely
+# postgres_servers = { ... }  # DO NOT configure
 ```
-User sets enable_ipv6 = true
-        |
-        v
-1. Create IPv4 resources (RG, NSG, UAI)
-        |
-        v
-2. ARM Template: Create dual-stack VNet
-        |
-        v
-3. Data sources fetch VNet/subnet info
-        |
-        v
-4. Deploy AKS cluster (IPv4 only initially)
-        |
-        v
-5. Deploy all node pools
-        |
-        v
-6. ARM Template: Patch AKS to dual-stack
-        |
-        v
-7. Complete deployment (dual-stack active)
+- ✅ Full IPv6 dual-stack networking for AKS
+- ❌ No managed PostgreSQL available
+- Alternative: Use PostgreSQL in separate IPv4-only VNet with VNet peering
+
+**Option B: PostgreSQL HA (No IPv6)**
+```hcl
+enable_ipv6 = false  # Must be false
+# Do NOT configure vnet_ipv6_address_space or IPv6 CIDRs
+postgres_servers = {
+  default = {
+    high_availability_mode    = "ZoneRedundant"
+    availability_zone         = "1"
+    standby_availability_zone = "2"
+  }
+}
 ```
+- ✅ PostgreSQL with zone-redundant HA
+- ❌ IPv4-only networking
+- ✅ Multi-zone resilience still available for AKS and storage
+
+**Mitigation Strategies**:
+
+1. **Separate VNets** (Most Common):
+   - Deploy PostgreSQL in dedicated IPv4-only VNet
+   - Deploy AKS with IPv6 in separate VNet
+   - Connect via VNet peering or Private Link
+   - ⚠️ Adds network complexity and potential latency
+
+2. **Use External PostgreSQL**:
+   - Host PostgreSQL outside Azure (on-premises or other cloud)
+   - AKS cluster can use IPv6
+   - ⚠️ Lose Azure-managed HA benefits
+
+3. **Wait for Azure Support**:
+   - Monitor Azure roadmap for IPv6 support in PostgreSQL Flexible Server
+   - No ETA available as of February 2026
+
+**Regional Considerations**:
+
+Even if you choose Option B (PostgreSQL, no IPv6), not all regions support PostgreSQL High Availability:
+
+- ✅ **East US 2** - Supports PostgreSQL HA
+- ✅ **West US 3** - Supports PostgreSQL HA
+- ❌ **West US 2** - PostgreSQL HA blocked
+
+See [MULTI-AZ-CONFIG.md](../MULTI-AZ-CONFIG.md#postgresql-ha-regional-availability) for complete regional availability.
 
 ---
 
-## 6. Known Limitations
+### 4.1 Infrastructure Components (IPv4 Only)
 
-### 6.1 Infrastructure Components (IPv4 Only)
+**CRITICAL**: Even though subnets are configured as dual-stack (IPv4 + IPv6), most Azure infrastructure services only support IPv4 connectivity as of 2026.
 
-| Component | IPv4 | IPv6 | Reason |
+| Component | IPv4 | IPv6 | Reason | Impact |
+|-----------|------|------|--------|--------|
+| **Jump VM** | YES | NO | Azure VMs don't auto-assign IPv6 to NICs | SSH accessible via IPv4 only |
+| **NFS VM** | YES | NO | Azure VMs don't auto-assign IPv6 to NICs | NFS mounts use IPv4 endpoint |
+| **PostgreSQL Flexible** | YES | NO | **CANNOT deploy in IPv6 VNets** (see 4.0 above) | PostgreSQL + IPv6 are mutually exclusive |
+| **Azure NetApp Files** | YES | NO | Azure service limitation (no IPv6 support) | NFS endpoint IPv4 only (192.168.x.x) |
+| **Container Registry** | YES | NO | Azure service limitation | Container pulls via IPv4 |
+
+**What This Means**:
+- IPv6 subnet ranges are **allocated but unused** by infrastructure services
+- Pods with IPv6 addresses must use **IPv4 to connect** to these services
+- Kubernetes automatically selects IPv4 for connections to IPv4-only endpoints
+- The dual-stack subnet configuration is **future-proof** for when Azure adds IPv6 support
+
+**Workaround**: Dual-stack pods have both IPv4 and IPv6 addresses, allowing them to communicate with IPv4-only services without issues.
+
+### 4.2 AKS Components (Full Dual-Stack Support)
+
+| Component | IPv4 | IPv6 | Status |
 |-----------|------|------|--------|
-| Jump VM | YES | NO | Azure VMs don't auto-enable IPv6 on dual-stack subnets |
-| NFS VM | YES | NO | Same as Jump VM |
-| PostgreSQL Flexible Server | YES | NO | Azure service limitation |
-| Azure NetApp Files | YES | NO | Azure service limitation |
-| Container Registry | YES | NO | Azure service limitation |
+| **AKS Pods** | YES | YES | Full dual-stack |
+| **AKS Services (LoadBalancer)** | YES | YES | Dual-stack frontend IPs |
+| **AKS ClusterIP Services** | YES | YES | Both IP families |
+| **Node-to-Node** | YES | YES | Dual-stack communication |
+| **Pod-to-Pod** | YES | YES | Dual-stack communication |
 
-**Impact**: Infrastructure components accessible via IPv4 only. Kubernetes workloads unaffected.
+### 4.3 Default Kubernetes Service
 
-### 6.2 IPv4 CIDR Configuration
+**Observation**: `kubernetes.default.svc` service remains IPv4-only.  
+**Reason**: System service created before IPv6 configuration is applied to the cluster.  
+**Impact**: None - this is expected behavior and doesn't affect cluster operations or workload connectivity.
 
-In ARM template patch resource (`main.tf` azurerm_resource_group_template_deployment.aks_ipv6_dual_stack):
-```terraform
-podCidrs = [
-  var.aks_pod_cidr,         # Configurable IPv4
-  var.aks_pod_ipv6_cidr     # Configurable IPv6
-]
-serviceCidrs = [
-  var.aks_service_cidr,     # Configurable IPv4
-  var.aks_service_ipv6_cidr # Configurable IPv6
-]
-```
-
-**Status**: Both IPv4 and IPv6 CIDRs are now fully configurable via variables.  
-**Variables**: 
-- `aks_pod_cidr` - IPv4 pod CIDR (default: "10.244.0.0/16")
-- `aks_service_cidr` - IPv4 service CIDR (default: "10.0.0.0/16")
-- `aks_pod_ipv6_cidr` - IPv6 pod CIDR (default: "fd00:10:244::/64")
-- `aks_service_ipv6_cidr` - IPv6 service CIDR (default: "fd00:10:0::/108")
-
-### 6.3 Default Kubernetes Service
-
-**Observation**: `kubernetes.default.svc` remains IPv4-only.  
-**Reason**: Created before IPv6 configuration applied.  
-**Impact**: None - expected behavior, doesn't affect operations.
-
-### 6.4 External IPv6 Connectivity
+### 4.4 External IPv6 Connectivity
 
 **Status**: Internal connectivity works; external depends on Azure configuration.
 
@@ -693,7 +676,7 @@ serviceCidrs = [
 - Load balancer with public IPv6 frontend (created automatically)
 - Internet-facing services need `ipFamilyPolicy: PreferDualStack` or `RequireDualStack`
 
-### 6.5 Terraform Destroy Limitation (Azure Provider Issue)
+### 4.5 Terraform Destroy Limitation (Azure Provider Issue)
 
 **Issue**: Node pool 404 errors during `terraform destroy`
 
@@ -776,6 +759,47 @@ terraform destroy
 2. Using computed locals with stable fallbacks to prevent data source evaluation during destroy
 3. Updating the azurerm provider to treat 404 errors on node pool deletion as success rather than failure
 
+### 4.6 Azure Regional Availability Limitations
+
+**CRITICAL**: Not all Azure features are available in all regions. Verify your target region supports the required features before deployment.
+
+#### 4.6.1 IPv6 Dual-Stack Regional Availability
+
+**IPv6 for Azure VNet - Generally Available (GA)**
+
+As of 2026, IPv6 dual-stack for Azure Virtual Networks and AKS is **generally available** in most Azure regions, but there are considerations:
+
+| Feature | Regional Status | Notes |
+|---------|----------------|-------|
+| **IPv6 VNet Addressing** | Available in most regions | Check Azure portal for your region |
+| **AKS Dual-Stack (IPv4+IPv6)** | Available in most regions | Requires Azure CNI Overlay mode |
+| **IPv6 Public IPs** | Available in most regions | Standard SKU required |
+| **IPv6 Load Balancer** | Available in most regions | Automatically enabled with dual-stack |
+
+**Recommended Regions for IPv6 Deployments** (Known to support all required features):
+- **US**: East US, East US 2, West US 2, West US 3, Central US, South Central US
+- **Europe**: North Europe, West Europe, UK South, France Central
+- **Asia Pacific**: Southeast Asia, East Asia, Australia East, Japan East
+- **Other**: Canada Central, Brazil South, UAE North
+
+**How to Verify IPv6 Support for Your Region**:
+
+```bash
+# Method 1: Check via Azure CLI
+az account list-locations -o table | grep -i "your-region-name"
+
+# Method 2: Check Azure Portal
+# Navigate to: Home > Virtual Networks > Create
+# Select your region and check if IPv6 address space option is available
+
+# Method 3: Terraform test (safest method)
+# Just attempt deployment - will fail immediately if region doesn't support IPv6
+```
+
+**If Your Region Doesn't Support IPv6**:
+- Choose a different region from the recommended list
+- Or disable IPv6: Set `enable_ipv6 = false` in your tfvars
+
 ---
 
 # Part 2: Deployment Guide
@@ -784,7 +808,7 @@ terraform destroy
 
 ### 7.1 Prerequisites Checklist
 
-- [ ] **IPv6 address prefix planned**:
+- [ ] **IPv6 address prefix planned** (see [Section 3.4](#34-ipv6-address-selection-guide)):
   - [ ] For **production with internet access**: Obtain IPv6 prefix from Azure support
   - [ ] For **production internal-only**: Use default ULA `fd00:1234:5678::/48` or generate unique prefix
   - [ ] For **testing/examples only**: Can use `2001:db8::/48` (NOT for production)

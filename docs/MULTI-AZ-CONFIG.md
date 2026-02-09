@@ -189,7 +189,7 @@ parameters:
 
 When an ANF zone failure occurs, follow these steps to recover:
 
-> **⚠️ CRITICAL**: Existing pods will NOT automatically reconnect after DNS update. Service restart is **MANDATORY**. NFS clients cache the resolved IP at mount time and do not re-resolve DNS until remounted.
+> **CRITICAL**: Existing pods will NOT automatically reconnect after DNS update. Service restart is **MANDATORY**. NFS clients cache the resolved IP at mount time and do not re-resolve DNS until remounted.
 
 **1. Break Replication Peering (Make Replica Read-Write)**
 ```bash
@@ -317,7 +317,7 @@ terraform output -raw netapp_dns_zone_id
 
 When the primary zone recovers and you want to failback from replica to original primary:
 
-> **⚠️ IMPORTANT**: Export policies must remain identical on both volumes. Verify before failback.
+> **IMPORTANT**: Export policies must remain identical on both volumes. Verify before failback.
 
 **Option 1: Simple DNS Flip (Quick Failback)**
 
@@ -495,11 +495,11 @@ nfs_raid_disk_size   = 256
 
 ### NFS VM Limitations
 
-⚠️ **IMPORTANT**: Zone-redundant disks provide data protection but **NOT VM-level high availability:
+**IMPORTANT**: Zone-redundant disks provide data protection but **NOT VM-level high availability:
 
 | Aspect | Behavior |
 | :--- | :--- |
-| **Data Protection** | ZRS disks replicate data across 3 zones ✅ |
+| **Data Protection** | ZRS disks replicate data across 3 zones |
 | **VM Location** | VM remains in single zone (e.g., Zone 1) |
 | **Zone Failure** | Data survives, but VM becomes unavailable |
 | **Recovery** | VM does **NOT** auto-restart in another zone |
@@ -509,10 +509,10 @@ nfs_raid_disk_size   = 256
 
 ```
 NFS VM with ZRS:                    NetApp CZR:
-- Data survives zone failure ✅    - Data survives zone failure ✅
-- VM stuck in failed zone ❌       - Replica volume in different zone ✅
-- VM won't auto-restart ❌         - Can access replica volume immediately ✅
-- Requires VM recreation ❌        - Just update DNS + restart pods ✅
+- Data survives zone failure       - Data survives zone failure
+- VM stuck in failed zone          - Replica volume in different zone
+- VM won't auto-restart            - Can access replica volume immediately
+- Requires VM recreation           - Just update DNS + restart pods
 ```
 
 **Recommendation**: For production multi-AZ deployments, use **Azure NetApp Files with CZR** instead of NFS VM, even though it requires manual failover. The recovery time is significantly better (minutes vs hours).
@@ -594,9 +594,9 @@ nfs_vm_zone  = "1"
 ```
 
 **Protection Level:**
-- ✅ AKS pods reschedule to other zones if one zone fails
-- ❌ PostgreSQL single point of failure
-- ❌ Storage single point of failure
+- AKS pods reschedule to other zones if one zone fails
+- PostgreSQL single point of failure
+- Storage single point of failure
 - **Use Case**: Development/testing environments
 
 ---
@@ -627,9 +627,9 @@ netapp_network_features              = "Standard"
 ```
 
 **Protection Level:**
-- ✅ AKS pods reschedule automatically
-- ✅ PostgreSQL auto-failover
-- ✅ Storage data protected (manual failover required)
+- AKS pods reschedule automatically
+- PostgreSQL auto-failover
+- Storage data protected (manual failover required)
 - **Use Case**: Production deployments requiring high availability
 
 ---
@@ -659,9 +659,9 @@ os_disk_storage_account_type     = "StandardSSD_ZRS"
 ```
 
 **Protection Level:**
-- ✅ AKS pods reschedule automatically
-- ✅ PostgreSQL auto-failover
-- ⚠️ Storage data survives but VM stuck in failed zone (manual recovery required)
+- AKS pods reschedule automatically
+- PostgreSQL auto-failover
+- Storage data survives but VM stuck in failed zone (manual recovery required)
 - **Use Case**: Budget-constrained production (lower cost than NetApp but weaker storage HA)
 
 ---
@@ -670,9 +670,9 @@ os_disk_storage_account_type     = "StandardSSD_ZRS"
 
 | Scenario | AKS HA | PostgreSQL HA | Storage HA | RTO (Zone Failure) | Cost | Use Case |
 |----------|---------|---------------|------------|--------------------|---------|-----------|
-| **1: AKS Only** | ✅ Auto | ❌ No | ❌ No | Hours | $ | Dev/Test |
-| **2: Full Multi-AZ** | ✅ Auto | ✅ Auto | ⚠️ Manual | ~15 min | $$$ | Production |
-| **3: PostgreSQL + NFS ZRS** | ✅ Auto | ✅ Auto | ⚠️ Manual (slow) | Hours | $$ | Budget Production |
+| **1: AKS Only** | Auto | No | No | Hours | $ | Dev/Test |
+| **2: Full Multi-AZ** | Auto | Auto | Manual | ~15 min | $$$ | Production |
+| **3: PostgreSQL + NFS ZRS** | Auto | Auto | Manual (slow) | Hours | $$ | Budget Production |
 
 **Recommendation**: Use **Scenario 2** (Full Multi-AZ) for production workloads requiring true high availability.
 
@@ -1039,10 +1039,10 @@ Unlike database-level HA (PostgreSQL), NetApp replication doesn't handle:
 - **Mandatory** application restart (NFS client caches IP at mount time)
 
 **DNS-based failover improvement** (this IaC):
-- ✅ No PVC recreation needed
-- ✅ No StorageClass updates needed
-- ✅ No connection string changes needed
-- ⚠️ Still requires service restart (NFS client behavior)
+- No PVC recreation needed
+- No StorageClass updates needed
+- No connection string changes needed
+- Still requires service restart (NFS client behavior)
 
 ## 9. Network Latency During Cross-Zone Replication
 
@@ -1056,7 +1056,50 @@ Zone 1 Primary → Cross-Zone Network → Zone 2 Replica
    └─ May impact primary zone performance during heavy writes
 ```
 
-## 10. Terraform Destroy Blocked by Active Replication
+## 10. Azure NetApp Files Does NOT Support IPv6 Subnets
+
+**CRITICAL**: Azure NetApp Files volumes **cannot be deployed in subnets with IPv6 address space** configured, even if the volume only uses IPv4.
+
+**Constraint:**
+- NetApp subnet must be **IPv4-only** even when the VNet is dual-stack (IPv4 + IPv6)
+- This applies regardless of whether cross-zone replication is enabled
+- Other subnets (AKS, misc) can be dual-stack, but NetApp subnet cannot
+
+**Error Message When IPv6 Configured:**
+```
+Error: creating Volume: polling after CreateOrUpdate: polling failed: 
+Status: "Failed"
+Code: "BadRequest"
+Message: "The subnet has a configured IPv6 address space. Azure NetApp Files 
+volumes only support subnets with IPv4. Please remove the IPv6 address space 
+configuration from the subnet and try again."
+```
+
+**Implementation in this IaC:**
+```hcl
+# When enable_ipv6 = true:
+# - AKS subnet: Dual-stack (IPv4 + IPv6)
+# - Misc subnet: Dual-stack (IPv4 + IPv6)
+# - NetApp subnet: IPv4-only (Azure restriction)
+
+# ARM template automatically creates NetApp subnet as IPv4-only
+# even when VNet has dual-stack configuration
+```
+
+**Impact:**
+- NetApp volumes work correctly with IPv4-only subnet
+- NFS mounts from dual-stack AKS pods work (pods have IPv4 addresses)
+- Export policy allows IPv4 subnet ranges
+- NetApp does not support IPv6 NFS endpoints (future limitation)
+
+**Workaround:**
+None required. The IaC automatically configures NetApp subnet as IPv4-only when `enable_ipv6 = true`. This is the correct and only supported configuration.
+
+**Related Limitations:**
+- PostgreSQL Flexible Server also does not support dual-stack VNets (see PostgreSQL HA Regional Availability section)
+- Both PostgreSQL and NetApp require IPv4-only subnets when deploying in an IPv6-enabled VNet
+
+## 11. Terraform Destroy Blocked by Active Replication
 
 Azure does not allow deletion of NetApp volumes with active replication peering:
 
@@ -1142,8 +1185,155 @@ Zone 1 Failure:
 
 ## Limitations Summary
 
+### PostgreSQL HA Regional Availability
+
+**CRITICAL**: Not all Azure regions support PostgreSQL Flexible Server High Availability.
+
+**Regions WITHOUT PostgreSQL HA Support** (as of Feb 2026):
+- **West US 2** (westus2) - HA disabled
+- **Various other regions** - Check Azure documentation for current list
+
+**Regions WITH PostgreSQL HA Support**:
+- **East US** (eastus)
+- **East US 2** (eastus2) 
+- **West US 3** (westus3)
+- **North Europe** (northeurope)
+- **West Europe** (westeurope)
+- **UK South** (uksouth)
+- **Southeast Asia** (southeastasia)
+- **Australia East** (australiaeast)
+
+**Error Message When HA Not Supported**:
+```
+Error: creating Flexible Server: polling after CreateOrUpdate: polling failed: 
+Status: "HADisabledForRegion"
+Code: ""
+Message: "HA is disabled for region westus2."
+```
+
+**Configuration by Region**:
+
+```hcl
+# For regions WITHOUT HA support (e.g., westus2)
+postgres_servers = {
+  default = {
+    high_availability_mode = null  # Must be null/disabled
+  }
+}
+
+# For regions WITH HA support (e.g., eastus2)
+postgres_servers = {
+  default = {
+    high_availability_mode    = "ZoneRedundant"  # Enable zone-redundant HA
+    availability_zone         = "1"               # Primary zone
+    standby_availability_zone = "2"               # Standby zone (must differ)
+  }
+}
+```
+
+**How to Check Regional HA Support**:
+
+```bash
+# Azure CLI method
+az postgres flexible-server list-skus --location <your-region> --output table
+
+# Check for "high_availability" column
+# If empty or "NotSupported", the region doesn't support HA
+
+# Or check Azure documentation:
+# https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/overview#high-availability
+```
+
+**Mitigation Options**:
+1. **Disable HA**: Set `high_availability_mode = null` in your postgres_servers configuration
+2. **Choose Different Region**: Select a region from the supported list above
+3. **Cross-Region Setup**: Deploy PostgreSQL in a HA-supported region and use VNet peering
+
+---
+
+### NetApp Cross-Zone Replication Regional Availability
+
+**Azure NetApp Files Cross-Zone Replication (CZR)** is region-specific:
+
+**Regions WITH NetApp CZR Support** (as of Feb 2026):
+- **US**: East US, East US 2, West US 2, Central US
+- **Europe**: North Europe, West Europe, UK South
+- **Asia Pacific**: Southeast Asia, Australia East, Japan East
+
+**Regions WITHOUT NetApp CZR Support**:
+- Many secondary/newer regions
+- Check Azure documentation for current availability
+
+**Configuration by Region**:
+
+```hcl
+# For regions WITH CZR support
+netapp_enable_cross_zone_replication = true
+netapp_availability_zone             = "1"
+netapp_replication_zone              = "2"
+netapp_replication_frequency         = "10minutes"  # or "hourly", "daily"
+
+# For regions WITHOUT CZR support - use single-zone deployment
+netapp_enable_cross_zone_replication = false
+netapp_availability_zone             = "1"
+# netapp_replication_zone not needed when CZR disabled
+```
+
+**How to Check NetApp CZR Support**:
+
+```bash
+# Azure CLI method
+az netappfiles account list --resource-group <rg-name> --location <your-region>
+
+# Or check Azure documentation:
+# https://learn.microsoft.com/en-us/azure/azure-netapp-files/cross-region-replication-introduction
+```
+
+**Mitigation Options**:
+1. **Single-Zone NetApp**: Disable CZR and use single-zone deployment
+2. **Choose Different Region**: Select a region from the supported list above
+3. **Cross-Region Replication**: Use cross-region replication instead of CZR (longer RPO/RTO)
+4. **Alternative Storage**: Consider Azure Files or other storage options with better regional coverage
+
+---
+
+### Multi-AZ Availability Zone Support
+
+Not all Azure regions have 3 availability zones:
+
+| Region Type | AZ Count | Example Regions |
+|-------------|----------|------------------|
+| **Primary** | 3 zones | East US 2, West US 2, North Europe, Southeast Asia |
+| **Secondary** | 2 zones or less | Some regional locations |
+| **No AZ** | 0 zones | Older regions |
+
+**How to Check AZ Availability**:
+
+```bash
+az vm list-skus --location <your-region> --zone --query "[?contains(name, 'Standard_D')]" -o table
+```
+
+**Configuration Impact**:
+
+```hcl
+# For 3-AZ regions
+node_pools_availability_zones = ["1", "2", "3"]
+
+# For 2-AZ regions
+node_pools_availability_zones = ["1", "2"]
+
+# For no-AZ regions
+node_pools_availability_zones = []  # Empty list
+```
+
+---
+
+### NetApp and AKS Limitations
+
 | Limitation | Severity | Mitigation |
 |-----------|----------|-----------|
+| PostgreSQL HA not available in all regions | **High** | Verify region support before deployment; disable HA or choose different region |
+| NetApp CZR not available in all regions | **High** | Verify region support; use single-zone NetApp or cross-region replication |
 | Manual failover required | **Medium** | DNS-based failover simplifies procedure; documented recovery steps |
 | Read-only replica | **Medium** | Cannot load-balance across zones; use for DR only |
 | Break replication required | **High** | Manual step required; documented in recovery procedure |
@@ -1152,6 +1342,7 @@ Zone 1 Failure:
 | Failback complexity | **High** | Choose between quick DNS flip (data loss) or reverse replication (no data loss) |
 | Mandatory service restart | **High** | NFS client behavior; unavoidable; plan for downtime during failover |
 | Terraform destroy blocked | **Low** | Simple workaround: break replication first, then destroy; documented |
+| IPv6 subnet not supported | **High** | NetApp subnet must be IPv4-only; IaC automatically handles this in dual-stack VNets |
 
 ## References
 

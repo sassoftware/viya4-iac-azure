@@ -95,6 +95,14 @@ data "azurerm_subnet" "misc_ipv6" {
   depends_on           = [azurerm_resource_group_template_deployment.vnet_ipv6]
 }
 
+data "azurerm_subnet" "netapp_ipv6" {
+  count              = var.enable_ipv6 && var.storage_type == "ha" ? 1 : 0
+  name               = "${var.prefix}-netapp-subnet"
+  virtual_network_name = "${var.prefix}-vnet"
+  resource_group_name  = local.network_rg.name
+  depends_on           = [azurerm_resource_group_template_deployment.vnet_ipv6]
+}
+
 data "azurerm_virtual_network" "ipv6_vnet" {
   count               = var.enable_ipv6 ? 1 : 0
   name                = "${var.prefix}-vnet"
@@ -155,6 +163,14 @@ resource "azurerm_resource_group_template_deployment" "vnet_ipv6" {
         type         = "string"
         defaultValue = local.ipv6_misc_subnet_cidr
       }
+      netappSubnetIpv4 = {
+        type         = "string"
+        defaultValue = var.subnets["netapp"].prefixes[0]
+      }
+      netappSubnetIpv6 = {
+        type         = "string"
+        defaultValue = local.ipv6_netapp_subnet_cidr
+      }
       prefix = {
         type         = "string"
         defaultValue = var.prefix
@@ -202,6 +218,22 @@ resource "azurerm_resource_group_template_deployment" "vnet_ipv6" {
                 serviceEndpoints = [
                   {
                     service = "Microsoft.Sql"
+                  }
+                ]
+              }
+            },
+            {
+              name       = "[concat(parameters('prefix'), '-netapp-subnet')]"
+              properties = {
+                addressPrefixes = [
+                  "[parameters('netappSubnetIpv4')]"
+                ]
+                delegations = [
+                  {
+                    name       = "netapp"
+                    properties = {
+                      serviceName = "Microsoft.Netapp/volumes"
+                    }
                   }
                 ]
               }
@@ -409,15 +441,18 @@ module "netapp" {
   prefix              = var.prefix
   resource_group_name = local.aks_rg.name
   location            = var.location
-  subnet_id           = var.enable_ipv6 ? null : local.vnet.subnets["netapp"].id
-  vnet_id             = module.vnet.id
+  subnet_id           = var.enable_ipv6 ? data.azurerm_subnet.netapp_ipv6[0].id : local.vnet.subnets["netapp"].id
+  vnet_id             = var.enable_ipv6 ? data.azurerm_virtual_network.ipv6_vnet[0].id : module.vnet[0].id
   network_features    = var.netapp_network_features
   service_level       = var.netapp_service_level
   size_in_tb          = var.netapp_size_in_tb
   protocols           = var.netapp_protocols
   volume_path         = "${var.prefix}-${var.netapp_volume_path}"
   tags                = var.tags
-  allowed_clients     = var.enable_ipv6 ? [] : concat(local.vnet.subnets["aks"].address_prefixes, local.vnet.subnets["misc"].address_prefixes)
+  allowed_clients     = var.enable_ipv6 ? [
+    for prefix in concat(data.azurerm_subnet.aks_ipv6[0].address_prefixes, data.azurerm_subnet.misc_ipv6[0].address_prefixes) : 
+    prefix if length(regexall(":", prefix)) == 0
+  ] : concat(local.vnet.subnets["aks"].address_prefixes, local.vnet.subnets["misc"].address_prefixes)
   depends_on          = [module.vnet]
 
   community_netapp_volume_size = var.community_netapp_volume_size
