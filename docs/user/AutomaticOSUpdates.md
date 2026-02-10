@@ -69,6 +69,26 @@ az vm install-patches --resource-group <rg-name> --name <vm-name> --maximum-dura
 - Plan maintenance windows for production
 - Test patches before production deployment
 
+## ⚠️ Important: Backup Before Patching
+
+**Always create backups before installing OS updates:**
+
+1. **Take VM snapshots** or use Azure Backup before patching
+2. **For NFS VMs:** Backup data stored on NFS volumes
+3. **Test restore procedures** to ensure backups are valid
+4. **Document rollback steps** in case of patch failures
+
+**Azure Backup commands:**
+```powershell
+# Enable backup for VM
+az backup protection enable-for-vm --resource-group <rg-name> --vault-name <backup-vault> --vm <vm-name> --policy-name DefaultPolicy
+
+# Trigger on-demand backup
+az backup protection backup-now --resource-group <rg-name> --vault-name <backup-vault> --container-name <vm-name> --item-name <vm-name>
+```
+
+Microsoft and SAS are not responsible for data loss or system failures resulting from OS updates. Backups are your responsibility.
+
 ## Troubleshooting
 
 **No patches showing:**
