@@ -350,6 +350,8 @@ When `storage_type=standard`, a NFS Server VM is created, only when these variab
 | nfs_raid_disk_type | Managed disk types | string | "Standard_LRS" | Supported values: Standard_LRS, Premium_LRS, StandardSSD_LRS or UltraSSD_LRS. When using `UltraSSD_LRS`, `nfs_vm_zone` and `nfs_raid_disk_zone` must be specified. See the [Azure documentation](https://docs.microsoft.com/en-us/azure/virtual-machines/disks-enable-ultra-ssd) for limitations on Availability Zones and VM types. |
 | nfs_raid_disk_size | Size in Gb for each disk of the RAID5 cluster on the NFS server VM | number | 256 | |
 | nfs_raid_disk_zone | The Availability Zone in which the Managed Disk should be located. Changing this property forces a new resource to be created. | string | null | |
+| vm_patch_mode | Specifies VM Guest Patching mode for Jump and NFS VMs | string | "ImageDefault" | Valid values: "ImageDefault" (manual), "AutomaticByPlatform" (automatic). See [AutomaticOSUpdates.md](./user/AutomaticOSUpdates.md) |
+| vm_patch_assessment_mode | Specifies VM Guest Patch Assessment mode for Jump and NFS VMs | string | "AutomaticByPlatform" | Valid values: "ImageDefault" (manual), "AutomaticByPlatform" (automatic). See [AutomaticOSUpdates.md](./user/AutomaticOSUpdates.md) |
 
 ### Azure NetApp Files (only when `storage_type=ha`)
 
