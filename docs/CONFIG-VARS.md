@@ -118,6 +118,7 @@ az vm image terms accept --urn Canonical:0001-com-ubuntu-pro-jammy-fips:pro-fips
 | :--- | ---: | ---: | ---: | :--- |
 | enable_ipv6 | Enable IPv6 on VNet, subnets, and AKS. When true, AKS cluster uses IPv6 dual-stack (pods get IPv6 addresses) | bool | false | Requires `aks_network_plugin="azure"`. See [IPv6 Dual Stack Configuration](./IPv6_DUAL_STACK.md) for details, CIDR planning, and limitations. |
 | vnet_ipv6_address_space | IPv6 address space for created vnet | string | "2001:db8::/48" | Used when `enable_ipv6=true`. Must be a /48 CIDR block. This variable is ignored when vnet_name is set. |
+| aks_pod_ipv6_cidr | IPv6 Network Range used by Kubernetes pods | string | "fd00:10::/64" | Used when `enable_ipv6=true` and `aks_network_plugin='azure'`. Must be a /64 CIDR block. Must fall within vnet_ipv6_address_space. |
 | aks_service_ipv6_cidr | IPv6 Network Range used by Kubernetes service | string | "2001:db8:1::/108" | Used when `enable_ipv6=true` and `aks_network_plugin='azure'`. Must be a /108 CIDR block. Must fall within vnet_ipv6_address_space. |
 | vnet_address_space | Address space for created vnet | string | "192.168.0.0/16" | This variable is ignored when vnet_name is set (AKA bring your own vnet). |
 | subnets | Subnets to be created and their settings | map(object) | *check below* | This variable is ignored when subnet_names is set (AKA bring your own subnets). All defined subnets must exist within the vnet address space. |
