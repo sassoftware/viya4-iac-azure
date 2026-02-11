@@ -72,6 +72,8 @@ module "jump" {
   encryption_at_host_enabled   = var.enable_vm_host_encryption
   disk_encryption_set_id       = var.vm_disk_encryption_set_id
   os_disk_storage_account_type = var.os_disk_storage_account_type
+  patch_mode                   = var.vm_patch_mode
+  patch_assessment_mode        = var.vm_patch_assessment_mode
   # Jump VM mounts NFS path hence dependency on 'module.nfs'
   depends_on = [module.vnet, module.nfs]
 }
@@ -114,6 +116,8 @@ module "nfs" {
   data_disk_zone                 = var.nfs_raid_disk_zone
   encryption_at_host_enabled     = var.enable_vm_host_encryption
   disk_encryption_set_id         = var.vm_disk_encryption_set_id
+  patch_mode                     = var.vm_patch_mode
+  patch_assessment_mode          = var.vm_patch_assessment_mode
   depends_on                     = [module.vnet]
 }
 
