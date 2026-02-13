@@ -338,7 +338,7 @@ When `storage_type=standard`, a NFS Server VM is created, only when these variab
 
 **NOTE:** When `node_pools_proximity_placement=true` is set, the NFS VM will be co-located in the proximity group with the additional node pool VMs.
 
-**NOTE:** The 128 default is in GB. With a RAID5 configuration, the default is 4 disks, so [the defaults would yield (N-1) x S(min)](https://superuser.com/questions/272990/how-to-calculate-the-final-raid-size-of-a-raid-5-array), or (4-1) x 128GB = ~384 GB.
+**NOTE:** The 128 default is in GB. With a RAID0 configuration, the default is 4 disks.
 
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
