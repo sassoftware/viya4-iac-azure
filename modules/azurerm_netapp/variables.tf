@@ -39,7 +39,7 @@ variable "service_level" {
 }
 
 variable "size_in_tb" {
-  description = "Provisioned size of the pool in TB. Value must be between 4 and 500"
+  description = "Provisioned size of the pool in TB. Value must be between 1 and 2048"
   type        = number
 }
 
