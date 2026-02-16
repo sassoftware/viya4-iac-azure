@@ -425,6 +425,28 @@ variable "vm_disk_encryption_set_id" {
   default     = null
 }
 
+variable "vm_patch_mode" {
+  description = "Specifies the mode of VM Guest Patching for Jump and NFS VMs. Possible values: ImageDefault (manual patching) or AutomaticByPlatform (automatic patching)."
+  type        = string
+  default     = "ImageDefault"
+  
+  validation {
+    condition     = contains(["AutomaticByPlatform", "ImageDefault"], var.vm_patch_mode)
+    error_message = "ERROR: Supported values for vm_patch_mode are: AutomaticByPlatform, ImageDefault."
+  }
+}
+
+variable "vm_patch_assessment_mode" {
+  description = "Specifies the mode of VM Guest Patch Assessment for Jump and NFS VMs. Possible values: ImageDefault or AutomaticByPlatform (recommended for visibility)."
+  type        = string
+  default     = "AutomaticByPlatform"
+  
+  validation {
+    condition     = contains(["AutomaticByPlatform", "ImageDefault"], var.vm_patch_assessment_mode)
+    error_message = "ERROR: Supported values for vm_patch_assessment_mode are: AutomaticByPlatform, ImageDefault."
+  }
+}
+
 variable "storage_type" {
   description = "Type of Storage. Valid Values: `standard`, `ha` and `none`. `standard` creates NFS server VM, `ha` creates Azure Netapp Files"
   type        = string
