@@ -3,6 +3,15 @@
 
 locals {
 
+  # Validation for FIPS custom image configuration
+  validate_fips_custom_image = (
+    var.use_custom_image_for_fips && !var.fips_enabled
+    ? tobool("ERROR: use_custom_image_for_fips can only be true when fips_enabled is true. Set both fips_enabled=true and use_custom_image_for_fips=true.")
+    : var.use_custom_image_for_fips && var.custom_node_source_image_id == null
+    ? tobool("ERROR: custom_node_source_image_id is required when use_custom_image_for_fips is true. Provide the Azure Compute Gallery image ID.")
+    : true
+  )
+
   # Useful flags
   ssh_public_key = (var.create_jump_vm || var.storage_type == "standard"
     ? can(file(var.ssh_public_key)) ? file(var.ssh_public_key) : var.ssh_public_key != null ? length(var.ssh_public_key) > 0 ? var.ssh_public_key : null : null

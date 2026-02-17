@@ -29,6 +29,8 @@ resource "azurerm_kubernetes_cluster_node_pool" "autoscale_node_pool" {
   eviction_policy              = var.community_eviction_policy
   spot_max_price               = var.community_spot_max_price
   temporary_name_for_rotation  = substr("t${var.node_pool_name}", 0, 12)
+  node_image_version           = var.custom_node_source_image_id == null ? var.node_image_version : null
+  source_image_id              = var.custom_node_source_image_id
 
   lifecycle {
     ignore_changes = [node_count]
@@ -69,6 +71,8 @@ resource "azurerm_kubernetes_cluster_node_pool" "static_node_pool" {
   eviction_policy              = var.community_eviction_policy
   spot_max_price               = var.community_spot_max_price
   temporary_name_for_rotation  = substr("t${var.node_pool_name}", 0, 12)
+  node_image_version           = var.custom_node_source_image_id == null ? var.node_image_version : null
+  source_image_id              = var.custom_node_source_image_id
 
   dynamic "linux_os_config" {
     for_each = var.linux_os_config[*]

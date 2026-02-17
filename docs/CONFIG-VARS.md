@@ -107,9 +107,82 @@ To accept the terms please run following az command before deploying cluster:
 az vm image terms accept --urn Canonical:0001-com-ubuntu-pro-jammy-fips:pro-fips-22_04:latest --subscription $subscription_id
 ```
 
+### FIPS Configuration Options
+
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
-| fips_enabled | Enables the Federal Information Processing Standard for all the nodes and VMs in this cluster | bool | false | Make sure to accept terms mentioned above before deploying. |
+| fips_enabled | Enables the Federal Information Processing Standard for all the nodes and VMs in this cluster | bool | false | **For AKS nodes:** Uses Azure-managed Ubuntu 20.04 FIPS image by default. **For VMs (Jump/NFS):** Uses Ubuntu Pro FIPS 22.04. Make sure to accept marketplace terms before deploying. |
+| use_custom_image_for_fips | When true, uses Ubuntu Pro FIPS 22.04 custom image for AKS nodes instead of default Ubuntu 20.04 FIPS | bool | false | **Only relevant when fips_enabled=true.** When true, requires custom_node_source_image_id. When false, uses Azure-managed Ubuntu 20.04 FIPS. |
+| custom_node_source_image_id | The ID of a custom Azure Compute Gallery image to use for AKS nodes | string | null | **Required when use_custom_image_for_fips=true.** Must be an Azure Compute Gallery image ID. See scripts/README.md for setup instructions. |
+| node_image_version | Specifies the version of the AKS node image to use | string | null | Selects a specific version of the Azure-managed image. When null, uses latest. **Note:** This does NOT change Ubuntu version - only the patch/release version. Ignored when use_custom_image_for_fips=true. |
+
+### Using Ubuntu Pro FIPS 22.04 on AKS Worker Nodes
+
+**IMPORTANT:** AKS does not support Ubuntu 22.04 through marketplace images when using `fips_enabled = true`. Azure automatically uses their managed Ubuntu 20.04 FIPS image for AKS nodes.
+
+**To use Ubuntu Pro FIPS 22.04 on AKS worker nodes, you MUST create a custom image.**
+
+#### Current Behavior Summary
+
+| Component | Configuration | OS Version Used |
+|-----------|---------------|-----------------|
+| AKS Worker Nodes (default) | `fips_enabled = true`<br>`use_custom_image_for_fips = false` | Ubuntu 20.04 FIPS (Azure-managed, automatic updates) |
+| AKS Worker Nodes (custom image) | `fips_enabled = true`<br>`use_custom_image_for_fips = true`<br>`custom_node_source_image_id = "<image-id>"` | Ubuntu 22.04 FIPS (Your custom image, manual updates) |
+| Jump/NFS VMs | `fips_enabled = true` | Ubuntu Pro FIPS 22.04 (Marketplace) |
+
+#### Using Custom Images from Azure Compute Gallery (Required for Ubuntu 22.04)
+
+#### Using Custom Images from Azure Compute Gallery (Required for Ubuntu 22.04)
+
+**This is the ONLY way to use Ubuntu 22.04 on AKS worker nodes.**
+
+To use a fully custom Ubuntu Pro FIPS 22.04 image on AKS worker nodes:
+
+1. **Create an Azure Compute Gallery** (formerly Shared Image Gallery):
+   ```bash
+   az sig create --resource-group <rg-name> --gallery-name <gallery-name>
+   ```
+
+2. **Create an image definition** for Ubuntu Pro FIPS 22.04:
+   ```bash
+   az sig image-definition create \
+     --resource-group <rg-name> \
+     --gallery-name <gallery-name> \
+     --gallery-image-definition ubuntu-pro-fips-2204 \
+     --publisher Canonical \
+     --offer 0001-com-ubuntu-pro-jammy-fips \
+     --sku pro-fips-22_04 \
+     --os-type Linux \
+     --os-state Generalized \
+     --hyper-v-generation V2
+   ```
+
+3. **Build and upload your custom image** to the gallery. Use the automated script:
+   ```bash
+   ./scripts/create-fips-2204-image.sh
+   ```
+   See the detailed guide in [scripts/README.md](../scripts/README.md) for complete instructions.
+
+4. **Configure Terraform** to use the custom image:
+   ```hcl
+   fips_enabled                = true
+   use_custom_image_for_fips   = true
+   custom_node_source_image_id = "/subscriptions/<subscription-id>/resourceGroups/viya4-image-builder/providers/Microsoft.Compute/galleries/viya4ImageGallery/images/ubuntu-pro-fips-2204/versions/1.0.0"
+   ```
+
+**For detailed step-by-step instructions, see:** [scripts/README.md](../scripts/README.md)
+
+**Important Notes:**
+- Custom images must be in the same subscription and region as your AKS cluster
+- The custom image must be based on a FIPS-enabled Ubuntu distribution  
+- Custom images require manual maintenance for security patches and updates
+- AKS node pools using custom images won't receive automatic OS updates via Azure's node image upgrade channels
+- You are responsible for creating, versioning, and maintaining the custom image lifecycle
+
+### Additional Security Configuration
+
+| Name | Description | Type | Default | Notes |
+| :--- | ---: | ---: | ---: | ---: |
 | enable_workload_identity | Enable Azure Workload Identity for AKS | bool | false | Automatically enables OIDC issuer; requires Azure AD integration. |
 
 ## Networking

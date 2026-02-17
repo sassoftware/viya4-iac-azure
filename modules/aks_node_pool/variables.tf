@@ -23,6 +23,18 @@ variable "fips_enabled" {
   default     = false
 }
 
+variable "node_image_version" {
+  description = "Specifies the version of the AKS node image to use. When not specified, the latest image version is used."
+  type        = string
+  default     = null
+}
+
+variable "custom_node_source_image_id" {
+  description = "The ID of a custom image to use for AKS nodes instead of marketplace images."
+  type        = string
+  default     = null
+}
+
 variable "host_encryption_enabled" {
   description = "Enables host encryption on all the nodes in the Node Pool. Changing this forces a new resource to be created."
   type        = bool

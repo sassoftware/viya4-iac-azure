@@ -120,9 +120,27 @@ variable "cluster_support_tier" {
 
 ## Enable FIPS support
 variable "fips_enabled" {
-  description = "Enables the Federal Information Processing Standard for the nodes and VMs in this cluster. Changing this forces a new resource to be created."
+  description = "Enables the Federal Information Processing Standard for the nodes and VMs in this cluster. When true, AKS nodes use Ubuntu 20.04 FIPS by default. Set use_custom_image_for_fips=true to use Ubuntu 22.04 FIPS instead. Changing this forces a new resource to be created."
   type        = bool
   default     = false
+}
+
+variable "use_custom_image_for_fips" {
+  description = "When true and fips_enabled=true, uses Ubuntu Pro FIPS 22.04 custom image instead of default Ubuntu 20.04 FIPS. Requires custom_node_source_image_id to be set. When false, uses Azure-managed Ubuntu 20.04 FIPS."
+  type        = bool
+  default     = false
+}
+
+variable "custom_node_source_image_id" {
+  description = "The ID of a custom Ubuntu Pro FIPS 22.04 image to use for AKS nodes. Required when use_custom_image_for_fips=true. Must be an Azure Compute Gallery image ID. See scripts/README.md for setup instructions."
+  type        = string
+  default     = null
+}
+
+variable "node_image_version" {
+  description = "Specifies the version of the AKS node image to use. When not specified, the latest image version is used. Note: This does NOT change the Ubuntu version (e.g., 20.04 vs 22.04), only the patch/release version of the Azure-managed image. Ignored when use_custom_image_for_fips=true."
+  type        = string
+  default     = null
 }
 
 variable "ssh_public_key" {

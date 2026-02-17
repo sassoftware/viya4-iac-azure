@@ -94,6 +94,8 @@ resource "azurerm_kubernetes_cluster" "aks" {
     vnet_subnet_id          = var.aks_vnet_subnet_id
     tags                    = var.aks_cluster_tags
     orchestrator_version    = var.kubernetes_version
+    node_image_version      = var.custom_node_source_image_id == null ? var.node_image_version : null
+    source_image_id         = var.custom_node_source_image_id
   }
 
   dynamic "service_principal" {

@@ -141,6 +141,8 @@ module "aks" {
   node_resource_group_name                 = var.node_resource_group_name != "" ? var.node_resource_group_name : "MC_${local.aks_rg.name}_${var.prefix}-aks_${var.location}"
   cluster_support_tier                     = var.cluster_support_tier
   fips_enabled                             = var.fips_enabled
+  node_image_version                       = (var.fips_enabled && var.use_custom_image_for_fips) ? null : var.node_image_version
+  custom_node_source_image_id              = (var.fips_enabled && var.use_custom_image_for_fips) ? var.custom_node_source_image_id : null
   aks_cluster_node_auto_scaling            = var.default_nodepool_min_nodes == var.default_nodepool_max_nodes ? false : true
   aks_cluster_node_count                   = var.default_nodepool_min_nodes
   aks_cluster_min_nodes                    = var.default_nodepool_min_nodes == var.default_nodepool_max_nodes ? null : var.default_nodepool_min_nodes
@@ -207,6 +209,8 @@ module "node_pools" {
   vnet_subnet_id               = module.vnet.subnets["aks"].id
   machine_type                 = each.value.machine_type
   fips_enabled                 = var.fips_enabled
+  node_image_version           = (var.fips_enabled && var.use_custom_image_for_fips) ? null : var.node_image_version
+  custom_node_source_image_id  = (var.fips_enabled && var.use_custom_image_for_fips) ? var.custom_node_source_image_id : null
   os_disk_size                 = each.value.os_disk_size
   auto_scaling_enabled         = each.value.min_nodes == each.value.max_nodes ? false : true
   node_count                   = each.value.min_nodes
