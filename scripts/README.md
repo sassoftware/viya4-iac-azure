@@ -70,11 +70,9 @@ custom_node_source_image_id = "<image-id-from-script>"
 
 | Aspect | Default (Ubuntu 20.04) | Custom Image (Ubuntu 22.04) |
 |--------|------------------------|------------------------------|
-| **Setup Time** | 0 minutes | 30-40 minutes (one-time) |
 | **Configuration** | `fips_enabled = true` | `fips_enabled = true`<br>`use_custom_image_for_fips = true`<br>`custom_node_source_image_id = "<id>"` |
 | **Security Updates** | Automatic (Azure manages) | **Manual (you must rebuild)** |
 | **Patching** | Automatic | **Your responsibility** |
-| **Cost** | $0 extra | ~$1-2/month storage |
 | **Maintenance** | None | **Regular image rebuilds required** |
 | **Flexibility** | Limited | Full customization |
 | **Risk** | Very low | Medium (update lag risk) |
