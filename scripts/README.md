@@ -59,8 +59,6 @@ custom_node_source_image_id = "<image-id-from-script>"
 |----------|-------------|
 | **Manual Maintenance** | YOU must rebuild images for security patches |
 | **Update Responsibility** | No automatic OS updates from Azure |
-| **Setup Time** | Initial setup takes 30-40 minutes |
-| **Storage Costs** | ~$1-2/month for image storage |
 | **Operational Overhead** | Need to monitor CVEs and rebuild images |
 | **Complexity** | More moving parts to manage |
 | **Image Lifecycle** | Must track and delete old image versions |
