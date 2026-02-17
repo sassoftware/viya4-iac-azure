@@ -1,12 +1,6 @@
 # Quick Start: Creating Ubuntu Pro FIPS 22.04 Custom Image
 
 
-✅ **Tested Method**: Uses the official Ubuntu Pro FIPS 22.04 marketplace image as the base  
-✅ **Standard Azure Process**: Follows Microsoft's documented custom image creation process  
-✅ **AKS Compatible**: The resulting image meets all AKS node requirements  
-✅ **FIPS Verified**: FIPS modules are pre-installed and enabled in the base image  
-
-## Do You Really Need This?
 
 ### When to Use Custom Ubuntu 22.04 Image
 
@@ -127,16 +121,7 @@ custom_node_source_image_id = "<image-id-from-script>"
    - Cannot instantly deploy critical security fixes
    - Build VM quota/availability can delay updates
 
-### 📋 Ongoing Maintenance Requirements
 
-When using custom images, you MUST:
-
-- [ ] **Monthly**: Check for Ubuntu security updates
-- [ ] **Weekly**: Monitor CVE databases for critical patches
-- [ ] **As Needed**: Rebuild image when patches available
-- [ ] **Quarterly**: Review and delete old image versions
-- [ ] **After Rebuild**: Update Terraform and redeploy nodes
-- [ ] **Continuously**: Track image version inventory
 
 ### 💡 Recommendation
 
@@ -221,11 +206,6 @@ custom_node_source_image_id = "/subscriptions/xxx-xxx-xxx/resourceGroups/viya4-i
 
 ### 3. Deploy Your AKS Cluster
 
-```bash
-terraform init
-terraform plan
-terraform apply
-```
 
 ## Verification
 
@@ -249,252 +229,6 @@ cat /host/proc/sys/crypto/fips_enabled
 # Should show: 1
 ```
 
-## End-to-End Testing Guide
-
-For a complete testing workflow with detailed steps and validation checklist, follow these phases:
-
-### Phase 1: Prerequisites Validation
-
-Ensure you have:
-- [ ] Azure CLI installed and authenticated (`az login`)
-- [ ] Azure subscription with Owner or Contributor permissions
-- [ ] Terraform v1.0 or later installed
-- [ ] kubectl installed for cluster verification
-- [ ] SSH key pair at `~/.ssh/id_rsa` and `~/.ssh/id_rsa.pub`
-- [ ] Marketplace terms accepted:
-  ```bash
-  az vm image terms accept \
-    --urn Canonical:0001-com-ubuntu-pro-jammy-fips:pro-fips-22_04:latest \
-    --subscription <your-subscription-id>
-  ```
-
-### Phase 2: Create Custom Image (30-40 minutes)
-
-```bash
-# Configure environment
-export SUBSCRIPTION_ID="<your-subscription-id>"
-export RESOURCE_GROUP="viya4-image-builder"
-export GALLERY_NAME="viya4ImageGallery"
-export LOCATION="eastus"
-export IMAGE_VERSION="1.0.0"
-
-# Run image creation script
-cd scripts
-chmod +x create-fips-2204-image.sh
-./create-fips-2204-image.sh
-```
-
-**Expected output:** Image ID in format:
-```
-/subscriptions/.../resourceGroups/viya4-image-builder/providers/Microsoft.Compute/galleries/viya4ImageGallery/images/ubuntu-pro-fips-2204/versions/1.0.0
-```
-
-Verify image:
-```bash
-az sig image-version show \
-  --resource-group viya4-image-builder \
-  --gallery-name viya4ImageGallery \
-  --gallery-image-definition ubuntu-pro-fips-2204 \
-  --gallery-image-version 1.0.0 \
-  --query provisioningState -o tsv
-# Should output: Succeeded
-```
-
-### Phase 3: Configure Terraform
-
-Create `terraform.tfvars` (or copy from `examples/sample-input-fips-ubuntu-2204.tfvars`):
-
-```hcl
-# Authentication
-subscription_id = "<your-subscription-id>"
-tenant_id       = "<your-tenant-id>"
-
-# General
-prefix   = "fips2204test"
-location = "eastus"
-
-# AKS Cluster
-kubernetes_version = "1.33"
-
-# FIPS with Ubuntu Pro 22.04
-fips_enabled                = true
-use_custom_image_for_fips   = true
-custom_node_source_image_id = "/subscriptions/<subscription-id>/resourceGroups/viya4-image-builder/providers/Microsoft.Compute/galleries/viya4ImageGallery/images/ubuntu-pro-fips-2204/versions/1.0.0"
-
-# Node Pools
-default_nodepool_min_nodes = 1
-default_nodepool_max_nodes = 3
-default_nodepool_vm_type   = "Standard_E8s_v5"
-
-# Optional: Additional node pools
-node_pools = {
-  cas = {
-    machine_type              = "Standard_E8s_v5"
-    os_disk_size              = 200
-    min_nodes                 = 1
-    max_nodes                 = 2
-    max_pods                  = 110
-    node_taints               = ["workload.sas.com/class=cas:NoSchedule"]
-    node_labels               = { "workload.sas.com/class" = "cas" }
-    linux_os_config           = null
-    community_priority        = "Regular"
-    community_eviction_policy = null
-    community_spot_max_price  = null
-  }
-}
-
-# Storage
-storage_type = "standard"
-
-# Optional: Disable Jump VM for faster testing
-create_jump_vm = false
-
-# Tags
-tags = {
-  environment = "test"
-  purpose     = "fips-ubuntu-2204-validation"
-}
-```
-
-Validate configuration:
-```bash
-terraform init
-terraform validate
-terraform plan -var-file=terraform.tfvars
-```
-
-### Phase 4: Deploy AKS Cluster (10-15 minutes)
-
-```bash
-terraform apply -var-file=terraform.tfvars
-# Type 'yes' when prompted
-```
-
-Configure kubectl:
-```bash
-export KUBECONFIG=$(terraform output -raw kube_config_path)
-# Or: az aks get-credentials --resource-group <rg-name> --name <cluster-name>
-```
-
-Verify cluster:
-```bash
-kubectl get nodes
-# All nodes should show "Ready" status
-```
-
-### Phase 5: Detailed Verification
-
-**Check OS version on all nodes:**
-```bash
-kubectl get nodes -o wide
-# Look for "Ubuntu 22.04" in OS-IMAGE column
-```
-
-**Verify FIPS on a specific node:**
-```bash
-# Get first node name
-NODE_NAME=$(kubectl get nodes -o jsonpath='{.items[0].metadata.name}')
-
-# Create debug pod
-kubectl debug node/$NODE_NAME -it --image=busybox -- sh
-
-# Inside debug pod:
-cat /host/etc/os-release | grep VERSION
-# Expected: VERSION="22.04.x LTS (Jammy Jellyfish)"
-
-cat /host/proc/sys/crypto/fips_enabled
-# Expected: 1
-
-cat /host/proc/cmdline | grep fips
-# Expected: Should contain "fips=1"
-
-# Exit debug pod
-exit
-```
-
-**Verify all node pools:**
-```bash
-# Check each node pool uses Ubuntu 22.04
-for node in $(kubectl get nodes -o name); do
-  echo "Checking $node..."
-  kubectl debug $node -it --image=busybox -- cat /host/etc/os-release | grep VERSION_ID
-done
-# All should show: VERSION_ID="22.04"
-```
-
-### Phase 6: Optional Workload Testing
-
-Deploy test workload:
-```bash
-kubectl create deployment nginx --image=nginx:latest --replicas=2
-kubectl expose deployment nginx --port=80 --type=ClusterIP
-kubectl get pods -o wide
-# Verify pods are scheduled on FIPS nodes
-```
-
-Cleanup test:
-```bash
-kubectl delete deployment nginx
-kubectl delete service nginx
-```
-
-### Phase 7: Cleanup (Optional)
-
-**Option A - Destroy everything:**
-```bash
-terraform destroy -var-file=terraform.tfvars
-```
-
-**Option B - Keep cluster, delete custom image:**
-```bash
-# Delete image resources
-az group delete --name viya4-image-builder --yes --no-wait
-```
-
-## Testing Validation Checklist
-
-Use this checklist to confirm end-to-end success:
-
-### ✅ Image Creation Phase
-- [ ] Script completed without errors
-- [ ] Image ID was output at the end
-- [ ] Image exists in Azure Compute Gallery with "Succeeded" status
-- [ ] Image is in the same region as planned AKS deployment
-
-### ✅ Terraform Configuration Phase
-- [ ] `terraform validate` passed
-- [ ] `terraform plan` showed custom image reference in node pool config
-- [ ] No errors about invalid image ID format
-
-### ✅ Cluster Deployment Phase
-- [ ] `terraform apply` completed successfully
-- [ ] Kubeconfig was generated
-- [ ] `kubectl get nodes` shows all nodes Ready
-
-### ✅ Verification Phase
-- [ ] Nodes show "Ubuntu 22.04" in `kubectl get nodes -o wide`
-- [ ] `/proc/sys/crypto/fips_enabled` returns `1` on all nodes
-- [ ] `/proc/cmdline` contains `fips=1` on all nodes
-- [ ] All node pools (default + additional) use Ubuntu 22.04
-- [ ] `/etc/os-release` shows VERSION_ID="22.04"
-
-### ✅ Optional Testing
-- [ ] Test workloads deploy successfully
-- [ ] Pods run correctly on FIPS-enabled nodes
-- [ ] No kernel panics or boot issues
-
-## Expected Timeline
-
-| Phase | Duration | Notes |
-|-------|----------|-------|
-| Prerequisites setup | 5-10 min | One-time |
-| Image creation | 30-40 min | VM build + customization + capture |
-| Terraform config | 5 min | Edit tfvars file |
-| Terraform apply | 10-15 min | AKS cluster creation |
-| Verification | 5-10 min | Node checks |
-| **Total** | **55-80 min** | First-time complete flow |
-
-## Common Testing Issues
 
 ### Issue: Nodes still show Ubuntu 20.04
 
@@ -504,30 +238,6 @@ Use this checklist to confirm end-to-end success:
 - Image ID format is incorrect
 - AKS didn't pick up the custom image
 
-**Solution:**
-```bash
-# Verify your tfvars has all three settings:
-# fips_enabled = true
-# use_custom_image_for_fips = true
-# custom_node_source_image_id = "<image-id>"
-
-# Check Terraform state
-terraform show | grep source_image_id
-
-# Verify image ID format matches:
-# /subscriptions/.../galleries/.../images/.../versions/...
-
-# If incorrect, fix tfvars and reapply
-terraform apply -var-file=terraform.tfvars
-```
-
-### Issue: FIPS disabled on nodes
-
-**Cause:** Custom image wasn't built with FIPS enabled
-
-**Solution:** Re-run image creation script (it enables FIPS automatically)
-
-### Issue: Terraform shows "InvalidParameter" for image ID
 
 **Causes:**
 - Image not in same subscription as AKS cluster
@@ -547,78 +257,6 @@ az sig image-version show \
 # Ensure location matches your terraform location variable
 ```
 
-### Issue: kubectl debug fails
-
-**Alternative debug methods:**
-```bash
-# Try different debug image
-kubectl debug node/$NODE_NAME -it --image=ubuntu:22.04 -- bash
-
-# Or use Azure CLI to connect to VM scale set instance
-az vmss list-instances \
-  --resource-group MC_<resource-group>_<cluster-name>_<location> \
-  --name <vmss-name> -o table
-```
-
-## Troubleshooting
-
-### Issue: "Marketplace terms not accepted"
-
-```bash
-az vm image terms accept \
-  --urn Canonical:0001-com-ubuntu-pro-jammy-fips:pro-fips-22_04:latest \
-  --subscription <your-sub-id>
-```
-
-### Issue: "SSH key not found"
-
-```bash
-# Generate SSH key
-ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa
-```
-
-### Issue: "VM creation failed"
-
-- Check quota limits in the region
-- Try a different VM size: `-BuildVmSize "Standard_D2s_v5"`
-- Verify subscription has access to FIPS marketplace images
-
-### Issue: "Image creation taking too long"
-
-- This is normal - image replication can take 10-15 minutes
-- Check status: `az sig image-version show --resource-group viya4-image-builder --gallery-name viya4ImageGallery --gallery-image-definition ubuntu-pro-fips-2204 --gallery-image-version 1.0.0`
-
-## Cost Estimate
-
-| Resource | Cost | Duration | Estimated |
-|----------|------|----------|-----------|
-| Build VM (Standard_D4s_v5) | ~$0.192/hour | ~1 hour | ~$0.20 |
-| Image Storage (Standard LRS) | ~$0.05/GB/month | Ongoing | ~$1-2/month |
-| Network egress | Minimal | - | <$0.10 |
-| **Total one-time** | | | **~$0.30** |
-| **Total monthly** | | | **~$1-2** |
-
-**Very affordable!** The build VM is only needed during image creation.
-
-## Updating the Image
-
-To create a new version (e.g., with security patches):
-
-```bash
-# Create new version
-IMAGE_VERSION="1.1.0" ./create-fips-2204-image.sh
-
-# Update Terraform to use new version
-# In your tfvars file:
-fips_enabled                = true
-use_custom_image_for_fips   = true
-custom_node_source_image_id = ".../versions/1.1.0"
-
-# Apply changes
-terraform apply
-```
-
-AKS will gradually upgrade nodes to the new image version.
 
 ## Cleanup
 
@@ -635,14 +273,6 @@ az sig image-version delete \
   --gallery-image-definition ubuntu-pro-fips-2204 \
   --gallery-image-version 1.0.0
 ```
-
-## Next Steps
-
-1. ✅ Run the image creation script
-2. ✅ Copy the output Image ID
-3. ✅ Update your Terraform `.tfvars` file
-4. ✅ Run `terraform apply` to deploy AKS with Ubuntu 22.04
-5. ✅ Verify nodes are running Ubuntu 22.04 FIPS
 
 ## Need Help?
 
