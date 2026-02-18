@@ -56,7 +56,7 @@ resource "azurerm_netapp_volume" "anf" {
   network_features    = var.network_features
   protocols           = var.protocols
   storage_quota_in_gb = var.community_netapp_volume_size == 0 ? var.size_in_tb * 1024 : var.community_netapp_volume_size
-  tags                = merge(var.tags, { "role" = "primary" })#error
+  tags                = merge(var.tags, { "role" = "primary" })
   
   # Set availability zone for primary volume
   zone                = var.netapp_availability_zone
