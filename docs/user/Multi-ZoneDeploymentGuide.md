@@ -162,7 +162,7 @@ netapp_dns_record_name = "nfs"                        # DNS record name
 **Key Benefits:**
 
 1. **Stable Hostname**: Storage classes reference `nfs.sas-viya.internal` instead of a static IP
-2. **Simplified Recovery**: Update DNS A record instead of recreating PVCs
+2. **Simplified Recovery**: Update DNS A record instead of recreating PVCs (still requires full service restart)
 3. **Automatic Provisioning**: DNS zone, VNet link, and A record created when CZR is enabled
 
 **Resources Created:**
@@ -268,6 +268,24 @@ kubectl exec -it <pod-name> -n <viya-namespace> -- mount | grep nfs.sas-viya.int
 # Example expected output:
 # nfs.sas-viya.internal:/export/pvs/... on /path type nfs4 (...,addr=192.168.3.5)
 ```
+
+**DNS Troubleshooting:**
+
+| Issue | Diagnostic | Solution |
+|-------|------------|----------|
+| DNS not resolving | `kubectl run -it --rm debug --image=busybox --restart=Never -- nslookup nfs.sas-viya.internal` | Check VNet link created and registration_enabled=false |
+| Wrong IP returned | `nslookup nfs.sas-viya.internal` from jump box | Wait full TTL (5 min) or restart CoreDNS pods |
+| Pods can't resolve DNS | `kubectl exec -it <pod> -n <namespace> -- nslookup nfs.sas-viya.internal` | Verify Private DNS Zone VNet link is connected |
+| DNS returns old IP after update | Verify with `az network private-dns record-set a show` | Confirm A record update succeeded; check TTL expiration |
+
+**DNS Troubleshooting:**
+
+| Issue | Diagnostic | Solution |
+|-------|------------|----------|
+| DNS not resolving | `kubectl run -it --rm debug --image=busybox --restart=Never -- nslookup nfs.sas-viya.internal` | Check VNet link created and registration_enabled=false |
+| Wrong IP returned | `nslookup nfs.sas-viya.internal` from jump box | Wait full TTL (5 min) or restart CoreDNS pods |
+| Pods can't resolve DNS | `kubectl exec -it <pod> -n <namespace> -- nslookup nfs.sas-viya.internal` | Verify Private DNS Zone VNet link is connected |
+| DNS returns old IP after update | Verify with `az network private-dns record-set a show` | Confirm A record update succeeded; check TTL expiration |
 
 **Troubleshooting:**
 
@@ -495,11 +513,11 @@ nfs_raid_disk_size   = 256
 
 ### NFS VM Limitations
 
-⚠️ **IMPORTANT**: Zone-redundant disks provide data protection but **NOT VM-level high availability:
+**IMPORTANT**: Zone-redundant disks provide data protection but **NOT VM-level high availability:
 
 | Aspect | Behavior |
 | :--- | :--- |
-| **Data Protection** | ZRS disks replicate data across 3 zones ✅ |
+| **Data Protection** | ZRS disks replicate data across 3 zones |
 | **VM Location** | VM remains in single zone (e.g., Zone 1) |
 | **Zone Failure** | Data survives, but VM becomes unavailable |
 | **Recovery** | VM does **NOT** auto-restart in another zone |
@@ -509,10 +527,14 @@ nfs_raid_disk_size   = 256
 
 ```
 NFS VM with ZRS:                    NetApp CZR:
-- Data survives zone failure ✅    - Data survives zone failure ✅
-- VM stuck in failed zone ❌       - Replica volume in different zone ✅
-- VM won't auto-restart ❌         - Can access replica volume immediately ✅
-- Requires VM recreation ❌        - Just update DNS + restart pods ✅
+- Data survives zone failure    
+- Data survives zone failure 
+- VM stuck in failed zone        
+- Replica volume in different zone 
+- VM won't auto-restart          
+- Can access replica volume immediately 
+- Requires VM recreation        
+- Just update DNS + restart pods 
 ```
 
 **Recommendation**: For production multi-AZ deployments, use **Azure NetApp Files with CZR** instead of NFS VM, even though it requires manual failover. The recovery time is significantly better (minutes vs hours).
@@ -594,9 +616,9 @@ nfs_vm_zone  = "1"
 ```
 
 **Protection Level:**
-- ✅ AKS pods reschedule to other zones if one zone fails
-- ❌ PostgreSQL single point of failure
-- ❌ Storage single point of failure
+- AKS pods reschedule to other zones if one zone fails
+- PostgreSQL single point of failure
+- Storage single point of failure
 - **Use Case**: Development/testing environments
 
 ---
@@ -627,9 +649,9 @@ netapp_network_features              = "Standard"
 ```
 
 **Protection Level:**
-- ✅ AKS pods reschedule automatically
-- ✅ PostgreSQL auto-failover
-- ✅ Storage data protected (manual failover required)
+- AKS pods reschedule automatically
+- PostgreSQL auto-failover
+- Storage data protected (manual failover required)
 - **Use Case**: Production deployments requiring high availability
 
 ---
@@ -659,9 +681,9 @@ os_disk_storage_account_type     = "StandardSSD_ZRS"
 ```
 
 **Protection Level:**
-- ✅ AKS pods reschedule automatically
-- ✅ PostgreSQL auto-failover
-- ⚠️ Storage data survives but VM stuck in failed zone (manual recovery required)
+- AKS pods reschedule automatically
+- PostgreSQL auto-failover
+- Storage data survives but VM stuck in failed zone (manual recovery required)
 - **Use Case**: Budget-constrained production (lower cost than NetApp but weaker storage HA)
 
 ---
@@ -671,7 +693,7 @@ os_disk_storage_account_type     = "StandardSSD_ZRS"
 | Scenario | AKS HA | PostgreSQL HA | Storage HA | RTO (Zone Failure) | Cost | Use Case |
 |----------|---------|---------------|------------|--------------------|---------|-----------|
 | **1: AKS Only** | ✅ Auto | ❌ No | ❌ No | Hours | $ | Dev/Test |
-| **2: Full Multi-AZ** | ✅ Auto | ✅ Auto | ⚠️ Manual | ~15 min | $$$ | Production |
+| **2: Full Multi-AZ** | ✅ Auto | ✅ Auto | ⚠️ Manual | ~20-30 min | $$$ | Production |
 | **3: PostgreSQL + NFS ZRS** | ✅ Auto | ✅ Auto | ⚠️ Manual (slow) | Hours | $$ | Budget Production |
 
 **Recommendation**: Use **Scenario 2** (Full Multi-AZ) for production workloads requiring true high availability.
@@ -877,8 +899,8 @@ Enabling multi-AZ features increases Azure costs:
 
 | Feature | Cost Impact |
 | :--- | :--- |
-| PostgreSQL ZoneRedundant HA | +100% (standby server costs) |
-| NetApp Cross-Zone Replication | +100% (replica volume costs) |
+| PostgreSQL ZoneRedundant HA | +100% (standby server doubles cost) |
+| NetApp Cross-Zone Replication | +100% (requires 2 capacity pools + 2 volumes) |
 | Standard Network Features | +25% vs Basic (required for NetApp CZR) |
 
 **Recommendation:** Enable multi-AZ only for production workloads requiring high availability.
@@ -1039,10 +1061,10 @@ Unlike database-level HA (PostgreSQL), NetApp replication doesn't handle:
 - **Mandatory** application restart (NFS client caches IP at mount time)
 
 **DNS-based failover improvement** (this IaC):
-- ✅ No PVC recreation needed
-- ✅ No StorageClass updates needed
-- ✅ No connection string changes needed
-- ⚠️ Still requires service restart (NFS client behavior)
+- No PVC recreation needed
+- No StorageClass updates needed
+- No connection string changes needed
+- Still requires service restart (NFS client behavior)
 
 ## 9. Network Latency During Cross-Zone Replication
 
@@ -1164,5 +1186,5 @@ Zone 1 Failure:
 - [Azure High Availability Patterns](https://learn.microsoft.com/en-us/azure/architecture/reference-architectures/data/managed-postgres-ha)
 
 ### Related Configuration Files
-- [CONFIG-VARS.md](CONFIG-VARS.md) - All configuration variables
-- [examples/sample-input-multizone-enhanced.tfvars](../examples/sample-input-multizone-enhanced.tfvars) - Complete example configuration
+- [CONFIG-VARS.md](../CONFIG-VARS.md) - All configuration variables
+- [examples/sample-input-multizone-enhanced.tfvars](../../examples/sample-input-multizone-enhanced.tfvars) - Complete example configuration
