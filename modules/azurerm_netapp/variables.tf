@@ -119,3 +119,21 @@ variable "netapp_replication_frequency" {
     error_message = "Valid values are: 10minutes, hourly, daily."
   }
 }
+
+# Private DNS Zone variables for CZR resilience
+variable "vnet_id" {
+  description = "Virtual Network ID for Private DNS Zone link"
+  type        = string
+}
+
+variable "netapp_dns_zone_name" {
+  description = "Private DNS Zone name for ANF CZR hostname resolution. Example: 'sas-viya.internal'"
+  type        = string
+  default     = "sas-viya.internal"
+}
+
+variable "netapp_dns_record_name" {
+  description = "DNS A record name within the Private DNS Zone. The FQDN will be <record_name>.<zone_name>"
+  type        = string
+  default     = "nfs"
+}

@@ -635,6 +635,19 @@ variable "netapp_replication_frequency" {
   }
 }
 
+# Private DNS Zone variables for ANF CZR resilience
+variable "netapp_dns_zone_name" {
+  description = "Private DNS Zone name for ANF CZR hostname resolution. Used to provide stable NFS mount point during failover."
+  type        = string
+  default     = "sas-viya.internal"
+}
+
+variable "netapp_dns_record_name" {
+  description = "DNS A record name within the Private DNS Zone for NFS mount point. The FQDN will be <record_name>.<zone_name>"
+  type        = string
+  default     = "nfs"
+}
+
 variable "node_pools_availability_zone" {
   description = "Specifies a Availability Zone in which the Kubernetes Cluster Node Pool should be located."
   type        = string
