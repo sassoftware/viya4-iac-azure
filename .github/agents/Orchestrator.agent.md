@@ -2,9 +2,9 @@
 description: 'Central coordinator for IaC-DaC code validation workflow. Manages PR validation, agent handoffs, static intent verification pipeline, and human-in-the-loop checkpoints.'
 tools: ['vscode', 'execute', 'read', 'edit', 'search', 'web', 'github/*', 'todo']
 handoffs:
-  - label: "🔄 Fetch Jira Context (Phase 2 ONLY)"
+  - label: "🔄 Fetch Jira Context"
     agent: JiraContextAgent
-    prompt: "Continue with Phase 2: Fetch Jira acceptance criteria for the Jira keys identified above and enrich the run state. Then hand off directly to TCG Agent. NOTE: This handoff is ONLY valid during Phase 2 (initial PR setup). It MUST NEVER be used during Phase 3 (Results Consolidation)."
+    prompt: "Continue with Phase 2: Fetch Jira acceptance criteria for the Jira keys identified above and enrich the run state. Then hand off directly to TCG Agent."
     send: true
 ---
 
