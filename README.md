@@ -38,6 +38,18 @@ This project helps you to automate the cluster-provisioning phase of SAS Viya pl
 - Consider external storage solutions that provide automatic cross-zone failover for production multi-AZ deployments
 - See [CONFIG-VARS.md](docs/CONFIG-VARS.md#storage) for detailed information
 
+**⚠️ Important: Azure AKS Kubernetes 1.35+ Compatibility**
+
+For Azure AKS clusters running **Kubernetes 1.35 or later**, the default `kubenet` CNI plugin has known issues where pods cannot communicate with their own service endpoints (hairpin/loopback traffic). This causes critical failures in SAS Viya components like Job Execution Service.
+
+**Required Configuration for K8s 1.35+:**
+```hcl
+aks_network_plugin      = "azure"
+aks_network_plugin_mode = "overlay"
+```
+
+Using Azure CNI Overlay mode resolves these networking issues while maintaining efficient IP address usage. See [Networking](#networking) section in [CONFIG-VARS.md](docs/CONFIG-VARS.md) for details.
+
 [<img src="./docs/images/viya4-iac-azure-diag.png" alt="Architecture Diagram" width="750"/>](./docs/images/viya4-iac-azure-diag.png?raw=true)
 
 This project addresses the first of three steps in [Steps for Getting Started](https://go.documentation.sas.com/doc/en/itopscdc/v_045/itopscon/n1d7qc4nfr3s5zn103a1qy0kj4l1.htm) in _SAS&reg; Viya&reg; Platform Operations_:

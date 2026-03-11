@@ -185,3 +185,8 @@ output "cluster_api_mode" {
 output "aks_network_plugin" {
   value = var.aks_network_plugin
 }
+
+output "k8s_135_compatibility_warning" {
+  description = "Warning about Kubernetes 1.35+ compatibility with kubenet CNI"
+  value       = local.k8s_135_kubenet_warning
+}

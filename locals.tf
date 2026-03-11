@@ -9,6 +9,16 @@ locals {
     : null
   )
 
+  # Kubernetes version validation
+  k8s_version_major_minor = tonumber(join("", [split(".", var.kubernetes_version)[0], split(".", var.kubernetes_version)[1]]))
+  k8s_135_or_higher       = local.k8s_version_major_minor >= 135
+  
+  # Warning for K8s 1.35+ with kubenet
+  k8s_135_kubenet_warning = (
+    local.k8s_135_or_higher && 
+    var.aks_network_plugin == "kubenet"
+  ) ? "WARNING: Kubernetes ${var.kubernetes_version} with kubenet CNI has known issues on Azure AKS. Pods cannot communicate with their own service endpoints. Please use 'aks_network_plugin = \"azure\"' and 'aks_network_plugin_mode = \"overlay\"' for K8s 1.35+. See docs/Troubleshooting.md for details." : ""
+
   # CIDR/Network
   default_public_access_cidrs          = var.default_public_access_cidrs == null ? [] : var.default_public_access_cidrs
   vm_public_access_cidrs               = var.vm_public_access_cidrs == null ? local.default_public_access_cidrs : var.vm_public_access_cidrs

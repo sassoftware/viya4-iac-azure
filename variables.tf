@@ -245,6 +245,19 @@ variable "aks_network_plugin_mode" {
   description = "Specifies the network plugin mode used for building the Kubernetes network. Possible value is `overlay`. Changing this forces a new resource to be created."
   type        = string
   default     = null
+
+  validation {
+    condition     = var.aks_network_plugin_mode == null || var.aks_network_plugin_mode == "overlay"
+    error_message = "ERROR: aks_network_plugin_mode - value must be null or 'overlay'."
+  }
+
+  validation {
+    condition = (
+      var.aks_network_plugin_mode != "overlay" ||
+      var.aks_network_plugin == "azure"
+    )
+    error_message = "ERROR: When aks_network_plugin_mode is set to 'overlay', aks_network_plugin must be set to 'azure'."
+  }
 }
 
 variable "aks_dns_service_ip" {

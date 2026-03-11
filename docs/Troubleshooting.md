@@ -1,12 +1,51 @@
 # Troubleshooting
 
 - [Troubleshooting](#troubleshooting)
+  - [Kubernetes 1.35+ Pod Communication Issues](#kubernetes-135-pod-communication-issues)
   - [Kubernetes Version is not supported in Azure region](#kubernetes-version-is-not-supported-in-azure-region)
   - [Failure to delete AKS Node Pool](#failure-to-delete-aks-node-pool)
   - [Import Azure Resource into Terraform state](#import-azure-resource-into-terraform-state)
   - [Not able to access AKS with kubectl](#not-able-to-access-aks-with-kubectl)
   - [Azure NetApp Files creation fails](#azure-netapp-files-creation-fails)
   - [Azure NetApp NFSv3 volume file lock issue](#azure-netapp-nfsv3-volume-file-lock-issue)
+
+## Kubernetes 1.35+ Pod Communication Issues
+
+**Symptoms:**
+- SAS Job Execution Service fails with connection timeout errors
+- Pods cannot reach their own service ClusterIP (hairpin/loopback traffic)
+- Errors like: `Connect to https://sas-job-definitions:443 failed: Connection timed out`
+- db-migrator shows lease-related errors: `User "system:serviceaccount:viya:sas-job-execution" cannot get resource "leases"`
+
+**Root Cause:**
+Azure AKS Kubernetes 1.35+ with the default `kubenet` CNI plugin has a known regression where pods cannot communicate with their own service endpoints. This is specific to Azure AKS (not seen in GKE or EKS) and affects multiple SAS Viya components including:
+- sas-job-execution
+- sas-business-rules  
+- sas-decisions-framework
+- cas-control
+- model-manager
+
+**Resolution:**
+Use Azure CNI Overlay mode instead of kubenet. Add the following to your `terraform.tfvars`:
+
+```hcl
+kubernetes_version      = "1.35"  # or specific version like "1.35.0"
+aks_network_plugin      = "azure"
+aks_network_plugin_mode = "overlay"
+```
+
+**Benefits of Azure CNI Overlay:**
+- Fixes pod-to-self service communication issues
+- Efficient IP address usage (pods use separate overlay CIDR)
+- Reduced subnet sizing requirements compared to traditional Azure CNI
+- Maintains compatibility with network policies
+
+**Important Notes:**
+- This configuration change requires cluster recreation (cannot be changed on existing clusters)
+- Ensure your deployment uses SAS Viya 2025.05 or later for full K8s 1.35 support
+- See [sample-input-k8s135.tfvars](../examples/sample-input-k8s135.tfvars) for a complete example configuration
+
+**Reference:** JIRA issue FNDTRG-278
 
 ##  Kubernetes Version is not supported in Azure region
 ```bash
