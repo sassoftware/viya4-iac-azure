@@ -265,7 +265,7 @@ variable "aks_dns_service_ip" {
 }
 
 variable "aks_pod_cidr" {
-  description = "The CIDR to use for pod IP addresses. This field can only be set when network_plugin is set to kubenet (deprecated). Changing this forces a new resource to be created."
+  description = "The CIDR to use for pod IP addresses. This field can only be set when network_plugin is set to kubenet (deprecated) or when network_plugin is set to azure and network_plugin_mode is set to overlay. Changing this forces a new resource to be created."
   type        = string
   default     = "10.244.0.0/16"
 
