@@ -162,6 +162,7 @@ module "aks" {
   aks_log_analytics_workspace_id           = var.create_aks_azure_monitor ? azurerm_log_analytics_workspace.viya4[0].id : null
   aks_network_plugin                       = var.aks_network_plugin
   aks_network_policy                       = var.aks_network_policy
+  aks_network_dataplane                    = var.aks_network_dataplane
   aks_network_plugin_mode                  = var.aks_network_plugin_mode
   aks_dns_service_ip                       = var.aks_dns_service_ip
   cluster_egress_type                      = local.cluster_egress_type

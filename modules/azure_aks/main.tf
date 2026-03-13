@@ -40,6 +40,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
 
     network_plugin      = var.aks_network_plugin
     network_policy      = var.aks_network_policy
+    network_data_plane  = var.aks_network_dataplane
     network_plugin_mode = var.aks_network_plugin_mode
     service_cidr        = var.aks_service_cidr
     dns_service_ip      = var.aks_dns_service_ip
@@ -132,6 +133,14 @@ resource "azurerm_kubernetes_cluster" "aks" {
     precondition {
       condition     = var.aks_network_policy != "azure" || var.aks_network_plugin == "azure"
       error_message = "When aks_network_policy is set to `azure`, the aks_network_plugin field can only be set to `azure`."
+    }
+    precondition {
+      condition     = var.aks_network_policy != "cilium" || var.aks_network_plugin == "azure"
+      error_message = "When aks_network_policy is set to `cilium`, the aks_network_plugin field can only be set to `azure`."
+    }
+    precondition {
+      condition     = var.aks_network_dataplane != "cilium" || var.aks_network_plugin == "azure"
+      error_message = "When aks_network_dataplane is set to `cilium`, the aks_network_plugin field can only be set to `azure`."
     }
     precondition {
       condition     = var.aks_network_plugin_mode != "overlay" || var.aks_network_plugin == "azure"

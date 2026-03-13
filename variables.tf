@@ -236,7 +236,13 @@ variable "aks_network_plugin" {
 }
 
 variable "aks_network_policy" {
-  description = "Sets up network policy to be used with Azure CNI. Network policy allows control of the traffic flow between pods. Currently supported values are calico and azure. Changing this forces a new resource to be created."
+  description = "Sets up network policy to be used with Azure CNI. Network policy allows control of the traffic flow between pods. Currently supported values are calico, azure and cilium. Changing this forces a new resource to be created."
+  type        = string
+  default     = null
+}
+
+variable "aks_network_dataplane" {
+  description = "Network dataplane used in the Kubernetes cluster. Currently supported values are azure and cilium."
   type        = string
   default     = null
 }
