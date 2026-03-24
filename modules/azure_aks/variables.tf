@@ -183,25 +183,25 @@ variable "aks_vnet_subnet_id" {
 variable "aks_network_plugin" {
   description = "Network plugin to use for networking. Currently supported values are azure and kubenet (deprecated). Changing this forces a new resource to be created."
   type        = string
-  default     = "kubenet"
+  default     = "azure"
 }
 
 variable "aks_network_policy" {
   description = "Sets up network policy to be used with Azure CNI. Network policy allows us to control the traffic flow between pods. Currently supported values are calico, azure and cilium. Changing this forces a new resource to be created."
   type        = string
-  default     = null
+  default     = "cilium"
 }
 
 variable "aks_network_dataplane" {
   description = "Network dataplane used in the Kubernetes cluster. Currently supported values are azure and cilium."
   type        = string
-  default     = null
+  default     = "cilium"
 }
 
 variable "aks_network_plugin_mode" {
   description = "Specifies the network plugin mode used for building the Kubernetes network. Possible value is `overlay`. Changing this forces a new resource to be created."
   type        = string
-  default     = null
+  default     = "overlay"
 }
 
 variable "aks_dns_service_ip" {
