@@ -127,7 +127,7 @@ az vm image terms accept --urn Canonical:0001-com-ubuntu-pro-jammy-fips:pro-fips
 The default values for the `subnets` variable are as follows:
 
 ```yaml
-subnet = {
+subnets = {
   aks = {
     "prefixes": ["192.168.0.0/23"],
     "service_endpoints": ["Microsoft.Sql"],
