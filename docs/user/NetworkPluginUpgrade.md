@@ -1,8 +1,11 @@
 # Upgrading AKS Network Configuration
 
-Microsoft recommends **Azure CNI Overlay powered by Cilium** as the long-term, highly scalable networking configuration for Azure Kubernetes Service (AKS).
+Microsoft recommends Azure CNI Overlay powered by Cilium as the long-term, highly scalable networking configuration for Azure Kubernetes Service (AKS).
 
-This project incorporates Azure CNI Overlay with Cilium Dataplane as the default network architecture. However, if you have an existing cluster deployed with the legacy `kubenet` plugin, **an in-place upgrade strictly via Terraform will force a destructive rebuild of your cluster.** 
+This project incorporates Azure CNI Overlay with Cilium Dataplane as the default network architecture. 
+
+> [!CAUTION]
+> If you have an existing cluster deployed with the legacy `kubenet` plugin, **an in-place upgrade strictly via Terraform will force a destructive rebuild of your cluster.** 
 
 To prevent data loss and avoid rebuilding the cluster from scratch, you must perform the network upgrade manually using the Azure CLI *before* applying the new Terraform configuration.
 
@@ -18,8 +21,10 @@ For comprehensive details directly from Microsoft, please read the [official upg
 
 Use the Azure CLI to forcefully update your cluster's network profile without destroying the cluster object itself.
 
-### Step A: Update to Azure CNI Overlay
+### Step 1: Update to Azure CNI Overlay
 You must supply a new Pod CIDR space since Azure CNI Overlay utilizes its own subnet for pods, functionally isolated from the core VNet nodes.
+
+For example:
 ```bash
 az aks update --resource-group <your-resource-group> --name <your-aks-cluster-name> \
   --network-plugin azure \
@@ -28,7 +33,7 @@ az aks update --resource-group <your-resource-group> --name <your-aks-cluster-na
 ```
 *(Note: Ensure the defined pod CIDR does not overlap with your existing VNet subnets.)*
 
-### Step B: Enable the Cilium Data Plane
+### Step 2: Enable the Cilium Data Plane
 Once the first update finishes successfully, apply the Cilium data plane and network policy capabilities.
 ```bash
 az aks update --resource-group <your-resource-group> --name <your-aks-cluster-name> \
@@ -55,4 +60,4 @@ Once your cluster finishes upgrading successfully natively in Azure, you must sy
    ```bash
    terraform plan
    ```
-   The plan should display minimal non-destructive changes and notably show that the cluster does not need to be replaced. You have successfully aligned your live Azure cluster with the new Terraform code!
+   The plan should display minimal non-destructive changes and notably show that the cluster does not need to be replaced.
