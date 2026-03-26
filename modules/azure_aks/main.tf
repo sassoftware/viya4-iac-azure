@@ -2,6 +2,25 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # Reference: https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster
+
+# Detect existing cluster to handle partial creation scenarios (PSCLOUD-607)
+# If AKS partially creates a cluster with OIDC enabled, respect that state
+data "azurerm_kubernetes_cluster" "existing" {
+  count               = can(data.azurerm_kubernetes_cluster.existing) ? 1 : 0
+  name                = var.aks_cluster_name
+  resource_group_name = var.aks_cluster_rg
+}
+
+locals {
+  # Smart OIDC detection: respect existing cluster configuration or use user preference
+  # This prevents PSCLOUD-607 where partial cluster creation enables OIDC implicitly
+  oidc_enabled = (
+    length(data.azurerm_kubernetes_cluster.existing) > 0
+      ? data.azurerm_kubernetes_cluster.existing[0].oidc_issuer_enabled
+      : var.enable_workload_identity
+  )
+}
+
 resource "azurerm_kubernetes_cluster" "aks" {
   name                       = var.aks_cluster_name
   location                   = var.aks_cluster_location
@@ -26,8 +45,9 @@ resource "azurerm_kubernetes_cluster" "aks" {
   run_command_enabled     = var.aks_cluster_run_command_enabled
 
   # OIDC issuer must always be enabled if workload identity is enabled
-  oidc_issuer_enabled       = var.enable_workload_identity
-  workload_identity_enabled = var.enable_workload_identity
+  # Smart detection: respects Azure's OIDC state from partial creation (PSCLOUD-607)
+  oidc_issuer_enabled       = local.oidc_enabled
+  workload_identity_enabled = local.oidc_enabled
 
   network_profile {
     # Docs on AKS Advanced Networking config
