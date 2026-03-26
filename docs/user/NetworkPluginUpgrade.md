@@ -15,7 +15,7 @@ To prevent data loss and avoid rebuilding the cluster from scratch, you must per
 - **Azure CLI**: You must have Azure CLI version 2.52.0 or later installed.
 - **Warning**: This update is irreversible and disruptive. It triggers a rolling reimaging of all nodes in your node pools. Ensure you schedule a maintenance window.
 
-For comprehensive details directly from Microsoft, please read the [official upgrade documentation for network plugins](https://learn.microsoft.com/en-us/azure/aks/upgrade-network-plugin).
+For comprehensive details directly from Microsoft, please read the [official upgrade documentation for network plugins](https://learn.microsoft.com/en-us/azure/aks/update-azure-cni?tabs=kubenet).
 
 ## 2. Manual Upgrade Steps via Azure CLI
 
