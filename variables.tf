@@ -32,6 +32,23 @@ variable "use_msi" {
   default     = false
 }
 
+variable "resource_provider_registrations" {
+  description = "Set mode to determine the collection of resource providers to automatically register on the subscription"
+  type        = string
+  default     = "core"
+
+  validation {
+    condition     = contains(["core", "extended", "all", "none", "legacy"], var.resource_provider_registrations)
+    error_message = "ERROR: Valid types are \"core\", \"extended\", \"all\", \"none\" and \"legacy\"!"
+  }  
+}
+
+variable "resource_providers_to_register" {
+  description = "A custom list of RPs to explicitly register for the subscription, in addition to those specified by the resource_provider_registrations property"
+  type        = list(string)
+  default     = null
+}
+
 variable "msi_network_roles" {
     description = "Managed Identity permissions for VNet and Route Table"
     type = list(string)
@@ -236,7 +253,13 @@ variable "aks_network_plugin" {
 }
 
 variable "aks_network_policy" {
-  description = "Sets up network policy to be used with Azure CNI. Network policy allows control of the traffic flow between pods. Currently supported values are calico and azure. Changing this forces a new resource to be created."
+  description = "Sets up network policy to be used with Azure CNI. Network policy allows control of the traffic flow between pods. Currently supported values are calico, azure and cilium. Changing this forces a new resource to be created."
+  type        = string
+  default     = null
+}
+
+variable "aks_network_dataplane" {
+  description = "Network dataplane used in the Kubernetes cluster. Currently supported values are azure and cilium."
   type        = string
   default     = null
 }

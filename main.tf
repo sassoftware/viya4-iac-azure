@@ -8,13 +8,15 @@
 #
 provider "azurerm" {
 
-   subscription_id = var.subscription_id
-   client_id       = var.client_id
-   client_secret   = var.client_secret
-   tenant_id       = var.tenant_id
-   partner_id      = var.partner_id
-   use_msi         = var.use_msi
-
+   subscription_id                 = var.subscription_id
+   client_id                       = var.client_id
+   client_secret                   = var.client_secret
+   tenant_id                       = var.tenant_id
+   partner_id                      = var.partner_id
+   use_msi                         = var.use_msi
+   resource_provider_registrations = var.resource_provider_registrations
+   resource_providers_to_register  = var.resource_providers_to_register
+  
   features {}
 }
 
@@ -162,6 +164,7 @@ module "aks" {
   aks_log_analytics_workspace_id           = var.create_aks_azure_monitor ? azurerm_log_analytics_workspace.viya4[0].id : null
   aks_network_plugin                       = var.aks_network_plugin
   aks_network_policy                       = var.aks_network_policy
+  aks_network_dataplane                    = var.aks_network_dataplane
   aks_network_plugin_mode                  = var.aks_network_plugin_mode
   aks_dns_service_ip                       = var.aks_dns_service_ip
   cluster_egress_type                      = local.cluster_egress_type
