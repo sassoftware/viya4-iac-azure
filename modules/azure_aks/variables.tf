@@ -181,13 +181,13 @@ variable "aks_vnet_subnet_id" {
 }
 
 variable "aks_network_plugin" {
-  description = "Network plugin to use for networking. Currently supported values are azure and kubenet. Changing this forces a new resource to be created."
+  description = "Network plugin to use for networking. Currently supported values are azure and kubenet (deprecated). Changing this forces a new resource to be created."
   type        = string
-  default     = "kubenet"
+  default     = "azure"
 }
 
 variable "aks_network_policy" {
-  description = "Sets up network policy to be used with Azure CNI. Network policy allows us to control the traffic flow between pods. Currently supported values are calico, azure and cilium. Changing this forces a new resource to be created."
+  description = "Sets up network policy to be used with Azure CNI. Network policy allows us to control the traffic flow between pods. Currently supported values are cilium, calico and azure (deprecated). Changing this forces a new resource to be created."
   type        = string
   default     = null
 }
@@ -195,13 +195,13 @@ variable "aks_network_policy" {
 variable "aks_network_dataplane" {
   description = "Network dataplane used in the Kubernetes cluster. Currently supported values are azure and cilium."
   type        = string
-  default     = null
+  default     = "azure"
 }
 
 variable "aks_network_plugin_mode" {
   description = "Specifies the network plugin mode used for building the Kubernetes network. Possible value is `overlay`. Changing this forces a new resource to be created."
   type        = string
-  default     = null
+  default     = "overlay"
 }
 
 variable "aks_dns_service_ip" {
@@ -215,7 +215,7 @@ variable "aks_dns_service_ip" {
 }
 
 variable "aks_pod_cidr" {
-  description = "The CIDR to use for pod IP addresses. This field can only be set when network_plugin is set to kubenet. Changing this forces a new resource to be created."
+  description = "The CIDR to use for pod IP addresses. This field can only be set when network_plugin is set to azure and network_plugin_mode is set to overlay or when network_plugin is set to kubenet (deprecated). Changing this forces a new resource to be created."
   type        = string
   default     = "10.244.0.0/16"
   validation {
