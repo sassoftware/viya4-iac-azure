@@ -111,15 +111,17 @@ variable "app_gateway_config" {
     backend_host_name = optional(string)
     backend_address_pool_fqdn = optional(list(string))
     backend_trusted_root_certificate = optional(list(object({
-      name             = string
-      data             = optional(string)      # Local file path (Option 1)
-      certificate_name = optional(string)      # Certificate name in Key Vault (Option 2)
+      name                = optional(string)
+      data                = optional(string)      # Local file path (Option 1)
+      certificate_name    = optional(string)      # Certificate name in Key Vault (Option 2)
+      key_vault_secret_id = optional(string)      # Secret ID in Key Vault (Option 3)
     })))
     ssl_certificate = optional(list(object({
-      name             = string
-      data             = optional(string)      # Local file path (Option 1)
-      password         = optional(string)      # Required with data
-      certificate_name = optional(string)      # Certificate name in Key Vault (Option 2)
+      name                = optional(string)
+      data                = optional(string)      # Local file path (Option 1)
+      password            = optional(string)      # Required with data
+      certificate_name    = optional(string)      # Certificate name in Key Vault (Option 2)
+      key_vault_secret_id = optional(string)      # Secret ID in Key Vault (Option 3)
     })))
     waf_policy   = optional(string)
     identity_ids = optional(list(string))

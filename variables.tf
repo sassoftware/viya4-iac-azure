@@ -916,15 +916,17 @@ variable "app_gateway_config" {
     backend_host_name = optional(string)
     backend_address_pool_fqdn = optional(list(string))
     backend_trusted_root_certificate = optional(list(object({
-      name                = string
+      name                = optional(string)
       data                = optional(string)
       key_vault_secret_id = optional(string)
+      certificate_name    = optional(string)
     })))
     ssl_certificate = optional(list(object({
-      name                = string
+      name                = optional(string)
       data                = optional(string)
       password            = optional(string)
       key_vault_secret_id = optional(string)
+      certificate_name    = optional(string)
     })))
   })
   default   = null

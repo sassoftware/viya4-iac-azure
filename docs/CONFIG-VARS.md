@@ -351,6 +351,24 @@ When `storage_type=ha` (high availability), [Microsoft Azure NetApp Files](https
 | netapp_volume_path |A unique file path for the volume. Used when creating mount targets. Changing this forces a new resource to be created. | string | "export" | |
 | netapp_network_features |Indicates which network feature to use, accepted values are `Basic` or `Standard`, it defaults to `Basic` if not defined. | string | "Basic" | This is a feature in public preview. For more information about it and how to register, please refer to [Configure network features for an Azure NetApp Files volume](https://docs.microsoft.com/en-us/azure/azure-netapp-files/configure-network-features)|
 
+## Application Gateway
+
+| Name | Description | Type | Default | Notes |
+| :--- | ---: | ---: | ---: | ---: |
+| create_app_gateway | Create Application Gateway | bool | false | |
+| enable_waf | Enable WAF (default true) | bool | true | |
+| appgw_subnet_address_space | Application Gateway subnet CIDR | string | "192.168.5.0/24" | |
+| appgw_sku_capacity | Application Gateway capacity | number | 2 | |
+| app_gateway_config | Application Gateway configuration object | object | null | See warning below |
+
+**⚠️ Certificate input warning:**
+- For `ssl_certificate` and `backend_trusted_root_certificate`, provide **one** of:
+  - `key_vault_secret_id` (preferred)
+  - `certificate_name` (requires `key_vault_name`/`key_vault_resource_group_name`)
+  - `data` (local file path)
+- `name` is optional; if omitted, it is derived from `certificate_name` or `key_vault_secret_id`.
+- If using Key Vault, ensure a **user-assigned identity** is set via `identity_ids` with access to the vault.
+
 ## Azure Container Registry (ACR)
 
 | Name | Description | Type | Default | Notes |
