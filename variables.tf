@@ -710,6 +710,7 @@ variable "node_pools" {
         vm_max_map_count = optional(number)
       }))
     }))
+    os_type = optional(string, "Linux")
   }))
 
   default = {
