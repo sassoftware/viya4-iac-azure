@@ -403,7 +403,8 @@ For complete recovery procedures, see [Multi-ZoneDeploymentGuide.md](user/Multi-
 
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
-| create_container_registry| Create container registry instance | bool | false | |
+| create_container_registry| Create container registry instance | bool | false | When enabled, an `AcrPull` role assignment is automatically created for the AKS kubelet identity. |
+| container_registry_name | Suffix appended between the prefix and 'acr' in the registry name for global uniqueness | string | "" | Resulting name: `<prefix><container_registry_name>acr`. ACR names must be globally unique. |
 | container_registry_sku | Service tier for the registry | string | "Standard" | Possible values: "Basic", "Standard", "Premium" |
 | container_registry_admin_enabled | Enables the admin user | bool | false | |
 | container_registry_geo_replica_locs | List of Azure locations where the container registry should be geo-replicated. | list of strings | null | This is only supported when `container_registry_sku` is set to `"Premium"`. |

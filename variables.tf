@@ -547,6 +547,12 @@ variable "create_container_registry" {
   default     = false
 }
 
+variable "container_registry_name" {
+  description = "Suffix appended to the ACR name between the prefix and 'acr' to ensure global uniqueness. The resulting name is '<prefix><container_registry_name>acr'."
+  type        = string
+  default     = ""
+}
+
 variable "container_registry_sku" {
   description = "The SKU name of the container registry. Possible values are `Basic`, `Standard` and `Premium`."
   type        = string

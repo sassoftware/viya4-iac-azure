@@ -48,8 +48,8 @@ terraform import -var-file=sample-input.tfvars -state=terraform.tfstate module.n
 ```bash
 Error: authorization.RoleAssignmentsClient#Create: Failure responding to request: StatusCode=403 -- Original Error: autorest/azure: Service returned an error. Status=403 Code="AuthorizationFailed" Message="The client 'REDACTED' with object id 'REDACTED' does not have authorization to perform action 'Microsoft.Authorization/roleAssignments/write' over scope '/subscriptions/REDACTED/resourceGroups/viya-tst-rg/providers/Microsoft.ContainerRegistry/registries/viyatstacr/providers/Microsoft.Authorization/roleAssignments/REDACTED' or the scope is invalid. If access was recently granted, please refresh your credentials."
 
-  on modules/azurerm_container_registry/main.tf line 18, in resource "azurerm_role_assignment" "acr":
-  18: resource "azurerm_role_assignment" "acr" {
+  on main.tf line 119, in resource "azurerm_role_assignment" "acr_pull":
+  119: resource "azurerm_role_assignment" "acr_pull" {
 ```
 
 ### Resolution:
