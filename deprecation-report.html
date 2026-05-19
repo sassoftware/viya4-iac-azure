@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IaC Deprecation Scanner Report</title>
+    <style>
+        :root {
+            --critical: #dc3545;
+            --high: #fd7e14;
+            --medium: #ffc107;
+            --low: #0d6efd;
+            --info: #6c757d;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            line-height: 1.6;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        .header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .header h1 { margin: 0; }
+        .header p { margin: 10px 0 0; opacity: 0.8; }
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .summary-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .summary-card .count { font-size: 2.5em; font-weight: bold; }
+        .summary-card.critical .count { color: var(--critical); }
+        .summary-card.high     .count { color: var(--high); }
+        .summary-card.medium   .count { color: var(--medium); }
+        .summary-card.low      .count { color: var(--low); }
+        .summary-card.info     .count { color: var(--info); }
+        .findings-section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .finding {
+            border-left: 4px solid;
+            padding: 15px;
+            margin: 10px 0;
+            background: #f8f9fa;
+            border-radius: 0 8px 8px 0;
+        }
+        .finding.critical { border-color: var(--critical); }
+        .finding.high     { border-color: var(--high); }
+        .finding.medium   { border-color: var(--medium); }
+        .finding.low      { border-color: var(--low); }
+        .finding.info     { border-color: var(--info); }
+        .finding h4 { margin: 0 0 10px; }
+        .finding .meta { font-size: 0.9em; color: #6c757d; }
+        .finding .meta span { margin-right: 15px; }
+        .severity-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: bold;
+            color: white;
+        }
+        .severity-badge.critical { background: var(--critical); }
+        .severity-badge.high     { background: var(--high); color: white; }
+        .severity-badge.medium   { background: var(--medium); color: #333; }
+        .severity-badge.low      { background: var(--low); }
+        .severity-badge.info     { background: var(--info); }
+        .fix-suggestion {
+            background: #e7f5e7;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+        code {
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'SFMono-Regular', Consolas, monospace;
+        }
+        h2 { border-bottom: 2px solid #e9ecef; padding-bottom: 10px; }
+        .section-title {
+            color: #495057;
+            font-size: 1.1em;
+            font-weight: 600;
+            margin: 20px 0 10px;
+            padding: 6px 12px;
+            background: #e9ecef;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔍 IaC Deprecation Scanner Report</h1>
+        <p>Repository: <code>C:\Users\lodave\viya4-iac-azure</code></p>
+        <p>Scanned: 2026-05-19 09:13:37 UTC | Duration: 4.30s | Files: 29</p>
+    </div>
+
+    <div class="summary-grid">
+        <div class="summary-card critical">
+            <div class="count">2</div>
+            <div>Critical</div>
+        </div>
+        <div class="summary-card high">
+            <div class="count">0</div>
+            <div>High</div>
+        </div>
+        <div class="summary-card medium">
+            <div class="count">2</div>
+            <div>Medium</div>
+        </div>
+        <div class="summary-card low">
+            <div class="count">26</div>
+            <div>Low</div>
+        </div>
+        <div class="summary-card info">
+            <div class="count">4</div>
+            <div>Info</div>
+        </div>
+    </div>
+
+    <div class="findings-section">
+        <h2>Findings (34 total)</h2>
+        
+        <div class="finding critical">
+            <h4><span class="severity-badge critical">BREAKING</span> azurerm: <code>azurerm_kubernetes_cluster</code></h4>
+            <p>BREAKING: property `container_log_max_lines` renamed to `container_log_max_files` -- update your .tf files before upgrading</p>
+            <div class="meta">
+                <span>📄 <code>modules/azure_aks/main.tf</code></span>
+                <span>Current: <code>4.48.0</code></span>
+                <span>→ Recommended: <code>4.73.0</code></span>
+            </div>
+            <div class="fix-suggestion">💡 Fix the renamed/removed argument before upgrading versions.tf</div>
+            <ul style='font-size:0.88em;margin:8px 0 0'><li>`azurerm_kubernetes_cluster` - the `container_log_max_lines` property has been renamed to `container_log_max_files` ([#31721](https://github.com/hashicorp/terraform-provider-azurerm/issues/31721))</li><li>`azurerm_kubernetes_cluster_node_pool` - the `container_log_max_lines` property has been renamed to `container_log_max_files` ([#31721](https://github.com/hashicorp/terraform-provider-azurerm/issues/31721))</li><li>Data Source: `azurerm_kubernetes_cluster_node_pool` - export the `node_image_version` property ([#32108](https://github.com/hashicorp/terraform-provider-azurerm/issues/32108))</li><li>`azurerm_kubernetes_cluster_node_pool` - export the `node_image_version` property ([#32108](https://github.com/hashicorp/terraform-provider-azurerm/issues/32108))</li><li>`azurerm_kubernetes_cluster` - changing `oidc_issuer_enabled` from `true` to `false` now forces resource recreation as the API does not support this ([#32117](https://github.com/hashicorp/terraform-provider-azurerm/issues/32117))</li><li>`azurerm_kubernetes_cluster_node_pool` - lock on subnet ID instead of subnet name to prevent unnecessary serialization ([#32001](https://github.com/hashicorp/terraform-provider-azurerm/issues/32001))</li></ul>
+            <p><a href="https://github.com/hashicorp/terraform-provider-azurerm/blob/main/CHANGELOG.md" target="_blank">📚 Documentation</a></p>
+        </div>
+        <div class="finding critical">
+            <h4><span class="severity-badge critical">BREAKING</span> azurerm: <code>azurerm_kubernetes_cluster_node_pool</code></h4>
+            <p>BREAKING: property `container_log_max_lines` renamed to `container_log_max_files` -- update your .tf files before upgrading</p>
+            <div class="meta">
+                <span>📄 <code>modules/aks_node_pool/main.tf</code></span>
+                <span>Current: <code>4.48.0</code></span>
+                <span>→ Recommended: <code>4.73.0</code></span>
+            </div>
+            <div class="fix-suggestion">💡 Fix the renamed/removed argument before upgrading versions.tf</div>
+            <ul style='font-size:0.88em;margin:8px 0 0'><li>`azurerm_kubernetes_cluster_node_pool` - the `container_log_max_lines` property has been renamed to `container_log_max_files` ([#31721](https://github.com/hashicorp/terraform-provider-azurerm/issues/31721))</li><li>Data Source: `azurerm_kubernetes_cluster_node_pool` - export the `node_image_version` property ([#32108](https://github.com/hashicorp/terraform-provider-azurerm/issues/32108))</li><li>`azurerm_kubernetes_cluster_node_pool` - export the `node_image_version` property ([#32108](https://github.com/hashicorp/terraform-provider-azurerm/issues/32108))</li><li>`azurerm_kubernetes_cluster_node_pool` - lock on subnet ID instead of subnet name to prevent unnecessary serialization ([#32001](https://github.com/hashicorp/terraform-provider-azurerm/issues/32001))</li><li>`azurerm_kubernetes_cluster_node_pool` - add support for the `Ubuntu2404` OS SKU ([#32070](https://github.com/hashicorp/terraform-provider-azurerm/issues/32070))</li><li>`azurerm_kubernetes_cluster_node_pool` - `max_surge` and `max_unavailable` are no longer required  for spot node pools  ([#31129](https://github.com/hashicorp/terraform-provider-azurerm/issues/31129))</li></ul>
+            <p><a href="https://github.com/hashicorp/terraform-provider-azurerm/blob/main/CHANGELOG.md" target="_blank">📚 Documentation</a></p>
+        </div>
+        <div class="finding low">
+            <h4><span class="severity-badge low">CHANGED</span> azurerm: <code>azurerm_container_registry</code></h4>
+            <p>CHANGED change in azurerm 4.48.0 to 4.73.0</p>
+            <div class="meta">
+                <span>📄 <code>main.tf</code></span>
+                <span>Current: <code>4.48.0</code></span>
+                <span>→ Recommended: <code>4.73.0</code></span>
+            </div>
+            
+            <ul style='font-size:0.88em;margin:8px 0 0'><li>`data.azurerm_container_registry` - `admin_password` is now sensitive ([#31428](https://github.com/hashicorp/terraform-provider-azurerm/issues/31428))</li><li>`azurerm_container_registry_task` - prevent a panic by adding a nil check ([#31043](https://github.com/hashicorp/terraform-provider-azurerm/issues/31043))</li><li>`azurerm_container_registry` - fix the `name` length validation to allow 50 rather than 49 ([#30858](https://github.com/hashicorp/terraform-provider-azurerm/issues/30858))</li></ul>
+            <p><a href="https://github.com/hashicorp/terraform-provider-azurerm/blob/main/CHANGELOG.md" target="_blank">📚 Documentation</a></p>
+        </div>
+        <div class="finding low">
+            <h4><span class="severity-badge low">CHANGED</span> azurerm: <code>azurerm_linux_virtual_machine</code></h4>
+            <p>CHANGED change in azurerm 4.48.0 to 4.73.0</p>
+            <div class="meta">
+                <span>📄 <code>modules/azurerm_vm/main.tf</code></span>
+                <span>Current: <code>4.48.0</code></span>
+                <span>→ Recommended: <code>4.73.0</code></span>
+            </div>
+            
+            <ul style='font-size:0.88em;margin:8px 0 0'><li>`azurerm_linux_virtual_machine` - parse `os_managed_disk_id` insensitively as Azure returns static segments cased inconsistently ([#32145](https://github.com/hashicorp/terraform-provider-azurerm/issues/32145))</li></ul>
+            <p><a href="https://github.com/hashicorp/terraform-provider-azurerm/blob/main/CHANGELOG.md" target="_blank">📚 Documentation</a></p>
+        </div>
+        <div class="finding low">
+            <h4><span class="severity-badge low">CHANGED</span> azurerm: <code>azurerm_log_analytics_workspace</code></h4>
+            <p>CHANGED change in azurerm 4.48.0 to 4.73.0</p>
+            <div class="meta">
+                <span>📄 <code>monitor.tf</code></span>
+                <span>Current: <code>4.48.0</code></span>
+                <span>→ Recommended: <code>4.73.0</code></span>
+            </div>
+            
+            <ul style='font-size:0.88em;margin:8px 0 0'><li>`azurerm_log_analytics_workspace` - add support for the `10000`, `25000` and `50000` values in the `reservation_capacity_in_gb_per_day` property ([#32322](https://github.com/hashicorp/terraform-provider-azurerm/issues/32322))</li><li>`azurerm_log_analytics_workspace` - preserve default value of `local_authentication_enabled` ([#32004](https://github.com/hashicorp/terraform-provider-azurerm/issues/32004))</li><li>`azurerm_log_analytics_workspace_table` - fix validation for `basic` plan  ([#30925](https://github.com/hashicorp/terraform-provider-azurerm/issues/30925))</li><li>New Resource**: `azurerm_log_analytics_workspace_table_custom_log` ([#30800](https://github.com/hashicorp/terraform-provider-azurerm/issues/30800))</li></ul>
+            <p><a href="https://github.com/hashicorp/terraform-provider-azurerm/blob/main/CHANGELOG.md" target="_blank">📚 Documentation</a></p>
+        </div>
+        <div class="finding low">
+            <h4><span class="severity-badge low">CHANGED</span> azurerm: <code>azurerm_managed_disk</code></h4>
+            <p>CHANGED change in azurerm 4.48.0 to 4.73.0</p>
+            <div class="meta">
+                <span>📄 <code>modules/azurerm_vm/main.tf</code></span>
+                <span>Current: <code>4.48.0</code></span>
+                <span>→ Recommended: <code>4.73.0</code></span>
+            </div>
+            
+            <ul style='font-size:0.88em;margin:8px 0 0'><li>`azurerm_managed_disk` - fix `nil` pointer dereference when updating `disk_access_id`  ([#31955](https://github.com/hashicorp/terraform-provider-azurerm/issues/31955))</li><li>`azurerm_managed_disk` - support expanding Ultra Disks and Premium SSD v2 disk without downtime ([#30593](https://github.com/hashicorp/terraform-provider-azurerm/issues/30593))</li></ul>
+            <p><a href="https://github.com/hashicorp/terraform-provider-azurerm/blob/main/CHANGELOG.md" target="_blank">📚 Documentation</a></p>
+        </div>
+        <div class="finding low">
+            <h4><span class="severity-badge low">CHANGED</span> azurerm: <code>azurerm_netapp_volume</code></h4>
+            <p>CHANGED change in azurerm 4.48.0 to 4.73.0</p>
+            <div class="meta">
+                <span>📄 <code>modules/azurerm_netapp/main.tf</code></span>
+                <span>Current: <code>4.48.0</code></span>
+                <span>→ Recommended: <code>4.73.0</code></span>
+            </div>
+            
+            <ul style='font-size:0.88em;margin:8px 0 0'><li>`azurerm_netapp_volume` - add support for `data_protection_advanced_ransomware` ([#32099](https://github.com/hashicorp/terraform-provider-azurerm/issues/32099))</li><li>`azurerm_netapp_volume_group_sap_hana_resource` - add support for `zone`, `encryption_key_source`, `key_vault_private_endpoint_id`, and `network_features` ([#31603](https://github.com/hashicorp/terraform-provider-azurerm/issues/31603))</li><li>`azurerm_netapp_volume_group_oracle` - `service_level` now supports `Flexible` ([#31508](https://github.com/hashicorp/terraform-provider-azurerm/issues/31508))</li><li>`azurerm_netapp_volume_group_sap_hana` - `service_level` now supports `Flexible` ([#31508](https://github.com/hashicorp/terraform-provider-azurerm/issues/31508))</li><li>`azurerm_netapp_volume_resource` - support for Cross Zone Region replication through the `data_protection_replication` block ([#30872](https://github.com/hashicorp/terraform-provider-azurerm/issues/30872))</li></ul>
+            <p><a href="https://github.com/hashicorp/terraform-provider-azurerm/blob/main/CHANGELOG.md" target="_blank">📚 Documentation</a></p>
+        </div>
+        <div class="finding low">
+            <h4><span class="severity-badge low">CHANGED</span> azurerm: <code>azurerm_network_interface</code></h4>
+            <p>CHANGED change in azurerm 4.48.0 to 4.73.0</p>
+            <div class="meta">
+                <span>📄 <code>modules/azurerm_vm/main.tf</code></span>
+                <span>Current: <code>4.48.0</code></span>
+                <span>→ Recommended: <code>4.73.0</code></span>
+            </div>
+            
+            <ul style='font-size:0.88em;margin:8px 0 0'><li>New List Resource**: `azurerm_network_interface` ([#31012](https://github.com/hashicorp/terraform-provider-azurerm/issues/31012))</li></ul>
+            <p><a href="https://github.com/hashicorp/terraform-provider-azurerm/blob/main/CHANGELOG.md" target="_blank">📚 Documentation</a></p>
+        </div>
+        <div class="finding low">
+            <h4><span class="severity-badge low">CHANGED</span> azurerm: <code>azurerm_network_security_group</code></h4>
+            <p>CHANGED change in azurerm 4.48.0 to 4.73.0</p>
+            <div class="meta">
+                <span>📄 <code>main.tf</code></span>
+                <span>Current: <code>4.48.0</code></span>
+                <span>→ Recommended: <code>4.73.0</code></span>
+            </div>
+            
+            <ul style='font-size:0.88em;margin:8px 0 0'><li>`azurerm_network_security_rule` and `azurerm_network_security_group` - add case-insensitive handling for application security group IDs  ([#30913](https://github.com/hashicorp/terraform-provider-azurerm/issues/30913))</li><li>New List Resource**: `azurerm_network_security_group` ([#31014](https://github.com/hashicorp/terraform-provider-azurerm/issues/31014))</li></ul>
+            <p><a href="https://github.com/hashicorp/terraform-provider-azurerm/blob/main/CHANGELOG.md" target="_blank">📚 Documentation</a></p>
+        </div>
+        <div class="finding low">
+            <h4><span class="severity-badge low">CHANGED</span> azurerm: <code>azurerm_network_security_rule</code></h4>
+            <p>CHANGED change in azurerm 4.48.0 to 4.73.0</p>
+            <div class="meta">
+                <span>📄 <code>main.tf, vms.tf</code></span>
+                <span>Current: <code>4.48.0</code></span>
+                <span>→ Recommended: <code>4.73.0</code></span>
+            </div>
+            
+            <ul style='font-size:0.88em;margin:8px 0 0'><li>`azurerm_network_security_rule` and `azurerm_network_security_group` - add case-insensitive handling for application security group IDs  ([#30913](https://github.com/hashicorp/terraform-provider-azurerm/issues/30913))</li><li>New List Resource**: `azurerm_network_security_rule` ([#31748](https://github.com/hashicorp/terraform-provider-azurerm/issues/31748))</li></ul>
+            <p><a href="https://github.com/hashicorp/terraform-provider-azurerm/blob/main/CHANGELOG.md" target="_blank">📚 Documentation</a></p>
+        </div>
+        <div class="finding low">
+            <h4><span class="severity-badge low">CHANGED</span> azurerm: <code>azurerm_postgresql_flexible_server</code></h4>
+            <p>CHANGED change in azurerm 4.48.0 to 4.73.0</p>
+            <div class="meta">
+                <span>📄 <code>modules/azurerm_postgresql_flex/main.tf</code></span>
+                <span>Current: <code>4.48.0</code></span>
+                <span>→ Recommended: <code>4.73.0</code></span>
+            </div>
+            
+            <ul style='font-size:0.88em;margin:8px 0 0'><li>`azurerm_postgresql_flexible_server` - add support for confidential compute server type SKU ([#32209](https://github.com/hashicorp/terraform-provider-azurerm/issues/32209))</li><li>`azurerm_postgresql_flexible_server` - add support for `cluster` ([#31315](https://github.com/hashicorp/terraform-provider-azurerm/issues/31315))</li><li>`azurerm_postgresql_flexible_server` - update validation for `customer_managed_key.key_vault_key_id` and `customer_managed_key.geo_backup_key_vault_key_id` to allow managed HSM keys as input ([#31148](https://github.com/hashicorp/terraform-provider-azurerm/issues/31148))</li><li>`azurerm_postgresql_flexible_server` - add support for PostgreSQL version `18` ([#31162](https://github.com/hashicorp/terraform-provider-azurerm/issues/31162))</li><li>`data.azurerm_postgresql_flexible_server` - add support for `zone` and `high_availability` ([#31034](https://github.com/hashicorp/terraform-provider-azurerm/issues/31034))</li></ul>
+            <p><a href="https://github.com/hashicorp/terraform-provider-azurerm/blob/main/CHANGELOG.md" target="_blank">📚 Documentation</a></p>
+        </div>
+        <div class="finding low">
+            <h4><span class="severity-badge low">CHANGED</span> azurerm: <code>azurerm_private_dns_a_record</code></h4>
+            <p>CHANGED change in azurerm 4.48.0 to 4.73.0</p>
+            <div class="meta">
+                <span>📄 <code>modules/azurerm_netapp/main.tf</code></span>
+                <span>Current: <code>4.48.0</code></span>
+                <span>→ Recommended: <code>4.73.0</code></span>
+            </div>
+            
+            <ul style='font-size:0.88em;margin:8px 0 0'><li>New List Resource**: `azurerm_private_dns_a_record` ([#31785](https://github.com/hashicorp/terraform-provider-azurerm/issues/31785))</li></ul>
+            <p><a href="https://github.com/hashicorp/terraform-provider-azurerm/blob/main/CHANGELOG.md" target="_blank">📚 Documentation</a></p>
+        </div>
+        <div class="finding low">
+            <h4><span class="severity-badge low">CHANGED</span> azurerm: <code>azurerm_private_dns_zone</code></h4>
+            <p>CHANGED change in azurerm 4.48.0 to 4.73.0</p>
+            <div class="meta">
+                <span>📄 <code>modules/azurerm_netapp/main.tf, modules/azurerm_postgresql_flex/main.tf</code></span>
+                <span>Current: <code>4.48.0</code></span>
+                <span>→ Recommended: <code>4.73.0</code></span>
+            </div>
+            
+            <ul style='font-size:0.88em;margin:8px 0 0'><li>`list.azurerm_private_dns_zone` - fix context handling resolving an issue where this list resources never returned results ([#31719](https://github.com/hashicorp/terraform-provider-azurerm/issues/31719))</li><li>New List Resource**: `azurerm_private_dns_zone` ([#31157](https://github.com/hashicorp/terraform-provider-azurerm/issues/31157))</li></ul>
+            <p><a href="https://github.com/hashicorp/terraform-provider-azurerm/blob/main/CHANGELOG.md" target="_blank">📚 Documentation</a></p>
+        </div>
+        <div class="finding low">
+            <h4><span class="severity-badge low">CHANGED</span> azurerm: <code>azurerm_public_ip</code></h4>
+            <p>CHANGED change in azurerm 4.48.0 to 4.73.0</p>
+            <div class="meta">
+                <span>📄 <code>main.tf, modules/azure_aks/main.tf, modules/azurerm_vm/main.tf</code></span>
+                <span>Current: <code>4.48.0</code></span>
+                <span>→ Recommended: <code>4.73.0</code></span>
+            </div>
+            
+            <ul style='font-size:0.88em;margin:8px 0 0'><li>`azurerm_public_ip` - `domain_name_label`, `reverse_fqdn`, `domain_name_label_scope` can now be set to empty ([#31699](https://github.com/hashicorp/terraform-provider-azurerm/issues/31699))</li><li>`azurerm_public_ip` - add support for the `StandardV2` SKU ([#31197](https://github.com/hashicorp/terraform-provider-azurerm/issues/31197))</li><li>`azurerm_public_ip_prefix` - add support for the `StandardV2` SKU ([#31197](https://github.com/hashicorp/terraform-provider-azurerm/issues/31197))</li><li>New List Resource**: `azurerm_public_ip` ([#31762](https://github.com/hashicorp/terraform-provider-azurerm/issues/31762))</li></ul>
+            <p><a href="https://github.com/hashicorp/terraform-provider-azurerm/blob/main/CHANGELOG.md" target="_blank">📚 Documentation</a></p>
+        </div>
+        <div class="finding low">
+            <h4><span class="severity-badge low">CHANGED</span> azurerm: <code>azurerm_resource_group</code></h4>
+            <p>CHANGED change in azurerm 4.48.0 to 4.73.0</p>
+            <div class="meta">
+                <span>📄 <code>main.tf</code></span>
+                <span>Current: <code>4.48.0</code></span>
+                <span>→ Recommended: <code>4.73.0</code></span>
+            </div>
+            
+            <ul style='font-size:0.88em;margin:8px 0 0'><li>`azurerm_resource_group` - fix parallelism issue in create_poller ([#32123](https://github.com/hashicorp/terraform-provider-azurerm/issues/32123))</li><li>New List Resource**: `azurerm_resource_group` ([#31270](https://github.com/hashicorp/terraform-provider-azurerm/issues/31270))</li><li>`azurerm_resource_group` - fix poller for the `prevent_deletion_if_contains_resources` feature, resolving an Azure eventual consistency issue ([#31253](https://github.com/hashicorp/terraform-provider-azurerm/issues/31253))</li><li>`azurerm_resource_group` - refactored from legacy SDK to use `go-azure-sdk` ([#30616](https://github.com/hashicorp/terraform-provider-azurerm/issues/30616))</li></ul>
+            <p><a href="https://github.com/hashicorp/terraform-provider-azurerm/blob/main/CHANGELOG.md" target="_blank">📚 Documentation</a></p>
+        </div>
+        <div class="finding low">
+            <h4><span class="severity-badge low">CHANGED</span> azurerm: <code>azurerm_subnet</code></h4>
+            <p>CHANGED change in azurerm 4.48.0 to 4.73.0</p>
+            <div class="meta">
+                <span>📄 <code>modules/azurerm_vnet/main.tf</code></span>
+                <span>Current: <code>4.48.0</code></span>
+                <span>→ Recommended: <code>4.73.0</code></span>
+            </div>
+            
+            <ul style='font-size:0.88em;margin:8px 0 0'><li>New List Resource**: `azurerm_subnet` ([#32236](https://github.com/hashicorp/terraform-provider-azurerm/issues/32236))</li><li>`azurerm_subnet` - add support for the `Microsoft.MessagingConnectors/connectors` value in the `delegation.service_delegation.name` property ([#32305](https://github.com/hashicorp/terraform-provider-azurerm/issues/32305))</li><li>`azurerm_subnet` - add support for the `PureStorage.Block/storagePools` value in the `delegation.service_delegation.name` property ([#31878](https://github.com/hashicorp/terraform-provider-azurerm/issues/31878))</li><li>`azurerm_subnet_service_endpoint_storage_policy` - add support for the `/services/Azure/Databricks` value in the `definition.service_resources` property ([#30762](https://github.com/hashicorp/terraform-provider-azurerm/issues/30762))</li></ul>
+            <p><a href="https://github.com/hashicorp/terraform-provider-azurerm/blob/main/CHANGELOG.md" target="_blank">📚 Documentation</a></p>
+        </div>
+        <div class="finding low">
+            <h4><span class="severity-badge low">CHANGED</span> azurerm: <code>azurerm_user_assigned_identity</code></h4>
+            <p>CHANGED change in azurerm 4.48.0 to 4.73.0</p>
+            <div class="meta">
+                <span>📄 <code>iam.tf</code></span>
+                <span>Current: <code>4.48.0</code></span>
+                <span>→ Recommended: <code>4.73.0</code></span>
+            </div>
+            
+            <ul style='font-size:0.88em;margin:8px 0 0'><li>`azurerm_user_assigned_identity` - add support for the `isolation_scope` property ([#31216](https://github.com/hashicorp/terraform-provider-azurerm/issues/31216))</li></ul>
+            <p><a href="https://github.com/hashicorp/terraform-provider-azurerm/blob/main/CHANGELOG.md" target="_blank">📚 Documentation</a></p>
+        </div>
+        <div class="finding low">
+            <h4><span class="severity-badge low">CHANGED</span> azurerm: <code>azurerm_virtual_network</code></h4>
+            <p>CHANGED change in azurerm 4.48.0 to 4.73.0</p>
+            <div class="meta">
+                <span>📄 <code>modules/azurerm_vnet/main.tf</code></span>
+                <span>Current: <code>4.48.0</code></span>
+                <span>→ Recommended: <code>4.73.0</code></span>
+            </div>
+            
+            <ul style='font-size:0.88em;margin:8px 0 0'><li>`azurerm_virtual_network` - add support for the `Microsoft.MessagingConnectors/connectors` value in the `subnet.delegation.service_delegation.name` property ([#32305](https://github.com/hashicorp/terraform-provider-azurerm/issues/32305))</li><li>`azurerm_virtual_network` - add support for the `PureStorage.Block/storagePools` value in the `subnet.delegation.service_delegation.name` property ([#31878](https://github.com/hashicorp/terraform-provider-azurerm/issues/31878))</li><li>`azurerm_virtual_network_gateway` - add support for the `ErGwScale` SKU ([#31082](https://github.com/hashicorp/terraform-provider-azurerm/issues/31082))</li><li>`azurerm_virtual_network` - remove RO values from update to avoid issues with API payload size limitation ([#30945](https://github.com/hashicorp/terraform-provider-azurerm/issues/30945))</li><li>`azurerm_virtual_network_gateway` - fix validation for `policy_group.name` and `vpn_client_configuration.virtual_network_gateway_client_connection.policy_group_names` ([#30454](https://github.com/hashicorp/terraform-provider-azurerm/issues/30454))</li></ul>
+            <p><a href="https://github.com/hashicorp/terraform-provider-azurerm/blob/main/CHANGELOG.md" target="_blank">📚 Documentation</a></p>
+        </div>
+        <div class="finding medium">
+            <h4><span class="severity-badge medium">MEDIUM</span> Provider <code>kubernetes</code> has newer version available</h4>
+            <p>Current constraint: <code>~>2.36</code>, Latest: <code>3.1.0</code></p>
+            <div class="meta">
+                <span>📄 <code>versions.tf</code></span>
+                <span>📍 Line 37</span>
+                <span>Current: <code>~>2.36</code></span>
+                <span>→ Recommended: <code>3.1.0</code></span>
+            </div>
+            <div class="fix-suggestion">💡 Update to version = "3.1.0" or version = "~>3.1"</div>
+            
+            <p><a href="https://registry.terraform.io/providers/hashicorp/kubernetes/latest" target="_blank">📚 Documentation</a></p>
+        </div>
+        <div class="finding medium">
+            <h4><span class="severity-badge medium">MEDIUM</span> GitHub Action using mutable reference: <code>ludeeus/action-shellcheck</code></h4>
+            <p>Action is using <code>master</code> which can change unexpectedly. Pin to a specific version for reproducibility.</p>
+            <div class="meta">
+                <span>📄 <code>.github\workflows\linter-analysis.yml</code></span>
+                <span>📍 Line 32</span>
+                <span>Current: <code>master</code></span>
+            </div>
+            <div class="fix-suggestion">💡 Pin to a specific version tag like @v4</div>
+            
+            
+        </div>
+        <div class="finding low">
+            <h4><span class="severity-badge low">LOW</span> Provider <code>azurerm</code> has newer version available</h4>
+            <p>Current constraint: <code>4.48.0</code>, Latest: <code>4.73.0</code></p>
+            <div class="meta">
+                <span>📄 <code>versions.tf</code></span>
+                <span>📍 Line 9</span>
+                <span>Current: <code>4.48.0</code></span>
+                <span>→ Recommended: <code>4.73.0</code></span>
+            </div>
+            <div class="fix-suggestion">💡 Update to version = "4.73.0" or version = "~>4.73"</div>
+            
+            <p><a href="https://registry.terraform.io/providers/hashicorp/azurerm/latest" target="_blank">📚 Documentation</a></p>
+        </div>
+        <div class="finding low">
+            <h4><span class="severity-badge low">LOW</span> Provider <code>azuread</code> has newer version available</h4>
+            <p>Current constraint: <code>~>3.1</code>, Latest: <code>3.8.0</code></p>
+            <div class="meta">
+                <span>📄 <code>versions.tf</code></span>
+                <span>📍 Line 13</span>
+                <span>Current: <code>~>3.1</code></span>
+                <span>→ Recommended: <code>3.8.0</code></span>
+            </div>
+            <div class="fix-suggestion">💡 Update to version = "3.8.0" or version = "~>3.8"</div>
+            
+            <p><a href="https://registry.terraform.io/providers/hashicorp/azuread/latest" target="_blank">📚 Documentation</a></p>
+        </div>
+        <div class="finding low">
+            <h4><span class="severity-badge low">LOW</span> Provider <code>external</code> has newer version available</h4>
+            <p>Current constraint: <code>~>2.3</code>, Latest: <code>2.4.0</code></p>
+            <div class="meta">
+                <span>📄 <code>versions.tf</code></span>
+                <span>📍 Line 17</span>
+                <span>Current: <code>~>2.3</code></span>
+                <span>→ Recommended: <code>2.4.0</code></span>
+            </div>
+            <div class="fix-suggestion">💡 Update to version = "2.4.0" or version = "~>2.4"</div>
+            
+            <p><a href="https://registry.terraform.io/providers/hashicorp/external/latest" target="_blank">📚 Documentation</a></p>
+        </div>
+        <div class="finding low">
+            <h4><span class="severity-badge low">LOW</span> Provider <code>local</code> has newer version available</h4>
+            <p>Current constraint: <code>~>2.5</code>, Latest: <code>2.9.0</code></p>
+            <div class="meta">
+                <span>📄 <code>versions.tf</code></span>
+                <span>📍 Line 21</span>
+                <span>Current: <code>~>2.5</code></span>
+                <span>→ Recommended: <code>2.9.0</code></span>
+            </div>
+            <div class="fix-suggestion">💡 Update to version = "2.9.0" or version = "~>2.9"</div>
+            
+            <p><a href="https://registry.terraform.io/providers/hashicorp/local/latest" target="_blank">📚 Documentation</a></p>
+        </div>
+        <div class="finding low">
+            <h4><span class="severity-badge low">LOW</span> Provider <code>null</code> has newer version available</h4>
+            <p>Current constraint: <code>~>3.2</code>, Latest: <code>3.3.0</code></p>
+            <div class="meta">
+                <span>📄 <code>versions.tf</code></span>
+                <span>📍 Line 25</span>
+                <span>Current: <code>~>3.2</code></span>
+                <span>→ Recommended: <code>3.3.0</code></span>
+            </div>
+            <div class="fix-suggestion">💡 Update to version = "3.3.0" or version = "~>3.3"</div>
+            
+            <p><a href="https://registry.terraform.io/providers/hashicorp/null/latest" target="_blank">📚 Documentation</a></p>
+        </div>
+        <div class="finding low">
+            <h4><span class="severity-badge low">LOW</span> Provider <code>tls</code> has newer version available</h4>
+            <p>Current constraint: <code>~>4.0</code>, Latest: <code>4.3.0</code></p>
+            <div class="meta">
+                <span>📄 <code>versions.tf</code></span>
+                <span>📍 Line 29</span>
+                <span>Current: <code>~>4.0</code></span>
+                <span>→ Recommended: <code>4.3.0</code></span>
+            </div>
+            <div class="fix-suggestion">💡 Update to version = "4.3.0" or version = "~>4.3"</div>
+            
+            <p><a href="https://registry.terraform.io/providers/hashicorp/tls/latest" target="_blank">📚 Documentation</a></p>
+        </div>
+        <div class="finding low">
+            <h4><span class="severity-badge low">LOW</span> Provider <code>cloudinit</code> has newer version available</h4>
+            <p>Current constraint: <code>~>2.3</code>, Latest: <code>2.4.0</code></p>
+            <div class="meta">
+                <span>📄 <code>versions.tf</code></span>
+                <span>📍 Line 33</span>
+                <span>Current: <code>~>2.3</code></span>
+                <span>→ Recommended: <code>2.4.0</code></span>
+            </div>
+            <div class="fix-suggestion">💡 Update to version = "2.4.0" or version = "~>2.4"</div>
+            
+            <p><a href="https://registry.terraform.io/providers/hashicorp/cloudinit/latest" target="_blank">📚 Documentation</a></p>
+        </div>
+        <div class="finding low">
+            <h4><span class="severity-badge low">LOW</span> Terraform version may be outdated</h4>
+            <p>Required Terraform version <code>>= 1.10.0</code> — latest is <code>1.15.3</code></p>
+            <div class="meta">
+                <span>📄 <code>versions.tf</code></span>
+                <span>📍 Line 6</span>
+                <span>Current: <code>>= 1.10.0</code></span>
+                <span>→ Recommended: <code>1.15.3</code></span>
+            </div>
+            <div class="fix-suggestion">💡 Update required_version to ">= 1.15.3"</div>
+            
+            <p><a href="https://github.com/hashicorp/terraform/releases/tag/v1.15.3" target="_blank">📚 Documentation</a></p>
+        </div>
+        <div class="finding low">
+            <h4><span class="severity-badge low">LOW</span> GitHub Action has newer major version: <code>actions/cache</code></h4>
+            <p>Using <code>v3</code>, recommended: <code>v4</code></p>
+            <div class="meta">
+                <span>📄 <code>.github\workflows\linter-analysis.yml</code></span>
+                <span>📍 Line 45</span>
+                <span>Current: <code>v3</code></span>
+                <span>→ Recommended: <code>v4</code></span>
+            </div>
+            <div class="fix-suggestion">💡 Consider updating to: uses: actions/cache@v4</div>
+            
+            <p><a href="https://github.com/actions/cache/releases" target="_blank">📚 Documentation</a></p>
+        </div>
+        <div class="finding low">
+            <h4><span class="severity-badge low">LOW</span> GitHub Action has newer major version: <code>actions/checkout</code></h4>
+            <p>Using <code>v2</code>, recommended: <code>v4</code></p>
+            <div class="meta">
+                <span>📄 <code>.github\workflows\semvar.yml</code></span>
+                <span>📍 Line 14</span>
+                <span>Current: <code>v2</code></span>
+                <span>→ Recommended: <code>v4</code></span>
+            </div>
+            <div class="fix-suggestion">💡 Consider updating to: uses: actions/checkout@v4</div>
+            
+            <p><a href="https://github.com/actions/checkout/releases" target="_blank">📚 Documentation</a></p>
+        </div>
+        <div class="finding info">
+            <h4><span class="severity-badge info">INFO</span> Provider <code>azurerm</code> is exactly pinned</h4>
+            <p>Version <code>4.48.0</code> is exactly pinned. Consider using flexible constraints like <code>~>4.48</code> for automatic patch updates.</p>
+            <div class="meta">
+                <span>📄 <code>versions.tf</code></span>
+                <span>📍 Line 9</span>
+                <span>Current: <code>4.48.0</code></span>
+            </div>
+            <div class="fix-suggestion">💡 Consider using version = "~>4.48" for flexible patch updates</div>
+            
+            
+        </div>
+        <div class="finding info">
+            <h4><span class="severity-badge info">INFO</span> Version ARG found: <code>TERRAFORM_VERSION=1.10.5</code></h4>
+            <p>Hardcoded version <code>1.10.5</code> in ARG <code>TERRAFORM_VERSION</code>. Verify this is up-to-date.</p>
+            <div class="meta">
+                <span>📄 <code>Dockerfile</code></span>
+                <span>📍 Line 1</span>
+                <span>Current: <code>1.10.5</code></span>
+            </div>
+            
+            
+            
+        </div>
+        <div class="finding info">
+            <h4><span class="severity-badge info">INFO</span> Version ARG found: <code>AZURECLI_VERSION=2.70.0</code></h4>
+            <p>Hardcoded version <code>2.70.0</code> in ARG <code>AZURECLI_VERSION</code>. Verify this is up-to-date.</p>
+            <div class="meta">
+                <span>📄 <code>Dockerfile</code></span>
+                <span>📍 Line 2</span>
+                <span>Current: <code>2.70.0</code></span>
+            </div>
+            
+            
+            
+        </div>
+        <div class="finding info">
+            <h4><span class="severity-badge info">INFO</span> Version ARG found: <code>KUBECTL_VERSION=1.34.6</code></h4>
+            <p>Hardcoded version <code>1.34.6</code> in ARG <code>KUBECTL_VERSION</code>. Verify this is up-to-date.</p>
+            <div class="meta">
+                <span>📄 <code>Dockerfile</code></span>
+                <span>📍 Line 6</span>
+                <span>Current: <code>1.34.6</code></span>
+            </div>
+            
+            
+            
+        </div>
+    </div>
+
+    <footer style="text-align:center;color:#6c757d;padding:20px;">
+        Generated by IaC Deprecation Scanner — viya4-iac-azure
+    </footer>
+</body>
+</html>

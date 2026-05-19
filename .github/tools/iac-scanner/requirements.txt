@@ -1,0 +1,10 @@
+# IaC Deprecation Scanner - Requirements
+#
+# This scanner uses only Python standard library.
+# No external dependencies required for core functionality.
+#
+# Optional development dependencies (uncomment if needed):
+# pytest>=7.0.0       # For running tests
+# black>=23.0.0       # For code formatting
+# mypy>=1.0.0         # For type checking
+# flake8>=6.0.0       # For linting

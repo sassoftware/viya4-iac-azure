@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IaC Deprecation Scan Report</title>
+    <style>
+        :root {
+            --critical-color: #dc3545;
+            --high-color: #fd7e14;
+            --medium-color: #ffc107;
+            --low-color: #17a2b8;
+            --info-color: #6c757d;
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #212529;
+            --border-color: #dee2e6;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 30px 0;
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 30px;
+        }
+        
+        header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        
+        .meta-info {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .card h3 {
+            font-size: 2rem;
+            margin-bottom: 5px;
+        }
+        
+        .card p {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        
+        .card.critical { border-left: 4px solid var(--critical-color); }
+        .card.critical h3 { color: var(--critical-color); }
+        
+        .card.high { border-left: 4px solid var(--high-color); }
+        .card.high h3 { color: var(--high-color); }
+        
+        .card.medium { border-left: 4px solid var(--medium-color); }
+        .card.medium h3 { color: var(--medium-color); }
+        
+        .card.low { border-left: 4px solid var(--low-color); }
+        .card.low h3 { color: var(--low-color); }
+        
+        .card.info { border-left: 4px solid var(--info-color); }
+        .card.info h3 { color: var(--info-color); }
+        
+        .severity-section {
+            margin-bottom: 30px;
+        }
+        
+        .severity-header {
+            padding: 15px 20px;
+            border-radius: 8px 8px 0 0;
+            color: white;
+            font-size: 1.1rem;
+        }
+        
+        .severity-header.critical { background: var(--critical-color); }
+        .severity-header.high { background: var(--high-color); }
+        .severity-header.medium { background: var(--medium-color); }
+        .severity-header.low { background: var(--low-color); }
+        .severity-header.info { background: var(--info-color); }
+        
+        .findings-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--card-bg);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .findings-table th,
+        .findings-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .findings-table th {
+            background: #f1f3f5;
+            font-weight: 600;
+        }
+        
+        .findings-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .location {
+            font-family: 'SF Mono', 'Consolas', monospace;
+            font-size: 0.85rem;
+            color: #495057;
+        }
+        
+        .fix {
+            font-size: 0.85rem;
+            color: #28a745;
+        }
+        
+        .doc-link {
+            font-size: 0.85rem;
+        }
+        
+        .no-findings {
+            text-align: center;
+            padding: 50px;
+            background: var(--card-bg);
+            border-radius: 8px;
+            color: #28a745;
+            font-size: 1.2rem;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #6c757d;
+            font-size: 0.85rem;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔍 IaC Deprecation Scan Report</h1>
+            <p class="meta-info">
+                Repository: C:\Users\lodave\viya4-iac-azure<br>
+                Scanned: 2026-05-19 15:31:48 |
+                Files: 66 |
+                Duration: 0.22s
+            </p>
+        </header>
+        
+        <section class="summary-cards">
+            <div class="card critical">
+                <h3>1</h3>
+                <p>Critical</p>
+            </div>
+            <div class="card high">
+                <h3>7</h3>
+                <p>High</p>
+            </div>
+            <div class="card medium">
+                <h3>3</h3>
+                <p>Medium</p>
+            </div>
+            <div class="card low">
+                <h3>1</h3>
+                <p>Low</p>
+            </div>
+            <div class="card info">
+                <h3>0</h3>
+                <p>Info</p>
+            </div>
+        </section>
+
+        <section class="severity-section">
+            <div class="severity-header critical">
+                🔴 CRITICAL (1)
+            </div>
+            <table class="findings-table">
+                <thead>
+                    <tr>
+                        <th>Location</th>
+                        <th>Issue</th>
+                        <th>Category</th>
+                        <th>Suggested Fix</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    <tr>
+                        <td class="location">versions.tf:6</td>
+                        <td>
+                            <strong>Deprecated azurerm provider version 1.x</strong><br>
+                            <small>azurerm provider version 1.x is end-of-life and no longer maintained.</small>
+                        </td>
+                        <td>terraform</td>
+                        <td>
+                            <span class="fix">Update provider version constraint to ~&gt; 4.0 and follow migration guide.</span><br>
+                            <a href="https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/4.0-upgrade-guide" target="_blank">📚 Docs</a>
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
+        </section>
+
+        <section class="severity-section">
+            <div class="severity-header high">
+                🟠 HIGH (7)
+            </div>
+            <table class="findings-table">
+                <thead>
+                    <tr>
+                        <th>Location</th>
+                        <th>Issue</th>
+                        <th>Category</th>
+                        <th>Suggested Fix</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    <tr>
+                        <td class="location">.github\workflows\default_plan_unit_tests.yml:33</td>
+                        <td>
+                            <strong>Hardcoded credentials pattern</strong><br>
+                            <small>Potential hardcoded password or API key detected.</small>
+                        </td>
+                        <td>general</td>
+                        <td>
+                            <span class="fix">Use environment variables, secret management, or Terraform variables for sensitive values.</span><br>
+                            
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="location">files\tools\terraform_env_variable_helper.sh:49</td>
+                        <td>
+                            <strong>Hardcoded credentials pattern</strong><br>
+                            <small>Potential hardcoded password or API key detected.</small>
+                        </td>
+                        <td>general</td>
+                        <td>
+                            <span class="fix">Use environment variables, secret management, or Terraform variables for sensitive values.</span><br>
+                            
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="location">variables.tf:347</td>
+                        <td>
+                            <strong>Hardcoded credentials pattern</strong><br>
+                            <small>Potential hardcoded password or API key detected.</small>
+                        </td>
+                        <td>general</td>
+                        <td>
+                            <span class="fix">Use environment variables, secret management, or Terraform variables for sensitive values.</span><br>
+                            
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="location">versions.tf:19</td>
+                        <td>
+                            <strong>Deprecated azurerm provider version 2.x</strong><br>
+                            <small>azurerm provider version 2.x is deprecated and will not receive updates.</small>
+                        </td>
+                        <td>terraform</td>
+                        <td>
+                            <span class="fix">Update provider version constraint to ~&gt; 4.0 and follow migration guide.</span><br>
+                            <a href="https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/4.0-upgrade-guide" target="_blank">📚 Docs</a>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="location">versions.tf:23</td>
+                        <td>
+                            <strong>Deprecated azurerm provider version 2.x</strong><br>
+                            <small>azurerm provider version 2.x is deprecated and will not receive updates.</small>
+                        </td>
+                        <td>terraform</td>
+                        <td>
+                            <span class="fix">Update provider version constraint to ~&gt; 4.0 and follow migration guide.</span><br>
+                            <a href="https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/4.0-upgrade-guide" target="_blank">📚 Docs</a>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="location">versions.tf:35</td>
+                        <td>
+                            <strong>Deprecated azurerm provider version 2.x</strong><br>
+                            <small>azurerm provider version 2.x is deprecated and will not receive updates.</small>
+                        </td>
+                        <td>terraform</td>
+                        <td>
+                            <span class="fix">Update provider version constraint to ~&gt; 4.0 and follow migration guide.</span><br>
+                            <a href="https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/4.0-upgrade-guide" target="_blank">📚 Docs</a>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="location">versions.tf:39</td>
+                        <td>
+                            <strong>Deprecated azurerm provider version 2.x</strong><br>
+                            <small>azurerm provider version 2.x is deprecated and will not receive updates.</small>
+                        </td>
+                        <td>terraform</td>
+                        <td>
+                            <span class="fix">Update provider version constraint to ~&gt; 4.0 and follow migration guide.</span><br>
+                            <a href="https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/4.0-upgrade-guide" target="_blank">📚 Docs</a>
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
+        </section>
+
+        <section class="severity-section">
+            <div class="severity-header medium">
+                🟡 MEDIUM (3)
+            </div>
+            <table class="findings-table">
+                <thead>
+                    <tr>
+                        <th>Location</th>
+                        <th>Issue</th>
+                        <th>Category</th>
+                        <th>Suggested Fix</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    <tr>
+                        <td class="location">.github\workflows\semvar.yml:14</td>
+                        <td>
+                            <strong>Deprecated GitHub Action: actions/checkout@v2</strong><br>
+                            <small>The action actions/checkout@v2 uses a deprecated Node.js runtime or is outdated.</small>
+                        </td>
+                        <td>github-actions</td>
+                        <td>
+                            <span class="fix">Update from actions/checkout@v2 to actions/checkout@v4.</span><br>
+                            <a href="https://github.blog/changelog/2023-09-22-github-actions-transitioning-from-node-16-to-node-20/" target="_blank">📚 Docs</a>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="location">versions.tf:15</td>
+                        <td>
+                            <strong>Deprecated azurerm provider version 3.x</strong><br>
+                            <small>azurerm provider version 3.x is deprecated. Migration to 4.x is recommended.</small>
+                        </td>
+                        <td>terraform</td>
+                        <td>
+                            <span class="fix">Plan migration to azurerm 4.x. Review breaking changes in upgrade guide.</span><br>
+                            <a href="https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/4.0-upgrade-guide" target="_blank">📚 Docs</a>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="location">versions.tf:27</td>
+                        <td>
+                            <strong>Deprecated azurerm provider version 3.x</strong><br>
+                            <small>azurerm provider version 3.x is deprecated. Migration to 4.x is recommended.</small>
+                        </td>
+                        <td>terraform</td>
+                        <td>
+                            <span class="fix">Plan migration to azurerm 4.x. Review breaking changes in upgrade guide.</span><br>
+                            <a href="https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/4.0-upgrade-guide" target="_blank">📚 Docs</a>
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
+        </section>
+
+        <section class="severity-section">
+            <div class="severity-header low">
+                🔵 LOW (1)
+            </div>
+            <table class="findings-table">
+                <thead>
+                    <tr>
+                        <th>Location</th>
+                        <th>Issue</th>
+                        <th>Category</th>
+                        <th>Suggested Fix</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    <tr>
+                        <td class="location">.github\workflows\linter-analysis.yml:45</td>
+                        <td>
+                            <strong>Deprecated GitHub Action: actions/cache@v3</strong><br>
+                            <small>The action actions/cache@v3 uses a deprecated Node.js runtime or is outdated.</small>
+                        </td>
+                        <td>github-actions</td>
+                        <td>
+                            <span class="fix">Update from actions/cache@v3 to actions/cache@v4.</span><br>
+                            <a href="https://github.blog/changelog/2023-09-22-github-actions-transitioning-from-node-16-to-node-20/" target="_blank">📚 Docs</a>
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
+        </section>
+
+        <footer>
+            Generated by IaC Deprecation Scanner v1.0.0
+        </footer>
+    </div>
+</body>
+</html>

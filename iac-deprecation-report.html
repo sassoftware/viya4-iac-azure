@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IaC Deprecation Report - Integrated</title>
+    <style>
+        :root {
+            --critical-color: #dc3545;
+            --high-color: #fd7e14;
+            --medium-color: #ffc107;
+            --low-color: #17a2b8;
+            --info-color: #6c757d;
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #212529;
+            --border-color: #dee2e6;
+            --success-color: #28a745;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 30px 0;
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 8px;
+            margin-top: -20px;
+            margin-left: -20px;
+            margin-right: -20px;
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+        
+        header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+        
+        .meta-info {
+            color: rgba(255,255,255,0.9);
+            font-size: 0.9rem;
+        }
+        
+        .scanner-tabs {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .scanner-tab {
+            flex: 1;
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .scanner-tab h2 {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border-color);
+        }
+        
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .card {
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .card h3 {
+            font-size: 1.8rem;
+            margin-bottom: 3px;
+        }
+        
+        .card p {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+        
+        .card.critical { border-left: 4px solid var(--critical-color); }
+        .card.critical h3 { color: var(--critical-color); }
+        
+        .card.high { border-left: 4px solid var(--high-color); }
+        .card.high h3 { color: var(--high-color); }
+        
+        .card.medium { border-left: 4px solid var(--medium-color); }
+        .card.medium h3 { color: var(--medium-color); }
+        
+        .card.low { border-left: 4px solid var(--low-color); }
+        .card.low h3 { color: var(--low-color); }
+        
+        .card.info { border-left: 4px solid var(--info-color); }
+        .card.info h3 { color: var(--info-color); }
+        
+        .severity-section {
+            margin-bottom: 25px;
+        }
+        
+        .severity-header {
+            padding: 12px 20px;
+            border-radius: 8px 8px 0 0;
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        
+        .severity-header.critical { background: var(--critical-color); }
+        .severity-header.high { background: var(--high-color); }
+        .severity-header.medium { background: var(--medium-color); }
+        .severity-header.low { background: var(--low-color); }
+        .severity-header.info { background: var(--info-color); }
+        
+        .findings-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--card-bg);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            font-size: 0.9rem;
+        }
+        
+        .findings-table th,
+        .findings-table td {
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .findings-table th {
+            background: #f1f3f5;
+            font-weight: 600;
+        }
+        
+        .findings-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .location {
+            font-family: 'SF Mono', 'Consolas', monospace;
+            font-size: 0.8rem;
+            color: #495057;
+        }
+        
+        .fix {
+            font-size: 0.8rem;
+            color: var(--success-color);
+        }
+        
+        code {
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'SF Mono', 'Consolas', monospace;
+            font-size: 0.85rem;
+        }
+        
+        /* Manifest Section Styles */
+        .manifest-section {
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 25px;
+            margin-top: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .manifest-section h2 {
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border-color);
+        }
+        
+        .manifest-summary {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .manifest-summary.up-to-date {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .manifest-summary.review-required {
+            background: #fff3cd;
+            border: 1px solid #ffeeba;
+        }
+        
+        .manifest-status {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .manifest-counts {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .manifest-count {
+            flex: 1;
+            text-align: center;
+            padding: 15px;
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
+        
+        .manifest-count .count {
+            font-size: 2rem;
+            font-weight: 700;
+            display: block;
+        }
+        
+        .manifest-count .label {
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+        
+        .manifest-count.breaking .count { color: var(--critical-color); }
+        .manifest-count.deprecated .count { color: var(--medium-color); }
+        .manifest-count.changed .count { color: var(--low-color); }
+        
+        .manifest-ref {
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .no-findings {
+            text-align: center;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            color: #6c757d;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #6c757d;
+            font-size: 0.85rem;
+            margin-top: 30px;
+            border-top: 1px solid var(--border-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔍 IaC Deprecation Report — Integrated</h1>
+            <p class="meta-info">
+                Repository: C:\Users\lodave\viya4-iac-azure<br>
+                Generated: 2026-05-19 15:39:49 |
+                Files Scanned: 66 |
+                Duration: 0.23s
+            </p>
+        </header>
+        
+        <div class="scanner-tab">
+            <h2>🛠️ IaC Scanner — Pattern-Based Analysis</h2>
+            <p style="margin-bottom:15px;color:#6c757d;">Scans Terraform, GitHub Actions, Kubernetes, Docker, and Shell scripts for deprecated patterns.</p>
+            
+            <section class="summary-cards">
+                <div class="card critical">
+                    <h3>1</h3>
+                    <p>Critical</p>
+                </div>
+                <div class="card high">
+                    <h3>7</h3>
+                    <p>High</p>
+                </div>
+                <div class="card medium">
+                    <h3>3</h3>
+                    <p>Medium</p>
+                </div>
+                <div class="card low">
+                    <h3>1</h3>
+                    <p>Low</p>
+                </div>
+                <div class="card info">
+                    <h3>0</h3>
+                    <p>Info</p>
+                </div>
+            </section>
+            
+            
+        <section class="severity-section">
+            <div class="severity-header critical">
+                🔴 CRITICAL (1)
+            </div>
+            <table class="findings-table">
+                <thead>
+                    <tr>
+                        <th>Location</th>
+                        <th>Issue</th>
+                        <th>Category</th>
+                        <th>Suggested Fix</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                <tr>
+                    <td class="location">versions.tf:6</td>
+                    <td>
+                        <strong>Deprecated azurerm provider version 1.x</strong><br>
+                        <small>azurerm provider version 1.x is end-of-life and no longer maintained.</small>
+                    </td>
+                    <td>terraform</td>
+                    <td>
+                        <span class="fix">Update provider version constraint to ~> 4.0 and follow migr...</span><br>
+                        <a href="https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/4.0-upgrade-guide" target="_blank">📚 Docs</a>
+                    </td>
+                </tr>
+            
+                </tbody>
+            </table>
+        </section>
+        
+        <section class="severity-section">
+            <div class="severity-header high">
+                🟠 HIGH (7)
+            </div>
+            <table class="findings-table">
+                <thead>
+                    <tr>
+                        <th>Location</th>
+                        <th>Issue</th>
+                        <th>Category</th>
+                        <th>Suggested Fix</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                <tr>
+                    <td class="location">.github\workflows\default_plan_unit_tests.yml:33</td>
+                    <td>
+                        <strong>Hardcoded credentials pattern</strong><br>
+                        <small>Potential hardcoded password or API key detected.</small>
+                    </td>
+                    <td>general</td>
+                    <td>
+                        <span class="fix">Use environment variables, secret management, or Terraform v...</span><br>
+                        
+                    </td>
+                </tr>
+            
+                <tr>
+                    <td class="location">files\tools\terraform_env_variable_helper.sh:49</td>
+                    <td>
+                        <strong>Hardcoded credentials pattern</strong><br>
+                        <small>Potential hardcoded password or API key detected.</small>
+                    </td>
+                    <td>general</td>
+                    <td>
+                        <span class="fix">Use environment variables, secret management, or Terraform v...</span><br>
+                        
+                    </td>
+                </tr>
+            
+                <tr>
+                    <td class="location">variables.tf:347</td>
+                    <td>
+                        <strong>Hardcoded credentials pattern</strong><br>
+                        <small>Potential hardcoded password or API key detected.</small>
+                    </td>
+                    <td>general</td>
+                    <td>
+                        <span class="fix">Use environment variables, secret management, or Terraform v...</span><br>
+                        
+                    </td>
+                </tr>
+            
+                <tr>
+                    <td class="location">versions.tf:19</td>
+                    <td>
+                        <strong>Deprecated azurerm provider version 2.x</strong><br>
+                        <small>azurerm provider version 2.x is deprecated and will not receive updates.</small>
+                    </td>
+                    <td>terraform</td>
+                    <td>
+                        <span class="fix">Update provider version constraint to ~> 4.0 and follow migr...</span><br>
+                        <a href="https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/4.0-upgrade-guide" target="_blank">📚 Docs</a>
+                    </td>
+                </tr>
+            
+                <tr>
+                    <td class="location">versions.tf:23</td>
+                    <td>
+                        <strong>Deprecated azurerm provider version 2.x</strong><br>
+                        <small>azurerm provider version 2.x is deprecated and will not receive updates.</small>
+                    </td>
+                    <td>terraform</td>
+                    <td>
+                        <span class="fix">Update provider version constraint to ~> 4.0 and follow migr...</span><br>
+                        <a href="https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/4.0-upgrade-guide" target="_blank">📚 Docs</a>
+                    </td>
+                </tr>
+            
+                <tr>
+                    <td class="location">versions.tf:35</td>
+                    <td>
+                        <strong>Deprecated azurerm provider version 2.x</strong><br>
+                        <small>azurerm provider version 2.x is deprecated and will not receive updates.</small>
+                    </td>
+                    <td>terraform</td>
+                    <td>
+                        <span class="fix">Update provider version constraint to ~> 4.0 and follow migr...</span><br>
+                        <a href="https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/4.0-upgrade-guide" target="_blank">📚 Docs</a>
+                    </td>
+                </tr>
+            
+                <tr>
+                    <td class="location">versions.tf:39</td>
+                    <td>
+                        <strong>Deprecated azurerm provider version 2.x</strong><br>
+                        <small>azurerm provider version 2.x is deprecated and will not receive updates.</small>
+                    </td>
+                    <td>terraform</td>
+                    <td>
+                        <span class="fix">Update provider version constraint to ~> 4.0 and follow migr...</span><br>
+                        <a href="https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/4.0-upgrade-guide" target="_blank">📚 Docs</a>
+                    </td>
+                </tr>
+            
+                </tbody>
+            </table>
+        </section>
+        
+        <section class="severity-section">
+            <div class="severity-header medium">
+                🟡 MEDIUM (3)
+            </div>
+            <table class="findings-table">
+                <thead>
+                    <tr>
+                        <th>Location</th>
+                        <th>Issue</th>
+                        <th>Category</th>
+                        <th>Suggested Fix</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                <tr>
+                    <td class="location">.github\workflows\semvar.yml:14</td>
+                    <td>
+                        <strong>Deprecated GitHub Action: actions/checkout@v2</strong><br>
+                        <small>The action actions/checkout@v2 uses a deprecated Node.js runtime or is outdated.</small>
+                    </td>
+                    <td>github-actions</td>
+                    <td>
+                        <span class="fix">Update from actions/checkout@v2 to actions/checkout@v4.</span><br>
+                        <a href="https://github.blog/changelog/2023-09-22-github-actions-transitioning-from-node-16-to-node-20/" target="_blank">📚 Docs</a>
+                    </td>
+                </tr>
+            
+                <tr>
+                    <td class="location">versions.tf:15</td>
+                    <td>
+                        <strong>Deprecated azurerm provider version 3.x</strong><br>
+                        <small>azurerm provider version 3.x is deprecated. Migration to 4.x is recommended.</small>
+                    </td>
+                    <td>terraform</td>
+                    <td>
+                        <span class="fix">Plan migration to azurerm 4.x. Review breaking changes in up...</span><br>
+                        <a href="https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/4.0-upgrade-guide" target="_blank">📚 Docs</a>
+                    </td>
+                </tr>
+            
+                <tr>
+                    <td class="location">versions.tf:27</td>
+                    <td>
+                        <strong>Deprecated azurerm provider version 3.x</strong><br>
+                        <small>azurerm provider version 3.x is deprecated. Migration to 4.x is recommended.</small>
+                    </td>
+                    <td>terraform</td>
+                    <td>
+                        <span class="fix">Plan migration to azurerm 4.x. Review breaking changes in up...</span><br>
+                        <a href="https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/4.0-upgrade-guide" target="_blank">📚 Docs</a>
+                    </td>
+                </tr>
+            
+                </tbody>
+            </table>
+        </section>
+        
+        <section class="severity-section">
+            <div class="severity-header low">
+                🔵 LOW (1)
+            </div>
+            <table class="findings-table">
+                <thead>
+                    <tr>
+                        <th>Location</th>
+                        <th>Issue</th>
+                        <th>Category</th>
+                        <th>Suggested Fix</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                <tr>
+                    <td class="location">.github\workflows\linter-analysis.yml:45</td>
+                    <td>
+                        <strong>Deprecated GitHub Action: actions/cache@v3</strong><br>
+                        <small>The action actions/cache@v3 uses a deprecated Node.js runtime or is outdated.</small>
+                    </td>
+                    <td>github-actions</td>
+                    <td>
+                        <span class="fix">Update from actions/cache@v3 to actions/cache@v4.</span><br>
+                        <a href="https://github.blog/changelog/2023-09-22-github-actions-transitioning-from-node-16-to-node-20/" target="_blank">📚 Docs</a>
+                    </td>
+                </tr>
+            
+                </tbody>
+            </table>
+        </section>
+        
+        </div>
+        
+        
+        <section class="manifest-section">
+            <h2>📋 azurerm CHANGELOG Analysis</h2>
+            <div class="manifest-summary review-required">
+                <div class="manifest-status">⚠️ REVIEW REQUIRED</div>
+                <div class="manifest-meta">
+                    <strong>Version:</strong> 4.48.0 → 4.73.0
+                </div>
+            </div>
+            
+            <div class="manifest-counts">
+                <div class="manifest-count breaking">
+                    <span class="count">2</span>
+                    <span class="label">🔴 BREAKING</span>
+                </div>
+                <div class="manifest-count deprecated">
+                    <span class="count">0</span>
+                    <span class="label">🟡 DEPRECATED</span>
+                </div>
+                <div class="manifest-count changed">
+                    <span class="count">16</span>
+                    <span class="label">🔵 CHANGED</span>
+                </div>
+            </div>
+            
+            <table class="findings-table"><thead><tr><th>Severity</th><th>Resource</th><th>Files</th><th>Note</th></tr></thead><tbody>
+                <tr>
+                    <td>🔴 BREAKING</td>
+                    <td><code>azurerm_kubernetes_cluster</code></td>
+                    <td class="location">modules/azure_aks/main.tf</td>
+                    <td><small>BREAKING: property `container_log_max_lines` renamed to `container_log_max_files` -- update your .tf...</small></td>
+                </tr>
+            
+                <tr>
+                    <td>🔴 BREAKING</td>
+                    <td><code>azurerm_kubernetes_cluster_node_pool</code></td>
+                    <td class="location">modules/aks_node_pool/main.tf</td>
+                    <td><small>BREAKING: property `container_log_max_lines` renamed to `container_log_max_files` -- update your .tf...</small></td>
+                </tr>
+            
+                <tr>
+                    <td>🔵 CHANGED</td>
+                    <td><code>azurerm_container_registry</code></td>
+                    <td class="location">main.tf</td>
+                    <td><small></small></td>
+                </tr>
+            
+                <tr>
+                    <td>🔵 CHANGED</td>
+                    <td><code>azurerm_linux_virtual_machine</code></td>
+                    <td class="location">modules/azurerm_vm/main.tf</td>
+                    <td><small></small></td>
+                </tr>
+            
+                <tr>
+                    <td>🔵 CHANGED</td>
+                    <td><code>azurerm_log_analytics_workspace</code></td>
+                    <td class="location">monitor.tf</td>
+                    <td><small></small></td>
+                </tr>
+            
+                <tr>
+                    <td>🔵 CHANGED</td>
+                    <td><code>azurerm_managed_disk</code></td>
+                    <td class="location">modules/azurerm_vm/main.tf</td>
+                    <td><small></small></td>
+                </tr>
+            
+                <tr>
+                    <td>🔵 CHANGED</td>
+                    <td><code>azurerm_netapp_volume</code></td>
+                    <td class="location">modules/azurerm_netapp/main.tf</td>
+                    <td><small></small></td>
+                </tr>
+            
+                <tr>
+                    <td>🔵 CHANGED</td>
+                    <td><code>azurerm_network_interface</code></td>
+                    <td class="location">modules/azurerm_vm/main.tf</td>
+                    <td><small></small></td>
+                </tr>
+            
+                <tr>
+                    <td>🔵 CHANGED</td>
+                    <td><code>azurerm_network_security_group</code></td>
+                    <td class="location">main.tf</td>
+                    <td><small></small></td>
+                </tr>
+            
+                <tr>
+                    <td>🔵 CHANGED</td>
+                    <td><code>azurerm_network_security_rule</code></td>
+                    <td class="location">main.tf, vms.tf</td>
+                    <td><small></small></td>
+                </tr>
+            
+                <tr>
+                    <td>🔵 CHANGED</td>
+                    <td><code>azurerm_postgresql_flexible_server</code></td>
+                    <td class="location">modules/azurerm_postgresql_flex/main.tf</td>
+                    <td><small></small></td>
+                </tr>
+            
+                <tr>
+                    <td>🔵 CHANGED</td>
+                    <td><code>azurerm_private_dns_a_record</code></td>
+                    <td class="location">modules/azurerm_netapp/main.tf</td>
+                    <td><small></small></td>
+                </tr>
+            
+                <tr>
+                    <td>🔵 CHANGED</td>
+                    <td><code>azurerm_private_dns_zone</code></td>
+                    <td class="location">modules/azurerm_netapp/main.tf, modules/azurerm_postgresql_flex/main.tf</td>
+                    <td><small></small></td>
+                </tr>
+            
+                <tr>
+                    <td>🔵 CHANGED</td>
+                    <td><code>azurerm_public_ip</code></td>
+                    <td class="location">main.tf, modules/azure_aks/main.tf, modules/azurerm_vm/main.tf</td>
+                    <td><small></small></td>
+                </tr>
+            
+                <tr>
+                    <td>🔵 CHANGED</td>
+                    <td><code>azurerm_resource_group</code></td>
+                    <td class="location">main.tf</td>
+                    <td><small></small></td>
+                </tr>
+            
+                <tr>
+                    <td>🔵 CHANGED</td>
+                    <td><code>azurerm_subnet</code></td>
+                    <td class="location">modules/azurerm_vnet/main.tf</td>
+                    <td><small></small></td>
+                </tr>
+            
+                <tr>
+                    <td>🔵 CHANGED</td>
+                    <td><code>azurerm_user_assigned_identity</code></td>
+                    <td class="location">iam.tf</td>
+                    <td><small></small></td>
+                </tr>
+            
+                <tr>
+                    <td>🔵 CHANGED</td>
+                    <td><code>azurerm_virtual_network</code></td>
+                    <td class="location">modules/azurerm_vnet/main.tf</td>
+                    <td><small></small></td>
+                </tr>
+            </tbody></table>
+            
+            <p class="manifest-ref">
+                <a href="https://github.com/hashicorp/terraform-provider-azurerm/blob/main/CHANGELOG.md" target="_blank">
+                    📚 View Full CHANGELOG
+                </a>
+            </p>
+        </section>
+        
+        
+        <footer>
+            Generated by IaC Deprecation Scanner v1.0.0 — Integrated Report
+        </footer>
+    </div>
+</body>
+</html>
