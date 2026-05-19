@@ -1,0 +1,283 @@
+{
+  "metadata": {
+    "generated_at": "2026-05-19T08:51:06Z",
+    "tool": "iac-deprecation-checker",
+    "repo": "viya4-iac-azure"
+  },
+  "summary": {
+    "status": "REVIEW_REQUIRED",
+    "current_version": "4.48.0",
+    "latest_version": "4.73.0",
+    "total_resources": 37,
+    "affected_count": 18,
+    "breaking_count": 2,
+    "deprecated_count": 0,
+    "changed_count": 16,
+    "changelog_range": "4.48.0 to 4.73.0"
+  },
+  "affected_resources": [
+    {
+      "resource_type": "azurerm_kubernetes_cluster",
+      "files": [
+        "modules/azure_aks/main.tf"
+      ],
+      "severity": "BREAKING",
+      "lifecycle_note": "BREAKING: property `container_log_max_lines` renamed to `container_log_max_files` -- update your .tf files before upgrading",
+      "changelog_lines": [
+        "* `azurerm_kubernetes_cluster` - the `container_log_max_lines` property has been renamed to `container_log_max_files` ([#31721](https://github.com/hashicorp/terraform-provider-azurerm/issues/31721))",
+        "* `azurerm_kubernetes_cluster_node_pool` - the `container_log_max_lines` property has been renamed to `container_log_max_files` ([#31721](https://github.com/hashicorp/terraform-provider-azurerm/issues/31721))",
+        "* Data Source: `azurerm_kubernetes_cluster_node_pool` - export the `node_image_version` property ([#32108](https://github.com/hashicorp/terraform-provider-azurerm/issues/32108))",
+        "* `azurerm_kubernetes_cluster_node_pool` - export the `node_image_version` property ([#32108](https://github.com/hashicorp/terraform-provider-azurerm/issues/32108))",
+        "* `azurerm_kubernetes_cluster` - changing `oidc_issuer_enabled` from `true` to `false` now forces resource recreation as the API does not support this ([#32117](https://github.com/hashicorp/terraform-provider-azurerm/issues/32117))",
+        "* `azurerm_kubernetes_cluster_node_pool` - lock on subnet ID instead of subnet name to prevent unnecessary serialization ([#32001](https://github.com/hashicorp/terraform-provider-azurerm/issues/32001))",
+        "* `azurerm_kubernetes_cluster` - fix an issue that prevented `oidc_issuer_enabled = false` from being set on create ([#32117](https://github.com/hashicorp/terraform-provider-azurerm/issues/32117))",
+        "* `azurerm_kubernetes_cluster` - fix a diff caused by Azure's default value for `oidc_issuer_enabled` changing in AKS 1.34+ ([#32117](https://github.com/hashicorp/terraform-provider-azurerm/issues/32117))",
+        "* **New Resource**: `azurerm_kubernetes_cluster_deployment_safeguard` ([#31670](https://github.com/hashicorp/terraform-provider-azurerm/issues/31670))",
+        "* `azurerm_kubernetes_cluster` - add support for the `Ubuntu2404` OS SKU ([#32070](https://github.com/hashicorp/terraform-provider-azurerm/issues/32070))",
+        "* `azurerm_kubernetes_cluster` - improve validation for `network_profile.0.advanced_networking` ([#31497](https://github.com/hashicorp/terraform-provider-azurerm/issues/31497))",
+        "* `azurerm_kubernetes_cluster_node_pool` - add support for the `Ubuntu2404` OS SKU ([#32070](https://github.com/hashicorp/terraform-provider-azurerm/issues/32070))",
+        "* `azurerm_kubernetes_cluster` - add support for migration from Azure or Kubenet CNI to Azure CNI Overlay ([#30959](https://github.com/hashicorp/terraform-provider-azurerm/issues/30959))",
+        "* `azurerm_kubernetes_cluster_node_pool` - `max_surge` and `max_unavailable` are no longer required  for spot node pools  ([#31129](https://github.com/hashicorp/terraform-provider-azurerm/issues/31129))",
+        "* Data Source: `azurerm_kubernetes_cluster` - export the `bootstrap_profile` and `network_profile.outbound_type` attributes ([#30983](https://github.com/hashicorp/terraform-provider-azurerm/issues/30983))",
+        "* `azurerm_kubernetes_cluster` - fixed `capacity_reservation_group_id` loss during node pool cycling ([#30654](https://github.com/hashicorp/terraform-provider-azurerm/issues/30654))",
+        "* `azurerm_kubernetes_cluster` -  the`network_policy` property now allows updating from `calico` to `cilium` ([#31627](https://github.com/hashicorp/terraform-provider-azurerm/issues/31627))",
+        "* `azurerm_kubernetes_cluster` - `network_data_plane` and `network_policy` now support updating to `cilium` ([#30958](https://github.com/hashicorp/terraform-provider-azurerm/issues/30958))",
+        "* `azurerm_kubernetes_cluster` - support for the `node_provisioning_profile` block ([#30517](https://github.com/hashicorp/terraform-provider-azurerm/issues/30517))",
+        "* `azurerm_kubernetes_cluster` - fix drift on `azure_policy_enabled` when updating cluster ([#30917](https://github.com/hashicorp/terraform-provider-azurerm/issues/30917))",
+        "* `azurerm_kubernetes_cluster_node_pool` - support for the `undrainable_node_behavior` and `max_unavailable` properties ([#30563](https://github.com/hashicorp/terraform-provider-azurerm/issues/30563))",
+        "* `azurerm_kubernetes_cluster` - fix crash in use of `azure_active_directory_role_based_access_control` ([#31101](https://github.com/hashicorp/terraform-provider-azurerm/issues/31101))"
+      ]
+    },
+    {
+      "resource_type": "azurerm_kubernetes_cluster_node_pool",
+      "files": [
+        "modules/aks_node_pool/main.tf"
+      ],
+      "severity": "BREAKING",
+      "lifecycle_note": "BREAKING: property `container_log_max_lines` renamed to `container_log_max_files` -- update your .tf files before upgrading",
+      "changelog_lines": [
+        "* `azurerm_kubernetes_cluster_node_pool` - the `container_log_max_lines` property has been renamed to `container_log_max_files` ([#31721](https://github.com/hashicorp/terraform-provider-azurerm/issues/31721))",
+        "* Data Source: `azurerm_kubernetes_cluster_node_pool` - export the `node_image_version` property ([#32108](https://github.com/hashicorp/terraform-provider-azurerm/issues/32108))",
+        "* `azurerm_kubernetes_cluster_node_pool` - export the `node_image_version` property ([#32108](https://github.com/hashicorp/terraform-provider-azurerm/issues/32108))",
+        "* `azurerm_kubernetes_cluster_node_pool` - lock on subnet ID instead of subnet name to prevent unnecessary serialization ([#32001](https://github.com/hashicorp/terraform-provider-azurerm/issues/32001))",
+        "* `azurerm_kubernetes_cluster_node_pool` - add support for the `Ubuntu2404` OS SKU ([#32070](https://github.com/hashicorp/terraform-provider-azurerm/issues/32070))",
+        "* `azurerm_kubernetes_cluster_node_pool` - `max_surge` and `max_unavailable` are no longer required  for spot node pools  ([#31129](https://github.com/hashicorp/terraform-provider-azurerm/issues/31129))",
+        "* `azurerm_kubernetes_cluster_node_pool` - support for the `undrainable_node_behavior` and `max_unavailable` properties ([#30563](https://github.com/hashicorp/terraform-provider-azurerm/issues/30563))"
+      ]
+    },
+    {
+      "resource_type": "azurerm_container_registry",
+      "files": [
+        "main.tf"
+      ],
+      "severity": "CHANGED",
+      "lifecycle_note": null,
+      "changelog_lines": [
+        "* `data.azurerm_container_registry` - `admin_password` is now sensitive ([#31428](https://github.com/hashicorp/terraform-provider-azurerm/issues/31428))",
+        "* `azurerm_container_registry_task` - prevent a panic by adding a nil check ([#31043](https://github.com/hashicorp/terraform-provider-azurerm/issues/31043))",
+        "* `azurerm_container_registry` - fix the `name` length validation to allow 50 rather than 49 ([#30858](https://github.com/hashicorp/terraform-provider-azurerm/issues/30858))"
+      ]
+    },
+    {
+      "resource_type": "azurerm_linux_virtual_machine",
+      "files": [
+        "modules/azurerm_vm/main.tf"
+      ],
+      "severity": "CHANGED",
+      "lifecycle_note": null,
+      "changelog_lines": [
+        "* `azurerm_linux_virtual_machine` - parse `os_managed_disk_id` insensitively as Azure returns static segments cased inconsistently ([#32145](https://github.com/hashicorp/terraform-provider-azurerm/issues/32145))"
+      ]
+    },
+    {
+      "resource_type": "azurerm_log_analytics_workspace",
+      "files": [
+        "monitor.tf"
+      ],
+      "severity": "CHANGED",
+      "lifecycle_note": null,
+      "changelog_lines": [
+        "* `azurerm_log_analytics_workspace` - add support for the `10000`, `25000` and `50000` values in the `reservation_capacity_in_gb_per_day` property ([#32322](https://github.com/hashicorp/terraform-provider-azurerm/issues/32322))",
+        "* `azurerm_log_analytics_workspace` - preserve default value of `local_authentication_enabled` ([#32004](https://github.com/hashicorp/terraform-provider-azurerm/issues/32004))",
+        "* `azurerm_log_analytics_workspace_table` - fix validation for `basic` plan  ([#30925](https://github.com/hashicorp/terraform-provider-azurerm/issues/30925))",
+        "* **New Resource**: `azurerm_log_analytics_workspace_table_custom_log` ([#30800](https://github.com/hashicorp/terraform-provider-azurerm/issues/30800))"
+      ]
+    },
+    {
+      "resource_type": "azurerm_managed_disk",
+      "files": [
+        "modules/azurerm_vm/main.tf"
+      ],
+      "severity": "CHANGED",
+      "lifecycle_note": null,
+      "changelog_lines": [
+        "* `azurerm_managed_disk` - fix `nil` pointer dereference when updating `disk_access_id`  ([#31955](https://github.com/hashicorp/terraform-provider-azurerm/issues/31955))",
+        "* `azurerm_managed_disk` - support expanding Ultra Disks and Premium SSD v2 disk without downtime ([#30593](https://github.com/hashicorp/terraform-provider-azurerm/issues/30593))"
+      ]
+    },
+    {
+      "resource_type": "azurerm_netapp_volume",
+      "files": [
+        "modules/azurerm_netapp/main.tf"
+      ],
+      "severity": "CHANGED",
+      "lifecycle_note": null,
+      "changelog_lines": [
+        "* `azurerm_netapp_volume` - add support for `data_protection_advanced_ransomware` ([#32099](https://github.com/hashicorp/terraform-provider-azurerm/issues/32099))",
+        "* `azurerm_netapp_volume_group_sap_hana_resource` - add support for `zone`, `encryption_key_source`, `key_vault_private_endpoint_id`, and `network_features` ([#31603](https://github.com/hashicorp/terraform-provider-azurerm/issues/31603))",
+        "* `azurerm_netapp_volume_group_oracle` - `service_level` now supports `Flexible` ([#31508](https://github.com/hashicorp/terraform-provider-azurerm/issues/31508))",
+        "* `azurerm_netapp_volume_group_sap_hana` - `service_level` now supports `Flexible` ([#31508](https://github.com/hashicorp/terraform-provider-azurerm/issues/31508))",
+        "* `azurerm_netapp_volume_resource` - support for Cross Zone Region replication through the `data_protection_replication` block ([#30872](https://github.com/hashicorp/terraform-provider-azurerm/issues/30872))"
+      ]
+    },
+    {
+      "resource_type": "azurerm_network_interface",
+      "files": [
+        "modules/azurerm_vm/main.tf"
+      ],
+      "severity": "CHANGED",
+      "lifecycle_note": null,
+      "changelog_lines": [
+        "* **New List Resource**: `azurerm_network_interface` ([#31012](https://github.com/hashicorp/terraform-provider-azurerm/issues/31012))"
+      ]
+    },
+    {
+      "resource_type": "azurerm_network_security_group",
+      "files": [
+        "main.tf"
+      ],
+      "severity": "CHANGED",
+      "lifecycle_note": null,
+      "changelog_lines": [
+        "* `azurerm_network_security_rule` and `azurerm_network_security_group` - add case-insensitive handling for application security group IDs  ([#30913](https://github.com/hashicorp/terraform-provider-azurerm/issues/30913))",
+        "* **New List Resource**: `azurerm_network_security_group` ([#31014](https://github.com/hashicorp/terraform-provider-azurerm/issues/31014))"
+      ]
+    },
+    {
+      "resource_type": "azurerm_network_security_rule",
+      "files": [
+        "main.tf",
+        "vms.tf"
+      ],
+      "severity": "CHANGED",
+      "lifecycle_note": null,
+      "changelog_lines": [
+        "* `azurerm_network_security_rule` and `azurerm_network_security_group` - add case-insensitive handling for application security group IDs  ([#30913](https://github.com/hashicorp/terraform-provider-azurerm/issues/30913))",
+        "* **New List Resource**: `azurerm_network_security_rule` ([#31748](https://github.com/hashicorp/terraform-provider-azurerm/issues/31748))"
+      ]
+    },
+    {
+      "resource_type": "azurerm_postgresql_flexible_server",
+      "files": [
+        "modules/azurerm_postgresql_flex/main.tf"
+      ],
+      "severity": "CHANGED",
+      "lifecycle_note": null,
+      "changelog_lines": [
+        "* `azurerm_postgresql_flexible_server` - add support for confidential compute server type SKU ([#32209](https://github.com/hashicorp/terraform-provider-azurerm/issues/32209))",
+        "* `azurerm_postgresql_flexible_server` - add support for `cluster` ([#31315](https://github.com/hashicorp/terraform-provider-azurerm/issues/31315))",
+        "* `azurerm_postgresql_flexible_server` - update validation for `customer_managed_key.key_vault_key_id` and `customer_managed_key.geo_backup_key_vault_key_id` to allow managed HSM keys as input ([#31148](https://github.com/hashicorp/terraform-provider-azurerm/issues/31148))",
+        "* `azurerm_postgresql_flexible_server` - add support for PostgreSQL version `18` ([#31162](https://github.com/hashicorp/terraform-provider-azurerm/issues/31162))",
+        "* `data.azurerm_postgresql_flexible_server` - add support for `zone` and `high_availability` ([#31034](https://github.com/hashicorp/terraform-provider-azurerm/issues/31034))"
+      ]
+    },
+    {
+      "resource_type": "azurerm_private_dns_a_record",
+      "files": [
+        "modules/azurerm_netapp/main.tf"
+      ],
+      "severity": "CHANGED",
+      "lifecycle_note": null,
+      "changelog_lines": [
+        "* **New List Resource**: `azurerm_private_dns_a_record` ([#31785](https://github.com/hashicorp/terraform-provider-azurerm/issues/31785))"
+      ]
+    },
+    {
+      "resource_type": "azurerm_private_dns_zone",
+      "files": [
+        "modules/azurerm_netapp/main.tf",
+        "modules/azurerm_postgresql_flex/main.tf"
+      ],
+      "severity": "CHANGED",
+      "lifecycle_note": null,
+      "changelog_lines": [
+        "* `list.azurerm_private_dns_zone` - fix context handling resolving an issue where this list resources never returned results ([#31719](https://github.com/hashicorp/terraform-provider-azurerm/issues/31719))",
+        "* **New List Resource**: `azurerm_private_dns_zone` ([#31157](https://github.com/hashicorp/terraform-provider-azurerm/issues/31157))"
+      ]
+    },
+    {
+      "resource_type": "azurerm_public_ip",
+      "files": [
+        "main.tf",
+        "modules/azure_aks/main.tf",
+        "modules/azurerm_vm/main.tf"
+      ],
+      "severity": "CHANGED",
+      "lifecycle_note": null,
+      "changelog_lines": [
+        "* `azurerm_public_ip` - `domain_name_label`, `reverse_fqdn`, `domain_name_label_scope` can now be set to empty ([#31699](https://github.com/hashicorp/terraform-provider-azurerm/issues/31699))",
+        "* `azurerm_public_ip` - add support for the `StandardV2` SKU ([#31197](https://github.com/hashicorp/terraform-provider-azurerm/issues/31197))",
+        "* `azurerm_public_ip_prefix` - add support for the `StandardV2` SKU ([#31197](https://github.com/hashicorp/terraform-provider-azurerm/issues/31197))",
+        "* **New List Resource**: `azurerm_public_ip` ([#31762](https://github.com/hashicorp/terraform-provider-azurerm/issues/31762))"
+      ]
+    },
+    {
+      "resource_type": "azurerm_resource_group",
+      "files": [
+        "main.tf"
+      ],
+      "severity": "CHANGED",
+      "lifecycle_note": null,
+      "changelog_lines": [
+        "* `azurerm_resource_group` - fix parallelism issue in create_poller ([#32123](https://github.com/hashicorp/terraform-provider-azurerm/issues/32123))",
+        "* **New List Resource**: `azurerm_resource_group` ([#31270](https://github.com/hashicorp/terraform-provider-azurerm/issues/31270))",
+        "* `azurerm_resource_group` - fix poller for the `prevent_deletion_if_contains_resources` feature, resolving an Azure eventual consistency issue ([#31253](https://github.com/hashicorp/terraform-provider-azurerm/issues/31253))",
+        "* `azurerm_resource_group` - refactored from legacy SDK to use `go-azure-sdk` ([#30616](https://github.com/hashicorp/terraform-provider-azurerm/issues/30616))"
+      ]
+    },
+    {
+      "resource_type": "azurerm_subnet",
+      "files": [
+        "modules/azurerm_vnet/main.tf"
+      ],
+      "severity": "CHANGED",
+      "lifecycle_note": null,
+      "changelog_lines": [
+        "* **New List Resource**: `azurerm_subnet` ([#32236](https://github.com/hashicorp/terraform-provider-azurerm/issues/32236))",
+        "* `azurerm_subnet` - add support for the `Microsoft.MessagingConnectors/connectors` value in the `delegation.service_delegation.name` property ([#32305](https://github.com/hashicorp/terraform-provider-azurerm/issues/32305))",
+        "* `azurerm_subnet` - add support for the `PureStorage.Block/storagePools` value in the `delegation.service_delegation.name` property ([#31878](https://github.com/hashicorp/terraform-provider-azurerm/issues/31878))",
+        "* `azurerm_subnet_service_endpoint_storage_policy` - add support for the `/services/Azure/Databricks` value in the `definition.service_resources` property ([#30762](https://github.com/hashicorp/terraform-provider-azurerm/issues/30762))"
+      ]
+    },
+    {
+      "resource_type": "azurerm_user_assigned_identity",
+      "files": [
+        "iam.tf"
+      ],
+      "severity": "CHANGED",
+      "lifecycle_note": null,
+      "changelog_lines": [
+        "* `azurerm_user_assigned_identity` - add support for the `isolation_scope` property ([#31216](https://github.com/hashicorp/terraform-provider-azurerm/issues/31216))"
+      ]
+    },
+    {
+      "resource_type": "azurerm_virtual_network",
+      "files": [
+        "modules/azurerm_vnet/main.tf"
+      ],
+      "severity": "CHANGED",
+      "lifecycle_note": null,
+      "changelog_lines": [
+        "* `azurerm_virtual_network` - add support for the `Microsoft.MessagingConnectors/connectors` value in the `subnet.delegation.service_delegation.name` property ([#32305](https://github.com/hashicorp/terraform-provider-azurerm/issues/32305))",
+        "* `azurerm_virtual_network` - add support for the `PureStorage.Block/storagePools` value in the `subnet.delegation.service_delegation.name` property ([#31878](https://github.com/hashicorp/terraform-provider-azurerm/issues/31878))",
+        "* `azurerm_virtual_network_gateway` - add support for the `ErGwScale` SKU ([#31082](https://github.com/hashicorp/terraform-provider-azurerm/issues/31082))",
+        "* `azurerm_virtual_network` - remove RO values from update to avoid issues with API payload size limitation ([#30945](https://github.com/hashicorp/terraform-provider-azurerm/issues/30945))",
+        "* `azurerm_virtual_network_gateway` - fix validation for `policy_group.name` and `vpn_client_configuration.virtual_network_gateway_client_connection.policy_group_names` ([#30454](https://github.com/hashicorp/terraform-provider-azurerm/issues/30454))"
+      ]
+    }
+  ],
+  "references": {
+    "terraform_registry": "https://registry.terraform.io/providers/hashicorp/azurerm/4.73.0/docs",
+    "changelog": "https://github.com/hashicorp/terraform-provider-azurerm/blob/main/CHANGELOG.md"
+  }
+}

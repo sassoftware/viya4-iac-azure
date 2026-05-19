@@ -1,0 +1,533 @@
+{
+  "last_checked_version": "4.48.0",
+  "last_checked_date": "2026-05-19",
+  "files": {
+    "iam.tf": {
+      "hash": "8d36b39ac3b11cfa143d2c034de3505e4baf2dc861a1761d44370bd111f2462d",
+      "resources": {
+        "azurerm_user_assigned_identity": {
+          "arguments": [
+            "count",
+            "location",
+            "name",
+            "resource_group_name"
+          ]
+        }
+      },
+      "data_sources": {
+        "azurerm_user_assigned_identity": {
+          "arguments": [
+            "count",
+            "name",
+            "resource_group_name"
+          ]
+        }
+      }
+    },
+    "main.tf": {
+      "hash": "db73a5762499a4abdc52a380d7ed5e3fd6b4416bcbed85e719006a1fa147ecf4",
+      "resources": {
+        "azurerm_resource_group": {
+          "arguments": [
+            "count",
+            "location",
+            "name",
+            "tags"
+          ]
+        },
+        "azurerm_proximity_placement_group": {
+          "arguments": [
+            "count",
+            "location",
+            "name",
+            "resource_group_name",
+            "tags"
+          ]
+        },
+        "azurerm_network_security_group": {
+          "arguments": [
+            "count",
+            "location",
+            "name",
+            "resource_group_name",
+            "tags"
+          ]
+        },
+        "azurerm_container_registry": {
+          "arguments": [
+            "admin_enabled",
+            "count",
+            "location",
+            "name",
+            "resource_group_name",
+            "sku",
+            "tags"
+          ]
+        },
+        "azurerm_network_security_rule": {
+          "arguments": [
+            "access",
+            "count",
+            "description",
+            "destination_address_prefix",
+            "destination_port_range",
+            "direction",
+            "name",
+            "network_security_group_name",
+            "priority",
+            "protocol",
+            "resource_group_name",
+            "source_address_prefixes",
+            "source_port_range"
+          ]
+        },
+        "kubernetes_config_map": {
+          "arguments": [
+            "data",
+            "depends_on"
+          ]
+        }
+      },
+      "data_sources": {
+        "azurerm_subscription": {
+          "arguments": []
+        },
+        "azurerm_resource_group": {
+          "arguments": [
+            "count",
+            "name"
+          ]
+        },
+        "azurerm_network_security_group": {
+          "arguments": [
+            "count",
+            "name",
+            "resource_group_name"
+          ]
+        },
+        "azurerm_public_ip": {
+          "arguments": [
+            "count",
+            "name",
+            "resource_group_name"
+          ]
+        },
+        "external": {
+          "arguments": [
+            "program"
+          ]
+        }
+      }
+    },
+    "modules/aks_node_pool/main.tf": {
+      "hash": "e28fca08fbfb4222a8c2915d7bc1c45df4dc01b208c9153bc2f05ceaa8e72d1a",
+      "resources": {
+        "azurerm_kubernetes_cluster_node_pool": {
+          "arguments": [
+            "auto_scaling_enabled",
+            "count",
+            "eviction_policy",
+            "fips_enabled",
+            "host_encryption_enabled",
+            "kubernetes_cluster_id",
+            "max_count",
+            "max_pods",
+            "min_count",
+            "name",
+            "node_count",
+            "node_labels",
+            "node_public_ip_enabled",
+            "node_taints",
+            "orchestrator_version",
+            "os_disk_size_gb",
+            "os_type",
+            "priority",
+            "proximity_placement_group_id",
+            "spot_max_price",
+            "tags",
+            "temporary_name_for_rotation",
+            "vm_size",
+            "vnet_subnet_id",
+            "zones"
+          ]
+        }
+      },
+      "data_sources": {}
+    },
+    "modules/azure_aks/main.tf": {
+      "hash": "ada1f8c575cc5d2ea2768caf809257a2257714f34f7ca9534787cb47d4ef44d7",
+      "resources": {
+        "azurerm_kubernetes_cluster": {
+          "arguments": [
+            "azure_policy_enabled",
+            "disk_encryption_set_id",
+            "dns_prefix",
+            "dns_prefix_private_cluster",
+            "http_application_routing_enabled",
+            "kubernetes_version",
+            "location",
+            "name",
+            "node_os_upgrade_channel",
+            "node_resource_group",
+            "oidc_issuer_enabled",
+            "private_cluster_enabled",
+            "private_dns_zone_id",
+            "resource_group_name",
+            "role_based_access_control_enabled",
+            "run_command_enabled",
+            "sku_tier",
+            "support_plan",
+            "tags",
+            "workload_identity_enabled"
+          ]
+        }
+      },
+      "data_sources": {
+        "azurerm_public_ip": {
+          "arguments": [
+            "count",
+            "depends_on",
+            "name",
+            "resource_group_name"
+          ]
+        }
+      }
+    },
+    "modules/azurerm_netapp/main.tf": {
+      "hash": "b0bbeb87598cf9ab2c1a8268123ed0fb40ae21659791c2da6ce6e010bbbe9fee",
+      "resources": {
+        "azurerm_netapp_account": {
+          "arguments": [
+            "location",
+            "name",
+            "resource_group_name",
+            "tags"
+          ]
+        },
+        "azurerm_netapp_pool": {
+          "arguments": [
+            "account_name",
+            "count",
+            "location",
+            "name",
+            "resource_group_name",
+            "service_level",
+            "size_in_tb",
+            "tags"
+          ]
+        },
+        "azurerm_netapp_volume": {
+          "arguments": [
+            "account_name",
+            "count",
+            "depends_on",
+            "location",
+            "name",
+            "network_features",
+            "pool_name",
+            "protocols",
+            "resource_group_name",
+            "service_level",
+            "storage_quota_in_gb",
+            "subnet_id",
+            "tags",
+            "volume_path",
+            "zone"
+          ]
+        }
+      },
+      "data_sources": {}
+    },
+    "modules/azurerm_postgresql_flex/main.tf": {
+      "hash": "8ee7fbb68081c607a432181120477e906cc5ac81813f54103c616de2d54e0b09",
+      "resources": {
+        "azurerm_private_dns_zone": {
+          "arguments": [
+            "count",
+            "name",
+            "resource_group_name"
+          ]
+        },
+        "azurerm_private_dns_zone_virtual_network_link": {
+          "arguments": [
+            "count",
+            "name",
+            "private_dns_zone_name",
+            "resource_group_name",
+            "virtual_network_id"
+          ]
+        },
+        "azurerm_postgresql_flexible_server": {
+          "arguments": [
+            "administrator_login",
+            "administrator_password",
+            "backup_retention_days",
+            "delegated_subnet_id",
+            "depends_on",
+            "geo_redundant_backup_enabled",
+            "location",
+            "name",
+            "private_dns_zone_id",
+            "public_network_access_enabled",
+            "resource_group_name",
+            "sku_name",
+            "storage_mb",
+            "tags",
+            "version",
+            "zone"
+          ]
+        },
+        "azurerm_postgresql_flexible_server_configuration": {
+          "arguments": [
+            "for_each",
+            "name",
+            "server_id",
+            "value"
+          ]
+        },
+        "azurerm_postgresql_flexible_server_firewall_rule": {
+          "arguments": [
+            "count",
+            "end_ip_address",
+            "name",
+            "server_id",
+            "start_ip_address"
+          ]
+        }
+      },
+      "data_sources": {}
+    },
+    "modules/azurerm_vm/main.tf": {
+      "hash": "4c25308d45eb32ad1aed28c3be531afeaa6a85090f322d7068e8ae983f6a0afe",
+      "resources": {
+        "azurerm_public_ip": {
+          "arguments": [
+            "allocation_method",
+            "count",
+            "location",
+            "name",
+            "resource_group_name",
+            "sku",
+            "tags",
+            "zones"
+          ]
+        },
+        "azurerm_network_interface": {
+          "arguments": [
+            "accelerated_networking_enabled",
+            "location",
+            "name",
+            "resource_group_name",
+            "tags"
+          ]
+        },
+        "azurerm_network_interface_security_group_association": {
+          "arguments": [
+            "network_interface_id",
+            "network_security_group_id"
+          ]
+        },
+        "azurerm_managed_disk": {
+          "arguments": [
+            "count",
+            "create_option",
+            "disk_encryption_set_id",
+            "disk_size_gb",
+            "location",
+            "name",
+            "resource_group_name",
+            "storage_account_type",
+            "tags",
+            "zone"
+          ]
+        },
+        "azurerm_virtual_machine_data_disk_attachment": {
+          "arguments": [
+            "caching",
+            "count",
+            "lun",
+            "managed_disk_id",
+            "virtual_machine_id"
+          ]
+        },
+        "azurerm_linux_virtual_machine": {
+          "arguments": [
+            "admin_username",
+            "custom_data",
+            "depends_on",
+            "encryption_at_host_enabled",
+            "location",
+            "name",
+            "network_interface_ids",
+            "proximity_placement_group_id",
+            "resource_group_name",
+            "size",
+            "tags",
+            "zone"
+          ]
+        }
+      },
+      "data_sources": {}
+    },
+    "modules/azurerm_vnet/main.tf": {
+      "hash": "b43cc0da78095b00df3b697e42c08e49b4bb3f89d033f3826ab44c2742a3cbe1",
+      "resources": {
+        "azurerm_virtual_network": {
+          "arguments": [
+            "address_space",
+            "count",
+            "dns_servers",
+            "location",
+            "name",
+            "resource_group_name",
+            "tags"
+          ]
+        },
+        "azurerm_subnet": {
+          "arguments": [
+            "address_prefixes",
+            "depends_on",
+            "for_each",
+            "name",
+            "private_endpoint_network_policies",
+            "private_link_service_network_policies_enabled",
+            "resource_group_name",
+            "service_endpoints",
+            "virtual_network_name"
+          ]
+        },
+        "azurerm_role_assignment": {
+          "arguments": [
+            "count",
+            "principal_id",
+            "role_definition_name",
+            "scope"
+          ]
+        }
+      },
+      "data_sources": {
+        "azurerm_virtual_network": {
+          "arguments": [
+            "count",
+            "name",
+            "resource_group_name"
+          ]
+        },
+        "azurerm_subnet": {
+          "arguments": [
+            "depends_on",
+            "for_each",
+            "name",
+            "resource_group_name",
+            "virtual_network_name"
+          ]
+        }
+      }
+    },
+    "modules/kubeconfig/main.tf": {
+      "hash": "6b3cbca0555fcf06339c263743e3100c6119d9b9f02c8c4086c53c7cb65aefa1",
+      "resources": {
+        "kubernetes_secret": {
+          "arguments": [
+            "count",
+            "depends_on",
+            "type"
+          ]
+        },
+        "kubernetes_service_account": {
+          "arguments": [
+            "count"
+          ]
+        },
+        "kubernetes_cluster_role_binding": {
+          "arguments": [
+            "count"
+          ]
+        },
+        "local_file": {
+          "arguments": [
+            "content",
+            "directory_permission",
+            "file_permission",
+            "filename"
+          ]
+        }
+      },
+      "data_sources": {
+        "kubernetes_secret": {
+          "arguments": [
+            "count",
+            "depends_on"
+          ]
+        }
+      }
+    },
+    "monitor.tf": {
+      "hash": "a0cb00f62e4c49be728e82469bbad0d300b253227544939c6acafbf7edf46d2b",
+      "resources": {
+        "azurerm_log_analytics_workspace": {
+          "arguments": [
+            "count",
+            "location",
+            "name",
+            "resource_group_name",
+            "retention_in_days",
+            "sku",
+            "tags"
+          ]
+        },
+        "azurerm_log_analytics_solution": {
+          "arguments": [
+            "count",
+            "location",
+            "resource_group_name",
+            "solution_name",
+            "tags",
+            "workspace_name",
+            "workspace_resource_id"
+          ]
+        },
+        "azurerm_monitor_diagnostic_setting": {
+          "arguments": [
+            "count",
+            "log_analytics_workspace_id",
+            "name",
+            "target_resource_id"
+          ]
+        }
+      },
+      "data_sources": {}
+    },
+    "vms.tf": {
+      "hash": "a0b433e4fbe3c45c08d539a66e2a5239524dfc6a59fd75c6dd245a22330dad9e",
+      "resources": {
+        "azurerm_network_security_rule": {
+          "arguments": [
+            "access",
+            "count",
+            "description",
+            "destination_address_prefix",
+            "destination_port_range",
+            "direction",
+            "name",
+            "network_security_group_name",
+            "priority",
+            "protocol",
+            "resource_group_name",
+            "source_address_prefixes",
+            "source_port_range"
+          ]
+        }
+      },
+      "data_sources": {
+        "cloudinit_config": {
+          "arguments": [
+            "base64_encode",
+            "count",
+            "gzip"
+          ]
+        }
+      }
+    }
+  }
+}
