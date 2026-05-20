@@ -43,6 +43,7 @@ jobs:
             -e TF_VAR_client_id=${{ vars.AZURE_CLIENT_ID }} \
             -e ARM_USE_OIDC=true \
             -e ARM_USE_CLI=true \
+            -e AZURE_CORE_ONLY_SHOW_ERRORS=true \
             -v $(pwd):/viya4-iac-azure \
-            -v $HOME/.azure:/root/.azure:ro \
+            -v $HOME/.azure:/root/.azure \
             viya4-iac-azure:terratest -v
