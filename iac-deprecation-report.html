@@ -256,6 +256,44 @@
             margin-top: 20px;
             text-align: center;
         }
+
+        /* Future intelligence section */
+        .future-section {
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 25px;
+            margin-top: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .future-section h2 {
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .future-meta {
+            color: #6c757d;
+            font-size: 0.85rem;
+            margin-bottom: 14px;
+        }
+
+        .future-summary {
+            margin-bottom: 16px;
+            padding: 12px;
+            background: #f8f9fa;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+        }
+
+        .future-summary h3 {
+            font-size: 1rem;
+            margin-bottom: 8px;
+        }
+
+        .future-summary ul {
+            margin-left: 20px;
+        }
         
         .no-findings {
             text-align: center;
@@ -280,10 +318,10 @@
         <header>
             <h1>🔍 IaC Deprecation Report — Integrated</h1>
             <p class="meta-info">
-                Repository: C:\Users\lodave\viya4-iac-azure<br>
-                Generated: 2026-05-19 15:39:49 |
+                Repository: /r/narndhome01.unx.sas.com/vol/vol001/u01/nirpat/viya4-iac-azure<br>
+                Generated: 2026-05-20 06:05:00 |
                 Files Scanned: 66 |
-                Duration: 0.23s
+                Duration: 0.09s
             </p>
         </header>
         
@@ -297,7 +335,7 @@
                     <p>Critical</p>
                 </div>
                 <div class="card high">
-                    <h3>7</h3>
+                    <h3>5</h3>
                     <p>High</p>
                 </div>
                 <div class="card medium">
@@ -349,7 +387,7 @@
         
         <section class="severity-section">
             <div class="severity-header high">
-                🟠 HIGH (7)
+                🟠 HIGH (5)
             </div>
             <table class="findings-table">
                 <thead>
@@ -362,32 +400,6 @@
                 </thead>
                 <tbody>
                     
-                <tr>
-                    <td class="location">.github\workflows\default_plan_unit_tests.yml:33</td>
-                    <td>
-                        <strong>Hardcoded credentials pattern</strong><br>
-                        <small>Potential hardcoded password or API key detected.</small>
-                    </td>
-                    <td>general</td>
-                    <td>
-                        <span class="fix">Use environment variables, secret management, or Terraform v...</span><br>
-                        
-                    </td>
-                </tr>
-            
-                <tr>
-                    <td class="location">files\tools\terraform_env_variable_helper.sh:49</td>
-                    <td>
-                        <strong>Hardcoded credentials pattern</strong><br>
-                        <small>Potential hardcoded password or API key detected.</small>
-                    </td>
-                    <td>general</td>
-                    <td>
-                        <span class="fix">Use environment variables, secret management, or Terraform v...</span><br>
-                        
-                    </td>
-                </tr>
-            
                 <tr>
                     <td class="location">variables.tf:347</td>
                     <td>
@@ -473,7 +485,7 @@
                 <tbody>
                     
                 <tr>
-                    <td class="location">.github\workflows\semvar.yml:14</td>
+                    <td class="location">.github/workflows/semvar.yml:14</td>
                     <td>
                         <strong>Deprecated GitHub Action: actions/checkout@v2</strong><br>
                         <small>The action actions/checkout@v2 uses a deprecated Node.js runtime or is outdated.</small>
@@ -531,7 +543,7 @@
                 <tbody>
                     
                 <tr>
-                    <td class="location">.github\workflows\linter-analysis.yml:45</td>
+                    <td class="location">.github/workflows/linter-analysis.yml:45</td>
                     <td>
                         <strong>Deprecated GitHub Action: actions/cache@v3</strong><br>
                         <small>The action actions/cache@v3 uses a deprecated Node.js runtime or is outdated.</small>
@@ -707,6 +719,184 @@
                     📚 View Full CHANGELOG
                 </a>
             </p>
+        </section>
+        
+
+        
+        <section class="future-section">
+            <h2>🔮 Upcoming / Future Deprecation Risks</h2>
+            <p class="future-meta">
+                Generated: 2026-05-20T10:05:00.346635 |
+                Cache Used: False |
+                Risks: 16
+            </p>
+            
+            <div class="future-summary">
+                <h3>Upgrade Impact Intelligence</h3>
+                <ul><li>Upgrading azurerm may impact: azurerm_kubernetes_cluster, azurerm_kubernetes_cluster_node_pool</li></ul>
+            </div>
+            
+            <table class="findings-table"><thead><tr><th>Severity</th><th>Component</th><th>Current Version</th><th>Future Risk</th><th>Effective Date</th><th>Impact</th><th>Source</th></tr></thead><tbody>
+                <tr>
+                    <td><strong>HIGH</strong></td>
+                    <td>AKS Kubernetes version</td>
+                    <td><code>1.34</code></td>
+                    <td>Kubernetes minor 1.34 approaches support lifecycle boundary.</td>
+                    <td>2026-10-27</td>
+                    <td>Cluster and node pool upgrades may be required to remain in full support.</td>
+                    <td><a href="https://learn.microsoft.com/en-us/azure/aks/supported-kubernetes-versions" target="_blank">endoflife.date — Kubernetes release calendar</a></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>HIGH</strong></td>
+                    <td>AKS Kubernetes version</td>
+                    <td><code>1.34</code></td>
+                    <td>Kubernetes minor 1.34 approaches support lifecycle boundary.</td>
+                    <td>2026-10-27</td>
+                    <td>Cluster and node pool upgrades may be required to remain in full support.</td>
+                    <td><a href="https://learn.microsoft.com/en-us/azure/aks/supported-kubernetes-versions" target="_blank">endoflife.date — Kubernetes release calendar</a></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>HIGH</strong></td>
+                    <td>AKS Kubernetes version</td>
+                    <td><code>1.34</code></td>
+                    <td>Kubernetes minor 1.34 approaches support lifecycle boundary.</td>
+                    <td>2026-10-27</td>
+                    <td>Cluster and node pool upgrades may be required to remain in full support.</td>
+                    <td><a href="https://learn.microsoft.com/en-us/azure/aks/supported-kubernetes-versions" target="_blank">endoflife.date — Kubernetes release calendar</a></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>HIGH</strong></td>
+                    <td>AKS Kubernetes version</td>
+                    <td><code>1.34</code></td>
+                    <td>Kubernetes minor 1.34 approaches support lifecycle boundary.</td>
+                    <td>2026-10-27</td>
+                    <td>Cluster and node pool upgrades may be required to remain in full support.</td>
+                    <td><a href="https://learn.microsoft.com/en-us/azure/aks/supported-kubernetes-versions" target="_blank">endoflife.date — Kubernetes release calendar</a></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>HIGH</strong></td>
+                    <td>AKS Kubernetes version</td>
+                    <td><code>1.34</code></td>
+                    <td>Kubernetes minor 1.34 approaches support lifecycle boundary.</td>
+                    <td>2026-10-27</td>
+                    <td>Cluster and node pool upgrades may be required to remain in full support.</td>
+                    <td><a href="https://learn.microsoft.com/en-us/azure/aks/supported-kubernetes-versions" target="_blank">endoflife.date — Kubernetes release calendar</a></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>HIGH</strong></td>
+                    <td>AKS Kubernetes version</td>
+                    <td><code>1.34</code></td>
+                    <td>Kubernetes minor 1.34 approaches support lifecycle boundary.</td>
+                    <td>2026-10-27</td>
+                    <td>Cluster and node pool upgrades may be required to remain in full support.</td>
+                    <td><a href="https://learn.microsoft.com/en-us/azure/aks/supported-kubernetes-versions" target="_blank">endoflife.date — Kubernetes release calendar</a></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>HIGH</strong></td>
+                    <td>AKS Kubernetes version</td>
+                    <td><code>1.34</code></td>
+                    <td>Kubernetes minor 1.34 approaches support lifecycle boundary.</td>
+                    <td>2026-10-27</td>
+                    <td>Cluster and node pool upgrades may be required to remain in full support.</td>
+                    <td><a href="https://learn.microsoft.com/en-us/azure/aks/supported-kubernetes-versions" target="_blank">endoflife.date — Kubernetes release calendar</a></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>HIGH</strong></td>
+                    <td>AKS Kubernetes version</td>
+                    <td><code>1.34</code></td>
+                    <td>Kubernetes minor 1.34 approaches support lifecycle boundary.</td>
+                    <td>2026-10-27</td>
+                    <td>Cluster and node pool upgrades may be required to remain in full support.</td>
+                    <td><a href="https://learn.microsoft.com/en-us/azure/aks/supported-kubernetes-versions" target="_blank">endoflife.date — Kubernetes release calendar</a></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>HIGH</strong></td>
+                    <td>AKS Kubernetes version</td>
+                    <td><code>1.34</code></td>
+                    <td>Kubernetes minor 1.34 approaches support lifecycle boundary.</td>
+                    <td>2026-10-27</td>
+                    <td>Cluster and node pool upgrades may be required to remain in full support.</td>
+                    <td><a href="https://learn.microsoft.com/en-us/azure/aks/supported-kubernetes-versions" target="_blank">endoflife.date — Kubernetes release calendar</a></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>HIGH</strong></td>
+                    <td>AKS Kubernetes version</td>
+                    <td><code>1.34</code></td>
+                    <td>Kubernetes minor 1.34 approaches support lifecycle boundary.</td>
+                    <td>2026-10-27</td>
+                    <td>Cluster and node pool upgrades may be required to remain in full support.</td>
+                    <td><a href="https://learn.microsoft.com/en-us/azure/aks/supported-kubernetes-versions" target="_blank">endoflife.date — Kubernetes release calendar</a></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>HIGH</strong></td>
+                    <td>AKS Kubernetes version</td>
+                    <td><code>1.34</code></td>
+                    <td>Kubernetes minor 1.34 approaches support lifecycle boundary.</td>
+                    <td>2026-10-27</td>
+                    <td>Cluster and node pool upgrades may be required to remain in full support.</td>
+                    <td><a href="https://learn.microsoft.com/en-us/azure/aks/supported-kubernetes-versions" target="_blank">endoflife.date — Kubernetes release calendar</a></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>HIGH</strong></td>
+                    <td>AKS Kubernetes version</td>
+                    <td><code>1.34</code></td>
+                    <td>Kubernetes minor 1.34 approaches support lifecycle boundary.</td>
+                    <td>2026-10-27</td>
+                    <td>Cluster and node pool upgrades may be required to remain in full support.</td>
+                    <td><a href="https://learn.microsoft.com/en-us/azure/aks/supported-kubernetes-versions" target="_blank">endoflife.date — Kubernetes release calendar</a></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>HIGH</strong></td>
+                    <td>azurerm provider</td>
+                    <td><code>4.48.0</code></td>
+                    <td>Provider drift detected relative to latest stable 4.73.0; future upgrades may include cumulative breaking changes.</td>
+                    <td>Before next provider upgrade cycle</td>
+                    <td>Multiple Terraform resources may require config adjustments during upgrade.</td>
+                    <td><a href="https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/4.0-upgrade-guide" target="_blank">azurerm changelog and upgrade guidance</a></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>HIGH</strong></td>
+                    <td>azurerm provider upgrade window</td>
+                    <td><code>4.48.0</code></td>
+                    <td>Upgrade window 4.48.0 -> 4.73.0 contains 2 breaking and 16 changed items.</td>
+                    <td>Next provider upgrade</td>
+                    <td>Terraform plans may introduce recreations, diffs, or failures until resource configuration is aligned.</td>
+                    <td><a href="https://github.com/hashicorp/terraform-provider-azurerm/blob/main/CHANGELOG.md" target="_blank">Manifest scanner changelog analysis</a></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>MEDIUM</strong></td>
+                    <td>actions/checkout</td>
+                    <td><code>v2</code></td>
+                    <td>Legacy action major version with Node runtime migration risk</td>
+                    <td>Upcoming</td>
+                    <td>CI pipeline reliability and compatibility risk.</td>
+                    <td><a href="https://github.blog/changelog/2023-09-22-github-actions-transitioning-from-node-16-to-node-20/" target="_blank">GitHub Actions Node runtime migration guidance</a></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>LOW</strong></td>
+                    <td>actions/cache</td>
+                    <td><code>v3</code></td>
+                    <td>Older cache action major version, migrate to current major</td>
+                    <td>Upcoming</td>
+                    <td>CI pipeline reliability and compatibility risk.</td>
+                    <td><a href="https://github.blog/changelog/2023-09-22-github-actions-transitioning-from-node-16-to-node-20/" target="_blank">GitHub Actions Node runtime migration guidance</a></td>
+                </tr>
+            </tbody></table>
         </section>
         
         

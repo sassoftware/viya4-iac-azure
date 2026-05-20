@@ -1,24 +1,24 @@
 {
-  "generated_at": "2026-05-19T15:39:49.086522",
-  "repository": "C:\\Users\\lodave\\viya4-iac-azure",
+  "generated_at": "2026-05-20T06:05:00.348653",
+  "repository": "/r/narndhome01.unx.sas.com/vol/vol001/u01/nirpat/viya4-iac-azure",
   "iac_scanner": {
     "files_scanned": 66,
-    "total_findings": 12,
+    "total_findings": 10,
     "by_severity": {
       "critical": 1,
-      "high": 7,
+      "high": 5,
       "medium": 3,
       "low": 1,
       "info": 0
     },
     "by_category": {
       "terraform": 7,
-      "general": 3,
+      "general": 1,
       "github-actions": 2
     },
-    "scan_duration_seconds": 0.231,
-    "started_at": "2026-05-19T15:39:45.091068",
-    "completed_at": "2026-05-19T15:39:45.322161",
+    "scan_duration_seconds": 0.094,
+    "started_at": "2026-05-20T06:04:59.208690",
+    "completed_at": "2026-05-20T06:04:59.302786",
     "scanner_version": "1.0.0"
   },
   "iac_scanner_findings": [
@@ -31,26 +31,6 @@
       "description": "azurerm provider version 1.x is end-of-life and no longer maintained.",
       "suggested_fix": "Update provider version constraint to ~> 4.0 and follow migration guide.",
       "documentation_url": "https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/4.0-upgrade-guide"
-    },
-    {
-      "file": ".github\\workflows\\default_plan_unit_tests.yml",
-      "line": 33,
-      "severity": "HIGH",
-      "category": "general",
-      "title": "Hardcoded credentials pattern",
-      "description": "Potential hardcoded password or API key detected.",
-      "suggested_fix": "Use environment variables, secret management, or Terraform variables for sensitive values.",
-      "documentation_url": null
-    },
-    {
-      "file": "files\\tools\\terraform_env_variable_helper.sh",
-      "line": 49,
-      "severity": "HIGH",
-      "category": "general",
-      "title": "Hardcoded credentials pattern",
-      "description": "Potential hardcoded password or API key detected.",
-      "suggested_fix": "Use environment variables, secret management, or Terraform variables for sensitive values.",
-      "documentation_url": null
     },
     {
       "file": "variables.tf",
@@ -103,7 +83,7 @@
       "documentation_url": "https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/4.0-upgrade-guide"
     },
     {
-      "file": ".github\\workflows\\semvar.yml",
+      "file": ".github/workflows/semvar.yml",
       "line": 14,
       "severity": "MEDIUM",
       "category": "github-actions",
@@ -133,7 +113,7 @@
       "documentation_url": "https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/4.0-upgrade-guide"
     },
     {
-      "file": ".github\\workflows\\linter-analysis.yml",
+      "file": ".github/workflows/linter-analysis.yml",
       "line": 45,
       "severity": "LOW",
       "category": "github-actions",
@@ -145,7 +125,7 @@
   ],
   "manifest_scanner": {
     "metadata": {
-      "generated_at": "2026-05-19T10:09:48Z",
+      "generated_at": "2026-05-20T10:04:59Z",
       "tool": "iac-deprecation-checker",
       "repo": "viya4-iac-azure"
     },
@@ -425,5 +405,579 @@
       "terraform_registry": "https://registry.terraform.io/providers/hashicorp/azurerm/4.73.0/docs",
       "changelog": "https://github.com/hashicorp/terraform-provider-azurerm/blob/main/CHANGELOG.md"
     }
+  },
+  "future_deprecation_intelligence": {
+    "metadata": {
+      "generated_at": "2026-05-20T10:05:00.346635",
+      "cache_used": false,
+      "sources": [
+        "https://learn.microsoft.com/en-us/azure/aks/supported-kubernetes-versions",
+        "https://kubernetes.io/docs/reference/using-api/deprecation-guide/",
+        "https://github.blog/changelog/2023-09-22-github-actions-transitioning-from-node-16-to-node-20/",
+        "https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/4.0-upgrade-guide",
+        "https://endoflife.date/api/kubernetes.json",
+        "https://registry.terraform.io/v1/providers/hashicorp/azurerm",
+        "https://api.github.com (GitHub Releases API)"
+      ],
+      "model": "rule-based-future-intel-v1"
+    },
+    "repository_inventory": {
+      "providers": [
+        {
+          "name": "azurerm",
+          "version": "4.48.0",
+          "file": "versions.tf"
+        },
+        {
+          "name": "azuread",
+          "version": "~>3.1",
+          "file": "versions.tf"
+        },
+        {
+          "name": "external",
+          "version": "~>2.3",
+          "file": "versions.tf"
+        },
+        {
+          "name": "local",
+          "version": "~>2.5",
+          "file": "versions.tf"
+        },
+        {
+          "name": "null",
+          "version": "~>3.2",
+          "file": "versions.tf"
+        },
+        {
+          "name": "tls",
+          "version": "~>4.0",
+          "file": "versions.tf"
+        },
+        {
+          "name": "cloudinit",
+          "version": "~>2.3",
+          "file": "versions.tf"
+        },
+        {
+          "name": "kubernetes",
+          "version": "~>2.36",
+          "file": "versions.tf"
+        }
+      ],
+      "kubernetes_versions": [
+        {
+          "version": "1.34",
+          "file": "examples/sample-input-byo.tfvars"
+        },
+        {
+          "version": "1.34",
+          "file": "examples/sample-input-cilium.tfvars"
+        },
+        {
+          "version": "1.34",
+          "file": "examples/sample-input-connect.tfvars"
+        },
+        {
+          "version": "1.34",
+          "file": "examples/sample-input-ha.tfvars"
+        },
+        {
+          "version": "1.34",
+          "file": "examples/sample-input-minimal.tfvars"
+        },
+        {
+          "version": "1.34",
+          "file": "examples/sample-input-multizone-enhanced.tfvars"
+        },
+        {
+          "version": "1.34",
+          "file": "examples/sample-input-multizone.tfvars"
+        },
+        {
+          "version": "1.34",
+          "file": "examples/sample-input-optionalcas.tfvars"
+        },
+        {
+          "version": "1.34",
+          "file": "examples/sample-input-postgres.tfvars"
+        },
+        {
+          "version": "1.34",
+          "file": "examples/sample-input-ppg.tfvars"
+        },
+        {
+          "version": "1.34",
+          "file": "examples/sample-input-singlestore.tfvars"
+        },
+        {
+          "version": "1.34",
+          "file": "examples/sample-input.tfvars"
+        }
+      ],
+      "kubernetes_api_versions": [],
+      "github_actions": [
+        {
+          "action": "actions/checkout",
+          "version": "v4",
+          "file": ".github/workflows/container-structure-test.yml"
+        },
+        {
+          "action": "plexsystems/container-structure-test-action",
+          "version": "v0.3.0",
+          "file": ".github/workflows/container-structure-test.yml"
+        },
+        {
+          "action": "ytanikin/pr-conventional-commits",
+          "version": "1.4.0",
+          "file": ".github/workflows/conventional-commits.yml"
+        },
+        {
+          "action": "actions/checkout",
+          "version": "v4",
+          "file": ".github/workflows/default_plan_unit_tests.yml"
+        },
+        {
+          "action": "release-drafter/release-drafter",
+          "version": "v6",
+          "file": ".github/workflows/draft-release.yml"
+        },
+        {
+          "action": "actions/checkout",
+          "version": "v4",
+          "file": ".github/workflows/linter-analysis.yml"
+        },
+        {
+          "action": "jbergstroem/hadolint-gh-action",
+          "version": "v1.12.2",
+          "file": ".github/workflows/linter-analysis.yml"
+        },
+        {
+          "action": "ludeeus/action-shellcheck",
+          "version": "master",
+          "file": ".github/workflows/linter-analysis.yml"
+        },
+        {
+          "action": "actions/cache",
+          "version": "v3",
+          "file": ".github/workflows/linter-analysis.yml"
+        },
+        {
+          "action": "hashicorp/setup-terraform",
+          "version": "v3",
+          "file": ".github/workflows/linter-analysis.yml"
+        },
+        {
+          "action": "terraform-linters/setup-tflint",
+          "version": "v4.1.1",
+          "file": ".github/workflows/linter-analysis.yml"
+        },
+        {
+          "action": "actions/checkout",
+          "version": "v2",
+          "file": ".github/workflows/semvar.yml"
+        },
+        {
+          "action": "haya14busa/action-update-semver",
+          "version": "v1",
+          "file": ".github/workflows/semvar.yml"
+        },
+        {
+          "action": "actions/stale",
+          "version": "v9.1.0",
+          "file": ".github/workflows/stale-updater.yaml"
+        }
+      ],
+      "helm_versions": [],
+      "container_images": [
+        {
+          "image": "hashicorp/terraform:$TERRAFORM_VERSION",
+          "file": "Dockerfile"
+        },
+        {
+          "image": "mcr.microsoft.com/azure-cli:$AZURECLI_VERSION",
+          "file": "Dockerfile"
+        },
+        {
+          "image": "golang:1.26",
+          "file": "Dockerfile.terratest"
+        },
+        {
+          "image": "sas-iac-aks:local",
+          "file": ".github/workflows/container-structure-test.yml"
+        }
+      ],
+      "tool_versions": [
+        {
+          "name": "terraform",
+          "version": ">= 1.10.0",
+          "file": "versions.tf"
+        }
+      ],
+      "azure_resources": [
+        {
+          "resource_type": "azurerm_user_assigned_identity",
+          "file": "iam.tf"
+        },
+        {
+          "resource_type": "azurerm_resource_group",
+          "file": "main.tf"
+        },
+        {
+          "resource_type": "azurerm_proximity_placement_group",
+          "file": "main.tf"
+        },
+        {
+          "resource_type": "azurerm_network_security_group",
+          "file": "main.tf"
+        },
+        {
+          "resource_type": "azurerm_container_registry",
+          "file": "main.tf"
+        },
+        {
+          "resource_type": "azurerm_network_security_rule",
+          "file": "main.tf"
+        },
+        {
+          "resource_type": "kubernetes_config_map",
+          "file": "main.tf"
+        },
+        {
+          "resource_type": "azurerm_kubernetes_cluster_node_pool",
+          "file": "modules/aks_node_pool/main.tf"
+        },
+        {
+          "resource_type": "azurerm_kubernetes_cluster",
+          "file": "modules/azure_aks/main.tf"
+        },
+        {
+          "resource_type": "azurerm_netapp_account",
+          "file": "modules/azurerm_netapp/main.tf"
+        },
+        {
+          "resource_type": "azurerm_netapp_pool",
+          "file": "modules/azurerm_netapp/main.tf"
+        },
+        {
+          "resource_type": "azurerm_netapp_volume",
+          "file": "modules/azurerm_netapp/main.tf"
+        },
+        {
+          "resource_type": "azurerm_private_dns_zone",
+          "file": "modules/azurerm_netapp/main.tf"
+        },
+        {
+          "resource_type": "azurerm_private_dns_zone_virtual_network_link",
+          "file": "modules/azurerm_netapp/main.tf"
+        },
+        {
+          "resource_type": "azurerm_private_dns_a_record",
+          "file": "modules/azurerm_netapp/main.tf"
+        },
+        {
+          "resource_type": "azurerm_private_dns_zone",
+          "file": "modules/azurerm_postgresql_flex/main.tf"
+        },
+        {
+          "resource_type": "azurerm_private_dns_zone_virtual_network_link",
+          "file": "modules/azurerm_postgresql_flex/main.tf"
+        },
+        {
+          "resource_type": "azurerm_postgresql_flexible_server",
+          "file": "modules/azurerm_postgresql_flex/main.tf"
+        },
+        {
+          "resource_type": "azurerm_postgresql_flexible_server_configuration",
+          "file": "modules/azurerm_postgresql_flex/main.tf"
+        },
+        {
+          "resource_type": "azurerm_postgresql_flexible_server_firewall_rule",
+          "file": "modules/azurerm_postgresql_flex/main.tf"
+        },
+        {
+          "resource_type": "azurerm_public_ip",
+          "file": "modules/azurerm_vm/main.tf"
+        },
+        {
+          "resource_type": "azurerm_network_interface",
+          "file": "modules/azurerm_vm/main.tf"
+        },
+        {
+          "resource_type": "azurerm_network_interface_security_group_association",
+          "file": "modules/azurerm_vm/main.tf"
+        },
+        {
+          "resource_type": "azurerm_managed_disk",
+          "file": "modules/azurerm_vm/main.tf"
+        },
+        {
+          "resource_type": "azurerm_virtual_machine_data_disk_attachment",
+          "file": "modules/azurerm_vm/main.tf"
+        },
+        {
+          "resource_type": "azurerm_linux_virtual_machine",
+          "file": "modules/azurerm_vm/main.tf"
+        },
+        {
+          "resource_type": "azurerm_virtual_network",
+          "file": "modules/azurerm_vnet/main.tf"
+        },
+        {
+          "resource_type": "azurerm_subnet",
+          "file": "modules/azurerm_vnet/main.tf"
+        },
+        {
+          "resource_type": "azurerm_role_assignment",
+          "file": "modules/azurerm_vnet/main.tf"
+        },
+        {
+          "resource_type": "kubernetes_secret",
+          "file": "modules/kubeconfig/main.tf"
+        },
+        {
+          "resource_type": "kubernetes_service_account",
+          "file": "modules/kubeconfig/main.tf"
+        },
+        {
+          "resource_type": "kubernetes_cluster_role_binding",
+          "file": "modules/kubeconfig/main.tf"
+        },
+        {
+          "resource_type": "local_file",
+          "file": "modules/kubeconfig/main.tf"
+        },
+        {
+          "resource_type": "azurerm_log_analytics_workspace",
+          "file": "monitor.tf"
+        },
+        {
+          "resource_type": "azurerm_log_analytics_solution",
+          "file": "monitor.tf"
+        },
+        {
+          "resource_type": "azurerm_monitor_diagnostic_setting",
+          "file": "monitor.tf"
+        },
+        {
+          "resource_type": "azurerm_network_security_rule",
+          "file": "vms.tf"
+        }
+      ]
+    },
+    "upcoming_risks": [
+      {
+        "severity": "HIGH",
+        "component": "AKS Kubernetes version",
+        "component_type": "kubernetes_version",
+        "current_version": "1.34",
+        "future_risk": "Kubernetes minor 1.34 approaches support lifecycle boundary.",
+        "effective_date": "2026-10-27",
+        "impact": "Cluster and node pool upgrades may be required to remain in full support.",
+        "source": "endoflife.date \u2014 Kubernetes release calendar",
+        "source_url": "https://learn.microsoft.com/en-us/azure/aks/supported-kubernetes-versions",
+        "file": "examples/sample-input-byo.tfvars",
+        "needs_verification": false
+      },
+      {
+        "severity": "HIGH",
+        "component": "AKS Kubernetes version",
+        "component_type": "kubernetes_version",
+        "current_version": "1.34",
+        "future_risk": "Kubernetes minor 1.34 approaches support lifecycle boundary.",
+        "effective_date": "2026-10-27",
+        "impact": "Cluster and node pool upgrades may be required to remain in full support.",
+        "source": "endoflife.date \u2014 Kubernetes release calendar",
+        "source_url": "https://learn.microsoft.com/en-us/azure/aks/supported-kubernetes-versions",
+        "file": "examples/sample-input-cilium.tfvars",
+        "needs_verification": false
+      },
+      {
+        "severity": "HIGH",
+        "component": "AKS Kubernetes version",
+        "component_type": "kubernetes_version",
+        "current_version": "1.34",
+        "future_risk": "Kubernetes minor 1.34 approaches support lifecycle boundary.",
+        "effective_date": "2026-10-27",
+        "impact": "Cluster and node pool upgrades may be required to remain in full support.",
+        "source": "endoflife.date \u2014 Kubernetes release calendar",
+        "source_url": "https://learn.microsoft.com/en-us/azure/aks/supported-kubernetes-versions",
+        "file": "examples/sample-input-connect.tfvars",
+        "needs_verification": false
+      },
+      {
+        "severity": "HIGH",
+        "component": "AKS Kubernetes version",
+        "component_type": "kubernetes_version",
+        "current_version": "1.34",
+        "future_risk": "Kubernetes minor 1.34 approaches support lifecycle boundary.",
+        "effective_date": "2026-10-27",
+        "impact": "Cluster and node pool upgrades may be required to remain in full support.",
+        "source": "endoflife.date \u2014 Kubernetes release calendar",
+        "source_url": "https://learn.microsoft.com/en-us/azure/aks/supported-kubernetes-versions",
+        "file": "examples/sample-input-ha.tfvars",
+        "needs_verification": false
+      },
+      {
+        "severity": "HIGH",
+        "component": "AKS Kubernetes version",
+        "component_type": "kubernetes_version",
+        "current_version": "1.34",
+        "future_risk": "Kubernetes minor 1.34 approaches support lifecycle boundary.",
+        "effective_date": "2026-10-27",
+        "impact": "Cluster and node pool upgrades may be required to remain in full support.",
+        "source": "endoflife.date \u2014 Kubernetes release calendar",
+        "source_url": "https://learn.microsoft.com/en-us/azure/aks/supported-kubernetes-versions",
+        "file": "examples/sample-input-minimal.tfvars",
+        "needs_verification": false
+      },
+      {
+        "severity": "HIGH",
+        "component": "AKS Kubernetes version",
+        "component_type": "kubernetes_version",
+        "current_version": "1.34",
+        "future_risk": "Kubernetes minor 1.34 approaches support lifecycle boundary.",
+        "effective_date": "2026-10-27",
+        "impact": "Cluster and node pool upgrades may be required to remain in full support.",
+        "source": "endoflife.date \u2014 Kubernetes release calendar",
+        "source_url": "https://learn.microsoft.com/en-us/azure/aks/supported-kubernetes-versions",
+        "file": "examples/sample-input-multizone-enhanced.tfvars",
+        "needs_verification": false
+      },
+      {
+        "severity": "HIGH",
+        "component": "AKS Kubernetes version",
+        "component_type": "kubernetes_version",
+        "current_version": "1.34",
+        "future_risk": "Kubernetes minor 1.34 approaches support lifecycle boundary.",
+        "effective_date": "2026-10-27",
+        "impact": "Cluster and node pool upgrades may be required to remain in full support.",
+        "source": "endoflife.date \u2014 Kubernetes release calendar",
+        "source_url": "https://learn.microsoft.com/en-us/azure/aks/supported-kubernetes-versions",
+        "file": "examples/sample-input-multizone.tfvars",
+        "needs_verification": false
+      },
+      {
+        "severity": "HIGH",
+        "component": "AKS Kubernetes version",
+        "component_type": "kubernetes_version",
+        "current_version": "1.34",
+        "future_risk": "Kubernetes minor 1.34 approaches support lifecycle boundary.",
+        "effective_date": "2026-10-27",
+        "impact": "Cluster and node pool upgrades may be required to remain in full support.",
+        "source": "endoflife.date \u2014 Kubernetes release calendar",
+        "source_url": "https://learn.microsoft.com/en-us/azure/aks/supported-kubernetes-versions",
+        "file": "examples/sample-input-optionalcas.tfvars",
+        "needs_verification": false
+      },
+      {
+        "severity": "HIGH",
+        "component": "AKS Kubernetes version",
+        "component_type": "kubernetes_version",
+        "current_version": "1.34",
+        "future_risk": "Kubernetes minor 1.34 approaches support lifecycle boundary.",
+        "effective_date": "2026-10-27",
+        "impact": "Cluster and node pool upgrades may be required to remain in full support.",
+        "source": "endoflife.date \u2014 Kubernetes release calendar",
+        "source_url": "https://learn.microsoft.com/en-us/azure/aks/supported-kubernetes-versions",
+        "file": "examples/sample-input-postgres.tfvars",
+        "needs_verification": false
+      },
+      {
+        "severity": "HIGH",
+        "component": "AKS Kubernetes version",
+        "component_type": "kubernetes_version",
+        "current_version": "1.34",
+        "future_risk": "Kubernetes minor 1.34 approaches support lifecycle boundary.",
+        "effective_date": "2026-10-27",
+        "impact": "Cluster and node pool upgrades may be required to remain in full support.",
+        "source": "endoflife.date \u2014 Kubernetes release calendar",
+        "source_url": "https://learn.microsoft.com/en-us/azure/aks/supported-kubernetes-versions",
+        "file": "examples/sample-input-ppg.tfvars",
+        "needs_verification": false
+      },
+      {
+        "severity": "HIGH",
+        "component": "AKS Kubernetes version",
+        "component_type": "kubernetes_version",
+        "current_version": "1.34",
+        "future_risk": "Kubernetes minor 1.34 approaches support lifecycle boundary.",
+        "effective_date": "2026-10-27",
+        "impact": "Cluster and node pool upgrades may be required to remain in full support.",
+        "source": "endoflife.date \u2014 Kubernetes release calendar",
+        "source_url": "https://learn.microsoft.com/en-us/azure/aks/supported-kubernetes-versions",
+        "file": "examples/sample-input-singlestore.tfvars",
+        "needs_verification": false
+      },
+      {
+        "severity": "HIGH",
+        "component": "AKS Kubernetes version",
+        "component_type": "kubernetes_version",
+        "current_version": "1.34",
+        "future_risk": "Kubernetes minor 1.34 approaches support lifecycle boundary.",
+        "effective_date": "2026-10-27",
+        "impact": "Cluster and node pool upgrades may be required to remain in full support.",
+        "source": "endoflife.date \u2014 Kubernetes release calendar",
+        "source_url": "https://learn.microsoft.com/en-us/azure/aks/supported-kubernetes-versions",
+        "file": "examples/sample-input.tfvars",
+        "needs_verification": false
+      },
+      {
+        "severity": "HIGH",
+        "component": "azurerm provider",
+        "component_type": "terraform_provider",
+        "current_version": "4.48.0",
+        "future_risk": "Provider drift detected relative to latest stable 4.73.0; future upgrades may include cumulative breaking changes.",
+        "effective_date": "Before next provider upgrade cycle",
+        "impact": "Multiple Terraform resources may require config adjustments during upgrade.",
+        "source": "azurerm changelog and upgrade guidance",
+        "source_url": "https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/4.0-upgrade-guide",
+        "file": "versions.tf",
+        "needs_verification": false
+      },
+      {
+        "severity": "HIGH",
+        "component": "azurerm provider upgrade window",
+        "component_type": "terraform_provider",
+        "current_version": "4.48.0",
+        "future_risk": "Upgrade window 4.48.0 -> 4.73.0 contains 2 breaking and 16 changed items.",
+        "effective_date": "Next provider upgrade",
+        "impact": "Terraform plans may introduce recreations, diffs, or failures until resource configuration is aligned.",
+        "source": "Manifest scanner changelog analysis",
+        "source_url": "https://github.com/hashicorp/terraform-provider-azurerm/blob/main/CHANGELOG.md",
+        "file": "deprecation-report.json",
+        "needs_verification": false
+      },
+      {
+        "severity": "MEDIUM",
+        "component": "actions/checkout",
+        "component_type": "github_action",
+        "current_version": "v2",
+        "future_risk": "Legacy action major version with Node runtime migration risk",
+        "effective_date": "Upcoming",
+        "impact": "CI pipeline reliability and compatibility risk.",
+        "source": "GitHub Actions Node runtime migration guidance",
+        "source_url": "https://github.blog/changelog/2023-09-22-github-actions-transitioning-from-node-16-to-node-20/",
+        "file": ".github/workflows/semvar.yml",
+        "recommended_replacement": "v6.0.2",
+        "needs_verification": false
+      },
+      {
+        "severity": "LOW",
+        "component": "actions/cache",
+        "component_type": "github_action",
+        "current_version": "v3",
+        "future_risk": "Older cache action major version, migrate to current major",
+        "effective_date": "Upcoming",
+        "impact": "CI pipeline reliability and compatibility risk.",
+        "source": "GitHub Actions Node runtime migration guidance",
+        "source_url": "https://github.blog/changelog/2023-09-22-github-actions-transitioning-from-node-16-to-node-20/",
+        "file": ".github/workflows/linter-analysis.yml",
+        "recommended_replacement": "v5.0.5",
+        "needs_verification": false
+      }
+    ],
+    "upgrade_impact_summaries": [
+      "Upgrading azurerm may impact: azurerm_kubernetes_cluster, azurerm_kubernetes_cluster_node_pool"
+    ]
   }
 }

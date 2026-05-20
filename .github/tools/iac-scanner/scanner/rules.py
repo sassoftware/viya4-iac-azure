@@ -600,7 +600,7 @@ def _build_rules() -> List[Rule]:
         description="Potential hardcoded password or API key detected.",
         severity=Severity.HIGH,
         pattern=re.compile(
-            r'(?:password|api_key|apikey|secret|token)\s*[=:]\s*["\'][^"\']{8,}["\']',
+            r'(?:password|api_key|apikey|secret|token)\s*[=:]\s*["\'](?!\s*(?:\$\{\{|\$\{|\$[A-Za-z_]|[A-Za-z_][A-Za-z0-9_]*\.[A-Za-z0-9_.-]+))[^\n"\']{8,}["\']',
             re.IGNORECASE
         ),
         file_patterns=["*.tf", "*.tfvars", "*.yaml", "*.yml", "*.sh", "*.env"],

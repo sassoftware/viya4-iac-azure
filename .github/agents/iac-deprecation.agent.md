@@ -26,7 +26,7 @@ This runs BOTH scanners and produces a unified HTML report.
 
 ```
 cd <path-to-viya4-iac-azure>
-py .github/tools/iac-scanner/run_full_scan.py
+python3 .github/tools/iac-scanner/run_full_scan.py
 ```
 
 **Output files (saved to repo root):**
@@ -41,15 +41,15 @@ py .github/tools/iac-scanner/run_full_scan.py
 
 ```
 cd <path-to-viya4-iac-azure>
-py .github/tools/iac-scanner/demo.py
+python3 .github/tools/iac-scanner/demo.py
 ```
 
 ### Manifest Scanner Only (azurerm CHANGELOG)
 
 ```
 cd <path-to-viya4-iac-azure>
-py .github/tools/manifest/generate_manifest.py --root .
-py .github/tools/manifest/check_deprecations.py --root .
+python3 .github/tools/manifest/generate_manifest.py --root .
+python3 .github/tools/manifest/check_deprecations.py --root .
 ```
 
 ---
