@@ -6,28 +6,43 @@ on:
   push:
     branches: ['**'] # '*' will cause the workflow to run on all commits to all branches.
 
+permissions:
+  id-token: write  # Required for OIDC authentication
+  contents: read
+
 jobs:
   go-tests:
     name: Default Plan Unit Tests
     runs-on: ubuntu-latest
     environment: terraformSecrets
+    
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+      
+      - name: Azure Login using OIDC
+        uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      
+      - name: Verify Azure Authentication
+        run: |
+          echo "✅ Azure OIDC login successful"
+          az account show
+      
       - name: Build Docker Image
         run: docker build -t viya4-iac-azure:terratest -f Dockerfile.terratest .
-      - name: Run Tests
+      
+      - name: Run Tests with OIDC Auth
         run: |
           docker run \
-            -e TF_VAR_subscription_id=$TF_VAR_subscription_id \
-            -e TF_VAR_tenant_id=$TF_VAR_tenant_id \
-            -e TF_VAR_client_id=$TF_VAR_client_id \
-            -e TF_VAR_client_secret=$TF_VAR_client_secret \
+            -e TF_VAR_subscription_id=${{ vars.AZURE_SUBSCRIPTION_ID }} \
+            -e TF_VAR_tenant_id=${{ vars.AZURE_TENANT_ID }} \
+            -e TF_VAR_client_id=${{ vars.AZURE_CLIENT_ID }} \
+            -e ARM_USE_OIDC=true \
+            -e ARM_USE_CLI=true \
             -v $(pwd):/viya4-iac-azure \
+            -v $HOME/.azure:/root/.azure:ro \
             viya4-iac-azure:terratest -v
-        env:
-          # TF ENVIRONMENT
-          TF_VAR_subscription_id: "${{ secrets.TF_VAR_SUBSCRIPTION_ID }}"
-          TF_VAR_tenant_id: "${{ secrets.TF_VAR_TENANT_ID }}"
-          TF_VAR_client_id: "${{ secrets.TF_VAR_CLIENT_ID }}"
-          TF_VAR_client_secret: "${{ secrets.TF_VAR_CLIENT_SECRET }}"
