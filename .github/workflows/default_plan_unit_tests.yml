@@ -14,8 +14,8 @@ jobs:
   go-tests:
     name: Default Plan Unit Tests
     runs-on: ubuntu-latest
+    # Only require approval for main branch; other branches run automatically
     environment: ${{ github.ref == 'refs/heads/main' && 'terraformSecrets' || '' }}
-    #environment: terraformSecrets
     
     steps:
       - name: Checkout Repository
