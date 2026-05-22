@@ -14,7 +14,8 @@ jobs:
   go-tests:
     name: Default Plan Unit Tests
     runs-on: ubuntu-latest
-    environment: terraformSecrets
+    environment: ${{ github.ref == 'refs/heads/main' && 'terraformSecrets' || '' }}
+    #environment: terraformSecrets
     
     steps:
       - name: Checkout Repository
