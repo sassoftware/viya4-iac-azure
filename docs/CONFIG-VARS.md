@@ -122,14 +122,15 @@ az vm image terms accept --urn Canonical:0001-com-ubuntu-pro-jammy-fips:pro-fips
 | vnet_address_space | Address space for created vnet | string | "192.168.0.0/16" | This variable is ignored when vnet_name is set (AKA bring your own vnet). |
 | subnets | Subnets to be created and their settings | map(object) | *check below* | This variable is ignored when subnet_names is set (AKA bring your own subnets). All defined subnets must exist within the vnet address space. |
 | cluster_egress_type | The outbound (egress) routing method to be used for this Kubernetes Cluster | string | "loadBalancer" | Possible values: <ul><li>`loadBalancer`<li>`userDefinedRouting`</ul> By default, AKS will create and use a [loadbalancer](https://docs.microsoft.com/en-us/azure/aks/load-balancer-standard) for outgoing connections.<p>Set to `userDefinedRouting` when using your own network [egress](https://docs.microsoft.com/en-us/azure/aks/egress-outboundtype).|
-| aks_network_plugin | Network plugin to use for networking. | string | "kubenet"| Possible values are `kubenet` and `azure`. For details see Azure's documentation on: [Configure kubenet](https://docs.microsoft.com/en-us/azure/aks/configure-kubenet), [Configure Azure CNI](https://learn.microsoft.com/en-us/azure/aks/configure-azure-cni).<br>**Note**: IPv6 support requires `azure` plugin. To support Azure CNI your Subnet must be large enough to accommodate the nodes, pods, and all Kubernetes and Azure resources that might be provisioned in your cluster.<br>To calculate the minimum subnet size including an additional node for upgrade operations use formula: `(number of nodes + 1) + ((number of nodes + 1) * maximum pods per node that you configure)` <br>Example for a 5 node cluster: `(5) + (5 * 110) = 555 (/22 or larger)`|
-| aks_network_policy | Sets up network policy to be used with Azure CNI. Network policy allows to control the traffic flow between pods. | string | null | Possible values are `calico` and `azure`. Network policy `azure` (Azure Network Policy Manager) is only supported for `aks_network_plugin = azure` and network policy `calico` is supported for both `aks_network_plugin` values `azure` and `kubenet`. For more details see [network policies in Azure Kubernetes Service](https://learn.microsoft.com/en-us/azure/aks/use-network-policies).|
-| aks_network_plugin_mode | Specifies the network plugin mode used for building the Kubernetes network. | string | null | Possible value is `overlay`. When `aks_network_plugin_mode` is set to `overlay` , the `aks_network_plugin` field can only be set to `azure`. For details see Azure's documentation on: [Configure Azure CNI Overlay networking](https://learn.microsoft.com/en-us/azure/aks/azure-cni-overlay). Recommended for IPv6 dual-stack deployments. |
+| aks_network_plugin | Network plugin to use for networking. | string | "azure"| Possible values are `azure` and `kubenet` (_deprecated_). For details see Azure's documentation on: [Configure kubenet](https://docs.microsoft.com/en-us/azure/aks/configure-kubenet), [Configure Azure CNI](https://learn.microsoft.com/en-us/azure/aks/configure-azure-cni).<br>**Note**: IPv6 support requires `azure` plugin. Azure Kubernetes kubenet is deprecated and will be retired. See [Microsoft's documentation](https://learn.microsoft.com/en-us/azure/aks/configure-kubenet) for details.<br><br>**Note on Upgrading**: If you are transitioning an existing cluster from `kubenet` to the new Azure CNI default, doing so directly via Terraform will permanently destroy your cluster. Please follow our [Network Plugin Upgrade Guide](./user/NetworkPluginUpgrade.md) to manually migrate your cluster via CLI and safely synchronize the Terraform state.<br><br>**Note**: To support Azure CNI (without an overlay network configuration) your Subnet must be large enough to accommodate the nodes, pods, and all Kubernetes and Azure resources that might be provisioned in your cluster.<br>To calculate the minimum subnet size including an additional node for upgrade operations use formula: `(number of nodes + 1) + ((number of nodes + 1) * maximum pods per node that you configure)` <br>Example for a 5 node cluster: `(5) + (5 * 110) = 555 (/22 or larger)`|
+| aks_network_policy | Sets up network policy to be used with Azure CNI. Network policy allows to control the traffic flow between pods. | string | `null` | Possible values are `cilium`, `calico`, and `azure` (deprecated). Network policy `azure` (Azure Network Policy Manager - _Deprecated_) and `cilium` (Cilium Network Policy) are only supported for `aks_network_plugin = azure`. Network policy `calico` is supported for both `aks_network_plugin` values `azure` and `kubenet`.<br><br>**Note**: Enabling `cilium` dataplane requires using `cilium` network policy.<br><br>**Note**: Azure Network Policy Manager (NPM) is deprecated. See [Microsoft's documentation](https://learn.microsoft.com/en-us/azure/aks/use-network-policies#azure-network-policy-manager) for details. For more details see [network policies in Azure Kubernetes Service](https://learn.microsoft.com/en-us/azure/aks/use-network-policies).|
+| aks_network_dataplane | Network dataplane used in the Kubernetes cluster. | string | "azure" | Possible values are `azure` and `cilium`. For more details see [Azure CNI Networking](https://learn.microsoft.com/en-us/azure/aks/configure-azure-cni)|
+| aks_network_plugin_mode | Specifies the network plugin mode used for building the Kubernetes network. | string | "overlay" | Possible values are `overlay` and `null`. Provide `null` if you wish to use Azure CNI without overlay. When `aks_network_plugin_mode` is set to `overlay` , the `aks_network_plugin` field can only be set to `azure`. For details see Azure's documentation on: [Configure Azure CNI Overlay networking](https://learn.microsoft.com/en-us/azure/aks/azure-cni-overlay). Recommended for IPv6 dual-stack deployments. |
 
 The default values for the `subnets` variable are as follows:
 
 ```yaml
-subnet = {
+subnets = {
   aks = {
     "prefixes": ["192.168.0.0/23"],
     "service_endpoints": ["Microsoft.Sql"],
@@ -204,7 +205,7 @@ Ubuntu 22.04 LTS is the operating system used on the Jump/NFS servers. Ubuntu cr
 | :--- | ---: | ---: | ---: | ---: |
 | partner_id | A GUID that is registered with Microsoft to facilitate partner resource usage attribution | string | "5d27f3ae-e49c-4dea-9aa3-b44e4750cd8c" | Defaults to SAS partner GUID. When you deploy this Terraform configuration, Microsoft can identify the installation of SAS software with the deployed Azure resources. Microsoft can then correlate the resources that are used to support the software. Microsoft collects this information to provide the best experiences with their products and to operate their business. The data is collected and governed by Microsoft's privacy policies, located at https://www.microsoft.com/trustcenter. |
 | create_static_kubeconfig | Allows the user to create a provider / service account-based kubeconfig file | bool | true | A value of `false` will default to using the cloud provider's mechanism for generating the kubeconfig file. A value of `true` will create a static kubeconfig that uses a `Service Account` and `Cluster Role Binding` to provide credentials. |
-| kubernetes_version | The AKS cluster Kubernetes version | string | "1.33" | Use of specific versions is still supported. If you need exact kubernetes version please use format `x.y.z`, where `x` is the major version, `y` is the minor version, and `z` is the patch version |
+| kubernetes_version | The AKS cluster Kubernetes version | string | "1.34" | Use of specific versions is still supported. If you need exact kubernetes version please use format `x.y.z`, where `x` is the major version, `y` is the minor version, and `z` is the patch version |
 | create_jump_vm | Create bastion host | bool | true | |
 | create_jump_public_ip | Add public IP address to the jump VM | bool | true | |
 | enable_jump_public_static_ip | Enables `Static` allocation method for the public IP address of Jump Server. Setting false will enable `Dynamic` allocation method. | bool | true | Only used with `create_jump_public_ip=true` |
@@ -353,6 +354,8 @@ When `storage_type=standard`, a NFS Server VM is created, only when these variab
 | nfs_raid_disk_type | Managed disk types | string | "Standard_LRS" | Supported values: Standard_LRS, Premium_LRS, StandardSSD_LRS or UltraSSD_LRS. When using `UltraSSD_LRS`, `nfs_vm_zone` and `nfs_raid_disk_zone` must be specified. See the [Azure documentation](https://docs.microsoft.com/en-us/azure/virtual-machines/disks-enable-ultra-ssd) for limitations on Availability Zones and VM types. |
 | nfs_raid_disk_size | Size in Gb for each disk of the RAID5 cluster on the NFS server VM | number | 256 | |
 | nfs_raid_disk_zone | The Availability Zone in which the Managed Disk should be located. Changing this property forces a new resource to be created. | string | null | |
+| vm_patch_mode | Specifies VM Guest Patching mode for Jump and NFS VMs | string | "ImageDefault" | Valid values: "ImageDefault" (manual), "AutomaticByPlatform" (automatic). See [AutomaticOSUpdates.md](./user/AutomaticOSUpdates.md) |
+| vm_patch_assessment_mode | Specifies VM Guest Patch Assessment mode for Jump and NFS VMs | string | "AutomaticByPlatform" | Valid values: "ImageDefault" (manual), "AutomaticByPlatform" (automatic). See [AutomaticOSUpdates.md](./user/AutomaticOSUpdates.md) |
 
 ### Azure NetApp Files (only when `storage_type=ha`)
 
@@ -374,10 +377,30 @@ Reference: [Reliability in Azure NetApp Files - Zone Failures](https://learn.mic
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
 | netapp_service_level | The target performance level of the file system. Valid values include Premium, Standard, or Ultra. | string | "Premium" | |
-| netapp_size_in_tb | Provisioned size of the pool in TB. Value must be between 4 and 500 | number | 4 | |
+| netapp_size_in_tb | Provisioned size of the pool in TB. Value must be between 1 and 2048. If less than 4, netapp_network_features must be set to `Standard` | number | 4 | |
 | netapp_protocols | The target volume protocol expressed as a list. Supported single value include CIFS, NFSv3, or NFSv4.1. If argument is not defined, it defaults to NFSv4.1. Changing this forces a new resource to be created and data will be lost. | list of strings | ["NFSv4.1"] | |
 | netapp_volume_path |A unique file path for the volume. Used when creating mount targets. Changing this forces a new resource to be created. | string | "export" | |
 | netapp_network_features |Indicates which network feature to use, accepted values are `Basic` or `Standard`, it defaults to `Basic` if not defined. | string | "Basic" | This is a feature in public preview. For more information about it and how to register, please refer to [Configure network features for an Azure NetApp Files volume](https://docs.microsoft.com/en-us/azure/azure-netapp-files/configure-network-features)|
+| netapp_availability_zone | Primary availability zone for Azure NetApp Files volume | string | "1" | Set to "1", "2", or "3" for zonal deployment. Required for multi-AZ configurations. |
+| netapp_enable_cross_zone_replication | Enable cross-zone replication for zone failure resilience | bool | false | When enabled, automatically creates Private DNS Zone for stable NFS hostname. Requires `netapp_network_features = "Standard"`. See [Multi-ZoneDeploymentGuide.md](user/Multi-ZoneDeploymentGuide.md#czr-failover-recovery) for recovery procedures. |
+| netapp_replication_zone | Target availability zone for cross-zone replication | string | "2" | Must differ from `netapp_availability_zone`. Only used when `netapp_enable_cross_zone_replication = true`. |
+| netapp_replication_frequency | Replication frequency for cross-zone replication | string | "10minutes" | Valid values: "10minutes", "hourly", "daily". Only used when `netapp_enable_cross_zone_replication = true`. |
+| netapp_dns_zone_name | Private DNS Zone name for ANF CZR hostname resolution | string | "sas-viya.internal" | Used to provide stable NFS mount point during failover. Only created when `netapp_enable_cross_zone_replication = true`. |
+| netapp_dns_record_name | DNS A record name for NFS mount point | string | "nfs" | The FQDN will be `<record_name>.<zone_name>`. Only created when `netapp_enable_cross_zone_replication = true`. |
+
+**Note on Cross-Zone Replication:** When `netapp_enable_cross_zone_replication = true`, the IaC automatically provisions:
+1. **Private DNS Zone** for stable hostname (e.g., `nfs.sas-viya.internal`) eliminating static IPs in storage classes
+2. **Identical export paths** on both primary and replica volumes for seamless failover
+3. **Automatic output configuration** - `rwx_filestore_endpoint` returns DNS hostname when CZR enabled
+
+**CRITICAL:** Both primary and replica volumes use the **same NFS export path** (e.g., `/export`). This ensures that when DNS switches to the replica IP, the StorageClass mount path remains valid. The replica volume does NOT use a `-replica` suffix in its path.
+
+For complete recovery procedures, see [Multi-ZoneDeploymentGuide.md](user/Multi-ZoneDeploymentGuide.md#czr-failover-recovery).
+
+**Validation Requirements:**
+- When `netapp_enable_cross_zone_replication = true`, `netapp_network_features` must be set to "Standard"
+- When `netapp_enable_cross_zone_replication = true`, `netapp_replication_zone` must differ from `netapp_availability_zone`
+- `netapp_replication_frequency` must be one of: "10minutes", "hourly", "daily"
 
 ## Azure Container Registry (ACR)
 

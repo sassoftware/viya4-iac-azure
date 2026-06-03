@@ -32,6 +32,23 @@ variable "use_msi" {
   default     = false
 }
 
+variable "resource_provider_registrations" {
+  description = "Set mode to determine the collection of resource providers to automatically register on the subscription"
+  type        = string
+  default     = "core"
+
+  validation {
+    condition     = contains(["core", "extended", "all", "none", "legacy"], var.resource_provider_registrations)
+    error_message = "ERROR: Valid types are \"core\", \"extended\", \"all\", \"none\" and \"legacy\"!"
+  }  
+}
+
+variable "resource_providers_to_register" {
+  description = "A custom list of RPs to explicitly register for the subscription, in addition to those specified by the resource_provider_registrations property"
+  type        = list(string)
+  default     = null
+}
+
 variable "msi_network_roles" {
     description = "Managed Identity permissions for VNet and Route Table"
     type = list(string)
@@ -178,7 +195,7 @@ variable "default_nodepool_vm_type" {
 variable "kubernetes_version" {
   description = "The AKS cluster K8s version"
   type        = string
-  default     = "1.33"
+  default     = "1.34"
 }
 
 variable "default_nodepool_max_nodes" {
@@ -231,9 +248,9 @@ variable "aks_azure_policy_enabled" {
 
 # AKS advanced network config
 variable "aks_network_plugin" {
-  description = "Network plugin to use for networking. Currently supported values are azure and kubenet. Changing this forces a new resource to be created."
+  description = "Network plugin to use for networking. Currently supported values are azure and kubenet (deprecated). Changing this forces a new resource to be created."
   type        = string
-  default     = "kubenet"
+  default     = "azure"
 
   validation {
     condition     = contains(["kubenet", "azure"], var.aks_network_plugin)
@@ -242,15 +259,21 @@ variable "aks_network_plugin" {
 }
 
 variable "aks_network_policy" {
-  description = "Sets up network policy to be used with Azure CNI. Network policy allows control of the traffic flow between pods. Currently supported values are calico and azure. Changing this forces a new resource to be created."
+  description = "Sets up network policy to be used with Azure CNI. Network policy allows control of the traffic flow between pods. Currently supported values are cilium, calico and azure (deprecated). Changing this forces a new resource to be created."
   type        = string
   default     = null
+}
+
+variable "aks_network_dataplane" {
+  description = "Network dataplane used in the Kubernetes cluster. Currently supported values are azure and cilium."
+  type        = string
+  default     = "azure"
 }
 
 variable "aks_network_plugin_mode" {
   description = "Specifies the network plugin mode used for building the Kubernetes network. Possible value is `overlay`. Changing this forces a new resource to be created."
   type        = string
-  default     = null
+  default     = "overlay"
 }
 
 variable "aks_dns_service_ip" {
@@ -265,7 +288,7 @@ variable "aks_dns_service_ip" {
 }
 
 variable "aks_pod_cidr" {
-  description = "The CIDR to use for pod IP addresses. This field can only be set when network_plugin is set to kubenet. Changing this forces a new resource to be created."
+  description = "The CIDR to use for pod IP addresses. This field can only be set when network_plugin is set to azure and network_plugin_mode is set to overlay or when network_plugin is set to kubenet (deprecated). Changing this forces a new resource to be created."
   type        = string
   default     = "10.244.0.0/16"
 
@@ -464,6 +487,28 @@ variable "vm_disk_encryption_set_id" {
   default     = null
 }
 
+variable "vm_patch_mode" {
+  description = "Specifies the mode of VM Guest Patching for Jump and NFS VMs. Possible values: ImageDefault (manual patching) or AutomaticByPlatform (automatic patching)."
+  type        = string
+  default     = "ImageDefault"
+  
+  validation {
+    condition     = contains(["AutomaticByPlatform", "ImageDefault"], var.vm_patch_mode)
+    error_message = "ERROR: Supported values for vm_patch_mode are: AutomaticByPlatform, ImageDefault."
+  }
+}
+
+variable "vm_patch_assessment_mode" {
+  description = "Specifies the mode of VM Guest Patch Assessment for Jump and NFS VMs. Possible values: ImageDefault or AutomaticByPlatform (recommended for visibility)."
+  type        = string
+  default     = "AutomaticByPlatform"
+  
+  validation {
+    condition     = contains(["AutomaticByPlatform", "ImageDefault"], var.vm_patch_assessment_mode)
+    error_message = "ERROR: Supported values for vm_patch_assessment_mode are: AutomaticByPlatform, ImageDefault."
+  }
+}
+
 variable "storage_type" {
   description = "Type of Storage. Valid Values: `standard`, `ha` and `none`. `standard` creates NFS server VM, `ha` creates Azure Netapp Files"
   type        = string
@@ -572,13 +617,13 @@ variable "netapp_service_level" {
 }
 
 variable "netapp_size_in_tb" {
-  description = "When storage_type=ha, Provisioned size of the pool in TB. Value must be between 4 and 500"
+  description = "When storage_type=ha, Provisioned size of the pool in TB. Value must be between 1 and 2048"
   type        = number
   default     = 4
 
   validation {
-    condition     = var.netapp_size_in_tb != null ? var.netapp_size_in_tb >= 4 && var.netapp_size_in_tb <= 500 : null
-    error_message = "ERROR: netapp_size_in_tb - value must be between 4 and 500."
+    condition     = var.netapp_size_in_tb != null ? (var.netapp_size_in_tb >= 4 || (var.netapp_size_in_tb >= 1 && var.netapp_network_features == "Standard") ) && var.netapp_size_in_tb <= 2048 : null
+    error_message = "ERROR: netapp_size_in_tb - value must be between 1 and 2048. If netapp_size_in_tb is less than 4, netapp_network_features must be Standard"
   }
 }
 
@@ -652,6 +697,19 @@ variable "netapp_replication_frequency" {
   }
 }
 
+# Private DNS Zone variables for ANF CZR resilience
+variable "netapp_dns_zone_name" {
+  description = "Private DNS Zone name for ANF CZR hostname resolution. Used to provide stable NFS mount point during failover."
+  type        = string
+  default     = "sas-viya.internal"
+}
+
+variable "netapp_dns_record_name" {
+  description = "DNS A record name within the Private DNS Zone for NFS mount point. The FQDN will be <record_name>.<zone_name>"
+  type        = string
+  default     = "nfs"
+}
+
 variable "node_pools_availability_zone" {
   description = "Specifies a Availability Zone in which the Kubernetes Cluster Node Pool should be located."
   type        = string
@@ -684,12 +742,13 @@ variable "node_pools" {
     community_priority     = optional(string, "Regular")
     community_eviction_policy = optional(string)
     community_spot_max_price = optional(string)
+    community_kubelet_disk_type = optional(string)
+    community_os_disk_type      = optional(string)  
     linux_os_config = optional(object({
       sysctl_config = optional(object({
         vm_max_map_count = optional(number)
       }))
     }))
-
   }))
 
   default = {

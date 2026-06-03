@@ -39,7 +39,7 @@ variable "service_level" {
 }
 
 variable "size_in_tb" {
-  description = "Provisioned size of the pool in TB. Value must be between 4 and 500"
+  description = "Provisioned size of the pool in TB. Value must be between 1 and 2048"
   type        = number
 }
 
@@ -118,4 +118,22 @@ variable "netapp_replication_frequency" {
     condition     = contains(["10minutes", "hourly", "daily"], var.netapp_replication_frequency)
     error_message = "Valid values are: 10minutes, hourly, daily."
   }
+}
+
+# Private DNS Zone variables for CZR resilience
+variable "vnet_id" {
+  description = "Virtual Network ID for Private DNS Zone link"
+  type        = string
+}
+
+variable "netapp_dns_zone_name" {
+  description = "Private DNS Zone name for ANF CZR hostname resolution. Example: 'sas-viya.internal'"
+  type        = string
+  default     = "sas-viya.internal"
+}
+
+variable "netapp_dns_record_name" {
+  description = "DNS A record name within the Private DNS Zone. The FQDN will be <record_name>.<zone_name>"
+  type        = string
+  default     = "nfs"
 }

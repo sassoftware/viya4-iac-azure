@@ -174,3 +174,25 @@ variable "disk_encryption_set_id" {
   type        = string
   default     = null
 }
+
+variable "patch_mode" {
+  description = "Specifies the mode of VM Guest Patching for the Virtual Machine. Possible values are AutomaticByPlatform or ImageDefault."
+  type        = string
+  default     = "ImageDefault"
+  
+  validation {
+    condition     = contains(["AutomaticByPlatform", "ImageDefault"], var.patch_mode)
+    error_message = "ERROR: Supported values for patch_mode are: AutomaticByPlatform, ImageDefault."
+  }
+}
+
+variable "patch_assessment_mode" {
+  description = "Specifies the mode of VM Guest Patch Assessment for the Virtual Machine. Possible values are AutomaticByPlatform or ImageDefault."
+  type        = string
+  default     = "ImageDefault"
+  
+  validation {
+    condition     = contains(["AutomaticByPlatform", "ImageDefault"], var.patch_assessment_mode)
+    error_message = "ERROR: Supported values for patch_assessment_mode are: AutomaticByPlatform, ImageDefault."
+  }
+}

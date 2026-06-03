@@ -35,8 +35,10 @@ This project helps you to automate the cluster-provisioning phase of SAS Viya pl
 **Note on Multi-Availability Zone Deployments:*** For multi-AZ deployments (2025.10+), SAS requires zone-redundant storage (ZRS) with automatic failover. The current storage options (NFS VM and Azure NetApp Files) have limitations:
 - Azure NetApp Files cross-zone replication requires manual intervention during zone failures
 - NFS Server VM with ZRS disks provides disk redundancy but remains single-zone
-- Consider external storage solutions that provide automatic cross-zone failover for production multi-AZ deployments
+- Provide standard cross-zone replication mechanisms via explicit commands per Azure policies
 - See [CONFIG-VARS.md](docs/CONFIG-VARS.md#storage) for detailed information
+
+**Note on Network Configuration Upgrades:** If you are migrating an existing cluster from the legacy `kubenet` network plugin to the optimized **Azure CNI Overlay with Cilium**, you must perform manual CLI migration steps *before* running Terraform to prevent a full cluster destruction. See the [Network Plugin Upgrade Guide](docs/user/NetworkPluginUpgrade.md) for detailed instructions.
 
 [<img src="./docs/images/viya4-iac-azure-diag.png" alt="Architecture Diagram" width="750"/>](./docs/images/viya4-iac-azure-diag.png?raw=true)
 
@@ -83,7 +85,7 @@ Access to an **Azure Subscription** and an [**Identity**](./docs/user/TerraformA
 
 #### Terraform Requirements:
 - [Terraform](https://www.terraform.io/downloads.html) - v1.10.5
-- [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl) - v1.33.6
+- [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl) - v1.34.6
 - [jq](https://stedolan.github.io/jq/) - v1.6
 - [Azure CLI](https://docs.microsoft.com/en-us/cli/azure) - (optional - useful as an alternative to the Azure Portal) - v2.70.0
 

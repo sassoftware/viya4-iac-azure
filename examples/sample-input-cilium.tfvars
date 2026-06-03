@@ -1,36 +1,25 @@
 # !NOTE! - These are only a subset of CONFIG-VARS.md provided as examples.
-# Customize this file to add any variables from 'CONFIG-VARS.md' whose default values
-# you want to change.
+# Customize this file to add any variables from 'CONFIG-VARS.md' whose default values you
+# want to change.
 
 # ****************  REQUIRED VARIABLES  ****************
 # These required variables' values MUST be provided by the User
-prefix         = "<prefix-value>"
-location       = "<azure-location-value>" # e.g., "eastus2"
+prefix   = "<prefix-value>" # this is a prefix that you assign for the resources to be created
+location = "<azure-location-value>" # e.g., "eastus2"
 # ****************  REQUIRED VARIABLES  ****************
 
-# Bring your own existing networking resources
-vnet_resource_group_name = "<existing-resource-group-name>" # RG for BYO resources
-vnet_name                = "<existing-vnet-name>"           # only needed if using pre-existing
-subnet_names             = {
-  "aks": "<existing-subnet-name-for-aks>", 
-  "misc": "<existing-subnet-name-for-misc>", 
-  "netapp": "<existing-subnet-name-for-netapp>" # only needed if using ha storage (aka netapp)
-}
-# also available as BYO
-resource_group_name      = "<existing-resource-group-name>" # RG for aks resources
-nsg_name                 = "<existing-nsg-name>"            # 
-aks_uai_name             = "<existing-user-defined-identity-name"
-
 # !NOTE! - Without specifying your CIDR block access rules, ingress traffic
-#          to your cluster will be blocked by default.
+#          to your cluster will be blocked by default. In a SCIM environment,
+#          the AzureActiveDirectory service tag must be granted access to port
+#          443/HTTPS for the ingress IP address. 
 
 # **************  RECOMMENDED  VARIABLES  ***************
 default_public_access_cidrs = [] # e.g., ["123.45.6.89/32"]
-ssh_public_key              = "~/.ssh/id_rsa.pub"
+# ssh_public_key              = "~/.ssh/id_rsa.pub"
 # **************  RECOMMENDED  VARIABLES  ***************
 
-# Tags for all taggable items in your cluster.
-tags = {} # e.g., { "key1" = "value1", "key2" = "value2" }
+# Tags can be specified matching your tagging strategy.
+tags = {} # for example: { "owner|email" = "<you>@<domain>.<com>", "key1" = "value1", "key2" = "value2" }
 
 # Postgres config - By having this entry a database server is created. If you do not
 #                   need an external database server remove the 'postgres_servers'
@@ -48,6 +37,12 @@ container_registry_admin_enabled    = false
 kubernetes_version         = "1.34"
 default_nodepool_min_nodes = 2
 default_nodepool_vm_type   = "Standard_E8s_v5"
+
+# AKS Network Configuration (Azure CNI Overlay with Cilium)
+aks_network_plugin      = "azure"
+aks_network_plugin_mode = "overlay"
+aks_network_dataplane   = "cilium"
+aks_network_policy      = "cilium"
 
 # AKS Node Pools config
 node_pools = {
@@ -98,16 +93,6 @@ node_pools = {
   }
 }
 
-# Jump Box
-create_jump_public_ip = true
-jump_vm_admin        = "jumpuser"
-jump_vm_machine_type = "Standard_B2s"
-
-# Storage for SAS Viya CAS/Compute
-storage_type = "standard"
-# required ONLY when storage_type is "standard" to create NFS Server VM
-create_nfs_public_ip = false
-nfs_vm_admin         = "nfsuser"
-nfs_vm_machine_type  = "Standard_D4s_v5"
-nfs_raid_disk_size   = 256
-nfs_raid_disk_type   = "Standard_LRS"
+# Jump Server and Storage out of scope for this network based sample.
+create_jump_vm = false
+storage_type = "none"
