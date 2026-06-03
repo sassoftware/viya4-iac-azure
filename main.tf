@@ -415,7 +415,7 @@ module "netapp" {
   resource_group_name = local.aks_rg.name
   location            = var.location
   subnet_id           = var.enable_ipv6 ? null : local.vnet.subnets["netapp"].id
-  vnet_id             = module.vnet.id
+  vnet_id             = var.enable_ipv6 ? null : local.vnet.id
   network_features    = var.netapp_network_features
   service_level       = var.netapp_service_level
   size_in_tb          = var.netapp_size_in_tb
