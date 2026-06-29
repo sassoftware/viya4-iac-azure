@@ -246,7 +246,7 @@ module "flex_postgresql" {
   backup_retention_days        = each.value.backup_retention_days
   geo_redundant_backup_enabled = each.value.geo_redundant_backup_enabled
   administrator_login          = each.value.administrator_login
-  administrator_password       = each.value.administrator_password
+  administrator_password       = try(each.value.administrator_password, null) != null ? each.value.administrator_password : random_password.postgres_administrator[each.key].result
   server_version               = each.value.server_version
   firewall_rule_prefix         = "${var.prefix}-${each.key}-postgres-firewall-"
   firewall_rules               = local.postgres_firewall_rules
@@ -261,6 +261,21 @@ module "flex_postgresql" {
   availability_zone         = lookup(each.value, "availability_zone", "1")
   high_availability_mode    = lookup(each.value, "high_availability_mode", null)
   standby_availability_zone = lookup(each.value, "standby_availability_zone", "2")
+}
+
+resource "random_password" "postgres_administrator" {
+  for_each = {
+    for key, value in local.postgres_servers : key => value
+    if try(value.administrator_password, null) == null
+  }
+
+  length           = 20
+  special          = true
+  min_lower        = 1
+  min_upper        = 1
+  min_numeric      = 1
+  min_special      = 1
+  override_special = "!@#$%^&*()-_=+[]{}<>:?"
 }
 
 module "netapp" {

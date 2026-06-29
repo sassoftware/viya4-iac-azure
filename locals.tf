@@ -32,7 +32,7 @@ locals {
       "server_name" : module.flex_postgresql[k].server_name,
       "fqdn" : module.flex_postgresql[k].server_fqdn,
       "admin" : module.flex_postgresql[k].administrator_login,
-      "password" : module.flex_postgresql[k].administrator_password,
+      "password" : try(local.postgres_servers[k].administrator_password, null) != null ? local.postgres_servers[k].administrator_password : random_password.postgres_administrator[k].result,
       "server_port" : "5432",
       "ssl_enforcement_enabled" : local.postgres_servers[k].ssl_enforcement_enabled,
       "internal" : false

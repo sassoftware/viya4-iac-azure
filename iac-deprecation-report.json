@@ -1,24 +1,22 @@
 {
-  "generated_at": "2026-05-20T06:05:00.348653",
-  "repository": "/r/narndhome01.unx.sas.com/vol/vol001/u01/nirpat/viya4-iac-azure",
+  "generated_at": "2026-06-29T10:43:53.673670",
+  "repository": "C:\\Users\\lodave\\PSCLOUD Work\\viya4-iac-azure",
   "iac_scanner": {
     "files_scanned": 66,
-    "total_findings": 10,
+    "total_findings": 8,
     "by_severity": {
       "critical": 1,
-      "high": 5,
+      "high": 4,
       "medium": 3,
-      "low": 1,
+      "low": 0,
       "info": 0
     },
     "by_category": {
-      "terraform": 7,
-      "general": 1,
-      "github-actions": 2
+      "terraform": 8
     },
-    "scan_duration_seconds": 0.094,
-    "started_at": "2026-05-20T06:04:59.208690",
-    "completed_at": "2026-05-20T06:04:59.302786",
+    "scan_duration_seconds": 0.23,
+    "started_at": "2026-06-29T10:43:49.741194",
+    "completed_at": "2026-06-29T10:43:49.971075",
     "scanner_version": "1.0.0"
   },
   "iac_scanner_findings": [
@@ -29,26 +27,6 @@
       "category": "terraform",
       "title": "Deprecated azurerm provider version 1.x",
       "description": "azurerm provider version 1.x is end-of-life and no longer maintained.",
-      "suggested_fix": "Update provider version constraint to ~> 4.0 and follow migration guide.",
-      "documentation_url": "https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/4.0-upgrade-guide"
-    },
-    {
-      "file": "variables.tf",
-      "line": 347,
-      "severity": "HIGH",
-      "category": "general",
-      "title": "Hardcoded credentials pattern",
-      "description": "Potential hardcoded password or API key detected.",
-      "suggested_fix": "Use environment variables, secret management, or Terraform variables for sensitive values.",
-      "documentation_url": null
-    },
-    {
-      "file": "versions.tf",
-      "line": 19,
-      "severity": "HIGH",
-      "category": "terraform",
-      "title": "Deprecated azurerm provider version 2.x",
-      "description": "azurerm provider version 2.x is deprecated and will not receive updates.",
       "suggested_fix": "Update provider version constraint to ~> 4.0 and follow migration guide.",
       "documentation_url": "https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/4.0-upgrade-guide"
     },
@@ -64,7 +42,7 @@
     },
     {
       "file": "versions.tf",
-      "line": 35,
+      "line": 27,
       "severity": "HIGH",
       "category": "terraform",
       "title": "Deprecated azurerm provider version 2.x",
@@ -83,14 +61,14 @@
       "documentation_url": "https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/4.0-upgrade-guide"
     },
     {
-      "file": ".github/workflows/semvar.yml",
-      "line": 14,
-      "severity": "MEDIUM",
-      "category": "github-actions",
-      "title": "Deprecated GitHub Action: actions/checkout@v2",
-      "description": "The action actions/checkout@v2 uses a deprecated Node.js runtime or is outdated.",
-      "suggested_fix": "Update from actions/checkout@v2 to actions/checkout@v4.",
-      "documentation_url": "https://github.blog/changelog/2023-09-22-github-actions-transitioning-from-node-16-to-node-20/"
+      "file": "versions.tf",
+      "line": 43,
+      "severity": "HIGH",
+      "category": "terraform",
+      "title": "Deprecated azurerm provider version 2.x",
+      "description": "azurerm provider version 2.x is deprecated and will not receive updates.",
+      "suggested_fix": "Update provider version constraint to ~> 4.0 and follow migration guide.",
+      "documentation_url": "https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/4.0-upgrade-guide"
     },
     {
       "file": "versions.tf",
@@ -104,7 +82,7 @@
     },
     {
       "file": "versions.tf",
-      "line": 27,
+      "line": 19,
       "severity": "MEDIUM",
       "category": "terraform",
       "title": "Deprecated azurerm provider version 3.x",
@@ -113,32 +91,32 @@
       "documentation_url": "https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/4.0-upgrade-guide"
     },
     {
-      "file": ".github/workflows/linter-analysis.yml",
-      "line": 45,
-      "severity": "LOW",
-      "category": "github-actions",
-      "title": "Deprecated GitHub Action: actions/cache@v3",
-      "description": "The action actions/cache@v3 uses a deprecated Node.js runtime or is outdated.",
-      "suggested_fix": "Update from actions/cache@v3 to actions/cache@v4.",
-      "documentation_url": "https://github.blog/changelog/2023-09-22-github-actions-transitioning-from-node-16-to-node-20/"
+      "file": "versions.tf",
+      "line": 31,
+      "severity": "MEDIUM",
+      "category": "terraform",
+      "title": "Deprecated azurerm provider version 3.x",
+      "description": "azurerm provider version 3.x is deprecated. Migration to 4.x is recommended.",
+      "suggested_fix": "Plan migration to azurerm 4.x. Review breaking changes in upgrade guide.",
+      "documentation_url": "https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/4.0-upgrade-guide"
     }
   ],
   "manifest_scanner": {
     "metadata": {
-      "generated_at": "2026-05-20T10:04:59Z",
+      "generated_at": "2026-06-29T05:13:52Z",
       "tool": "iac-deprecation-checker",
       "repo": "viya4-iac-azure"
     },
     "summary": {
       "status": "REVIEW_REQUIRED",
       "current_version": "4.48.0",
-      "latest_version": "4.73.0",
-      "total_resources": 37,
-      "affected_count": 18,
-      "breaking_count": 2,
-      "deprecated_count": 0,
-      "changed_count": 16,
-      "changelog_range": "4.48.0 to 4.73.0"
+      "latest_version": "4.79.0",
+      "total_resources": 38,
+      "affected_count": 19,
+      "breaking_count": 3,
+      "deprecated_count": 1,
+      "changed_count": 15,
+      "changelog_range": "4.48.0 to 4.79.0"
     },
     "affected_resources": [
       {
@@ -149,6 +127,8 @@
         "severity": "BREAKING",
         "lifecycle_note": "BREAKING: property `container_log_max_lines` renamed to `container_log_max_files` -- update your .tf files before upgrading",
         "changelog_lines": [
+          "* `azurerm_kubernetes_cluster` - add support `KataVmIsolation` for `workload_runtime` ([#32579](https://github.com/hashicorp/terraform-provider-azurerm/issues/32579))",
+          "* `azurerm_kubernetes_cluster_node_pool` - add support `KataVmIsolation` for `workload_runtime` ([#32579](https://github.com/hashicorp/terraform-provider-azurerm/issues/32579))",
           "* `azurerm_kubernetes_cluster` - the `container_log_max_lines` property has been renamed to `container_log_max_files` ([#31721](https://github.com/hashicorp/terraform-provider-azurerm/issues/31721))",
           "* `azurerm_kubernetes_cluster_node_pool` - the `container_log_max_lines` property has been renamed to `container_log_max_files` ([#31721](https://github.com/hashicorp/terraform-provider-azurerm/issues/31721))",
           "* Data Source: `azurerm_kubernetes_cluster_node_pool` - export the `node_image_version` property ([#32108](https://github.com/hashicorp/terraform-provider-azurerm/issues/32108))",
@@ -181,6 +161,7 @@
         "severity": "BREAKING",
         "lifecycle_note": "BREAKING: property `container_log_max_lines` renamed to `container_log_max_files` -- update your .tf files before upgrading",
         "changelog_lines": [
+          "* `azurerm_kubernetes_cluster_node_pool` - add support `KataVmIsolation` for `workload_runtime` ([#32579](https://github.com/hashicorp/terraform-provider-azurerm/issues/32579))",
           "* `azurerm_kubernetes_cluster_node_pool` - the `container_log_max_lines` property has been renamed to `container_log_max_files` ([#31721](https://github.com/hashicorp/terraform-provider-azurerm/issues/31721))",
           "* Data Source: `azurerm_kubernetes_cluster_node_pool` - export the `node_image_version` property ([#32108](https://github.com/hashicorp/terraform-provider-azurerm/issues/32108))",
           "* `azurerm_kubernetes_cluster_node_pool` - export the `node_image_version` property ([#32108](https://github.com/hashicorp/terraform-provider-azurerm/issues/32108))",
@@ -188,6 +169,37 @@
           "* `azurerm_kubernetes_cluster_node_pool` - add support for the `Ubuntu2404` OS SKU ([#32070](https://github.com/hashicorp/terraform-provider-azurerm/issues/32070))",
           "* `azurerm_kubernetes_cluster_node_pool` - `max_surge` and `max_unavailable` are no longer required  for spot node pools  ([#31129](https://github.com/hashicorp/terraform-provider-azurerm/issues/31129))",
           "* `azurerm_kubernetes_cluster_node_pool` - support for the `undrainable_node_behavior` and `max_unavailable` properties ([#30563](https://github.com/hashicorp/terraform-provider-azurerm/issues/30563))"
+        ]
+      },
+      {
+        "resource_type": "azurerm_netapp_account",
+        "files": [
+          "modules/azurerm_netapp/main.tf"
+        ],
+        "severity": "BREAKING",
+        "lifecycle_note": null,
+        "changelog_lines": [
+          "* `azurerm_netapp_account` - the update function now uses the `PUT` operation to fix a removal issue with the `active_directory` property ([#32494](https://github.com/hashicorp/terraform-provider-azurerm/issues/32494))",
+          "* `azurerm_netapp_account` - fix drift detection for the `active_directory` and `identity` properties ([#32494](https://github.com/hashicorp/terraform-provider-azurerm/issues/32494))"
+        ]
+      },
+      {
+        "resource_type": "azurerm_virtual_network",
+        "files": [
+          "modules/azurerm_vnet/main.tf"
+        ],
+        "severity": "DEPRECATED",
+        "lifecycle_note": null,
+        "changelog_lines": [
+          "* `azurerm_virtual_network_gateway` - add support for `maximum_scale_unit` and `minimum_scale_unit` ([#32647](https://github.com/hashicorp/terraform-provider-azurerm/issues/32647))",
+          "* `azurerm_virtual_network` - fix an issue that incorrectly caused a validation error when increasing `ip_address_pool.number_of_ip_addresses` ([#32500](https://github.com/hashicorp/terraform-provider-azurerm/issues/32500))",
+          "* Data Source: `azurerm_virtual_network_gateway` - fixed issue returning correct value for deprecated `enable_bgp` property ([#32422](https://github.com/hashicorp/terraform-provider-azurerm/issues/32422))",
+          "* `azurerm_virtual_network_gateway` set `radius_server_secret` to sensitive  ([#32419](https://github.com/hashicorp/terraform-provider-azurerm/issues/32419))",
+          "* `azurerm_virtual_network` - add support for the `Microsoft.MessagingConnectors/connectors` value in the `subnet.delegation.service_delegation.name` property ([#32305](https://github.com/hashicorp/terraform-provider-azurerm/issues/32305))",
+          "* `azurerm_virtual_network` - add support for the `PureStorage.Block/storagePools` value in the `subnet.delegation.service_delegation.name` property ([#31878](https://github.com/hashicorp/terraform-provider-azurerm/issues/31878))",
+          "* `azurerm_virtual_network_gateway` - add support for the `ErGwScale` SKU ([#31082](https://github.com/hashicorp/terraform-provider-azurerm/issues/31082))",
+          "* `azurerm_virtual_network` - remove RO values from update to avoid issues with API payload size limitation ([#30945](https://github.com/hashicorp/terraform-provider-azurerm/issues/30945))",
+          "* `azurerm_virtual_network_gateway` - fix validation for `policy_group.name` and `vpn_client_configuration.virtual_network_gateway_client_connection.policy_group_names` ([#30454](https://github.com/hashicorp/terraform-provider-azurerm/issues/30454))"
         ]
       },
       {
@@ -248,6 +260,14 @@
         "severity": "CHANGED",
         "lifecycle_note": null,
         "changelog_lines": [
+          "* **New Action**: `azurerm_netapp_volume_bucket_credentials` ([#32319](https://github.com/hashicorp/terraform-provider-azurerm/issues/32319))",
+          "* **New Data Source**: `azurerm_netapp_volume_bucket` ([#32319](https://github.com/hashicorp/terraform-provider-azurerm/issues/32319))",
+          "* **New Data Source**: `azurerm_netapp_volume_bucket_with_server`([#32319](https://github.com/hashicorp/terraform-provider-azurerm/issues/32319))",
+          "* **New List Resource**: `azurerm_netapp_volume_bucket` ([#32319](https://github.com/hashicorp/terraform-provider-azurerm/issues/32319))",
+          "* **New List Resource**: `azurerm_netapp_volume_bucket_with_server`([#32319](https://github.com/hashicorp/terraform-provider-azurerm/issues/32319))",
+          "* **New Resource**: `azurerm_netapp_volume_bucket` ([#32319](https://github.com/hashicorp/terraform-provider-azurerm/issues/32319))",
+          "* **New Resource**: `azurerm_netapp_volume_bucket_with_server`([#32319](https://github.com/hashicorp/terraform-provider-azurerm/issues/32319))",
+          "* `azurerm_netapp_volume_group_oracle` - fix validation for the `application_identifier` property ([#32499](https://github.com/hashicorp/terraform-provider-azurerm/issues/32499))",
           "* `azurerm_netapp_volume` - add support for `data_protection_advanced_ransomware` ([#32099](https://github.com/hashicorp/terraform-provider-azurerm/issues/32099))",
           "* `azurerm_netapp_volume_group_sap_hana_resource` - add support for `zone`, `encryption_key_source`, `key_vault_private_endpoint_id`, and `network_features` ([#31603](https://github.com/hashicorp/terraform-provider-azurerm/issues/31603))",
           "* `azurerm_netapp_volume_group_oracle` - `service_level` now supports `Flexible` ([#31508](https://github.com/hashicorp/terraform-provider-azurerm/issues/31508))",
@@ -299,6 +319,7 @@
         "severity": "CHANGED",
         "lifecycle_note": null,
         "changelog_lines": [
+          "* `azurerm_postgresql_flexible_server` - add Ddsv6 skus to validation  ([#32657](https://github.com/hashicorp/terraform-provider-azurerm/issues/32657))",
           "* `azurerm_postgresql_flexible_server` - add support for confidential compute server type SKU ([#32209](https://github.com/hashicorp/terraform-provider-azurerm/issues/32209))",
           "* `azurerm_postgresql_flexible_server` - add support for `cluster` ([#31315](https://github.com/hashicorp/terraform-provider-azurerm/issues/31315))",
           "* `azurerm_postgresql_flexible_server` - update validation for `customer_managed_key.key_vault_key_id` and `customer_managed_key.geo_backup_key_vault_key_id` to allow managed HSM keys as input ([#31148](https://github.com/hashicorp/terraform-provider-azurerm/issues/31148))",
@@ -368,6 +389,7 @@
         "severity": "CHANGED",
         "lifecycle_note": null,
         "changelog_lines": [
+          "* `azurerm_subnet` - fix an issue that incorrectly caused a validation error when increasing `ip_address_pool.number_of_ip_addresses` ([#32500](https://github.com/hashicorp/terraform-provider-azurerm/issues/32500))",
           "* **New List Resource**: `azurerm_subnet` ([#32236](https://github.com/hashicorp/terraform-provider-azurerm/issues/32236))",
           "* `azurerm_subnet` - add support for the `Microsoft.MessagingConnectors/connectors` value in the `delegation.service_delegation.name` property ([#32305](https://github.com/hashicorp/terraform-provider-azurerm/issues/32305))",
           "* `azurerm_subnet` - add support for the `PureStorage.Block/storagePools` value in the `delegation.service_delegation.name` property ([#31878](https://github.com/hashicorp/terraform-provider-azurerm/issues/31878))",
@@ -384,32 +406,17 @@
         "changelog_lines": [
           "* `azurerm_user_assigned_identity` - add support for the `isolation_scope` property ([#31216](https://github.com/hashicorp/terraform-provider-azurerm/issues/31216))"
         ]
-      },
-      {
-        "resource_type": "azurerm_virtual_network",
-        "files": [
-          "modules/azurerm_vnet/main.tf"
-        ],
-        "severity": "CHANGED",
-        "lifecycle_note": null,
-        "changelog_lines": [
-          "* `azurerm_virtual_network` - add support for the `Microsoft.MessagingConnectors/connectors` value in the `subnet.delegation.service_delegation.name` property ([#32305](https://github.com/hashicorp/terraform-provider-azurerm/issues/32305))",
-          "* `azurerm_virtual_network` - add support for the `PureStorage.Block/storagePools` value in the `subnet.delegation.service_delegation.name` property ([#31878](https://github.com/hashicorp/terraform-provider-azurerm/issues/31878))",
-          "* `azurerm_virtual_network_gateway` - add support for the `ErGwScale` SKU ([#31082](https://github.com/hashicorp/terraform-provider-azurerm/issues/31082))",
-          "* `azurerm_virtual_network` - remove RO values from update to avoid issues with API payload size limitation ([#30945](https://github.com/hashicorp/terraform-provider-azurerm/issues/30945))",
-          "* `azurerm_virtual_network_gateway` - fix validation for `policy_group.name` and `vpn_client_configuration.virtual_network_gateway_client_connection.policy_group_names` ([#30454](https://github.com/hashicorp/terraform-provider-azurerm/issues/30454))"
-        ]
       }
     ],
     "references": {
-      "terraform_registry": "https://registry.terraform.io/providers/hashicorp/azurerm/4.73.0/docs",
+      "terraform_registry": "https://registry.terraform.io/providers/hashicorp/azurerm/4.79.0/docs",
       "changelog": "https://github.com/hashicorp/terraform-provider-azurerm/blob/main/CHANGELOG.md"
     }
   },
   "future_deprecation_intelligence": {
     "metadata": {
-      "generated_at": "2026-05-20T10:05:00.346635",
-      "cache_used": false,
+      "generated_at": "2026-06-29T05:13:53.662233",
+      "cache_used": true,
       "sources": [
         "https://learn.microsoft.com/en-us/azure/aks/supported-kubernetes-versions",
         "https://kubernetes.io/docs/reference/using-api/deprecation-guide/",
@@ -426,6 +433,11 @@
         {
           "name": "azurerm",
           "version": "4.48.0",
+          "file": "versions.tf"
+        },
+        {
+          "name": "random",
+          "version": "~>3.7",
           "file": "versions.tf"
         },
         {
@@ -558,7 +570,7 @@
         },
         {
           "action": "actions/cache",
-          "version": "v3",
+          "version": "v4",
           "file": ".github/workflows/linter-analysis.yml"
         },
         {
@@ -573,7 +585,7 @@
         },
         {
           "action": "actions/checkout",
-          "version": "v2",
+          "version": "v4",
           "file": ".github/workflows/semvar.yml"
         },
         {
@@ -636,6 +648,10 @@
         },
         {
           "resource_type": "azurerm_network_security_rule",
+          "file": "main.tf"
+        },
+        {
+          "resource_type": "random_password",
           "file": "main.tf"
         },
         {
@@ -926,7 +942,7 @@
         "component": "azurerm provider",
         "component_type": "terraform_provider",
         "current_version": "4.48.0",
-        "future_risk": "Provider drift detected relative to latest stable 4.73.0; future upgrades may include cumulative breaking changes.",
+        "future_risk": "Provider drift detected relative to latest stable 4.79.0; future upgrades may include cumulative breaking changes.",
         "effective_date": "Before next provider upgrade cycle",
         "impact": "Multiple Terraform resources may require config adjustments during upgrade.",
         "source": "azurerm changelog and upgrade guidance",
@@ -939,45 +955,305 @@
         "component": "azurerm provider upgrade window",
         "component_type": "terraform_provider",
         "current_version": "4.48.0",
-        "future_risk": "Upgrade window 4.48.0 -> 4.73.0 contains 2 breaking and 16 changed items.",
+        "future_risk": "Upgrade window 4.48.0 -> 4.79.0 contains 3 breaking and 15 changed items.",
         "effective_date": "Next provider upgrade",
         "impact": "Terraform plans may introduce recreations, diffs, or failures until resource configuration is aligned.",
         "source": "Manifest scanner changelog analysis",
         "source_url": "https://github.com/hashicorp/terraform-provider-azurerm/blob/main/CHANGELOG.md",
         "file": "deprecation-report.json",
         "needs_verification": false
-      },
-      {
-        "severity": "MEDIUM",
-        "component": "actions/checkout",
-        "component_type": "github_action",
-        "current_version": "v2",
-        "future_risk": "Legacy action major version with Node runtime migration risk",
-        "effective_date": "Upcoming",
-        "impact": "CI pipeline reliability and compatibility risk.",
-        "source": "GitHub Actions Node runtime migration guidance",
-        "source_url": "https://github.blog/changelog/2023-09-22-github-actions-transitioning-from-node-16-to-node-20/",
-        "file": ".github/workflows/semvar.yml",
-        "recommended_replacement": "v6.0.2",
-        "needs_verification": false
-      },
-      {
-        "severity": "LOW",
-        "component": "actions/cache",
-        "component_type": "github_action",
-        "current_version": "v3",
-        "future_risk": "Older cache action major version, migrate to current major",
-        "effective_date": "Upcoming",
-        "impact": "CI pipeline reliability and compatibility risk.",
-        "source": "GitHub Actions Node runtime migration guidance",
-        "source_url": "https://github.blog/changelog/2023-09-22-github-actions-transitioning-from-node-16-to-node-20/",
-        "file": ".github/workflows/linter-analysis.yml",
-        "recommended_replacement": "v5.0.5",
-        "needs_verification": false
       }
     ],
     "upgrade_impact_summaries": [
-      "Upgrading azurerm may impact: azurerm_kubernetes_cluster, azurerm_kubernetes_cluster_node_pool"
+      "Upgrading azurerm may impact: azurerm_kubernetes_cluster, azurerm_kubernetes_cluster_node_pool, azurerm_netapp_account, azurerm_virtual_network"
+    ]
+  },
+  "aks_ubuntu_support": {
+    "sources": [
+      {
+        "title": "Node Images in Azure Kubernetes Service (AKS)",
+        "url": "https://learn.microsoft.com/en-us/azure/aks/node-images",
+        "last_updated": "2025-07-03"
+      },
+      {
+        "title": "Upgrade Operating System (OS) Version in Azure Kubernetes Service (AKS) Clusters",
+        "url": "https://learn.microsoft.com/en-us/azure/aks/upgrade-os-version",
+        "last_updated": "2026-05-29"
+      }
+    ],
+    "os_sku_support": [
+      {
+        "os_sku": "Ubuntu",
+        "supported_kubernetes": "All supported AKS Kubernetes versions",
+        "default_behavior": "Ubuntu 22.04 is the default for Kubernetes 1.25 to 1.34. Ubuntu 24.04 is the default for Kubernetes 1.35+."
+      },
+      {
+        "os_sku": "Ubuntu2204",
+        "supported_kubernetes": "1.25 to 1.36",
+        "default_behavior": "Versioned OS SKU for staying on or rolling back to Ubuntu 22.04."
+      },
+      {
+        "os_sku": "Ubuntu2404",
+        "supported_kubernetes": "1.32 to 1.38",
+        "default_behavior": "Versioned OS SKU for adopting Ubuntu 24.04 before Kubernetes 1.35 or for explicit pinning."
+      }
+    ],
+    "retirements": [
+      {
+        "version": "Ubuntu 20.04",
+        "support_ends": "2027-03-17",
+        "image_removal": "2027-03-17",
+        "impact": "No AKS support or security updates. Existing node images are deleted and node pools can no longer scale."
+      },
+      {
+        "version": "Ubuntu 22.04",
+        "support_ends": "2027-06-30",
+        "image_removal": "2028-04-30",
+        "impact": "After support ends, AKS stops producing new node images and security patches. After image removal, scaling and remediation operations fail."
+      }
+    ],
+    "node_image_support": [
+      {
+        "variant": "Ubuntu with containerd and Gen 1",
+        "support": "Supported for Ubuntu node pools on VM sizes that only support Generation 1.",
+        "limitations": "Used only when the VM size does not support Gen 2."
+      },
+      {
+        "variant": "Ubuntu with containerd and Gen 2",
+        "support": "Default Ubuntu node image for VM sizes that support Generation 2.",
+        "limitations": "Selected by default when a VM supports both Gen 1 and Gen 2."
+      },
+      {
+        "variant": "Ubuntu with containerd and FIPS",
+        "support": "Supported for FIPS-enabled Ubuntu node pools on Gen 1 and Gen 2 where supported by AKS.",
+        "limitations": "Not supported for Ubuntu 24.04+. Cannot be combined with Arm64 or CVM."
+      },
+      {
+        "variant": "Ubuntu with containerd and Arm64",
+        "support": "Supported for Arm64 Ubuntu node pools.",
+        "limitations": "Gen 2 only. Cannot be combined with FIPS, CVM, or Trusted Launch."
+      },
+      {
+        "variant": "Ubuntu with containerd and CVM",
+        "support": "Supported for Confidential VM Ubuntu node pools on Ubuntu 20.04 and Ubuntu 24.04.",
+        "limitations": "Not supported for Ubuntu 22.04. Gen 2 only. Cannot be combined with FIPS, Arm64, or Trusted Launch."
+      },
+      {
+        "variant": "Ubuntu with containerd and Trusted Launch",
+        "support": "Supported for Trusted Launch Ubuntu node pools.",
+        "limitations": "Gen 2 only. Cannot be combined with Arm64 or CVM."
+      }
+    ],
+    "migration_notes": [
+      "For OS SKU Ubuntu, AKS automatically moves the default Ubuntu version to 24.04 when the cluster upgrades to Kubernetes 1.35 or later.",
+      "Ubuntu 24.04 node images use containerd 2.0 by default, so workloads that depend on runtime behavior should be validated before migration.",
+      "Ubuntu 24.04 does not support FIPS in AKS at this time."
+    ]
+  },
+  "aks_platform_support": {
+    "sources": [
+      {
+        "title": "Node Images in Azure Kubernetes Service (AKS)",
+        "url": "https://learn.microsoft.com/en-us/azure/aks/node-images",
+        "last_updated": "2025-07-03"
+      },
+      {
+        "title": "Upgrade Operating System (OS) Version in Azure Kubernetes Service (AKS) Clusters",
+        "url": "https://learn.microsoft.com/en-us/azure/aks/upgrade-os-version",
+        "last_updated": "2026-05-29"
+      }
+    ],
+    "release_cadence": [
+      "Linux node images are released weekly and Windows node images are released monthly.",
+      "New node images can take up to two weeks to roll out across all Azure regions.",
+      "Azure recommends automatic node image upgrades and planned maintenance to keep nodes current."
+    ],
+    "azure_linux_os_sku_support": [
+      {
+        "os_sku": "AzureLinux",
+        "supported_kubernetes": "All supported AKS Kubernetes versions",
+        "default_behavior": "Azure Linux 2.0 is default for Kubernetes 1.27 to 1.31. Azure Linux 3.0 is default for Kubernetes 1.32+."
+      },
+      {
+        "os_sku": "AzureLinux3",
+        "supported_kubernetes": "1.28 to 1.36",
+        "default_behavior": "Versioned OS SKU for explicit migration to Azure Linux 3.0 without a Kubernetes upgrade."
+      },
+      {
+        "os_sku": "AzureLinuxOSGuard",
+        "supported_kubernetes": "1.32 and above",
+        "default_behavior": "OS Guard images are upgraded through node image upgrades."
+      },
+      {
+        "os_sku": "Flatcar",
+        "supported_kubernetes": "All supported AKS Kubernetes versions",
+        "default_behavior": "Flatcar versions are delivered through node image upgrades."
+      },
+      {
+        "os_sku": "AzureContainerLinux",
+        "supported_kubernetes": "1.34 and above",
+        "default_behavior": "Azure Container Linux versions are delivered through node image upgrades."
+      }
+    ],
+    "windows_os_sku_support": [
+      {
+        "os_sku": "Windows2019",
+        "supported_kubernetes": "1.14 to 1.32",
+        "default_behavior": "Default Windows OS in Kubernetes 1.14 to 1.24."
+      },
+      {
+        "os_sku": "Windows2022",
+        "supported_kubernetes": "1.23 to 1.34",
+        "default_behavior": "Default Windows OS in Kubernetes 1.25 to 1.34."
+      }
+    ],
+    "retirements": [
+      {
+        "platform": "Azure Linux 2.0",
+        "support_ends": "2025-11-30",
+        "image_removal": "2026-03-31",
+        "impact": "No new security updates after support ends, then node pools can no longer scale after image removal."
+      },
+      {
+        "platform": "Windows Server 2019",
+        "support_ends": "2026-03-01",
+        "image_removal": "2027-04-01",
+        "impact": "Kubernetes 1.33+ cannot use Windows Server 2019. After image removal, scaling operations fail."
+      },
+      {
+        "platform": "Windows Server 2022",
+        "support_ends": "2028-06-30",
+        "image_removal": "2029-06-30",
+        "impact": "Windows Server 2022 is not supported in Kubernetes 1.37+ and is fully removed later."
+      },
+      {
+        "platform": "Windows Annual Channel (Preview)",
+        "support_ends": "2026-05-15",
+        "image_removal": "2027-05-15",
+        "impact": "No new node pools or security patches after support ends. Reimage and redeploy operations fail after removal."
+      }
+    ],
+    "node_image_support": [
+      {
+        "platform": "Azure Linux",
+        "variant": "Gen 1 / Gen 2",
+        "notes": "Standard node image for Azure Linux pools; Gen 2 is chosen when the VM supports both generations."
+      },
+      {
+        "platform": "Azure Linux",
+        "variant": "FIPS / Arm64 / FIPS+Arm64 / Trusted Launch / Pod Sandboxing",
+        "notes": "Feature-specific variants exist, but combinations are constrained. Trusted Launch, Pod Sandboxing, FIPS, and Arm64 cannot all be combined freely."
+      },
+      {
+        "platform": "Azure Linux OS Guard",
+        "variant": "Gen 2 only",
+        "notes": "OS Guard is preview-only and unavailable on Gen 1-only VM sizes."
+      },
+      {
+        "platform": "Windows LTSC",
+        "variant": "Gen 1 / Gen 2",
+        "notes": "Windows Server 2019 and 2022 use Gen 1 by default when a VM supports both Gen 1 and Gen 2. Windows Server 2025 selects Gen 2."
+      },
+      {
+        "platform": "Windows Annual Channel",
+        "variant": "Gen 1 / Gen 2",
+        "notes": "Preview channel only; use LTSC for long-term support."
+      }
+    ],
+    "migration_notes": [
+      "For Azure Linux, Azure recommends the default OS SKU AzureLinux so clusters move to the latest GA Azure Linux version with Kubernetes upgrades.",
+      "You can migrate Linux pools between supported OS SKUs with az aks nodepool update, but Windows OS SKUs are not supported by nodepool update and require adding node pools with the desired OS SKU.",
+      "Windows guidance in Azure docs recommends Windows2022 for new Windows node pools."
+    ]
+  },
+  "aks_kubernetes_136_impact": {
+    "sources": [
+      {
+        "title": "Supported Kubernetes Versions in Azure Kubernetes Service (AKS)",
+        "url": "https://learn.microsoft.com/en-us/azure/aks/supported-kubernetes-versions",
+        "last_updated": "2025-07-29"
+      },
+      {
+        "title": "Upgrade Operating System (OS) Version in Azure Kubernetes Service (AKS) Clusters",
+        "url": "https://learn.microsoft.com/en-us/azure/aks/upgrade-os-version",
+        "last_updated": "2026-05-29"
+      },
+      {
+        "title": "Node Images in Azure Kubernetes Service (AKS)",
+        "url": "https://learn.microsoft.com/en-us/azure/aks/node-images",
+        "last_updated": "2025-07-03"
+      }
+    ],
+    "repo_current_default_kubernetes_version": "1.34",
+    "target_version": "1.36",
+    "lifecycle": {
+      "aks_ga": "2026-06",
+      "end_of_life": "2027-06",
+      "platform_support_until": "1.40 GA"
+    },
+    "repo_assessment": [
+      {
+        "severity": "medium",
+        "area": "Version input wiring",
+        "impact": "This repo passes kubernetes_version directly to both the control plane and node pools, with no validation that blocks 1.36. Terraform syntax is not the main risk.",
+        "evidence": [
+          "main.tf wires var.kubernetes_version into module.aks and module.node_pools",
+          "modules/azure_aks/main.tf sets kubernetes_version and default_node_pool.orchestrator_version",
+          "modules/aks_node_pool/main.tf sets orchestrator_version on custom node pools"
+        ]
+      },
+      {
+        "severity": "high",
+        "area": "Implicit Ubuntu OS changes",
+        "impact": "The repo does not expose AKS os_sku on the cluster or node pools. Once users move to 1.35+ with the default Ubuntu OS SKU, AKS shifts the default Ubuntu image family to 24.04. That is an operational change outside the current Terraform surface.",
+        "evidence": [
+          "variables.tf default kubernetes_version is currently 1.34",
+          "Azure docs state Ubuntu 24.04 becomes the default for os_sku Ubuntu in Kubernetes 1.35+",
+          "AKS resources in this repo set os_type for custom pools but do not set os_sku"
+        ]
+      },
+      {
+        "severity": "high",
+        "area": "FIPS compatibility",
+        "impact": "The repo supports fips_enabled on AKS and node pools, but Azure docs state Ubuntu 24.04 FIPS is not supported. Users enabling FIPS on Linux pools are the most likely to hit a 1.35/1.36 upgrade problem.",
+        "evidence": [
+          "fips_enabled is wired into module.aks and module.node_pools",
+          "Azure docs state Ubuntu 24.04 node images do not support FIPS"
+        ]
+      },
+      {
+        "severity": "medium",
+        "area": "Container runtime behavior",
+        "impact": "Ubuntu 24.04 node images use containerd 2.0 by default. Workloads or operational tooling that depend on prior runtime behavior should be validated before adopting 1.36 on default Ubuntu nodes.",
+        "evidence": [
+          "Azure docs state Ubuntu 24.04 on AKS uses containerd 2.0 by default",
+          "This repo leaves node OS SKU implicit for AKS node pools"
+        ]
+      },
+      {
+        "severity": "medium",
+        "area": "Provider and module surface",
+        "impact": "The manifest scan already flags AKS-related azurerm changes that become more relevant around 1.35/1.36, especially Ubuntu2404 OS SKU support and the container_log_max_lines rename. Even if current code does not reference those fields yet, future explicit OS control likely requires module/provider updates.",
+        "evidence": [
+          "manifest scanner flags Ubuntu2404 support on azurerm_kubernetes_cluster and azurerm_kubernetes_cluster_node_pool",
+          "manifest scanner flags container_log_max_lines renamed to container_log_max_files"
+        ]
+      },
+      {
+        "severity": "low",
+        "area": "Managed add-on churn",
+        "impact": "AKS 1.36 changes managed component versions such as CoreDNS, KEDA, cloud-provider-node-manager, and cloud-provider-controller-manager. These are mostly AKS-managed, so the main code impact is validation rather than Terraform edits.",
+        "evidence": [
+          "Azure docs list CoreDNS, KEDA, and cloud-provider component changes in the 1.36 breaking changes table"
+        ]
+      }
+    ],
+    "recommended_actions": [
+      "Keep the repo default at 1.34 or move to 1.35 first for staged validation before setting 1.36 as the default.",
+      "Add explicit AKS os_sku support to the AKS cluster and node pool modules if you need deterministic control over Ubuntu2204, Ubuntu2404, or AzureLinux3 behavior.",
+      "If any deployment uses fips_enabled on AKS Linux pools, validate a non-Ubuntu strategy or explicit supported OS path before moving to 1.36.",
+      "Test workload behavior on Ubuntu 24.04 and containerd 2.0 before changing the default kubernetes_version.",
+      "Review the azurerm AKS resource changes already identified by the manifest scan before provider upgrades."
     ]
   }
 }

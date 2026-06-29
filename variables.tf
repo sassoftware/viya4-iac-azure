@@ -344,7 +344,7 @@ variable "postgres_server_defaults" {
     backup_retention_days        = 7
     geo_redundant_backup_enabled = false
     administrator_login          = "pgadmin"
-    administrator_password       = "my$up3rS3cretPassw0rd"
+    administrator_password       = null
     server_version               = "15"
     ssl_enforcement_enabled      = true
     connectivity_method          = "public"

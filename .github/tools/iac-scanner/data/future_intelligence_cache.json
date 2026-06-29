@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-05-20T10:05:00.283220",
+  "fetched_at": "2026-06-29T04:30:21.534075",
   "seed_data": {
     "generated_at": "2026-05-20T00:00:00Z",
     "sources": [
@@ -149,7 +149,7 @@
       "actions/checkout": {
         "v2": {
           "future_risk": "Legacy action major version with Node runtime migration risk",
-          "recommended_version": "v6.0.2",
+          "recommended_version": "v7.0.0",
           "severity": "MEDIUM",
           "source": "GitHub Actions Node runtime migration guidance"
         }
@@ -157,7 +157,7 @@
       "actions/cache": {
         "v3": {
           "future_risk": "Older cache action major version, migrate to current major",
-          "recommended_version": "v5.0.5",
+          "recommended_version": "v6.1.0",
           "severity": "LOW",
           "source": "GitHub Actions Node runtime migration guidance"
         }
@@ -167,11 +167,11 @@
       "kubernetes": "live",
       "azurerm": "live",
       "github_actions": {
-        "actions/checkout": "live (v6.0.2)",
-        "actions/cache": "live (v5.0.5)"
+        "actions/checkout": "live (v7.0.0)",
+        "actions/cache": "live (v6.1.0)"
       }
     },
-    "_live_azurerm_latest": "4.73.0",
-    "fetched_at": "2026-05-20T10:05:00.283197"
+    "_live_azurerm_latest": "4.79.0",
+    "fetched_at": "2026-06-29T04:30:21.534075"
   }
 }

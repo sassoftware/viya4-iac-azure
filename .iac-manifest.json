@@ -1,9 +1,9 @@
 {
   "last_checked_version": "4.48.0",
-  "last_checked_date": "2026-05-20",
+  "last_checked_date": "2026-06-29",
   "files": {
     "iam.tf": {
-      "hash": "d3ba2231199078071bd954ccb1a57bdf2d83aba4e6dfd25d31d03ae20b07c025",
+      "hash": "8d36b39ac3b11cfa143d2c034de3505e4baf2dc861a1761d44370bd111f2462d",
       "resources": {
         "azurerm_user_assigned_identity": {
           "arguments": [
@@ -25,7 +25,7 @@
       }
     },
     "main.tf": {
-      "hash": "90c6a8f1ae1f67dea51dd45ceeb4d0cfcd4ee199d300e1e1c5c0f9142a9a3b08",
+      "hash": "83652af653be974f292df956f96d1b471098fc17af5e798a73085fbc6159b7cf",
       "resources": {
         "azurerm_resource_group": {
           "arguments": [
@@ -81,6 +81,18 @@
             "source_port_range"
           ]
         },
+        "random_password": {
+          "arguments": [
+            "for_each",
+            "length",
+            "min_lower",
+            "min_numeric",
+            "min_special",
+            "min_upper",
+            "override_special",
+            "special"
+          ]
+        },
         "kubernetes_config_map": {
           "arguments": [
             "data",
@@ -120,7 +132,7 @@
       }
     },
     "modules/aks_node_pool/main.tf": {
-      "hash": "52b7e3b2d83b081d178e9165f45a5568acfa115dd534b3ba17e4a84f0d9a6de7",
+      "hash": "eed0503f843f7e1a65f43e6ed0a73e1dac54f16734df96dbe782bb5c099832b4",
       "resources": {
         "azurerm_kubernetes_cluster_node_pool": {
           "arguments": [
@@ -157,7 +169,7 @@
       "data_sources": {}
     },
     "modules/azure_aks/main.tf": {
-      "hash": "18fac5736069355c6042530f2e57fd5a30f9e0bda81434760fd7e3369c8cff8f",
+      "hash": "e2752ae8d6ec28f8594d949ce04e800a4600393c286b2dae8e45e7b9b523f223",
       "resources": {
         "azurerm_kubernetes_cluster": {
           "arguments": [
@@ -196,7 +208,7 @@
       }
     },
     "modules/azurerm_netapp/main.tf": {
-      "hash": "e56250fb0a1a27c470b191a58ff9bcff8c77aee38053a764cfa295bbb67d0a93",
+      "hash": "6d964f9f7d39e045707a7ecd0d0e2a3dc53386e61e075f15dd868339b0068db4",
       "resources": {
         "azurerm_netapp_account": {
           "arguments": [
@@ -273,7 +285,7 @@
       "data_sources": {}
     },
     "modules/azurerm_postgresql_flex/main.tf": {
-      "hash": "4ba620597eaea0898a9ed2f99c40cc2695c0bd3adf2209176da483c8a973242f",
+      "hash": "8ee7fbb68081c607a432181120477e906cc5ac81813f54103c616de2d54e0b09",
       "resources": {
         "azurerm_private_dns_zone": {
           "arguments": [
@@ -332,7 +344,7 @@
       "data_sources": {}
     },
     "modules/azurerm_vm/main.tf": {
-      "hash": "44b5b88a2cdabaf5622d66761381edc6acc96de4007d55713fb2726cffb2be29",
+      "hash": "6a815d200f85b23e4454a3e9d4c27c168092988af0d7d5dfa1de55eadd58a2df",
       "resources": {
         "azurerm_public_ip": {
           "arguments": [
@@ -406,7 +418,7 @@
       "data_sources": {}
     },
     "modules/azurerm_vnet/main.tf": {
-      "hash": "39fa47cabf939f40700793a31ce989ff2444638fa591d02a6cea62ac7966fbb0",
+      "hash": "b43cc0da78095b00df3b697e42c08e49b4bb3f89d033f3826ab44c2742a3cbe1",
       "resources": {
         "azurerm_virtual_network": {
           "arguments": [
@@ -461,7 +473,7 @@
       }
     },
     "modules/kubeconfig/main.tf": {
-      "hash": "77d4cf3b0b543cd1f4b5ab93ec8d4c29622c537d11e319f2662926dab9d1902d",
+      "hash": "6b3cbca0555fcf06339c263743e3100c6119d9b9f02c8c4086c53c7cb65aefa1",
       "resources": {
         "kubernetes_secret": {
           "arguments": [
@@ -499,7 +511,7 @@
       }
     },
     "monitor.tf": {
-      "hash": "39488338eafdb23b3546620d6b424b6297c909554773c0fbc490d5f71772b5f2",
+      "hash": "a0cb00f62e4c49be728e82469bbad0d300b253227544939c6acafbf7edf46d2b",
       "resources": {
         "azurerm_log_analytics_workspace": {
           "arguments": [
@@ -535,7 +547,7 @@
       "data_sources": {}
     },
     "vms.tf": {
-      "hash": "7e5d24155784deac5770a9862b1dce40cd875d393b18c1a7f9dcbee5884621ff",
+      "hash": "17003d90fe11d6611130731698ba3d9ba4b97d34e619cb3c1d4242ad3c8136e9",
       "resources": {
         "azurerm_network_security_rule": {
           "arguments": [

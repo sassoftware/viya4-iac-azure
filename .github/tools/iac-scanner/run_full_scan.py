@@ -11,8 +11,13 @@ Generates a unified HTML report combining findings from both scanners.
 
 import json
 import os
+import re
+import smtplib
+import ssl
 import subprocess
 import sys
+from email.message import EmailMessage
+from getpass import getpass
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
@@ -23,6 +28,844 @@ from scanner.core import DeprecationScanner
 from scanner.report_generator import ReportGenerator
 from scanner.findings import ScanResult
 from scanner.future_intelligence import build_future_deprecation_intelligence
+
+
+EMAIL_REGEX = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+DEFAULT_TEST_RECIPIENTS = [
+    "lohit.dave@sas.com",
+    "abhishek.kumar@sas.com",
+    "Saptarshi.Rakshit@sas.com",
+    "Gautam.Jayasankar@sas.com",
+]
+
+
+def _read_yes_no(prompt: str, default: bool = False) -> bool:
+    """Read a yes/no answer from stdin."""
+
+    suffix = "[Y/n]" if default else "[y/N]"
+    raw = input(f"{prompt} {suffix}: ").strip().lower()
+    if not raw:
+        return default
+    return raw in {"y", "yes"}
+
+
+def _load_email_config() -> Dict[str, Any]:
+    """Load SMTP config from environment variables."""
+
+    host = os.getenv("IAC_SCAN_SMTP_HOST", "").strip()
+    port_raw = os.getenv("IAC_SCAN_SMTP_PORT", "587").strip()
+    username = os.getenv("IAC_SCAN_SMTP_USERNAME", "").strip()
+    password = os.getenv("IAC_SCAN_SMTP_PASSWORD", "")
+    from_email = os.getenv("IAC_SCAN_SMTP_FROM", username).strip()
+    use_tls = os.getenv("IAC_SCAN_SMTP_USE_TLS", "true").strip().lower() in {"1", "true", "yes", "y"}
+    use_ssl = os.getenv("IAC_SCAN_SMTP_USE_SSL", "false").strip().lower() in {"1", "true", "yes", "y"}
+
+    try:
+        port = int(port_raw)
+    except ValueError:
+        port = 587
+
+    return {
+        "host": host,
+        "port": port,
+        "username": username,
+        "password": password,
+        "from_email": from_email,
+        "use_tls": use_tls,
+        "use_ssl": use_ssl,
+    }
+
+
+def _parse_recipients(raw_value: str) -> List[str]:
+    """Parse comma/semicolon separated recipients and filter invalid values."""
+
+    normalized = raw_value.replace(";", ",")
+    items = [item.strip() for item in normalized.split(",") if item.strip()]
+    return [item for item in items if EMAIL_REGEX.match(item)]
+
+
+def _send_email_report(
+    smtp_config: Dict[str, Any],
+    recipients: List[str],
+    html_report_path: str,
+    json_report_path: str,
+    repo_path: str,
+    total_findings: int,
+) -> None:
+    """Send report files to recipients through SMTP."""
+
+    message = EmailMessage()
+    message["Subject"] = f"IaC Code Compatibility Report - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+    message["From"] = smtp_config["from_email"]
+    message["To"] = ", ".join(recipients)
+    message.set_content(
+        "This is an IaC code compatibility report.\n\n"
+        "What this report provides (short summary):\n"
+        "- Deprecated or risky IaC patterns detected in Terraform and related automation.\n"
+        "- Cloud provider deprecations, breaking changes, and adoption guidance relevant to current code compatibility.\n"
+        "- Adoption guidance for supported features and versions.\n"
+        "- Future risk signals to help plan proactive remediation.\n\n"
+        "Why this matters:\n"
+        "Use this report to review findings and take action to keep IaC code current, compatible, and up to date with cloud provider expectations.\n\n"
+        f"Total findings: {total_findings}\n"
+        f"Generated at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n"
+        "Attachments:\n"
+        "- iac-deprecation-report.html (readable report)\n"
+        "- iac-deprecation-report.json (machine-readable report)\n"
+    )
+
+    with open(html_report_path, "rb") as html_file:
+        message.add_attachment(
+            html_file.read(),
+            maintype="text",
+            subtype="html",
+            filename=os.path.basename(html_report_path),
+        )
+
+    with open(json_report_path, "rb") as json_file:
+        message.add_attachment(
+            json_file.read(),
+            maintype="application",
+            subtype="json",
+            filename=os.path.basename(json_report_path),
+        )
+
+    context = ssl.create_default_context()
+    if smtp_config["use_ssl"]:
+        with smtplib.SMTP_SSL(smtp_config["host"], smtp_config["port"], context=context, timeout=30) as server:
+            if smtp_config["username"]:
+                server.login(smtp_config["username"], smtp_config["password"])
+            server.send_message(message)
+    else:
+        with smtplib.SMTP(smtp_config["host"], smtp_config["port"], timeout=30) as server:
+            if smtp_config["use_tls"]:
+                server.starttls(context=context)
+            if smtp_config["username"]:
+                server.login(smtp_config["username"], smtp_config["password"])
+            server.send_message(message)
+
+
+def maybe_email_report(
+    repo_path: str,
+    html_report_path: str,
+    json_report_path: str,
+    total_findings: int,
+) -> None:
+    """Ask for confirmation and optionally send report by email."""
+
+    print("\n" + "-" * 70)
+    print("  ✉️  Optional Email Delivery")
+    print("-" * 70)
+
+    if not _read_yes_no("Do you want to send this report by email?", default=False):
+        print("  • Email delivery skipped by user.")
+        return
+
+    recipient_kind_raw = input("Send to a group or person? [group/person] (default: person): ").strip().lower()
+    recipient_kind = recipient_kind_raw if recipient_kind_raw in {"group", "person"} else "person"
+
+    recipient_prompt = (
+        "Enter group recipient emails (comma separated): "
+        if recipient_kind == "group"
+        else "Enter recipient email: "
+    )
+    entered_recipients = input(
+        f"{recipient_prompt}(press Enter to use default test recipients: {', '.join(DEFAULT_TEST_RECIPIENTS)}): "
+    ).strip()
+    recipients = _parse_recipients(entered_recipients)
+    if not recipients and not entered_recipients:
+        recipients = DEFAULT_TEST_RECIPIENTS.copy()
+    if not recipients:
+        print("  • No valid recipient email address provided. Email not sent.")
+        return
+
+    print(f"  • Recipient type: {recipient_kind}")
+    print(f"  • Recipients: {', '.join(recipients)}")
+    if not _read_yes_no("Confirm sending the report email now?", default=False):
+        print("  • Email delivery canceled by confirmation step.")
+        return
+
+    smtp_config = _load_email_config()
+    required_keys = ["host", "from_email"]
+    missing = [key for key in required_keys if not smtp_config.get(key)]
+    if missing:
+        print("  • SMTP configuration is incomplete.")
+        print("    Required env vars: IAC_SCAN_SMTP_HOST, IAC_SCAN_SMTP_FROM")
+        print("    Optional env vars: IAC_SCAN_SMTP_PORT, IAC_SCAN_SMTP_USERNAME, IAC_SCAN_SMTP_PASSWORD, IAC_SCAN_SMTP_USE_TLS, IAC_SCAN_SMTP_USE_SSL")
+        return
+
+    if smtp_config.get("username") and not smtp_config.get("password"):
+        smtp_config["password"] = getpass("SMTP password: ")
+
+    try:
+        _send_email_report(
+            smtp_config=smtp_config,
+            recipients=recipients,
+            html_report_path=html_report_path,
+            json_report_path=json_report_path,
+            repo_path=repo_path,
+            total_findings=total_findings,
+        )
+        print("  • Report email sent successfully.")
+    except Exception as exc:  # noqa: BLE001
+        print(f"  • Failed to send report email: {exc}")
+
+
+def detect_repo_kubernetes_default(repo_path: str) -> str:
+    """Detect the default kubernetes_version from the repo's variables.tf."""
+
+    variables_path = os.path.join(repo_path, "variables.tf")
+    if not os.path.exists(variables_path):
+        return "unknown"
+
+    try:
+        with open(variables_path, "r", encoding="utf-8") as handle:
+            content = handle.read()
+    except OSError:
+        return "unknown"
+
+    match = re.search(
+        r'variable\s+"kubernetes_version"\s*\{.*?default\s*=\s*"([^"]+)"',
+        content,
+        re.DOTALL,
+    )
+    return match.group(1) if match else "unknown"
+
+
+def get_kubernetes_136_impact_snapshot(repo_path: str) -> Dict[str, Any]:
+    """Return a repo-specific AKS 1.36 impact assessment based on Azure docs."""
+
+    current_default = detect_repo_kubernetes_default(repo_path)
+
+    return {
+        "sources": [
+            {
+                "title": "Supported Kubernetes Versions in Azure Kubernetes Service (AKS)",
+                "url": "https://learn.microsoft.com/en-us/azure/aks/supported-kubernetes-versions",
+                "last_updated": "2025-07-29",
+            },
+            {
+                "title": "Upgrade Operating System (OS) Version in Azure Kubernetes Service (AKS) Clusters",
+                "url": "https://learn.microsoft.com/en-us/azure/aks/upgrade-os-version",
+                "last_updated": "2026-05-29",
+            },
+            {
+                "title": "Node Images in Azure Kubernetes Service (AKS)",
+                "url": "https://learn.microsoft.com/en-us/azure/aks/node-images",
+                "last_updated": "2025-07-03",
+            },
+        ],
+        "repo_current_default_kubernetes_version": current_default,
+        "target_version": "1.36",
+        "lifecycle": {
+            "aks_ga": "2026-06",
+            "end_of_life": "2027-06",
+            "platform_support_until": "1.40 GA",
+        },
+        "repo_assessment": [
+            {
+                "severity": "medium",
+                "area": "Version input wiring",
+                "impact": "This repo passes kubernetes_version directly to both the control plane and node pools, with no validation that blocks 1.36. Terraform syntax is not the main risk.",
+                "evidence": [
+                    "main.tf wires var.kubernetes_version into module.aks and module.node_pools",
+                    "modules/azure_aks/main.tf sets kubernetes_version and default_node_pool.orchestrator_version",
+                    "modules/aks_node_pool/main.tf sets orchestrator_version on custom node pools",
+                ],
+            },
+            {
+                "severity": "high",
+                "area": "Implicit Ubuntu OS changes",
+                "impact": "The repo does not expose AKS os_sku on the cluster or node pools. Once users move to 1.35+ with the default Ubuntu OS SKU, AKS shifts the default Ubuntu image family to 24.04. That is an operational change outside the current Terraform surface.",
+                "evidence": [
+                    "variables.tf default kubernetes_version is currently 1.34",
+                    "Azure docs state Ubuntu 24.04 becomes the default for os_sku Ubuntu in Kubernetes 1.35+",
+                    "AKS resources in this repo set os_type for custom pools but do not set os_sku",
+                ],
+            },
+            {
+                "severity": "high",
+                "area": "FIPS compatibility",
+                "impact": "The repo supports fips_enabled on AKS and node pools, but Azure docs state Ubuntu 24.04 FIPS is not supported. Users enabling FIPS on Linux pools are the most likely to hit a 1.35/1.36 upgrade problem.",
+                "evidence": [
+                    "fips_enabled is wired into module.aks and module.node_pools",
+                    "Azure docs state Ubuntu 24.04 node images do not support FIPS",
+                ],
+            },
+            {
+                "severity": "medium",
+                "area": "Container runtime behavior",
+                "impact": "Ubuntu 24.04 node images use containerd 2.0 by default. Workloads or operational tooling that depend on prior runtime behavior should be validated before adopting 1.36 on default Ubuntu nodes.",
+                "evidence": [
+                    "Azure docs state Ubuntu 24.04 on AKS uses containerd 2.0 by default",
+                    "This repo leaves node OS SKU implicit for AKS node pools",
+                ],
+            },
+            {
+                "severity": "medium",
+                "area": "Provider and module surface",
+                "impact": "The manifest scan already flags AKS-related azurerm changes that become more relevant around 1.35/1.36, especially Ubuntu2404 OS SKU support and the container_log_max_lines rename. Even if current code does not reference those fields yet, future explicit OS control likely requires module/provider updates.",
+                "evidence": [
+                    "manifest scanner flags Ubuntu2404 support on azurerm_kubernetes_cluster and azurerm_kubernetes_cluster_node_pool",
+                    "manifest scanner flags container_log_max_lines renamed to container_log_max_files",
+                ],
+            },
+            {
+                "severity": "low",
+                "area": "Managed add-on churn",
+                "impact": "AKS 1.36 changes managed component versions such as CoreDNS, KEDA, cloud-provider-node-manager, and cloud-provider-controller-manager. These are mostly AKS-managed, so the main code impact is validation rather than Terraform edits.",
+                "evidence": [
+                    "Azure docs list CoreDNS, KEDA, and cloud-provider component changes in the 1.36 breaking changes table",
+                ],
+            },
+        ],
+        "recommended_actions": [
+            "Keep the repo default at 1.34 or move to 1.35 first for staged validation before setting 1.36 as the default.",
+            "Add explicit AKS os_sku support to the AKS cluster and node pool modules if you need deterministic control over Ubuntu2204, Ubuntu2404, or AzureLinux3 behavior.",
+            "If any deployment uses fips_enabled on AKS Linux pools, validate a non-Ubuntu strategy or explicit supported OS path before moving to 1.36.",
+            "Test workload behavior on Ubuntu 24.04 and containerd 2.0 before changing the default kubernetes_version.",
+            "Review the azurerm AKS resource changes already identified by the manifest scan before provider upgrades.",
+        ],
+    }
+
+
+def build_kubernetes_136_impact_html(repo_path: str) -> str:
+    """Build an HTML section for repo-specific AKS 1.36 readiness."""
+
+    impact = get_kubernetes_136_impact_snapshot(repo_path)
+
+    assessment_rows = "".join(
+        [
+            f"""
+                <tr>
+                    <td><strong>{item['severity'].upper()}</strong></td>
+                    <td>{item['area']}</td>
+                    <td>{item['impact']}</td>
+                    <td><small>{'; '.join(item['evidence'])}</small></td>
+                </tr>
+            """
+            for item in impact["repo_assessment"]
+        ]
+    )
+    action_items = "".join([f"<li>{item}</li>" for item in impact["recommended_actions"]])
+    source_links = "".join(
+        [
+            f'<li><a href="{item["url"]}" target="_blank">{item["title"]}</a> <span class="source-date">(updated {item["last_updated"]})</span></li>'
+            for item in impact["sources"]
+        ]
+    )
+
+    lifecycle = impact["lifecycle"]
+    return f"""
+        <section class="k8s-impact-section">
+            <h2>⏭️ AKS Kubernetes 1.36 Impact on This Repo</h2>
+            <p class="ubuntu-support-intro">
+                Repo default Kubernetes version: <code>{impact['repo_current_default_kubernetes_version']}</code>. Target version reviewed: <code>{impact['target_version']}</code>.
+            </p>
+
+            <div class="future-summary ubuntu-notes">
+                <h3>AKS 1.36 Lifecycle</h3>
+                <ul>
+                    <li>AKS GA: {lifecycle['aks_ga']}</li>
+                    <li>AKS end of life: {lifecycle['end_of_life']}</li>
+                    <li>Platform support: {lifecycle['platform_support_until']}</li>
+                </ul>
+            </div>
+
+            <table class="findings-table">
+                <thead>
+                    <tr>
+                        <th>Severity</th>
+                        <th>Area</th>
+                        <th>Impact on This Codebase</th>
+                        <th>Evidence</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {assessment_rows}
+                </tbody>
+            </table>
+
+            <div class="future-summary ubuntu-notes">
+                <h3>Recommended Actions</h3>
+                <ul>{action_items}</ul>
+            </div>
+
+            <div class="ubuntu-sources">
+                <h3>Sources</h3>
+                <ul>{source_links}</ul>
+            </div>
+        </section>
+    """
+
+
+def get_ubuntu_support_snapshot() -> Dict[str, Any]:
+    """Return a curated AKS Ubuntu support snapshot sourced from Azure docs."""
+
+    return {
+        "sources": [
+            {
+                "title": "Node Images in Azure Kubernetes Service (AKS)",
+                "url": "https://learn.microsoft.com/en-us/azure/aks/node-images",
+                "last_updated": "2025-07-03",
+            },
+            {
+                "title": "Upgrade Operating System (OS) Version in Azure Kubernetes Service (AKS) Clusters",
+                "url": "https://learn.microsoft.com/en-us/azure/aks/upgrade-os-version",
+                "last_updated": "2026-05-29",
+            },
+        ],
+        "os_sku_support": [
+            {
+                "os_sku": "Ubuntu",
+                "supported_kubernetes": "All supported AKS Kubernetes versions",
+                "default_behavior": "Ubuntu 22.04 is the default for Kubernetes 1.25 to 1.34. Ubuntu 24.04 is the default for Kubernetes 1.35+.",
+            },
+            {
+                "os_sku": "Ubuntu2204",
+                "supported_kubernetes": "1.25 to 1.36",
+                "default_behavior": "Versioned OS SKU for staying on or rolling back to Ubuntu 22.04.",
+            },
+            {
+                "os_sku": "Ubuntu2404",
+                "supported_kubernetes": "1.32 to 1.38",
+                "default_behavior": "Versioned OS SKU for adopting Ubuntu 24.04 before Kubernetes 1.35 or for explicit pinning.",
+            },
+        ],
+        "retirements": [
+            {
+                "version": "Ubuntu 20.04",
+                "support_ends": "2027-03-17",
+                "image_removal": "2027-03-17",
+                "impact": "No AKS support or security updates. Existing node images are deleted and node pools can no longer scale.",
+            },
+            {
+                "version": "Ubuntu 22.04",
+                "support_ends": "2027-06-30",
+                "image_removal": "2028-04-30",
+                "impact": "After support ends, AKS stops producing new node images and security patches. After image removal, scaling and remediation operations fail.",
+            },
+        ],
+        "node_image_support": [
+            {
+                "variant": "Ubuntu with containerd and Gen 1",
+                "support": "Supported for Ubuntu node pools on VM sizes that only support Generation 1.",
+                "limitations": "Used only when the VM size does not support Gen 2.",
+            },
+            {
+                "variant": "Ubuntu with containerd and Gen 2",
+                "support": "Default Ubuntu node image for VM sizes that support Generation 2.",
+                "limitations": "Selected by default when a VM supports both Gen 1 and Gen 2.",
+            },
+            {
+                "variant": "Ubuntu with containerd and FIPS",
+                "support": "Supported for FIPS-enabled Ubuntu node pools on Gen 1 and Gen 2 where supported by AKS.",
+                "limitations": "Not supported for Ubuntu 24.04+. Cannot be combined with Arm64 or CVM.",
+            },
+            {
+                "variant": "Ubuntu with containerd and Arm64",
+                "support": "Supported for Arm64 Ubuntu node pools.",
+                "limitations": "Gen 2 only. Cannot be combined with FIPS, CVM, or Trusted Launch.",
+            },
+            {
+                "variant": "Ubuntu with containerd and CVM",
+                "support": "Supported for Confidential VM Ubuntu node pools on Ubuntu 20.04 and Ubuntu 24.04.",
+                "limitations": "Not supported for Ubuntu 22.04. Gen 2 only. Cannot be combined with FIPS, Arm64, or Trusted Launch.",
+            },
+            {
+                "variant": "Ubuntu with containerd and Trusted Launch",
+                "support": "Supported for Trusted Launch Ubuntu node pools.",
+                "limitations": "Gen 2 only. Cannot be combined with Arm64 or CVM.",
+            },
+        ],
+        "migration_notes": [
+            "For OS SKU Ubuntu, AKS automatically moves the default Ubuntu version to 24.04 when the cluster upgrades to Kubernetes 1.35 or later.",
+            "Ubuntu 24.04 node images use containerd 2.0 by default, so workloads that depend on runtime behavior should be validated before migration.",
+            "Ubuntu 24.04 does not support FIPS in AKS at this time.",
+        ],
+    }
+
+
+def build_ubuntu_support_html() -> str:
+    """Build an HTML section summarizing AKS Ubuntu support guidance."""
+
+    support = get_ubuntu_support_snapshot()
+
+    os_rows = "".join(
+        [
+            f"""
+                <tr>
+                    <td><code>{item['os_sku']}</code></td>
+                    <td>{item['supported_kubernetes']}</td>
+                    <td>{item['default_behavior']}</td>
+                </tr>
+            """
+            for item in support["os_sku_support"]
+        ]
+    )
+
+    retirement_rows = "".join(
+        [
+            f"""
+                <tr>
+                    <td><strong>{item['version']}</strong></td>
+                    <td>{item['support_ends']}</td>
+                    <td>{item['image_removal']}</td>
+                    <td>{item['impact']}</td>
+                </tr>
+            """
+            for item in support["retirements"]
+        ]
+    )
+
+    node_rows = "".join(
+        [
+            f"""
+                <tr>
+                    <td>{item['variant']}</td>
+                    <td>{item['support']}</td>
+                    <td>{item['limitations']}</td>
+                </tr>
+            """
+            for item in support["node_image_support"]
+        ]
+    )
+
+    note_items = "".join([f"<li>{note}</li>" for note in support["migration_notes"]])
+    source_links = "".join(
+        [
+            f'<li><a href="{item["url"]}" target="_blank">{item["title"]}</a> <span class="source-date">(updated {item["last_updated"]})</span></li>'
+            for item in support["sources"]
+        ]
+    )
+
+    return f"""
+        <section class="ubuntu-support-section">
+            <h2>🐧 AKS Ubuntu OS and Node Image Support</h2>
+            <p class="ubuntu-support-intro">
+                This section summarizes Ubuntu OS SKU support, retirement dates, and node image constraints from current Azure AKS documentation.
+            </p>
+
+            <h3>Ubuntu OS SKU Support</h3>
+            <table class="findings-table">
+                <thead>
+                    <tr>
+                        <th>OS SKU</th>
+                        <th>Supported Kubernetes Versions</th>
+                        <th>Default / Migration Behavior</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {os_rows}
+                </tbody>
+            </table>
+
+            <h3>Ubuntu Retirement Milestones</h3>
+            <table class="findings-table">
+                <thead>
+                    <tr>
+                        <th>Version</th>
+                        <th>Support Ends</th>
+                        <th>Image Removal</th>
+                        <th>Operational Impact</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {retirement_rows}
+                </tbody>
+            </table>
+
+            <h3>Ubuntu Node Image Support</h3>
+            <table class="findings-table">
+                <thead>
+                    <tr>
+                        <th>Variant</th>
+                        <th>Support</th>
+                        <th>Limitations</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {node_rows}
+                </tbody>
+            </table>
+
+            <div class="future-summary ubuntu-notes">
+                <h3>Migration Notes</h3>
+                <ul>{note_items}</ul>
+            </div>
+
+            <div class="ubuntu-sources">
+                <h3>Sources</h3>
+                <ul>{source_links}</ul>
+            </div>
+        </section>
+    """
+
+
+def get_platform_support_snapshot() -> Dict[str, Any]:
+    """Return curated AKS Azure Linux and Windows support guidance from Azure docs."""
+
+    return {
+        "sources": [
+            {
+                "title": "Node Images in Azure Kubernetes Service (AKS)",
+                "url": "https://learn.microsoft.com/en-us/azure/aks/node-images",
+                "last_updated": "2025-07-03",
+            },
+            {
+                "title": "Upgrade Operating System (OS) Version in Azure Kubernetes Service (AKS) Clusters",
+                "url": "https://learn.microsoft.com/en-us/azure/aks/upgrade-os-version",
+                "last_updated": "2026-05-29",
+            },
+        ],
+        "release_cadence": [
+            "Linux node images are released weekly and Windows node images are released monthly.",
+            "New node images can take up to two weeks to roll out across all Azure regions.",
+            "Azure recommends automatic node image upgrades and planned maintenance to keep nodes current.",
+        ],
+        "azure_linux_os_sku_support": [
+            {
+                "os_sku": "AzureLinux",
+                "supported_kubernetes": "All supported AKS Kubernetes versions",
+                "default_behavior": "Azure Linux 2.0 is default for Kubernetes 1.27 to 1.31. Azure Linux 3.0 is default for Kubernetes 1.32+.",
+            },
+            {
+                "os_sku": "AzureLinux3",
+                "supported_kubernetes": "1.28 to 1.36",
+                "default_behavior": "Versioned OS SKU for explicit migration to Azure Linux 3.0 without a Kubernetes upgrade.",
+            },
+            {
+                "os_sku": "AzureLinuxOSGuard",
+                "supported_kubernetes": "1.32 and above",
+                "default_behavior": "OS Guard images are upgraded through node image upgrades.",
+            },
+            {
+                "os_sku": "Flatcar",
+                "supported_kubernetes": "All supported AKS Kubernetes versions",
+                "default_behavior": "Flatcar versions are delivered through node image upgrades.",
+            },
+            {
+                "os_sku": "AzureContainerLinux",
+                "supported_kubernetes": "1.34 and above",
+                "default_behavior": "Azure Container Linux versions are delivered through node image upgrades.",
+            },
+        ],
+        "windows_os_sku_support": [
+            {
+                "os_sku": "Windows2019",
+                "supported_kubernetes": "1.14 to 1.32",
+                "default_behavior": "Default Windows OS in Kubernetes 1.14 to 1.24.",
+            },
+            {
+                "os_sku": "Windows2022",
+                "supported_kubernetes": "1.23 to 1.34",
+                "default_behavior": "Default Windows OS in Kubernetes 1.25 to 1.34.",
+            },
+        ],
+        "retirements": [
+            {
+                "platform": "Azure Linux 2.0",
+                "support_ends": "2025-11-30",
+                "image_removal": "2026-03-31",
+                "impact": "No new security updates after support ends, then node pools can no longer scale after image removal.",
+            },
+            {
+                "platform": "Windows Server 2019",
+                "support_ends": "2026-03-01",
+                "image_removal": "2027-04-01",
+                "impact": "Kubernetes 1.33+ cannot use Windows Server 2019. After image removal, scaling operations fail.",
+            },
+            {
+                "platform": "Windows Server 2022",
+                "support_ends": "2028-06-30",
+                "image_removal": "2029-06-30",
+                "impact": "Windows Server 2022 is not supported in Kubernetes 1.37+ and is fully removed later.",
+            },
+            {
+                "platform": "Windows Annual Channel (Preview)",
+                "support_ends": "2026-05-15",
+                "image_removal": "2027-05-15",
+                "impact": "No new node pools or security patches after support ends. Reimage and redeploy operations fail after removal.",
+            },
+        ],
+        "node_image_support": [
+            {
+                "platform": "Azure Linux",
+                "variant": "Gen 1 / Gen 2",
+                "notes": "Standard node image for Azure Linux pools; Gen 2 is chosen when the VM supports both generations.",
+            },
+            {
+                "platform": "Azure Linux",
+                "variant": "FIPS / Arm64 / FIPS+Arm64 / Trusted Launch / Pod Sandboxing",
+                "notes": "Feature-specific variants exist, but combinations are constrained. Trusted Launch, Pod Sandboxing, FIPS, and Arm64 cannot all be combined freely.",
+            },
+            {
+                "platform": "Azure Linux OS Guard",
+                "variant": "Gen 2 only",
+                "notes": "OS Guard is preview-only and unavailable on Gen 1-only VM sizes.",
+            },
+            {
+                "platform": "Windows LTSC",
+                "variant": "Gen 1 / Gen 2",
+                "notes": "Windows Server 2019 and 2022 use Gen 1 by default when a VM supports both Gen 1 and Gen 2. Windows Server 2025 selects Gen 2.",
+            },
+            {
+                "platform": "Windows Annual Channel",
+                "variant": "Gen 1 / Gen 2",
+                "notes": "Preview channel only; use LTSC for long-term support.",
+            },
+        ],
+        "migration_notes": [
+            "For Azure Linux, Azure recommends the default OS SKU AzureLinux so clusters move to the latest GA Azure Linux version with Kubernetes upgrades.",
+            "You can migrate Linux pools between supported OS SKUs with az aks nodepool update, but Windows OS SKUs are not supported by nodepool update and require adding node pools with the desired OS SKU.",
+            "Windows guidance in Azure docs recommends Windows2022 for new Windows node pools.",
+        ],
+    }
+
+
+def build_platform_support_html() -> str:
+    """Build an HTML section for Azure Linux and Windows AKS support guidance."""
+
+    support = get_platform_support_snapshot()
+
+    cadence_items = "".join([f"<li>{item}</li>" for item in support["release_cadence"]])
+    azure_linux_rows = "".join(
+        [
+            f"""
+                <tr>
+                    <td><code>{item['os_sku']}</code></td>
+                    <td>{item['supported_kubernetes']}</td>
+                    <td>{item['default_behavior']}</td>
+                </tr>
+            """
+            for item in support["azure_linux_os_sku_support"]
+        ]
+    )
+    windows_rows = "".join(
+        [
+            f"""
+                <tr>
+                    <td><code>{item['os_sku']}</code></td>
+                    <td>{item['supported_kubernetes']}</td>
+                    <td>{item['default_behavior']}</td>
+                </tr>
+            """
+            for item in support["windows_os_sku_support"]
+        ]
+    )
+    retirement_rows = "".join(
+        [
+            f"""
+                <tr>
+                    <td><strong>{item['platform']}</strong></td>
+                    <td>{item['support_ends']}</td>
+                    <td>{item['image_removal']}</td>
+                    <td>{item['impact']}</td>
+                </tr>
+            """
+            for item in support["retirements"]
+        ]
+    )
+    node_rows = "".join(
+        [
+            f"""
+                <tr>
+                    <td>{item['platform']}</td>
+                    <td>{item['variant']}</td>
+                    <td>{item['notes']}</td>
+                </tr>
+            """
+            for item in support["node_image_support"]
+        ]
+    )
+    note_items = "".join([f"<li>{note}</li>" for note in support["migration_notes"]])
+    source_links = "".join(
+        [
+            f'<li><a href="{item["url"]}" target="_blank">{item["title"]}</a> <span class="source-date">(updated {item["last_updated"]})</span></li>'
+            for item in support["sources"]
+        ]
+    )
+
+    return f"""
+        <section class="platform-support-section">
+            <h2>🖥️ AKS Azure Linux and Windows Support</h2>
+            <p class="ubuntu-support-intro">
+                This section summarizes Azure Linux and Windows OS SKU support, retirements, and node image constraints from current Azure AKS documentation.
+            </p>
+
+            <div class="future-summary ubuntu-notes">
+                <h3>Node Image Release Cadence</h3>
+                <ul>{cadence_items}</ul>
+            </div>
+
+            <h3>Azure Linux OS SKU Support</h3>
+            <table class="findings-table">
+                <thead>
+                    <tr>
+                        <th>OS SKU</th>
+                        <th>Supported Kubernetes Versions</th>
+                        <th>Default / Migration Behavior</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {azure_linux_rows}
+                </tbody>
+            </table>
+
+            <h3>Windows OS SKU Support</h3>
+            <table class="findings-table">
+                <thead>
+                    <tr>
+                        <th>OS SKU</th>
+                        <th>Supported Kubernetes Versions</th>
+                        <th>Default / Migration Behavior</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {windows_rows}
+                </tbody>
+            </table>
+
+            <h3>Platform Retirement Milestones</h3>
+            <table class="findings-table">
+                <thead>
+                    <tr>
+                        <th>Platform</th>
+                        <th>Support Ends</th>
+                        <th>Image Removal</th>
+                        <th>Operational Impact</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {retirement_rows}
+                </tbody>
+            </table>
+
+            <h3>Azure Linux and Windows Node Image Notes</h3>
+            <table class="findings-table">
+                <thead>
+                    <tr>
+                        <th>Platform</th>
+                        <th>Variant</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {node_rows}
+                </tbody>
+            </table>
+
+            <div class="future-summary ubuntu-notes">
+                <h3>Migration Notes</h3>
+                <ul>{note_items}</ul>
+            </div>
+
+            <div class="ubuntu-sources">
+                <h3>Sources</h3>
+                <ul>{source_links}</ul>
+            </div>
+        </section>
+    """
 
 
 def run_manifest_scanner(repo_root: str) -> Optional[Dict[str, Any]]:
@@ -318,6 +1161,10 @@ def generate_integrated_html_report(
             <p class="no-findings">Future deprecation intelligence was not available for this run.</p>
         </section>
         """
+
+    ubuntu_support_html = build_ubuntu_support_html()
+    platform_support_html = build_platform_support_html()
+    k8s_136_impact_html = build_kubernetes_136_impact_html(repo_path)
     
     html = f"""<!DOCTYPE html>
 <html lang="en">
@@ -615,6 +1462,59 @@ def generate_integrated_html_report(
         .future-summary ul {{
             margin-left: 20px;
         }}
+
+        .ubuntu-support-section {{
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 25px;
+            margin-top: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }}
+
+        .platform-support-section {{
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 25px;
+            margin-top: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }}
+
+        .ubuntu-support-section h2,
+        .ubuntu-support-section h3,
+        .platform-support-section h2,
+        .platform-support-section h3 {{
+            margin-bottom: 12px;
+        }}
+
+        .ubuntu-support-section h2,
+        .platform-support-section h2 {{
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border-color);
+        }}
+
+        .ubuntu-support-section h3,
+        .platform-support-section h3 {{
+            margin-top: 18px;
+        }}
+
+        .ubuntu-support-intro,
+        .ubuntu-sources {{
+            color: #495057;
+        }}
+
+        .ubuntu-notes,
+        .ubuntu-sources {{
+            margin-top: 16px;
+        }}
+
+        .ubuntu-sources ul {{
+            margin-left: 20px;
+        }}
+
+        .source-date {{
+            color: #6c757d;
+            font-size: 0.85rem;
+        }}
         
         .no-findings {{
             text-align: center;
@@ -679,6 +1579,12 @@ def generate_integrated_html_report(
         {manifest_html}
 
         {future_html}
+
+        {ubuntu_support_html}
+
+        {platform_support_html}
+
+        {k8s_136_impact_html}
         
         <footer>
             Generated by IaC Deprecation Scanner v1.0.0 — Integrated Report
@@ -780,6 +1686,9 @@ def main():
         ],
         "manifest_scanner": manifest_report,
         "future_deprecation_intelligence": future_report,
+        "aks_ubuntu_support": get_ubuntu_support_snapshot(),
+        "aks_platform_support": get_platform_support_snapshot(),
+        "aks_kubernetes_136_impact": get_kubernetes_136_impact_snapshot(target_repo),
     }
     with open(json_output, "w", encoding="utf-8") as f:
         json.dump(combined_json, f, indent=2, default=str)
@@ -820,6 +1729,13 @@ IaC Scanner:
 """)
     
     print(f"Reports saved to:\n  • {html_output}\n  • {json_output}")
+
+    maybe_email_report(
+        repo_path=target_repo,
+        html_report_path=html_output,
+        json_report_path=json_output,
+        total_findings=summary["total_findings"],
+    )
     
     return 0
 

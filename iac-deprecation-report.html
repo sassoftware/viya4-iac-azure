@@ -294,6 +294,59 @@
         .future-summary ul {
             margin-left: 20px;
         }
+
+        .ubuntu-support-section {
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 25px;
+            margin-top: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .platform-support-section {
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 25px;
+            margin-top: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .ubuntu-support-section h2,
+        .ubuntu-support-section h3,
+        .platform-support-section h2,
+        .platform-support-section h3 {
+            margin-bottom: 12px;
+        }
+
+        .ubuntu-support-section h2,
+        .platform-support-section h2 {
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .ubuntu-support-section h3,
+        .platform-support-section h3 {
+            margin-top: 18px;
+        }
+
+        .ubuntu-support-intro,
+        .ubuntu-sources {
+            color: #495057;
+        }
+
+        .ubuntu-notes,
+        .ubuntu-sources {
+            margin-top: 16px;
+        }
+
+        .ubuntu-sources ul {
+            margin-left: 20px;
+        }
+
+        .source-date {
+            color: #6c757d;
+            font-size: 0.85rem;
+        }
         
         .no-findings {
             text-align: center;
@@ -318,10 +371,10 @@
         <header>
             <h1>🔍 IaC Deprecation Report — Integrated</h1>
             <p class="meta-info">
-                Repository: /r/narndhome01.unx.sas.com/vol/vol001/u01/nirpat/viya4-iac-azure<br>
-                Generated: 2026-05-20 06:05:00 |
+                Repository: C:\Users\lodave\PSCLOUD Work\viya4-iac-azure<br>
+                Generated: 2026-06-29 10:43:53 |
                 Files Scanned: 66 |
-                Duration: 0.09s
+                Duration: 0.23s
             </p>
         </header>
         
@@ -335,7 +388,7 @@
                     <p>Critical</p>
                 </div>
                 <div class="card high">
-                    <h3>5</h3>
+                    <h3>4</h3>
                     <p>High</p>
                 </div>
                 <div class="card medium">
@@ -343,7 +396,7 @@
                     <p>Medium</p>
                 </div>
                 <div class="card low">
-                    <h3>1</h3>
+                    <h3>0</h3>
                     <p>Low</p>
                 </div>
                 <div class="card info">
@@ -387,7 +440,7 @@
         
         <section class="severity-section">
             <div class="severity-header high">
-                🟠 HIGH (5)
+                🟠 HIGH (4)
             </div>
             <table class="findings-table">
                 <thead>
@@ -400,32 +453,6 @@
                 </thead>
                 <tbody>
                     
-                <tr>
-                    <td class="location">variables.tf:347</td>
-                    <td>
-                        <strong>Hardcoded credentials pattern</strong><br>
-                        <small>Potential hardcoded password or API key detected.</small>
-                    </td>
-                    <td>general</td>
-                    <td>
-                        <span class="fix">Use environment variables, secret management, or Terraform v...</span><br>
-                        
-                    </td>
-                </tr>
-            
-                <tr>
-                    <td class="location">versions.tf:19</td>
-                    <td>
-                        <strong>Deprecated azurerm provider version 2.x</strong><br>
-                        <small>azurerm provider version 2.x is deprecated and will not receive updates.</small>
-                    </td>
-                    <td>terraform</td>
-                    <td>
-                        <span class="fix">Update provider version constraint to ~> 4.0 and follow migr...</span><br>
-                        <a href="https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/4.0-upgrade-guide" target="_blank">📚 Docs</a>
-                    </td>
-                </tr>
-            
                 <tr>
                     <td class="location">versions.tf:23</td>
                     <td>
@@ -440,7 +467,7 @@
                 </tr>
             
                 <tr>
-                    <td class="location">versions.tf:35</td>
+                    <td class="location">versions.tf:27</td>
                     <td>
                         <strong>Deprecated azurerm provider version 2.x</strong><br>
                         <small>azurerm provider version 2.x is deprecated and will not receive updates.</small>
@@ -454,6 +481,19 @@
             
                 <tr>
                     <td class="location">versions.tf:39</td>
+                    <td>
+                        <strong>Deprecated azurerm provider version 2.x</strong><br>
+                        <small>azurerm provider version 2.x is deprecated and will not receive updates.</small>
+                    </td>
+                    <td>terraform</td>
+                    <td>
+                        <span class="fix">Update provider version constraint to ~> 4.0 and follow migr...</span><br>
+                        <a href="https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/4.0-upgrade-guide" target="_blank">📚 Docs</a>
+                    </td>
+                </tr>
+            
+                <tr>
+                    <td class="location">versions.tf:43</td>
                     <td>
                         <strong>Deprecated azurerm provider version 2.x</strong><br>
                         <small>azurerm provider version 2.x is deprecated and will not receive updates.</small>
@@ -485,19 +525,6 @@
                 <tbody>
                     
                 <tr>
-                    <td class="location">.github/workflows/semvar.yml:14</td>
-                    <td>
-                        <strong>Deprecated GitHub Action: actions/checkout@v2</strong><br>
-                        <small>The action actions/checkout@v2 uses a deprecated Node.js runtime or is outdated.</small>
-                    </td>
-                    <td>github-actions</td>
-                    <td>
-                        <span class="fix">Update from actions/checkout@v2 to actions/checkout@v4.</span><br>
-                        <a href="https://github.blog/changelog/2023-09-22-github-actions-transitioning-from-node-16-to-node-20/" target="_blank">📚 Docs</a>
-                    </td>
-                </tr>
-            
-                <tr>
                     <td class="location">versions.tf:15</td>
                     <td>
                         <strong>Deprecated azurerm provider version 3.x</strong><br>
@@ -511,7 +538,7 @@
                 </tr>
             
                 <tr>
-                    <td class="location">versions.tf:27</td>
+                    <td class="location">versions.tf:19</td>
                     <td>
                         <strong>Deprecated azurerm provider version 3.x</strong><br>
                         <small>azurerm provider version 3.x is deprecated. Migration to 4.x is recommended.</small>
@@ -523,35 +550,16 @@
                     </td>
                 </tr>
             
-                </tbody>
-            </table>
-        </section>
-        
-        <section class="severity-section">
-            <div class="severity-header low">
-                🔵 LOW (1)
-            </div>
-            <table class="findings-table">
-                <thead>
-                    <tr>
-                        <th>Location</th>
-                        <th>Issue</th>
-                        <th>Category</th>
-                        <th>Suggested Fix</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    
                 <tr>
-                    <td class="location">.github/workflows/linter-analysis.yml:45</td>
+                    <td class="location">versions.tf:31</td>
                     <td>
-                        <strong>Deprecated GitHub Action: actions/cache@v3</strong><br>
-                        <small>The action actions/cache@v3 uses a deprecated Node.js runtime or is outdated.</small>
+                        <strong>Deprecated azurerm provider version 3.x</strong><br>
+                        <small>azurerm provider version 3.x is deprecated. Migration to 4.x is recommended.</small>
                     </td>
-                    <td>github-actions</td>
+                    <td>terraform</td>
                     <td>
-                        <span class="fix">Update from actions/cache@v3 to actions/cache@v4.</span><br>
-                        <a href="https://github.blog/changelog/2023-09-22-github-actions-transitioning-from-node-16-to-node-20/" target="_blank">📚 Docs</a>
+                        <span class="fix">Plan migration to azurerm 4.x. Review breaking changes in up...</span><br>
+                        <a href="https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/4.0-upgrade-guide" target="_blank">📚 Docs</a>
                     </td>
                 </tr>
             
@@ -567,21 +575,21 @@
             <div class="manifest-summary review-required">
                 <div class="manifest-status">⚠️ REVIEW REQUIRED</div>
                 <div class="manifest-meta">
-                    <strong>Version:</strong> 4.48.0 → 4.73.0
+                    <strong>Version:</strong> 4.48.0 → 4.79.0
                 </div>
             </div>
             
             <div class="manifest-counts">
                 <div class="manifest-count breaking">
-                    <span class="count">2</span>
+                    <span class="count">3</span>
                     <span class="label">🔴 BREAKING</span>
                 </div>
                 <div class="manifest-count deprecated">
-                    <span class="count">0</span>
+                    <span class="count">1</span>
                     <span class="label">🟡 DEPRECATED</span>
                 </div>
                 <div class="manifest-count changed">
-                    <span class="count">16</span>
+                    <span class="count">15</span>
                     <span class="label">🔵 CHANGED</span>
                 </div>
             </div>
@@ -599,6 +607,20 @@
                     <td><code>azurerm_kubernetes_cluster_node_pool</code></td>
                     <td class="location">modules/aks_node_pool/main.tf</td>
                     <td><small>BREAKING: property `container_log_max_lines` renamed to `container_log_max_files` -- update your .tf...</small></td>
+                </tr>
+            
+                <tr>
+                    <td>🔴 BREAKING</td>
+                    <td><code>azurerm_netapp_account</code></td>
+                    <td class="location">modules/azurerm_netapp/main.tf</td>
+                    <td><small></small></td>
+                </tr>
+            
+                <tr>
+                    <td>🟡 DEPRECATED</td>
+                    <td><code>azurerm_virtual_network</code></td>
+                    <td class="location">modules/azurerm_vnet/main.tf</td>
+                    <td><small></small></td>
                 </tr>
             
                 <tr>
@@ -705,13 +727,6 @@
                     <td class="location">iam.tf</td>
                     <td><small></small></td>
                 </tr>
-            
-                <tr>
-                    <td>🔵 CHANGED</td>
-                    <td><code>azurerm_virtual_network</code></td>
-                    <td class="location">modules/azurerm_vnet/main.tf</td>
-                    <td><small></small></td>
-                </tr>
             </tbody></table>
             
             <p class="manifest-ref">
@@ -726,14 +741,14 @@
         <section class="future-section">
             <h2>🔮 Upcoming / Future Deprecation Risks</h2>
             <p class="future-meta">
-                Generated: 2026-05-20T10:05:00.346635 |
-                Cache Used: False |
-                Risks: 16
+                Generated: 2026-06-29T05:13:53.662233 |
+                Cache Used: True |
+                Risks: 14
             </p>
             
             <div class="future-summary">
                 <h3>Upgrade Impact Intelligence</h3>
-                <ul><li>Upgrading azurerm may impact: azurerm_kubernetes_cluster, azurerm_kubernetes_cluster_node_pool</li></ul>
+                <ul><li>Upgrading azurerm may impact: azurerm_kubernetes_cluster, azurerm_kubernetes_cluster_node_pool, azurerm_netapp_account, azurerm_virtual_network</li></ul>
             </div>
             
             <table class="findings-table"><thead><tr><th>Severity</th><th>Component</th><th>Current Version</th><th>Future Risk</th><th>Effective Date</th><th>Impact</th><th>Source</th></tr></thead><tbody>
@@ -861,7 +876,7 @@
                     <td><strong>HIGH</strong></td>
                     <td>azurerm provider</td>
                     <td><code>4.48.0</code></td>
-                    <td>Provider drift detected relative to latest stable 4.73.0; future upgrades may include cumulative breaking changes.</td>
+                    <td>Provider drift detected relative to latest stable 4.79.0; future upgrades may include cumulative breaking changes.</td>
                     <td>Before next provider upgrade cycle</td>
                     <td>Multiple Terraform resources may require config adjustments during upgrade.</td>
                     <td><a href="https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/4.0-upgrade-guide" target="_blank">azurerm changelog and upgrade guidance</a></td>
@@ -871,34 +886,409 @@
                     <td><strong>HIGH</strong></td>
                     <td>azurerm provider upgrade window</td>
                     <td><code>4.48.0</code></td>
-                    <td>Upgrade window 4.48.0 -> 4.73.0 contains 2 breaking and 16 changed items.</td>
+                    <td>Upgrade window 4.48.0 -> 4.79.0 contains 3 breaking and 15 changed items.</td>
                     <td>Next provider upgrade</td>
                     <td>Terraform plans may introduce recreations, diffs, or failures until resource configuration is aligned.</td>
                     <td><a href="https://github.com/hashicorp/terraform-provider-azurerm/blob/main/CHANGELOG.md" target="_blank">Manifest scanner changelog analysis</a></td>
                 </tr>
+            </tbody></table>
+        </section>
+        
+
+        
+        <section class="ubuntu-support-section">
+            <h2>🐧 AKS Ubuntu OS and Node Image Support</h2>
+            <p class="ubuntu-support-intro">
+                This section summarizes Ubuntu OS SKU support, retirement dates, and node image constraints from current Azure AKS documentation.
+            </p>
+
+            <h3>Ubuntu OS SKU Support</h3>
+            <table class="findings-table">
+                <thead>
+                    <tr>
+                        <th>OS SKU</th>
+                        <th>Supported Kubernetes Versions</th>
+                        <th>Default / Migration Behavior</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                <tr>
+                    <td><code>Ubuntu</code></td>
+                    <td>All supported AKS Kubernetes versions</td>
+                    <td>Ubuntu 22.04 is the default for Kubernetes 1.25 to 1.34. Ubuntu 24.04 is the default for Kubernetes 1.35+.</td>
+                </tr>
+            
+                <tr>
+                    <td><code>Ubuntu2204</code></td>
+                    <td>1.25 to 1.36</td>
+                    <td>Versioned OS SKU for staying on or rolling back to Ubuntu 22.04.</td>
+                </tr>
+            
+                <tr>
+                    <td><code>Ubuntu2404</code></td>
+                    <td>1.32 to 1.38</td>
+                    <td>Versioned OS SKU for adopting Ubuntu 24.04 before Kubernetes 1.35 or for explicit pinning.</td>
+                </tr>
+            
+                </tbody>
+            </table>
+
+            <h3>Ubuntu Retirement Milestones</h3>
+            <table class="findings-table">
+                <thead>
+                    <tr>
+                        <th>Version</th>
+                        <th>Support Ends</th>
+                        <th>Image Removal</th>
+                        <th>Operational Impact</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                <tr>
+                    <td><strong>Ubuntu 20.04</strong></td>
+                    <td>2027-03-17</td>
+                    <td>2027-03-17</td>
+                    <td>No AKS support or security updates. Existing node images are deleted and node pools can no longer scale.</td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Ubuntu 22.04</strong></td>
+                    <td>2027-06-30</td>
+                    <td>2028-04-30</td>
+                    <td>After support ends, AKS stops producing new node images and security patches. After image removal, scaling and remediation operations fail.</td>
+                </tr>
+            
+                </tbody>
+            </table>
+
+            <h3>Ubuntu Node Image Support</h3>
+            <table class="findings-table">
+                <thead>
+                    <tr>
+                        <th>Variant</th>
+                        <th>Support</th>
+                        <th>Limitations</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                <tr>
+                    <td>Ubuntu with containerd and Gen 1</td>
+                    <td>Supported for Ubuntu node pools on VM sizes that only support Generation 1.</td>
+                    <td>Used only when the VM size does not support Gen 2.</td>
+                </tr>
+            
+                <tr>
+                    <td>Ubuntu with containerd and Gen 2</td>
+                    <td>Default Ubuntu node image for VM sizes that support Generation 2.</td>
+                    <td>Selected by default when a VM supports both Gen 1 and Gen 2.</td>
+                </tr>
+            
+                <tr>
+                    <td>Ubuntu with containerd and FIPS</td>
+                    <td>Supported for FIPS-enabled Ubuntu node pools on Gen 1 and Gen 2 where supported by AKS.</td>
+                    <td>Not supported for Ubuntu 24.04+. Cannot be combined with Arm64 or CVM.</td>
+                </tr>
+            
+                <tr>
+                    <td>Ubuntu with containerd and Arm64</td>
+                    <td>Supported for Arm64 Ubuntu node pools.</td>
+                    <td>Gen 2 only. Cannot be combined with FIPS, CVM, or Trusted Launch.</td>
+                </tr>
+            
+                <tr>
+                    <td>Ubuntu with containerd and CVM</td>
+                    <td>Supported for Confidential VM Ubuntu node pools on Ubuntu 20.04 and Ubuntu 24.04.</td>
+                    <td>Not supported for Ubuntu 22.04. Gen 2 only. Cannot be combined with FIPS, Arm64, or Trusted Launch.</td>
+                </tr>
+            
+                <tr>
+                    <td>Ubuntu with containerd and Trusted Launch</td>
+                    <td>Supported for Trusted Launch Ubuntu node pools.</td>
+                    <td>Gen 2 only. Cannot be combined with Arm64 or CVM.</td>
+                </tr>
+            
+                </tbody>
+            </table>
+
+            <div class="future-summary ubuntu-notes">
+                <h3>Migration Notes</h3>
+                <ul><li>For OS SKU Ubuntu, AKS automatically moves the default Ubuntu version to 24.04 when the cluster upgrades to Kubernetes 1.35 or later.</li><li>Ubuntu 24.04 node images use containerd 2.0 by default, so workloads that depend on runtime behavior should be validated before migration.</li><li>Ubuntu 24.04 does not support FIPS in AKS at this time.</li></ul>
+            </div>
+
+            <div class="ubuntu-sources">
+                <h3>Sources</h3>
+                <ul><li><a href="https://learn.microsoft.com/en-us/azure/aks/node-images" target="_blank">Node Images in Azure Kubernetes Service (AKS)</a> <span class="source-date">(updated 2025-07-03)</span></li><li><a href="https://learn.microsoft.com/en-us/azure/aks/upgrade-os-version" target="_blank">Upgrade Operating System (OS) Version in Azure Kubernetes Service (AKS) Clusters</a> <span class="source-date">(updated 2026-05-29)</span></li></ul>
+            </div>
+        </section>
+    
+
+        
+        <section class="platform-support-section">
+            <h2>🖥️ AKS Azure Linux and Windows Support</h2>
+            <p class="ubuntu-support-intro">
+                This section summarizes Azure Linux and Windows OS SKU support, retirements, and node image constraints from current Azure AKS documentation.
+            </p>
+
+            <div class="future-summary ubuntu-notes">
+                <h3>Node Image Release Cadence</h3>
+                <ul><li>Linux node images are released weekly and Windows node images are released monthly.</li><li>New node images can take up to two weeks to roll out across all Azure regions.</li><li>Azure recommends automatic node image upgrades and planned maintenance to keep nodes current.</li></ul>
+            </div>
+
+            <h3>Azure Linux OS SKU Support</h3>
+            <table class="findings-table">
+                <thead>
+                    <tr>
+                        <th>OS SKU</th>
+                        <th>Supported Kubernetes Versions</th>
+                        <th>Default / Migration Behavior</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                <tr>
+                    <td><code>AzureLinux</code></td>
+                    <td>All supported AKS Kubernetes versions</td>
+                    <td>Azure Linux 2.0 is default for Kubernetes 1.27 to 1.31. Azure Linux 3.0 is default for Kubernetes 1.32+.</td>
+                </tr>
+            
+                <tr>
+                    <td><code>AzureLinux3</code></td>
+                    <td>1.28 to 1.36</td>
+                    <td>Versioned OS SKU for explicit migration to Azure Linux 3.0 without a Kubernetes upgrade.</td>
+                </tr>
+            
+                <tr>
+                    <td><code>AzureLinuxOSGuard</code></td>
+                    <td>1.32 and above</td>
+                    <td>OS Guard images are upgraded through node image upgrades.</td>
+                </tr>
+            
+                <tr>
+                    <td><code>Flatcar</code></td>
+                    <td>All supported AKS Kubernetes versions</td>
+                    <td>Flatcar versions are delivered through node image upgrades.</td>
+                </tr>
+            
+                <tr>
+                    <td><code>AzureContainerLinux</code></td>
+                    <td>1.34 and above</td>
+                    <td>Azure Container Linux versions are delivered through node image upgrades.</td>
+                </tr>
+            
+                </tbody>
+            </table>
+
+            <h3>Windows OS SKU Support</h3>
+            <table class="findings-table">
+                <thead>
+                    <tr>
+                        <th>OS SKU</th>
+                        <th>Supported Kubernetes Versions</th>
+                        <th>Default / Migration Behavior</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                <tr>
+                    <td><code>Windows2019</code></td>
+                    <td>1.14 to 1.32</td>
+                    <td>Default Windows OS in Kubernetes 1.14 to 1.24.</td>
+                </tr>
+            
+                <tr>
+                    <td><code>Windows2022</code></td>
+                    <td>1.23 to 1.34</td>
+                    <td>Default Windows OS in Kubernetes 1.25 to 1.34.</td>
+                </tr>
+            
+                </tbody>
+            </table>
+
+            <h3>Platform Retirement Milestones</h3>
+            <table class="findings-table">
+                <thead>
+                    <tr>
+                        <th>Platform</th>
+                        <th>Support Ends</th>
+                        <th>Image Removal</th>
+                        <th>Operational Impact</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                <tr>
+                    <td><strong>Azure Linux 2.0</strong></td>
+                    <td>2025-11-30</td>
+                    <td>2026-03-31</td>
+                    <td>No new security updates after support ends, then node pools can no longer scale after image removal.</td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Windows Server 2019</strong></td>
+                    <td>2026-03-01</td>
+                    <td>2027-04-01</td>
+                    <td>Kubernetes 1.33+ cannot use Windows Server 2019. After image removal, scaling operations fail.</td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Windows Server 2022</strong></td>
+                    <td>2028-06-30</td>
+                    <td>2029-06-30</td>
+                    <td>Windows Server 2022 is not supported in Kubernetes 1.37+ and is fully removed later.</td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Windows Annual Channel (Preview)</strong></td>
+                    <td>2026-05-15</td>
+                    <td>2027-05-15</td>
+                    <td>No new node pools or security patches after support ends. Reimage and redeploy operations fail after removal.</td>
+                </tr>
+            
+                </tbody>
+            </table>
+
+            <h3>Azure Linux and Windows Node Image Notes</h3>
+            <table class="findings-table">
+                <thead>
+                    <tr>
+                        <th>Platform</th>
+                        <th>Variant</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                <tr>
+                    <td>Azure Linux</td>
+                    <td>Gen 1 / Gen 2</td>
+                    <td>Standard node image for Azure Linux pools; Gen 2 is chosen when the VM supports both generations.</td>
+                </tr>
+            
+                <tr>
+                    <td>Azure Linux</td>
+                    <td>FIPS / Arm64 / FIPS+Arm64 / Trusted Launch / Pod Sandboxing</td>
+                    <td>Feature-specific variants exist, but combinations are constrained. Trusted Launch, Pod Sandboxing, FIPS, and Arm64 cannot all be combined freely.</td>
+                </tr>
+            
+                <tr>
+                    <td>Azure Linux OS Guard</td>
+                    <td>Gen 2 only</td>
+                    <td>OS Guard is preview-only and unavailable on Gen 1-only VM sizes.</td>
+                </tr>
+            
+                <tr>
+                    <td>Windows LTSC</td>
+                    <td>Gen 1 / Gen 2</td>
+                    <td>Windows Server 2019 and 2022 use Gen 1 by default when a VM supports both Gen 1 and Gen 2. Windows Server 2025 selects Gen 2.</td>
+                </tr>
+            
+                <tr>
+                    <td>Windows Annual Channel</td>
+                    <td>Gen 1 / Gen 2</td>
+                    <td>Preview channel only; use LTSC for long-term support.</td>
+                </tr>
+            
+                </tbody>
+            </table>
+
+            <div class="future-summary ubuntu-notes">
+                <h3>Migration Notes</h3>
+                <ul><li>For Azure Linux, Azure recommends the default OS SKU AzureLinux so clusters move to the latest GA Azure Linux version with Kubernetes upgrades.</li><li>You can migrate Linux pools between supported OS SKUs with az aks nodepool update, but Windows OS SKUs are not supported by nodepool update and require adding node pools with the desired OS SKU.</li><li>Windows guidance in Azure docs recommends Windows2022 for new Windows node pools.</li></ul>
+            </div>
+
+            <div class="ubuntu-sources">
+                <h3>Sources</h3>
+                <ul><li><a href="https://learn.microsoft.com/en-us/azure/aks/node-images" target="_blank">Node Images in Azure Kubernetes Service (AKS)</a> <span class="source-date">(updated 2025-07-03)</span></li><li><a href="https://learn.microsoft.com/en-us/azure/aks/upgrade-os-version" target="_blank">Upgrade Operating System (OS) Version in Azure Kubernetes Service (AKS) Clusters</a> <span class="source-date">(updated 2026-05-29)</span></li></ul>
+            </div>
+        </section>
+    
+
+        
+        <section class="k8s-impact-section">
+            <h2>⏭️ AKS Kubernetes 1.36 Impact on This Repo</h2>
+            <p class="ubuntu-support-intro">
+                Repo default Kubernetes version: <code>1.34</code>. Target version reviewed: <code>1.36</code>.
+            </p>
+
+            <div class="future-summary ubuntu-notes">
+                <h3>AKS 1.36 Lifecycle</h3>
+                <ul>
+                    <li>AKS GA: 2026-06</li>
+                    <li>AKS end of life: 2027-06</li>
+                    <li>Platform support: 1.40 GA</li>
+                </ul>
+            </div>
+
+            <table class="findings-table">
+                <thead>
+                    <tr>
+                        <th>Severity</th>
+                        <th>Area</th>
+                        <th>Impact on This Codebase</th>
+                        <th>Evidence</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                <tr>
+                    <td><strong>MEDIUM</strong></td>
+                    <td>Version input wiring</td>
+                    <td>This repo passes kubernetes_version directly to both the control plane and node pools, with no validation that blocks 1.36. Terraform syntax is not the main risk.</td>
+                    <td><small>main.tf wires var.kubernetes_version into module.aks and module.node_pools; modules/azure_aks/main.tf sets kubernetes_version and default_node_pool.orchestrator_version; modules/aks_node_pool/main.tf sets orchestrator_version on custom node pools</small></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>HIGH</strong></td>
+                    <td>Implicit Ubuntu OS changes</td>
+                    <td>The repo does not expose AKS os_sku on the cluster or node pools. Once users move to 1.35+ with the default Ubuntu OS SKU, AKS shifts the default Ubuntu image family to 24.04. That is an operational change outside the current Terraform surface.</td>
+                    <td><small>variables.tf default kubernetes_version is currently 1.34; Azure docs state Ubuntu 24.04 becomes the default for os_sku Ubuntu in Kubernetes 1.35+; AKS resources in this repo set os_type for custom pools but do not set os_sku</small></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>HIGH</strong></td>
+                    <td>FIPS compatibility</td>
+                    <td>The repo supports fips_enabled on AKS and node pools, but Azure docs state Ubuntu 24.04 FIPS is not supported. Users enabling FIPS on Linux pools are the most likely to hit a 1.35/1.36 upgrade problem.</td>
+                    <td><small>fips_enabled is wired into module.aks and module.node_pools; Azure docs state Ubuntu 24.04 node images do not support FIPS</small></td>
+                </tr>
             
                 <tr>
                     <td><strong>MEDIUM</strong></td>
-                    <td>actions/checkout</td>
-                    <td><code>v2</code></td>
-                    <td>Legacy action major version with Node runtime migration risk</td>
-                    <td>Upcoming</td>
-                    <td>CI pipeline reliability and compatibility risk.</td>
-                    <td><a href="https://github.blog/changelog/2023-09-22-github-actions-transitioning-from-node-16-to-node-20/" target="_blank">GitHub Actions Node runtime migration guidance</a></td>
+                    <td>Container runtime behavior</td>
+                    <td>Ubuntu 24.04 node images use containerd 2.0 by default. Workloads or operational tooling that depend on prior runtime behavior should be validated before adopting 1.36 on default Ubuntu nodes.</td>
+                    <td><small>Azure docs state Ubuntu 24.04 on AKS uses containerd 2.0 by default; This repo leaves node OS SKU implicit for AKS node pools</small></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>MEDIUM</strong></td>
+                    <td>Provider and module surface</td>
+                    <td>The manifest scan already flags AKS-related azurerm changes that become more relevant around 1.35/1.36, especially Ubuntu2404 OS SKU support and the container_log_max_lines rename. Even if current code does not reference those fields yet, future explicit OS control likely requires module/provider updates.</td>
+                    <td><small>manifest scanner flags Ubuntu2404 support on azurerm_kubernetes_cluster and azurerm_kubernetes_cluster_node_pool; manifest scanner flags container_log_max_lines renamed to container_log_max_files</small></td>
                 </tr>
             
                 <tr>
                     <td><strong>LOW</strong></td>
-                    <td>actions/cache</td>
-                    <td><code>v3</code></td>
-                    <td>Older cache action major version, migrate to current major</td>
-                    <td>Upcoming</td>
-                    <td>CI pipeline reliability and compatibility risk.</td>
-                    <td><a href="https://github.blog/changelog/2023-09-22-github-actions-transitioning-from-node-16-to-node-20/" target="_blank">GitHub Actions Node runtime migration guidance</a></td>
+                    <td>Managed add-on churn</td>
+                    <td>AKS 1.36 changes managed component versions such as CoreDNS, KEDA, cloud-provider-node-manager, and cloud-provider-controller-manager. These are mostly AKS-managed, so the main code impact is validation rather than Terraform edits.</td>
+                    <td><small>Azure docs list CoreDNS, KEDA, and cloud-provider component changes in the 1.36 breaking changes table</small></td>
                 </tr>
-            </tbody></table>
+            
+                </tbody>
+            </table>
+
+            <div class="future-summary ubuntu-notes">
+                <h3>Recommended Actions</h3>
+                <ul><li>Keep the repo default at 1.34 or move to 1.35 first for staged validation before setting 1.36 as the default.</li><li>Add explicit AKS os_sku support to the AKS cluster and node pool modules if you need deterministic control over Ubuntu2204, Ubuntu2404, or AzureLinux3 behavior.</li><li>If any deployment uses fips_enabled on AKS Linux pools, validate a non-Ubuntu strategy or explicit supported OS path before moving to 1.36.</li><li>Test workload behavior on Ubuntu 24.04 and containerd 2.0 before changing the default kubernetes_version.</li><li>Review the azurerm AKS resource changes already identified by the manifest scan before provider upgrades.</li></ul>
+            </div>
+
+            <div class="ubuntu-sources">
+                <h3>Sources</h3>
+                <ul><li><a href="https://learn.microsoft.com/en-us/azure/aks/supported-kubernetes-versions" target="_blank">Supported Kubernetes Versions in Azure Kubernetes Service (AKS)</a> <span class="source-date">(updated 2025-07-29)</span></li><li><a href="https://learn.microsoft.com/en-us/azure/aks/upgrade-os-version" target="_blank">Upgrade Operating System (OS) Version in Azure Kubernetes Service (AKS) Clusters</a> <span class="source-date">(updated 2026-05-29)</span></li><li><a href="https://learn.microsoft.com/en-us/azure/aks/node-images" target="_blank">Node Images in Azure Kubernetes Service (AKS)</a> <span class="source-date">(updated 2025-07-03)</span></li></ul>
+            </div>
         </section>
-        
+    
         
         <footer>
             Generated by IaC Deprecation Scanner v1.0.0 — Integrated Report
