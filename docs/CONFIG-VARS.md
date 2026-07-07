@@ -107,13 +107,23 @@ az vm image terms accept \
   --subscription $subscription_id
 ```
 
+## Security
+
+The [Federal Information Processing Standard (FIPS) 140](https://learn.microsoft.com/en-us/azure/compliance/offerings/offering-fips-140-2) is a U.S. government standard that defines minimum security requirements for cryptographic modules in information technology products and systems.
+
+Azure Kubernetes Service (AKS) supports FIPS-enabled node pools that help organizations meet security and compliance requirements, including FedRAMP-related controls.
+
+To enable FIPS support in your Azure subscription, you must first accept the legal terms for the Ubuntu Pro FIPS 22.04 LTS image:
+
+```bash
+az vm image terms accept \
+  --urn Canonical:0001-com-ubuntu-pro-jammy-fips:pro-fips-22_04:latest \
+  --subscription $subscription_id
+```
+
 ### Ubuntu 22.04 FIPS Migration
 
 Ubuntu 22.04 FIPS support is dependent on AKS release availability, Kubernetes version compatibility, and regional rollout status.
-
-You can monitor AKS release availability using the AKS release tracker:
-
-[AKS Release Tracker](https://releases.aks.azure.com/AKSRelease)
 
 Existing FIPS-enabled node pools can be migrated to Ubuntu 22.04 FIPS using one of the following approaches, where supported by AKS:
 
@@ -125,13 +135,14 @@ Existing FIPS-enabled node pools can be migrated to Ubuntu 22.04 FIPS using one 
 >
 > - Availability of Ubuntu 22.04 FIPS images depends on Kubernetes version support, AKS rollout status, and regional availability.
 > - AKS determines the node image used for a node pool based on supported Kubernetes version and OS SKU combinations.
+> - During validation, Ubuntu 22.04 FIPS image support was observed with Kubernetes 1.35.
 > - Always validate the deployed node image after cluster creation or upgrade to confirm the expected operating system version has been provisioned.
-> - Refer to the AKS FIPS documentation and AKS release notes for the latest support matrix and migration guidance.
 
 | Name | Description | Type | Default | Notes |
 |------|-------------|------|---------|-------|
 | fips_enabled | Enables FIPS support for all AKS node pools and supporting virtual machines in the deployment. | bool | false | Ensure the Ubuntu Pro FIPS image terms have been accepted before deployment. |
 | enable_workload_identity | Enable Azure Workload Identity for AKS. | bool | false | Automatically enables OIDC issuer; requires Azure AD integration. |
+
 ## Networking
 
 | Name | Description | Type | Default | Notes |
