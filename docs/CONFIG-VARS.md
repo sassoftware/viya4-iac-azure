@@ -95,17 +95,6 @@ You can use `default_public_access_cidrs` to set a default range for all created
 
 **NOTE:** In a SCIM environment, the AzureActiveDirectory service tag must be granted access to port 443/HTTPS for the Ingress IP address.
 
-## Security
-
-The [Federal Information Processing Standard (FIPS) 140-3](https://learn.microsoft.com/en-us/azure/compliance/offerings/offering-fips-140-3) is a U.S. government standard that defines minimum security requirements for cryptographic modules in information technology productsPS-enabled node pools that help organizations meet security and compliance requirements, including FedRAMP-related controls.
-
-To enable FIPS support in your Azure subscription, you must first accept the legal terms for the Ubuntu Pro FIPS 22.04 LTS image:
-
-```bash
-az vm image terms accept \
-  --urn Canonical:0001-com-ubuntu-pro-jammy-fips:pro-fips-22_04:latest \
-  --subscription $subscription_id
-```
 
 ## Security
 
