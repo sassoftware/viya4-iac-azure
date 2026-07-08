@@ -95,22 +95,42 @@ You can use `default_public_access_cidrs` to set a default range for all created
 
 **NOTE:** In a SCIM environment, the AzureActiveDirectory service tag must be granted access to port 443/HTTPS for the Ingress IP address.
 
+
 ## Security
 
-The Federal Information Processing Standard (FIPS) 140 is a US government standard that defines minimum security requirements for cryptographic modules in information technology products and systems. Azure Kubernetes Service (AKS) allows the creation of node pools with FIPS 140-2 enabled. Deployments running on FIPS-enabled node pools provide increased security and help meet security controls as part of FedRAMP compliance. For more information on FIPS 140-2, see [Federal Information Processing Standard (FIPS) 140](https://learn.microsoft.com/en-us/azure/compliance/offerings/offering-fips-140-2).
+The [Federal Information Processing Standard (FIPS) 140](https://learn.microsoft.com/en-us/azure/compliance/offerings/offering-fips-140-2) is a U.S. government standard that defines minimum security requirements for cryptographic modules in information technology products and systems.
 
-To enable the FIPS support in your subscription, you first need to accept the legal terms of the `Ubuntu Pro FIPS 22.04 LTS` image that will be used in the deployment. For details see [Ubuntu Pro FIPS 22.04 LTS](https://azuremarketplace.microsoft.com/en-us/marketplace/apps/canonical.0001-com-ubuntu-pro-jammy-fips?tab=Overview).
+Azure Kubernetes Service (AKS) supports FIPS-enabled node pools that help organizations meet security and compliance requirements, including FedRAMP-related controls.
 
-To accept the terms please run following az command before deploying cluster:
+To enable FIPS support in your Azure subscription, you must first accept the legal terms for the Ubuntu Pro FIPS 22.04 LTS image:
 
 ```bash
-az vm image terms accept --urn Canonical:0001-com-ubuntu-pro-jammy-fips:pro-fips-22_04:latest --subscription $subscription_id
+az vm image terms accept \
+  --urn Canonical:0001-com-ubuntu-pro-jammy-fips:pro-fips-22_04:latest \
+  --subscription $subscription_id
 ```
 
+### Ubuntu 22.04 FIPS Migration
+
+Ubuntu 22.04 FIPS support is dependent on AKS release availability, Kubernetes version compatibility, and regional rollout status.
+
+Existing FIPS-enabled node pools can be migrated to Ubuntu 22.04 FIPS using one of the following approaches, where supported by AKS:
+
+1. Upgrade existing FIPS-enabled node pools to Kubernetes 1.35+ using the `Ubuntu` OS SKU. When supported by AKS, node pools will transition from the Ubuntu 20.04 FIPS image to the Ubuntu 22.04 FIPS image during the upgrade process.
+
+2. Update existing FIPS-enabled node pools running supported Kubernetes versions to the `Ubuntu2204` OS SKU. When supported by AKS, node pools will transition from the Ubuntu 20.04 FIPS image to the Ubuntu 22.04 FIPS image.
+
+> **Important**
+>
+> - Availability of Ubuntu 22.04 FIPS images depends on Kubernetes version support, AKS rollout status, and regional availability.
+> - AKS determines the node image used for a node pool based on supported Kubernetes version and OS SKU combinations.
+> - During validation, Ubuntu 22.04 FIPS image support was observed with Kubernetes 1.35.
+> - Always validate the deployed node image after cluster creation or upgrade to confirm the expected operating system version has been provisioned.
+
 | Name | Description | Type | Default | Notes |
-| :--- | ---: | ---: | ---: | ---: |
-| fips_enabled | Enables the Federal Information Processing Standard for all the nodes and VMs in this cluster | bool | false | Make sure to accept terms mentioned above before deploying. |
-| enable_workload_identity | Enable Azure Workload Identity for AKS | bool | false | Automatically enables OIDC issuer; requires Azure AD integration. |
+|------|-------------|------|---------|-------|
+| fips_enabled | Enables FIPS support for all AKS node pools and supporting virtual machines in the deployment. | bool | false | Ensure the Ubuntu Pro FIPS image terms have been accepted before deployment. |
+| enable_workload_identity | Enable Azure Workload Identity for AKS. | bool | false | Automatically enables OIDC issuer; requires Azure AD integration. |
 
 ## Networking
 
