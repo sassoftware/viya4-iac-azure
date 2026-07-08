@@ -60,7 +60,7 @@ func TestPlanPostgresServers(t *testing.T) {
 			AttributeJsonPath: "{$.administrator_password}",
 		},
 		"postgresFlexServerVersion": {
-			Expected:          `15`,
+			Expected:          `16`,
 			ResourceMapName:   postgresResourceMapName,
 			AttributeJsonPath: "{$.version}",
 		},
