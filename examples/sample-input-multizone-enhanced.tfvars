@@ -104,7 +104,7 @@ node_pools = {
 # Jump Server
 create_jump_public_ip = true
 jump_vm_admin        = "jumpuser"
-jump_vm_machine_type = "Standard_B2s"
+jump_vm_machine_type = "Standard_B2ls_v2"
 
 # OPTION 1: MULTI-AZ WITH AZURE NETAPP FILES (Recommended for production)
 # Storage for SAS Viya CAS/Compute with Cross-Zone Replication

@@ -142,7 +142,7 @@ node_pools = {
 # Jump Server
 create_jump_public_ip = true
 jump_vm_admin        = "jumpuser"
-jump_vm_machine_type = "Standard_B2s"
+jump_vm_machine_type = "Standard_B2ls_v2"
 
 # Storage for SAS Viya CAS/Compute
 storage_type = "standard"
