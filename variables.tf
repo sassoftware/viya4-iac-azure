@@ -345,7 +345,7 @@ variable "postgres_server_defaults" {
     geo_redundant_backup_enabled = false
     administrator_login          = "pgadmin"
     administrator_password       = "my$up3rS3cretPassw0rd"
-    server_version               = "15"
+    server_version               = "16"
     ssl_enforcement_enabled      = true
     connectivity_method          = "public"
     postgresql_configurations    = [{ name : "azure.extensions", value : "PGCRYPTO" }]
