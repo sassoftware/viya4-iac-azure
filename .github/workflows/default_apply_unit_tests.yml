@@ -99,11 +99,8 @@ jobs:
             -e TF_VAR_client_id="${TF_VAR_client_id}" \
             -e TF_VAR_client_secret="${TF_VAR_client_secret}" \
             -e TF_VAR_public_cidrs="${TF_VAR_public_cidrs}" \
-            -v "${GITHUB_WORKSPACE}":/viya4-iac-azure \
-            "${DOCKER_IMAGE_TAG}" \
-            -p="${TEST_PACKAGE}" \
-            -r="${TEST_FILTER}" \
-            $([[ "${VERBOSE}" == "true" ]] && echo "-v")
+            -v $(pwd):/viya4-iac-azure \
+            viya4-iac-azure:terratest -v
 
       # - name: Upload Terratest Artifacts
       #   if: always()
