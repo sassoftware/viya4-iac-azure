@@ -4,6 +4,9 @@
 name: Manual Apply Integration Tests
 
 on:
+  pull_request:
+    branches:
+    - main
   workflow_dispatch:
     inputs:
       ref:
@@ -29,7 +32,7 @@ on:
       docker_image_tag:
         description: Docker image tag to build and run
         required: false
-        default: viya4-iac-azure:terratest
+        default: 'viya4-iac-azure:terratest'
         type: string
       verbose:
         description: Run go test in verbose mode
@@ -51,11 +54,11 @@ jobs:
       TF_VAR_client_id: ${{ secrets.TF_VAR_CLIENT_ID }}
       TF_VAR_client_secret: ${{ secrets.TF_VAR_CLIENT_SECRET }}
       TF_VAR_public_cidrs: ${{ secrets.TF_VAR_PUBLIC_CIDRS }}
-      DOCKER_IMAGE_TAG: ${{ inputs.docker_image_tag }}
-      TEST_FILTER: ${{ inputs.test_filter }}
-      TEST_PACKAGE: ${{ inputs.test_package }}
-      TFVARS_SOURCE_PATH: ${{ inputs.tfvars_source_path }}
-      VERBOSE: ${{ inputs.verbose }}
+      DOCKER_IMAGE_TAG: 'viya4-iac-azure:terratest'
+      TEST_FILTER: '.*Apply.*'
+      TEST_PACKAGE: './...'
+      TFVARS_SOURCE_PATH: ''
+      VERBOSE: false
 
     steps:
       - name: Checkout Repository
