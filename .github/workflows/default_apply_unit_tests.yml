@@ -100,7 +100,9 @@ jobs:
             -e TF_VAR_client_secret="${TF_VAR_client_secret}" \
             -e TF_VAR_public_cidrs="${TF_VAR_public_cidrs}" \
             -v $(pwd):/viya4-iac-azure \
-            viya4-iac-azure:terratest -v
+            viya4-iac-azure:terratest \
+            -v \
+            -r=".*Apply.*"
 
       # - name: Upload Terratest Artifacts
       #   if: always()
