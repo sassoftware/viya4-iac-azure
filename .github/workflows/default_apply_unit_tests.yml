@@ -110,7 +110,7 @@ jobs:
             -e TF_VAR_tenant_id="${TF_VAR_tenant_id}" \
             -e TF_VAR_client_id="${TF_VAR_client_id}" \
             -e TF_VAR_client_secret="${TF_VAR_client_secret}" \
-            -e TF_VAR_public_cidrs="${TF_VAR_public_cidrs}" \
+            -e TF_VAR_public_cidrs='["149.173.0.0/16", "194.206.69.176/28", "109.232.56.224/27", "62.255.11.0/29", "88.202.174.192/29", "137.221.139.0/24", "212.103.250.112/29", "88.151.216.240/29", "121.244.109.0/24", "125.21.192.0/29", "121.243.77.24/29", "106.120.85.32/28", "113.34.83.240/29", "192.31.22.0/24", "80.80.4.0/27"]' \
             -v $(pwd):/viya4-iac-azure \
             "${DOCKER_IMAGE_TAG}" \
             "${TERRATEST_ARGS[@]}"
