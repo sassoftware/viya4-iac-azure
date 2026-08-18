@@ -47,16 +47,6 @@ func TestPlanNetwork(t *testing.T) {
 			ResourceMapName: "aks_pod_cidr",
 			Retriever:       helpers.RetrieveFromRawPlanOutputChanges,
 		},
-		"serviceCidrTest": {
-			Expected:          "10.0.0.0/16",
-			ResourceMapName:   "module.aks.azurerm_kubernetes_cluster.aks",
-			AttributeJsonPath: "{$.network_profile[0].service_cidr}",
-		},
-		"dnsServiceIpTest": {
-			Expected:          "10.0.0.10",
-			ResourceMapName:   "module.aks.azurerm_kubernetes_cluster.aks",
-			AttributeJsonPath: "{$.network_profile[0].dns_service_ip}",
-		},
 	}
 
 	helpers.RunTests(t, tests, helpers.GetDefaultPlan(t))

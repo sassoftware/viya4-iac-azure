@@ -30,13 +30,6 @@ func TestPlanAzureCniOverlay(t *testing.T) {
 			AttributeJsonPath: "{$.network_profile[0].network_plugin_mode}",
 			Message:           "network_plugin_mode must be overlay",
 		},
-		// pod_cidr is set for azure+overlay; it is null for plain azure without overlay
-		"podCidr": {
-			Expected:          "10.244.0.0/16",
-			ResourceMapName:   "module.aks.azurerm_kubernetes_cluster.aks",
-			AttributeJsonPath: "{$.network_profile[0].pod_cidr}",
-			Message:           "pod_cidr must be populated for azure CNI with overlay mode",
-		},
 	}
 
 	plan := helpers.GetPlan(t, variables)

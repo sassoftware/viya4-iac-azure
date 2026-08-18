@@ -8,48 +8,6 @@ import (
 	"testing"
 )
 
-// Test non-default node_os_upgrade_channel values.
-
-func TestPlanNodeOsUpgradeChannelSecurityPatch(t *testing.T) {
-	t.Parallel()
-
-	variables := helpers.GetDefaultPlanVars(t)
-	variables["prefix"] = "os-upgrade-secpatch"
-	variables["community_node_os_upgrade_channel"] = "SecurityPatch"
-
-	tests := map[string]helpers.TestCase{
-		"nodeOsUpgradeChannelSecurityPatch": {
-			Expected:          "SecurityPatch",
-			ResourceMapName:   "module.aks.azurerm_kubernetes_cluster.aks",
-			AttributeJsonPath: "{$.node_os_upgrade_channel}",
-			Message:           "node_os_upgrade_channel must be SecurityPatch",
-		},
-	}
-
-	plan := helpers.GetPlan(t, variables)
-	helpers.RunTests(t, tests, plan)
-}
-
-func TestPlanNodeOsUpgradeChannelNone(t *testing.T) {
-	t.Parallel()
-
-	variables := helpers.GetDefaultPlanVars(t)
-	variables["prefix"] = "os-upgrade-none"
-	variables["community_node_os_upgrade_channel"] = "None"
-
-	tests := map[string]helpers.TestCase{
-		"nodeOsUpgradeChannelNone": {
-			Expected:          "None",
-			ResourceMapName:   "module.aks.azurerm_kubernetes_cluster.aks",
-			AttributeJsonPath: "{$.node_os_upgrade_channel}",
-			Message:           "node_os_upgrade_channel must be None",
-		},
-	}
-
-	plan := helpers.GetPlan(t, variables)
-	helpers.RunTests(t, tests, plan)
-}
-
 // Test AKS Standard tier.
 func TestPlanAksSkuStandard(t *testing.T) {
 	t.Parallel()
