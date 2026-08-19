@@ -4,35 +4,25 @@
 name: Manual Apply Integration Tests
 
 on:
-  pull_request:
-    branches:
-    - main
   workflow_dispatch:
     inputs:
       ref:
-        description: Git branch, tag, or SHA to test
+        name: Branch
+        description: Git branch to test
         required: false
         default: main
         type: string
       test_filter:
-        description: Terratest regex to run
+        name: Terratest Name
+        description: Terratest test name filter to run
         required: false
         default: 'TestApplyDefaultMain'
         type: string
       test_package:
+        name: Terratest Package
         description: Go package pattern to test
         required: false
         default: './defaultapply'
-        type: string
-      tfvars_source_path:
-        description: Optional tfvars file to copy into examples/sample-input-defaults.tfvars before running
-        required: false
-        default: ''
-        type: string
-      docker_image_tag:
-        description: Docker image tag to build and run
-        required: false
-        default: 'viya4-iac-azure:terratest'
         type: string
       verbose:
         description: Run go test in verbose mode
@@ -55,30 +45,15 @@ jobs:
       TF_VAR_client_secret: ${{ secrets.TF_VAR_CLIENT_SECRET }}
       TF_VAR_public_cidrs: ${{ secrets.TF_VAR_PUBLIC_CIDRS }}
       DOCKER_IMAGE_TAG: 'viya4-iac-azure:terratest'
-      TEST_FILTER: 'TestApplyDefaultMain'
-      TEST_PACKAGE: './defaultapply'
-      TFVARS_SOURCE_PATH: ''
-      VERBOSE: false
+      TEST_FILTER: ${{ inputs.test_filter }}
+      TEST_PACKAGE: ${{ inputs.test_package }}
+      VERBOSE: ${{ inputs.verbose }}
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
           ref: ${{ inputs.ref }}
-
-      - name: Prepare tfvars Input
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          if [[ -n "${TFVARS_SOURCE_PATH}" ]]; then
-            if [[ ! -f "${TFVARS_SOURCE_PATH}" ]]; then
-              echo "tfvars file not found: ${TFVARS_SOURCE_PATH}"
-              exit 1
-            fi
-
-            cp "${TFVARS_SOURCE_PATH}" examples/sample-input-defaults.tfvars
-          fi
 
       - name: Build Docker Image
         shell: bash
@@ -92,12 +67,12 @@ jobs:
         run: |
           set -euo pipefail
 
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            TEST_FILTER="${{ inputs.test_filter }}"
-            TEST_PACKAGE="${{ inputs.test_package }}"
-            DOCKER_IMAGE_TAG="${{ inputs.docker_image_tag }}"
-            VERBOSE="${{ inputs.verbose }}"
-          fi
+          
+          TEST_FILTER="${{ inputs.test_filter }}"
+          TEST_PACKAGE="${{ inputs.test_package }}"
+          DOCKER_IMAGE_TAG='viya4-iac-azure:terratest'
+          VERBOSE="${{ inputs.verbose }}"
+          
 
           TERRATEST_ARGS=("-p=${TEST_PACKAGE}" "-r=${TEST_FILTER}")
           if [[ "${VERBOSE}" == "true" ]]; then
@@ -110,7 +85,7 @@ jobs:
             -e TF_VAR_tenant_id="${TF_VAR_tenant_id}" \
             -e TF_VAR_client_id="${TF_VAR_client_id}" \
             -e TF_VAR_client_secret="${TF_VAR_client_secret}" \
-            -e TF_VAR_public_cidrs='["149.173.0.0/16", "194.206.69.176/28", "109.232.56.224/27", "62.255.11.0/29", "88.202.174.192/29", "137.221.139.0/24", "212.103.250.112/29", "88.151.216.240/29", "121.244.109.0/24", "125.21.192.0/29", "121.243.77.24/29", "106.120.85.32/28", "113.34.83.240/29", "192.31.22.0/24", "80.80.4.0/27"]' \
+            -e TF_VAR_public_cidrs="${TF_VAR_public_cidrs}" \
             -v $(pwd):/viya4-iac-azure \
             "${DOCKER_IMAGE_TAG}" \
             "${TERRATEST_ARGS[@]}"
