@@ -27,7 +27,7 @@ rule "azurerm_kubernetes_cluster_default_node_pool_invalid_vm_size" {
   enabled = false
 }
 
-# Standard_B2ls_v2 is intentionally used as default jump VM size in this repo.
+# Standard_D2ls_v5 is intentionally used as default jump VM size in this repo.
 # The azurerm ruleset version currently used in CI can flag it as invalid.
 rule "azurerm_linux_virtual_machine_invalid_size" {
   enabled = false

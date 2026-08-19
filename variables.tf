@@ -427,7 +427,7 @@ variable "jump_vm_zone" {
 variable "jump_vm_machine_type" {
   description = "SKU which should be used for this Virtual Machine"
   type        = string
-  default     = "Standard_B2ls_v2"
+  default     = "Standard_D2ls_v5"
 }
 
 variable "jump_rwx_filestore_path" {
