@@ -82,6 +82,9 @@ jobs:
           VERBOSE="${{ inputs.verbose }}"
           
 
+          PUBLIC_CIDRS_JSON=$(printf '%s' "${TF_VAR_public_access_cidrs}" \
+            | jq -Rc '[split(",")[] | ltrimstr(" ") | rtrimstr(" ")]')
+
           TERRATEST_ARGS=("-p=${TEST_PACKAGE}" "-r=${TEST_FILTER}")
           if [[ "${VERBOSE}" == "true" ]]; then
             TERRATEST_ARGS+=("-v")
@@ -93,7 +96,7 @@ jobs:
             -e TF_VAR_tenant_id="${TF_VAR_tenant_id}" \
             -e TF_VAR_client_id="${TF_VAR_client_id}" \
             -e TF_VAR_client_secret="${TF_VAR_client_secret}" \
-            -e TF_VAR_public_cidrs="${TF_VAR_public_access_cidrs}" \
+            -e TF_VAR_public_cidrs="${PUBLIC_CIDRS_JSON}" \
             -v $(pwd):/viya4-iac-azure \
             "${DOCKER_IMAGE_TAG}" \
             "${TERRATEST_ARGS[@]}"
