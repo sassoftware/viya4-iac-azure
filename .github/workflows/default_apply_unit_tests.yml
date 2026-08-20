@@ -62,6 +62,14 @@ jobs:
 
           docker build -t "${DOCKER_IMAGE_TAG}" -f Dockerfile.terratest .
 
+      - name: Debug Public CIDRs
+        shell: bash
+        run: |
+          echo "TF_VAR_public_access_cidrs (raw secret): ${TF_VAR_public_access_cidrs}"
+          PUBLIC_CIDRS_JSON=$(printf '%s' "${TF_VAR_public_access_cidrs}" \
+            | jq -Rc '[split(",")[] | ltrimstr(" ") | rtrimstr(" ")]')
+          echo "PUBLIC_CIDRS_JSON (formatted for Terraform): ${PUBLIC_CIDRS_JSON}"
+
       - name: Run Apply Terratest
         shell: bash
         run: |
