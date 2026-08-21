@@ -114,21 +114,35 @@ jobs:
             "${DOCKER_IMAGE_TAG}" \
             "${TERRATEST_ARGS[@]}"
 
-      # - name: Upload Terratest Artifacts
-      #   if: always()
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: terratest-apply-results-${{ github.run_number }}
-      #     path: |
-      #       test/testoutput/**
-      #       test/**/*.log
-      #     if-no-files-found: ignore
-
-      - name: Cleanup Workspace and Containers
+      - name: Test Execution Summary
         if: always()
         shell: bash
         run: |
-          set -euo pipefail
+          LOG_FILE="test/testoutput/test_output.log"
 
-          docker ps -aq --filter "ancestor=${DOCKER_IMAGE_TAG}" | xargs -r docker rm -f
-          rm -rf test/testoutput
+          if [[ ! -f "${LOG_FILE}" ]]; then
+            echo "Total Test Executed : 0"
+            echo "Passed: 0"
+            echo "Failed: 0"
+            echo "Skipped: 0"
+            echo "Warning: ${LOG_FILE} not found"
+            exit 0
+          fi
+
+          PASSED=$(grep -Ec '^--- PASS:' "${LOG_FILE}" || true)
+          FAILED=$(grep -Ec '^--- FAIL:' "${LOG_FILE}" || true)
+          SKIPPED=$(grep -Ec '^--- SKIP:' "${LOG_FILE}" || true)
+          TOTAL=$((PASSED + FAILED + SKIPPED))
+
+          echo "Total Test Executed : ${TOTAL}"
+          echo "Passed: ${PASSED}"
+          echo "Failed: ${FAILED}"
+          echo "Skipped: ${SKIPPED}"
+
+      - name: Upload Apply Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: apply-test-results-${{ github.run_number }}
+          path: test/testoutput/**
+          if-no-files-found: warn
