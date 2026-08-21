@@ -118,26 +118,60 @@ jobs:
         if: always()
         shell: bash
         run: |
+          REPORT_FILE="test/testoutput/report.xml"
           LOG_FILE="test/testoutput/test_output.log"
 
-          if [[ ! -f "${LOG_FILE}" ]]; then
-            echo "Total Test Executed : 0"
-            echo "Passed: 0"
-            echo "Failed: 0"
-            echo "Skipped: 0"
-            echo "Warning: ${LOG_FILE} not found"
+          if [[ -f "${REPORT_FILE}" ]]; then
+            read -r TOTAL FAILED SKIPPED <<< "$(awk '
+              function attr(name, line,    r) {
+                r = name "=\"[0-9]+\""
+                if (match(line, r)) {
+                  return substr(line, RSTART + length(name) + 2, RLENGTH - length(name) - 3)
+                }
+                return 0
+              }
+              /<testsuite[[:space:]]/ {
+                total += attr("tests", $0)
+                failed += attr("failures", $0)
+                skipped += attr("skipped", $0)
+              }
+              END {
+                printf "%d %d %d", total, failed, skipped
+              }
+            ' "${REPORT_FILE}")"
+
+            PASSED=$((TOTAL - FAILED - SKIPPED))
+            if [[ "${PASSED}" -lt 0 ]]; then
+              PASSED=0
+            fi
+
+            echo "Summary source: ${REPORT_FILE}"
+            echo "Total Test Executed : ${TOTAL}"
+            echo "Passed: ${PASSED}"
+            echo "Failed: ${FAILED}"
+            echo "Skipped: ${SKIPPED}"
             exit 0
           fi
 
-          PASSED=$(grep -Ec '^--- PASS:' "${LOG_FILE}" || true)
-          FAILED=$(grep -Ec '^--- FAIL:' "${LOG_FILE}" || true)
-          SKIPPED=$(grep -Ec '^--- SKIP:' "${LOG_FILE}" || true)
-          TOTAL=$((PASSED + FAILED + SKIPPED))
+          if [[ -f "${LOG_FILE}" ]]; then
+            PASSED=$(grep -Ec '^--- PASS:' "${LOG_FILE}" || true)
+            FAILED=$(grep -Ec '^--- FAIL:' "${LOG_FILE}" || true)
+            SKIPPED=$(grep -Ec '^--- SKIP:' "${LOG_FILE}" || true)
+            TOTAL=$((PASSED + FAILED + SKIPPED))
 
-          echo "Total Test Executed : ${TOTAL}"
-          echo "Passed: ${PASSED}"
-          echo "Failed: ${FAILED}"
-          echo "Skipped: ${SKIPPED}"
+            echo "Summary source: ${LOG_FILE}"
+            echo "Total Test Executed : ${TOTAL}"
+            echo "Passed: ${PASSED}"
+            echo "Failed: ${FAILED}"
+            echo "Skipped: ${SKIPPED}"
+            exit 0
+          fi
+
+          echo "Total Test Executed : 0"
+          echo "Passed: 0"
+          echo "Failed: 0"
+          echo "Skipped: 0"
+          echo "Warning: Neither ${REPORT_FILE} nor ${LOG_FILE} was found"
 
       - name: Upload Apply Test Results
         if: always()
