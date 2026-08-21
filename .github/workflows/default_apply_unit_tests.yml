@@ -1,0 +1,131 @@
+# Copyright © 2025, SAS Institute Inc., Cary, NC, USA. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+name: Default Apply Unit Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Git branch, tag, or SHA to test
+        required: false
+        default: main
+        type: string
+      test_filter:
+        description: Terratest regex to run
+        required: false
+        default: 'TestApplyDefaultMain'
+        type: string
+      test_package:
+        description: Go package pattern to test
+        required: false
+        default: './defaultapply'
+        type: string
+      tfvars_source_path:
+        description: Optional tfvars file to copy into examples/sample-input-defaults.tfvars before running
+        required: false
+        default: ''
+        type: string
+      docker_image_tag:
+        description: Docker image tag to build and run
+        required: false
+        default: 'viya4-iac-azure:terratest'
+        type: string
+      verbose:
+        description: Run go test in verbose mode
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  terratest-apply:
+    name: Manual Apply Integration Tests
+    runs-on: ubuntu-latest
+    environment: terraformSecrets
+    permissions:
+      contents: read
+
+    env:
+      TF_VAR_subscription_id: ${{ secrets.TF_VAR_SUBSCRIPTION_ID }}
+      TF_VAR_tenant_id: ${{ secrets.TF_VAR_TENANT_ID }}
+      TF_VAR_client_id: ${{ secrets.TF_VAR_CLIENT_ID }}
+      TF_VAR_client_secret: ${{ secrets.TF_VAR_CLIENT_SECRET }}
+      TF_VAR_public_cidrs: ${{ secrets.TF_VAR_PUBLIC_CIDRS }}
+      DOCKER_IMAGE_TAG: 'viya4-iac-azure:terratest'
+      TEST_FILTER: 'TestApplyDefaultMain'
+      TEST_PACKAGE: './defaultapply'
+      TFVARS_SOURCE_PATH: ''
+      VERBOSE: false
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+
+      - name: Prepare tfvars Input
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ -n "${TFVARS_SOURCE_PATH}" ]]; then
+            if [[ ! -f "${TFVARS_SOURCE_PATH}" ]]; then
+              echo "tfvars file not found: ${TFVARS_SOURCE_PATH}"
+              exit 1
+            fi
+
+            cp "${TFVARS_SOURCE_PATH}" examples/sample-input-defaults.tfvars
+          fi
+
+      - name: Build Docker Image
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          docker build -t "${DOCKER_IMAGE_TAG}" -f Dockerfile.terratest .
+
+      - name: Run Apply Terratest
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            TEST_FILTER="${{ inputs.test_filter }}"
+            TEST_PACKAGE="${{ inputs.test_package }}"
+            DOCKER_IMAGE_TAG="${{ inputs.docker_image_tag }}"
+            VERBOSE="${{ inputs.verbose }}"
+          fi
+
+          TERRATEST_ARGS=("-p=${TEST_PACKAGE}" "-r=${TEST_FILTER}")
+          if [[ "${VERBOSE}" == "true" ]]; then
+            TERRATEST_ARGS+=("-v")
+          fi
+
+          docker run \
+            --rm \
+            -e TF_VAR_subscription_id="${TF_VAR_subscription_id}" \
+            -e TF_VAR_tenant_id="${TF_VAR_tenant_id}" \
+            -e TF_VAR_client_id="${TF_VAR_client_id}" \
+            -e TF_VAR_client_secret="${TF_VAR_client_secret}" \
+            -v $(pwd):/viya4-iac-azure \
+            "${DOCKER_IMAGE_TAG}" \
+            "${TERRATEST_ARGS[@]}"
+
+      # - name: Upload Terratest Artifacts
+      #   if: always()
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: terratest-apply-results-${{ github.run_number }}
+      #     path: |
+      #       test/testoutput/**
+      #       test/**/*.log
+      #     if-no-files-found: ignore
+
+      - name: Cleanup Workspace and Containers
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          docker ps -aq --filter "ancestor=${DOCKER_IMAGE_TAG}" | xargs -r docker rm -f
+          rm -rf test/testoutput
