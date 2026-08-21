@@ -50,6 +50,7 @@ variable "administrator_login" {
 variable "administrator_password" {
   description = "The Password associated with the administrator_login for the PostgreSQL Flexible Server."
   type        = string
+  sensitive   = true
 }
 
 variable "server_version" {
