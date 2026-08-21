@@ -267,6 +267,7 @@ variable "client_secret" {
   description = "The Client Secret for the Service Principal."
   type        = string
   default     = ""
+  sensitive   = true
 }
 
 variable "cluster_egress_type" {
