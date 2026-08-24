@@ -82,9 +82,11 @@ To learn more about how Azure Role-Based Access Control works, refer to the foll
 * [Add or remove roles](https://docs.microsoft.com/en-us/azure/role-based-access-control/role-assignments-cli#user-at-a-subscription-scope)
 
 
-## How to Grant a Service Principal Access to the Azure Container Registry
+## AKS Access to the Azure Container Registry
 
-When creating a private Azure Container Registry, assign 'acrpull' role to the Service Principal:
+When `create_container_registry` is set to `true`, an `AcrPull` role assignment is automatically created for the AKS kubelet managed identity. This allows the AKS cluster to pull images from the ACR without additional manual configuration.
+
+If you are using a pre-existing ACR (not managed by this project), you can manually assign the `acrpull` role to the Service Principal:
 
 ```bash
   ACR_ID=$(terraform output cr_id)
