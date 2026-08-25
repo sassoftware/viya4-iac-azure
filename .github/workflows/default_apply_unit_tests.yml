@@ -10,7 +10,7 @@ on:
         name: Branch
         description: Git branch to test
         required: false
-        default: main
+        default: apply-terratest
         type: string
       test_filter:
         name: Terratest Name
