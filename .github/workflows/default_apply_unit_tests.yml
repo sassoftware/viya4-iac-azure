@@ -163,8 +163,10 @@ jobs:
               awk '
                 /<testcase[[:space:]]/ {
                   current=""
-                  if (match($0, /name="[^"]+"/)) {
-                    current = substr($0, RSTART + 6, RLENGTH - 7)
+                  if (match($0, /(^|[[:space:]])name="[^"]+"/)) {
+                    current = substr($0, RSTART, RLENGTH)
+                    sub(/^[[:space:]]*name="/, "", current)
+                    sub(/"$/, "", current)
                   }
                 }
                 /<failure([[:space:]>]|$)/ {
