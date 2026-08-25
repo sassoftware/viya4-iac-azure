@@ -32,7 +32,7 @@ func TestPlanDefaults(t *testing.T) {
 			AttributeJsonPath: "{$.network_profile[0].network_plugin}",
 		},
 		"k8sVersionTest": {
-			Expected:          "1.34",
+			Expected:          "1.35",
 			ResourceMapName:   "module.aks.azurerm_kubernetes_cluster.aks",
 			AttributeJsonPath: "{$.kubernetes_version}",
 		},
@@ -62,7 +62,7 @@ func TestPlanDefaults(t *testing.T) {
 			ResourceMapName:   "module.aks.azurerm_kubernetes_cluster.aks",
 			AttributeJsonPath: "{$.linux_profile[0].ssh_key[0].key_data}",
 			AssertFunction:    assert.NotEqual,
-			Message:           "The Jump VM machine type should be Standard_B2s",
+			Message:           "The Jump VM machine type should be Standard_D2ls_v5",
 		},
 		"runCommandDefaultTest": {
 			Expected:          "false",
@@ -134,11 +134,11 @@ func TestPlanGeneral(t *testing.T) {
 			Message:           "The Jump VM admin username should be jumpuser",
 		},
 		"jumpVmMachineType": {
-			Expected:          "Standard_B2s",
+			Expected:          "Standard_D2ls_v5",
 			ResourceMapName:   "module.jump[0].azurerm_linux_virtual_machine.vm",
 			AttributeJsonPath: "{$.size}",
 			AssertFunction:    assert.Equal,
-			Message:           "The Jump VM machine type should be Standard_B2s",
+			Message:           "The Jump VM machine type should be Standard_D2ls_v5",
 		},
 	}
 

@@ -166,7 +166,7 @@ variable "aks_azure_policy_enabled" {
 variable "kubernetes_version" {
   description = "The AKS cluster K8s version"
   type        = string
-  default     = "1.34"
+  default     = "1.35"
 }
 
 variable "aks_cluster_endpoint_public_access_cidrs" {
@@ -267,6 +267,7 @@ variable "client_secret" {
   description = "The Client Secret for the Service Principal."
   type        = string
   default     = ""
+  sensitive   = true
 }
 
 variable "cluster_egress_type" {

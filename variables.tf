@@ -189,7 +189,7 @@ variable "default_nodepool_vm_type" {
 variable "kubernetes_version" {
   description = "The AKS cluster K8s version"
   type        = string
-  default     = "1.34"
+  default     = "1.35"
 }
 
 variable "default_nodepool_max_nodes" {
@@ -345,7 +345,7 @@ variable "postgres_server_defaults" {
     geo_redundant_backup_enabled = false
     administrator_login          = "pgadmin"
     administrator_password       = "my$up3rS3cretPassw0rd"
-    server_version               = "15"
+    server_version               = "16"
     ssl_enforcement_enabled      = true
     connectivity_method          = "public"
     postgresql_configurations    = [{ name : "azure.extensions", value : "PGCRYPTO" }]
@@ -427,7 +427,7 @@ variable "jump_vm_zone" {
 variable "jump_vm_machine_type" {
   description = "SKU which should be used for this Virtual Machine"
   type        = string
-  default     = "Standard_B2s"
+  default     = "Standard_D2ls_v5"
 }
 
 variable "jump_rwx_filestore_path" {
