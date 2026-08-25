@@ -43,9 +43,9 @@ func testApplyNFSDisks(t *testing.T, plan *terraform.PlanStruct) {
 				Message:         fmt.Sprintf("NFS disk %s ID is nil", diskName),
 			},
 			diskLabel + "SizeTest": {
-				ExpectedRetriever: helpers.RetrieveFromPlan(plan, diskResourceMapName, "{$.disk_size_gb}"),
+				Expected:          "INTENTIONAL_FAILURE",
 				ActualRetriever:   helpers.RetrieveFromStruct(disk, "DiskProperties", "DiskSizeGB"),
-				Message:           fmt.Sprintf("NFS disk %s size does not match plan", diskName),
+				Message:           fmt.Sprintf("NFS disk %s size intentionally forced to fail for debugging", diskName),
 			},
 			diskLabel + "StateTest": {
 				Expected:        "Attached",
