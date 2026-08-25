@@ -32,17 +32,17 @@ func testApplyNFSDisks(t *testing.T, plan *terraform.PlanStruct) {
 
 		diskLabel := fmt.Sprintf("disk%02d", diskIndex+1)
 
-		fmt.Printf("DEBUG disk ID: %#v, type: %T\n",
-    	helpers.RetrieveFromStruct(disk, "ID"),
-    	helpers.RetrieveFromStruct(disk, "ID"))
+		diskID := helpers.RetrieveFromStruct(disk, "ID")()
+		t.Logf("DEBUG disk %s ID: %q", diskName, diskID)
 		
 		tests := map[string]helpers.ApplyTestCase{
 			diskLabel + "ExistsTest": {
 				Expected:        "nil",
 				ActualRetriever: helpers.RetrieveFromStruct(disk, "ID"),
-				AssertFunction:  assert.Equal,	
+				AssertFunction:  assert.NotEqual,
 				Message:         fmt.Sprintf("NFS disk %s ID is nil", diskName),
 			},
+			diskLabel + "SizeTest": {
 				ExpectedRetriever: helpers.RetrieveFromPlan(plan, diskResourceMapName, "{$.disk_size_gb}"),
 				ActualRetriever:   helpers.RetrieveFromStruct(disk, "DiskProperties", "DiskSizeGB"),
 				Message:           fmt.Sprintf("NFS disk %s size does not match plan", diskName),
