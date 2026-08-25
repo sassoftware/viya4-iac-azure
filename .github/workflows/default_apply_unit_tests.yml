@@ -55,6 +55,13 @@ jobs:
         with:
           ref: ${{ inputs.ref }}
 
+      - name: Verify Checked Out Ref
+        shell: bash
+        run: |
+          echo "Requested ref input: ${{ inputs.ref }}"
+          echo "Checked out commit: $(git rev-parse HEAD)"
+          echo "Checked out branch (if branch checkout): $(git rev-parse --abbrev-ref HEAD || true)"
+
       - name: Build Docker Image
         shell: bash
         run: |
@@ -150,6 +157,23 @@ jobs:
             echo "Passed: ${PASSED}"
             echo "Failed: ${FAILED}"
             echo "Skipped: ${SKIPPED}"
+
+            if [[ "${FAILED}" -gt 0 ]]; then
+              echo "Failing Tests:"
+              awk '
+                /<testcase[[:space:]]/ {
+                  current=""
+                  if (match($0, /name="[^"]+"/)) {
+                    current = substr($0, RSTART + 6, RLENGTH - 7)
+                  }
+                }
+                /<failure([[:space:]>]|$)/ {
+                  if (current != "") {
+                    print current
+                  }
+                }
+              ' "${REPORT_FILE}" | sort -u | sed 's/^/- /'
+            fi
             exit 0
           fi
 
@@ -164,6 +188,14 @@ jobs:
             echo "Passed: ${PASSED}"
             echo "Failed: ${FAILED}"
             echo "Skipped: ${SKIPPED}"
+
+            if [[ "${FAILED}" -gt 0 ]]; then
+              echo "Failing Tests:"
+              grep -E '--- FAIL:' "${LOG_FILE}" \
+                | sed -E 's/^\s*--- FAIL: ([^ ]+).*/\1/' \
+                | sort -u \
+                | sed 's/^/- /'
+            fi
             exit 0
           fi
 
