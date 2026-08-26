@@ -29,11 +29,11 @@ on:
         required: false
         default: false
         type: boolean
-      artifact_run_id:
-        description: Previous workflow run ID to download apply-test-results-23 from
-        required: false
-        default: ''
-        type: string
+      # artifact_run_id:
+      #   description: Previous workflow run ID to download apply-test-results-23 from
+      #   required: false
+      #   default: ''
+      #   type: string
 
 jobs:
   terratest-apply:
@@ -56,93 +56,93 @@ jobs:
       VERBOSE: ${{ inputs.verbose }}
 
     steps:
-      # - name: Checkout Repository
-      #   uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+
+      - name: Verify Checked Out Ref
+        shell: bash
+        run: |
+          echo "Requested ref input: ${{ inputs.ref }}"
+          echo "Checked out commit: $(git rev-parse HEAD)"
+          echo "Checked out branch (if branch checkout): $(git rev-parse --abbrev-ref HEAD || true)"
+
+      - name: Build Docker Image
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          docker build -t "${DOCKER_IMAGE_TAG}" -f Dockerfile.terratest .
+
+      - name: Get Runner Public IP
+        id: runner_ip
+        shell: bash
+        run: |
+          RUNNER_IP=$(curl -sf https://api.ipify.org)/32
+          echo "ip=${RUNNER_IP}" >> "${GITHUB_OUTPUT}"
+          echo "Runner public IP: ${RUNNER_IP}"
+
+      - name: Debug Public CIDRs
+        shell: bash
+        run: |
+          RUNNER_IP="${{ steps.runner_ip.outputs.ip }}"
+          COMBINED="${TF_VAR_public_access_cidrs},${RUNNER_IP}"
+          echo "TF_VAR_public_access_cidrs (raw secret): ${TF_VAR_public_access_cidrs}"
+          echo "Runner IP appended: ${RUNNER_IP}"
+          PUBLIC_CIDRS_JSON=$(printf '%s' "${COMBINED}" \
+            | jq -Rc '[split(",")[] | ltrimstr(" ") | rtrimstr(" ")]')
+          echo "PUBLIC_CIDRS_JSON (formatted for Terraform): ${PUBLIC_CIDRS_JSON}"
+
+      - name: Run Apply Terratest
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          
+          TEST_FILTER="${{ inputs.test_filter }}"
+          TEST_PACKAGE="${{ inputs.test_package }}"
+          DOCKER_IMAGE_TAG='viya4-iac-azure:terratest'
+          VERBOSE="${{ inputs.verbose }}"
+          
+
+          RUNNER_IP="${{ steps.runner_ip.outputs.ip }}"
+          COMBINED="${TF_VAR_public_access_cidrs},${RUNNER_IP}"
+          PUBLIC_CIDRS_JSON=$(printf '%s' "${COMBINED}" \
+            | jq -Rc '[split(",")[] | ltrimstr(" ") | rtrimstr(" ")]')
+
+          TERRATEST_ARGS=("-p=${TEST_PACKAGE}" "-r=${TEST_FILTER}")
+          if [[ "${VERBOSE}" == "true" ]]; then
+            TERRATEST_ARGS+=("-v")
+          fi
+
+          docker run \
+            --rm \
+            -e TF_VAR_subscription_id="${TF_VAR_subscription_id}" \
+            -e TF_VAR_tenant_id="${TF_VAR_tenant_id}" \
+            -e TF_VAR_client_id="${TF_VAR_client_id}" \
+            -e TF_VAR_client_secret="${TF_VAR_client_secret}" \
+            -e TF_VAR_public_cidrs="${PUBLIC_CIDRS_JSON}" \
+            -v $(pwd):/viya4-iac-azure \
+            "${DOCKER_IMAGE_TAG}" \
+            "${TERRATEST_ARGS[@]}"
+
+      # - name: Download apply-test-results-23 Artifact (Current Run)
+      #   if: ${{ inputs.artifact_run_id == '' }}
+      #   uses: actions/download-artifact@v4
       #   with:
-      #     ref: ${{ inputs.ref }}
+      #     name: apply-test-results-23
+      #     path: test/testoutput
 
-      # - name: Verify Checked Out Ref
-      #   shell: bash
-      #   run: |
-      #     echo "Requested ref input: ${{ inputs.ref }}"
-      #     echo "Checked out commit: $(git rev-parse HEAD)"
-      #     echo "Checked out branch (if branch checkout): $(git rev-parse --abbrev-ref HEAD || true)"
-
-      # - name: Build Docker Image
-      #   shell: bash
-      #   run: |
-      #     set -euo pipefail
-
-      #     docker build -t "${DOCKER_IMAGE_TAG}" -f Dockerfile.terratest .
-
-      # - name: Get Runner Public IP
-      #   id: runner_ip
-      #   shell: bash
-      #   run: |
-      #     RUNNER_IP=$(curl -sf https://api.ipify.org)/32
-      #     echo "ip=${RUNNER_IP}" >> "${GITHUB_OUTPUT}"
-      #     echo "Runner public IP: ${RUNNER_IP}"
-
-      # - name: Debug Public CIDRs
-      #   shell: bash
-      #   run: |
-      #     RUNNER_IP="${{ steps.runner_ip.outputs.ip }}"
-      #     COMBINED="${TF_VAR_public_access_cidrs},${RUNNER_IP}"
-      #     echo "TF_VAR_public_access_cidrs (raw secret): ${TF_VAR_public_access_cidrs}"
-      #     echo "Runner IP appended: ${RUNNER_IP}"
-      #     PUBLIC_CIDRS_JSON=$(printf '%s' "${COMBINED}" \
-      #       | jq -Rc '[split(",")[] | ltrimstr(" ") | rtrimstr(" ")]')
-      #     echo "PUBLIC_CIDRS_JSON (formatted for Terraform): ${PUBLIC_CIDRS_JSON}"
-
-      # - name: Run Apply Terratest
-      #   shell: bash
-      #   run: |
-      #     set -euo pipefail
-
-          
-      #     TEST_FILTER="${{ inputs.test_filter }}"
-      #     TEST_PACKAGE="${{ inputs.test_package }}"
-      #     DOCKER_IMAGE_TAG='viya4-iac-azure:terratest'
-      #     VERBOSE="${{ inputs.verbose }}"
-          
-
-      #     RUNNER_IP="${{ steps.runner_ip.outputs.ip }}"
-      #     COMBINED="${TF_VAR_public_access_cidrs},${RUNNER_IP}"
-      #     PUBLIC_CIDRS_JSON=$(printf '%s' "${COMBINED}" \
-      #       | jq -Rc '[split(",")[] | ltrimstr(" ") | rtrimstr(" ")]')
-
-      #     TERRATEST_ARGS=("-p=${TEST_PACKAGE}" "-r=${TEST_FILTER}")
-      #     if [[ "${VERBOSE}" == "true" ]]; then
-      #       TERRATEST_ARGS+=("-v")
-      #     fi
-
-      #     docker run \
-      #       --rm \
-      #       -e TF_VAR_subscription_id="${TF_VAR_subscription_id}" \
-      #       -e TF_VAR_tenant_id="${TF_VAR_tenant_id}" \
-      #       -e TF_VAR_client_id="${TF_VAR_client_id}" \
-      #       -e TF_VAR_client_secret="${TF_VAR_client_secret}" \
-      #       -e TF_VAR_public_cidrs="${PUBLIC_CIDRS_JSON}" \
-      #       -v $(pwd):/viya4-iac-azure \
-      #       "${DOCKER_IMAGE_TAG}" \
-      #       "${TERRATEST_ARGS[@]}"
-
-      - name: Download apply-test-results-23 Artifact (Current Run)
-        if: ${{ inputs.artifact_run_id == '' }}
-        uses: actions/download-artifact@v4
-        with:
-          name: apply-test-results-23
-          path: test/testoutput
-
-      - name: Download apply-test-results-23 Artifact (Previous Run)
-        if: ${{ inputs.artifact_run_id != '' }}
-        uses: actions/download-artifact@v4
-        with:
-          name: apply-test-results-23
-          path: test/testoutput
-          repository: ${{ github.repository }}
-          run-id: 23
-          github-token: ${{ github.token }}
+      # - name: Download apply-test-results-23 Artifact (Previous Run)
+      #   if: ${{ inputs.artifact_run_id != '' }}
+      #   uses: actions/download-artifact@v4
+      #   with:
+      #     name: apply-test-results-23
+      #     path: test/testoutput
+      #     repository: ${{ github.repository }}
+      #     run-id: 23
+      #     github-token: ${{ github.token }}
 
       - name: Test Execution Summary
         if: always()
@@ -230,11 +230,11 @@ jobs:
           echo "Skipped: 0"
           echo "Warning: Neither ${REPORT_FILE} nor ${LOG_FILE} was found"
 
-      # - name: Upload Apply Test Results
-      #   if: always()
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: apply-test-results-${{ github.run_number }}
-      #     path: test/testoutput/**
-      #     if-no-files-found: warn
+      - name: Upload Apply Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: apply-test-results-${{ github.run_number }}
+          path: test/testoutput/**
+          if-no-files-found: warn
 
