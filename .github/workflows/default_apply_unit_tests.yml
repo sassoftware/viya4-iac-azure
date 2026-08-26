@@ -42,6 +42,7 @@ jobs:
     environment: terraformSecrets
     permissions:
       contents: read
+      actions: read
 
     env:
       TF_VAR_subscription_id: ${{ secrets.TF_VAR_SUBSCRIPTION_ID }}
@@ -140,7 +141,7 @@ jobs:
           name: apply-test-results-23
           path: test/testoutput
           repository: ${{ github.repository }}
-          run-id: ${{ inputs.artifact_run_id }}
+          run-id: 23
           github-token: ${{ github.token }}
 
       - name: Test Execution Summary
@@ -236,3 +237,4 @@ jobs:
       #     name: apply-test-results-${{ github.run_number }}
       #     path: test/testoutput/**
       #     if-no-files-found: warn
+
