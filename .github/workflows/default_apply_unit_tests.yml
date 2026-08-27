@@ -184,6 +184,7 @@ jobs:
             if [[ "${FAILED}" -gt 0 ]]; then
               echo "Failing Tests:"
               awk '
+                BEGIN { OFS="" }
                 /<testcase[[:space:]]/ {
                   current=""
                   if (match($0, /(^|[[:space:]])name="[^"]+"/)) {
@@ -191,13 +192,49 @@ jobs:
                     sub(/^[[:space:]]*name="/, "", current)
                     sub(/"$/, "", current)
                   }
+                  next
                 }
+
                 /<failure([[:space:]>]|$)/ {
-                  if (current != "") {
-                    print current
+                  # skip failures that belong to the top-level parent test
+                  if (current == "TestApplyDefaultMain") { next }
+
+                  failure=""
+                  # single-line failure: <failure ...>message</failure>
+                  if (match($0, /<failure[^>]*>(.*)<\/failure>/, arr)) {
+                    failure = arr[1]
+                    gsub(/^[[:space:]]+|[[:space:]]+$/, "", failure)
+                    print "- " current ":"
+                    n = split(failure, lines, "\n")
+                    for (i=1; i<=n; i++) print "    " lines[i]
+                    next
+                  }
+
+                  # start of multi-line failure
+                  in_failure=1
+                  if (match($0, /<failure[^>]*>(.*)/, arr)) {
+                    failure = arr[1]
+                  } else {
+                    failure = ""
+                  }
+                  next
+                }
+
+                in_failure {
+                  if (match($0, /(.*)<\/failure>/, arr)) {
+                    failure = failure "\n" arr[1]
+                    # trim
+                    gsub(/^[[:space:]]+|[[:space:]]+$/, "", failure)
+                    print "- " current ":"
+                    n = split(failure, lines, "\n")
+                    for (i=1; i<=n; i++) print "    " lines[i]
+                    in_failure=0
+                    failure=""
+                  } else {
+                    failure = failure "\n" $0
                   }
                 }
-              ' "${REPORT_FILE}" | sort -u | sed 's/^/- /'
+              ' "${REPORT_FILE}" | sort -u
             fi
             exit 0
           fi
