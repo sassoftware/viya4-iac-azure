@@ -2,6 +2,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 name: Manual Apply Integration Tests
+# Purpose: Run Terratest integration tests inside Docker and produce a
+# concise runtime summary. The summary prefers structured JUnit XML
+# (`test/testoutput/report.xml`) and falls back to the verbose test
+# output (`test/testoutput/test_output.log`) if XML is missing.
 
 on:
   workflow_dispatch:
@@ -29,11 +33,6 @@ on:
         required: false
         default: false
         type: boolean
-      # artifact_run_id:
-      #   description: Previous workflow run ID to download apply-test-results-23 from
-      #   required: false
-      #   default: ''
-      #   type: string
 
 jobs:
   terratest-apply:
@@ -42,7 +41,6 @@ jobs:
     environment: terraformSecrets
     permissions:
       contents: read
-      actions: read
 
     env:
       TF_VAR_subscription_id: ${{ secrets.TF_VAR_SUBSCRIPTION_ID }}
@@ -51,6 +49,8 @@ jobs:
       TF_VAR_client_secret: ${{ secrets.TF_VAR_CLIENT_SECRET }}
       TF_VAR_public_access_cidrs: ${{ secrets.TF_VAR_PUBLIC_ACCESS_CIDRS }}
       DOCKER_IMAGE_TAG: 'viya4-iac-azure:terratest'
+      # `TEST_FILTER` and `TEST_PACKAGE` control which Go tests Terratest
+      # executes inside the Docker image (passed as `-run`/-p flags).
       TEST_FILTER: ${{ inputs.test_filter }}
       TEST_PACKAGE: ${{ inputs.test_package }}
       VERBOSE: ${{ inputs.verbose }}
@@ -66,6 +66,7 @@ jobs:
         run: |
           set -euo pipefail
 
+          # Build the Docker image containing the test runtime and helpers.
           docker build -t "${DOCKER_IMAGE_TAG}" -f Dockerfile.terratest .
 
       - name: Get Runner Public IP
@@ -75,13 +76,14 @@ jobs:
           RUNNER_IP=$(curl -sf https://api.ipify.org)/32
           echo "ip=${RUNNER_IP}" >> "${GITHUB_OUTPUT}"
           echo "Runner public IP: ${RUNNER_IP}"
+      # Capture the runner's public IP so it can be appended to allowed CIDRs
+      # and passed to Terraform as a TF_VAR when tests require access.
 
       - name: Debug Public CIDRs
         shell: bash
         run: |
           RUNNER_IP="${{ steps.runner_ip.outputs.ip }}"
           COMBINED="${TF_VAR_public_access_cidrs},${RUNNER_IP}"
-          echo "TF_VAR_public_access_cidrs (raw secret): ${TF_VAR_public_access_cidrs}"
           echo "Runner IP appended: ${RUNNER_IP}"
           PUBLIC_CIDRS_JSON=$(printf '%s' "${COMBINED}" \
             | jq -Rc '[split(",")[] | ltrimstr(" ") | rtrimstr(" ")]')
@@ -92,7 +94,6 @@ jobs:
         run: |
           set -euo pipefail
 
-          
           TEST_FILTER="${{ inputs.test_filter }}"
           TEST_PACKAGE="${{ inputs.test_package }}"
           DOCKER_IMAGE_TAG='viya4-iac-azure:terratest'
@@ -109,6 +110,8 @@ jobs:
             TERRATEST_ARGS+=("-v")
           fi
 
+          # Run the Terratest runner inside Docker; mounts the repo so tests
+          # can access modules, helpers and write testoutput artifacts.
           docker run \
             --rm \
             -e TF_VAR_subscription_id="${TF_VAR_subscription_id}" \
@@ -185,8 +188,28 @@ jobs:
           fi
 
           if [[ -f "${LOG_FILE}" ]]; then
-            # use parser script for richer failure output
-            bash scripts/parse_test_output.sh "${REPORT_FILE}" "${LOG_FILE}"
+            # Fallback: compute simple counts from the verbose test output
+            # and print the failing subtest names (strip the top-level parent
+            # test name so only the subtest name is shown).
+            PASSED=$(grep -Ec '^--- PASS:' "${LOG_FILE}" || true)
+            FAILED=$(grep -Ec '^--- FAIL:' "${LOG_FILE}" || true)
+            SKIPPED=$(grep -Ec '^--- SKIP:' "${LOG_FILE}" || true)
+            TOTAL=$((PASSED + FAILED + SKIPPED))
+
+            echo "Summary source: ${LOG_FILE}"
+            echo "Total Test Executed : ${TOTAL}"
+            echo "Passed: ${PASSED}"
+            echo "Failed: ${FAILED}"
+            echo "Skipped: ${SKIPPED}"
+
+            if [[ "${FAILED}" -gt 0 ]]; then
+              echo "Failing Tests:"
+              grep -E '--- FAIL:' "${LOG_FILE}" \
+                | sed -E 's/^\s*--- FAIL: ([^ ]+).*/\1/' \
+                | sed -E 's|.*/||' \
+                | sort -u \
+                | sed 's/^/- /'
+            fi
             exit 0
           fi
 
