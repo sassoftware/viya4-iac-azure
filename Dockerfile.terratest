@@ -1,18 +1,38 @@
-FROM golang:1.26
+FROM golang:1.26-bookworm
 
-# Install terraform from apt repository, terratest_log_parser, jq, azure-cli
-RUN \
-    apt-get update \
-    && apt-get install -y jq lsb-release \
-    && wget -O - https://apt.releases.hashicorp.com/gpg \
-        | gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg \
+# Install OS provided packages
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    jq \
+    lsb-release \
+    ca-certificates \
+    curl \
+    gnupg \
+    wget \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Terraform
+RUN wget -O- https://apt.releases.hashicorp.com/gpg | \
+    gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg \
     && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" \
-        | tee /etc/apt/sources.list.d/hashicorp.list \
-    && apt update \
-    && apt install terraform \
-    && ssh-keygen -f ~/.ssh/id_rsa -P "" \
-    && go install github.com/gruntwork-io/terratest/cmd/terratest_log_parser@latest \
-    && curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+    | tee /etc/apt/sources.list.d/hashicorp.list \
+    && apt-get update && apt-get install -y terraform \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Azure CLI
+RUN mkdir -p /etc/apt/keyrings \
+    && curl -sLS https://packages.microsoft.com/keys/microsoft.asc | \
+       gpg --dearmor | tee /etc/apt/keyrings/microsoft.gpg > /dev/null \
+    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/repos/azure-cli/ $(lsb_release -cs) main" \
+    | tee /etc/apt/sources.list.d/azure-cli.list \
+    && apt-get update && apt-get install -y azure-cli \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Terratest
+RUN go install github.com/gruntwork-io/terratest/cmd/terratest_log_parser@v0.56.0
+
+# Generate a key for tests
+RUN ssh-keygen -f ~/.ssh/id_rsa -P ""
 
 WORKDIR /viya4-iac-azure/test
 
