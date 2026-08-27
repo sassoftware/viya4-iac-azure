@@ -61,13 +61,6 @@ jobs:
         with:
           ref: ${{ inputs.ref }}
 
-      - name: Verify Checked Out Ref
-        shell: bash
-        run: |
-          echo "Requested ref input: ${{ inputs.ref }}"
-          echo "Checked out commit: $(git rev-parse HEAD)"
-          echo "Checked out branch (if branch checkout): $(git rev-parse --abbrev-ref HEAD || true)"
-
       - name: Build Docker Image
         shell: bash
         run: |
@@ -127,23 +120,6 @@ jobs:
             "${DOCKER_IMAGE_TAG}" \
             "${TERRATEST_ARGS[@]}"
 
-      # - name: Download apply-test-results-23 Artifact (Current Run)
-      #   if: ${{ inputs.artifact_run_id == '' }}
-      #   uses: actions/download-artifact@v4
-      #   with:
-      #     name: apply-test-results-23
-      #     path: test/testoutput
-
-      # - name: Download apply-test-results-23 Artifact (Previous Run)
-      #   if: ${{ inputs.artifact_run_id != '' }}
-      #   uses: actions/download-artifact@v4
-      #   with:
-      #     name: apply-test-results-23
-      #     path: test/testoutput
-      #     repository: ${{ github.repository }}
-      #     run-id: 23
-      #     github-token: ${{ github.token }}
-
       - name: Test Execution Summary
         if: always()
         shell: bash
@@ -184,7 +160,6 @@ jobs:
             if [[ "${FAILED}" -gt 0 ]]; then
               echo "Failing Tests:"
               awk '
-                BEGIN { OFS="" }
                 /<testcase[[:space:]]/ {
                   current=""
                   if (match($0, /(^|[[:space:]])name="[^"]+"/)) {
@@ -194,70 +169,24 @@ jobs:
                   }
                   next
                 }
-
                 /<failure([[:space:]>]|$)/ {
-                  # skip failures that belong to the top-level parent test
-                  if (current == "TestApplyDefaultMain") { next }
-
-                  failure=""
-                  # single-line failure: <failure ...>message</failure>
-                  if (match($0, /<failure[^>]*>(.*)<\/failure>/, arr)) {
-                    failure = arr[1]
-                    gsub(/^[[:space:]]+|[[:space:]]+$/, "", failure)
-                    print "- " current ":"
-                    n = split(failure, lines, "\n")
-                    for (i=1; i<=n; i++) print "    " lines[i]
-                    next
-                  }
-
-                  # start of multi-line failure
-                  in_failure=1
-                  if (match($0, /<failure[^>]*>(.*)/, arr)) {
-                    failure = arr[1]
-                  } else {
-                    failure = ""
-                  }
-                  next
-                }
-
-                in_failure {
-                  if (match($0, /(.*)<\/failure>/, arr)) {
-                    failure = failure "\n" arr[1]
-                    # trim
-                    gsub(/^[[:space:]]+|[[:space:]]+$/, "", failure)
-                    print "- " current ":"
-                    n = split(failure, lines, "\n")
-                    for (i=1; i<=n; i++) print "    " lines[i]
-                    in_failure=0
-                    failure=""
-                  } else {
-                    failure = failure "\n" $0
+                  if (current != "") {
+                    if (index(current, "/") > 0) {
+                      n = split(current, parts, "/")
+                      print parts[n]
+                    } else {
+                      print current
+                    }
                   }
                 }
-              ' "${REPORT_FILE}" | sort -u
+              ' "${REPORT_FILE}" | sort -u | sed 's/^/- /'
             fi
             exit 0
           fi
 
           if [[ -f "${LOG_FILE}" ]]; then
-            PASSED=$(grep -Ec '^--- PASS:' "${LOG_FILE}" || true)
-            FAILED=$(grep -Ec '^--- FAIL:' "${LOG_FILE}" || true)
-            SKIPPED=$(grep -Ec '^--- SKIP:' "${LOG_FILE}" || true)
-            TOTAL=$((PASSED + FAILED + SKIPPED))
-
-            echo "Summary source: ${LOG_FILE}"
-            echo "Total Test Executed : ${TOTAL}"
-            echo "Passed: ${PASSED}"
-            echo "Failed: ${FAILED}"
-            echo "Skipped: ${SKIPPED}"
-
-            if [[ "${FAILED}" -gt 0 ]]; then
-              echo "Failing Tests:"
-              grep -E '--- FAIL:' "${LOG_FILE}" \
-                | sed -E 's/^\s*--- FAIL: ([^ ]+).*/\1/' \
-                | sort -u \
-                | sed 's/^/- /'
-            fi
+            # use parser script for richer failure output
+            bash scripts/parse_test_output.sh "${REPORT_FILE}" "${LOG_FILE}"
             exit 0
           fi
 
@@ -266,12 +195,4 @@ jobs:
           echo "Failed: 0"
           echo "Skipped: 0"
           echo "Warning: Neither ${REPORT_FILE} nor ${LOG_FILE} was found"
-
-      - name: Upload Apply Test Results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: apply-test-results-${{ github.run_number }}
-          path: test/testoutput/**
-          if-no-files-found: warn
 
