@@ -33,6 +33,12 @@ on:
         required: false
         default: false
         type: boolean
+  # Schedule: run approximately every 14 days (bi-weekly). Cron can't express
+  # an exact every-other-week pattern across months, so this uses a 14-day
+  # interval as an approximation. Adjust the cron expression below if you
+  # prefer specific days-of-month instead.
+  schedule:
+    - cron: '0 0 */14 * *'
 
 jobs:
   terratest-apply:
@@ -51,15 +57,17 @@ jobs:
       DOCKER_IMAGE_TAG: 'viya4-iac-azure:terratest'
       # `TEST_FILTER` and `TEST_PACKAGE` control which Go tests Terratest
       # executes inside the Docker image (passed as `-run`/-p flags).
-      TEST_FILTER: ${{ inputs.test_filter }}
-      TEST_PACKAGE: ${{ inputs.test_package }}
-      VERBOSE: ${{ inputs.verbose }}
+      # Use input values when provided via workflow_dispatch; otherwise fall
+      # back to sensible defaults for scheduled runs.
+      TEST_FILTER: ${{ inputs.test_filter || 'TestApplyDefaultMain' }}
+      TEST_PACKAGE: ${{ inputs.test_package || './defaultapply' }}
+      VERBOSE: ${{ inputs.verbose || 'true' }}
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.ref }}
+          ref: ${{ inputs.ref || github.ref}}
 
       - name: Build Docker Image
         shell: bash
@@ -94,10 +102,8 @@ jobs:
         run: |
           set -euo pipefail
 
-          TEST_FILTER="${{ inputs.test_filter }}"
-          TEST_PACKAGE="${{ inputs.test_package }}"
+          # Use env-provided defaults for TEST_FILTER, TEST_PACKAGE and VERBOSE
           DOCKER_IMAGE_TAG='viya4-iac-azure:terratest'
-          VERBOSE="${{ inputs.verbose }}"
           
 
           RUNNER_IP="${{ steps.runner_ip.outputs.ip }}"
