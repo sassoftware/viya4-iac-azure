@@ -1,7 +1,8 @@
 # Copyright © 2025, SAS Institute Inc., Cary, NC, USA. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-name: Manual Apply Integration Tests
+# This test will run automatically on a bi-weekly schedule, but can also be triggered manually via the GitHub Actions UI.
+name: Default Manual Apply Unit Tests
 # Purpose: Run Terratest integration tests inside Docker and produce a
 # concise runtime summary. The summary prefers structured JUnit XML
 # (`test/testoutput/report.xml`) and falls back to the verbose test
