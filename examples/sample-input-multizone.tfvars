@@ -59,7 +59,7 @@ container_registry_sku              = "Standard"
 container_registry_admin_enabled    = false
 
 # AKS config
-kubernetes_version         = "1.34"
+kubernetes_version         = "1.35"
 default_nodepool_min_nodes = 2
 default_nodepool_vm_type   = "Standard_E8s_v5"
 
@@ -115,7 +115,7 @@ node_pools = {
 # Jump Server
 create_jump_public_ip = true
 jump_vm_admin        = "jumpuser"
-jump_vm_machine_type = "Standard_B2s"
+jump_vm_machine_type = "Standard_D2ls_v5"
 
 # Storage for SAS Viya CAS/Compute
 storage_type = "standard"
