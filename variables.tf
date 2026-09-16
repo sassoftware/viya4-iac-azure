@@ -902,7 +902,8 @@ variable "vnet_ipv6_address_space" {
   }
 }
 
-# tflint-ignore: terraform_unused_declarations -- reserved until azurerm supports ipv6_pod_cidr/service_ipv6_cidr
+# Reserved until azurerm supports ipv6_pod_cidr/service_ipv6_cidr
+# tflint-ignore: terraform_unused_declarations
 variable "misc_subnet_ipv6_cidr" {
   description = "(Optional) IPv6 CIDR for misc subnet. Auto-calculated from vnet_ipv6_address_space if not provided."
   type        = string

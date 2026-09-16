@@ -28,14 +28,16 @@ variable "address_space" {
   type        = list(string)
 }
 
-# tflint-ignore: terraform_unused_declarations -- reserved until azurerm supports ipv6_address_prefix on subnets
+# Reserved until azurerm supports ipv6_address_prefix on subnets
+# tflint-ignore: terraform_unused_declarations
 variable "ipv6_address_space" {
   description = "The IPv6 address space that is used by the virtual network. Must be /48 CIDR block."
   type        = list(string)
   default     = null
 }
 
-# tflint-ignore: terraform_unused_declarations -- reserved until azurerm supports ipv6_address_prefix on subnets
+# Reserved until azurerm supports ipv6_address_prefix on subnets
+# tflint-ignore: terraform_unused_declarations
 variable "enable_ipv6" {
   description = "Enable IPv6 dual-stack configuration planning. NOTE: Actual IPv6 subnet prefix allocation requires manual configuration via Azure CLI/Portal or the azapi provider, as the Terraform azurerm provider does not yet support ipv6_address_prefix on subnets."
   type        = bool

@@ -204,7 +204,8 @@ variable "aks_network_plugin_mode" {
   default     = "overlay"
 }
 
-# tflint-ignore: terraform_unused_declarations -- reserved until azurerm supports ip_family=dualstack
+# Reserved until azurerm supports ip_family=dualstack
+# tflint-ignore: terraform_unused_declarations
 variable "enable_ipv6" {
   description = "Enable IPv6 dual-stack support on the AKS cluster (IPv4 + IPv6). Requires aks_network_plugin='azure' and load_balancer_sku='standard'."
   type        = bool
@@ -232,7 +233,8 @@ variable "aks_pod_cidr" {
 
 }
 
-# tflint-ignore: terraform_unused_declarations -- reserved until azurerm supports ipv6_pod_cidr
+# Reserved until azurerm supports ipv6_pod_cidr
+# tflint-ignore: terraform_unused_declarations
 variable "aks_pod_ipv6_cidr" {
   description = "The IPv6 CIDR to use for pod IP addresses when enable_ipv6=true. Must be a /64 CIDR block. Required for dual-stack with Azure CNI."
   type        = string
@@ -254,7 +256,8 @@ variable "aks_service_cidr" {
   }
 }
 
-# tflint-ignore: terraform_unused_declarations -- reserved until azurerm supports service_ipv6_cidr
+# Reserved until azurerm supports service_ipv6_cidr
+# tflint-ignore: terraform_unused_declarations
 variable "aks_service_ipv6_cidr" {
   description = "The IPv6 Network Range used by the Kubernetes service. Required when enable_ipv6=true and aks_network_plugin='azure'. Must be a /108 CIDR block."
   type        = string
