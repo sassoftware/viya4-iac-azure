@@ -11,6 +11,7 @@ Supported configuration variables are listed in the tables below.  All variables
   - [Role Based Access Control](#role-based-access-control)
   - [Admin Access](#admin-access)
   - [Security](#security)
+    - [Ubuntu 22.04 FIPS Migration](#ubuntu-2204-fips-migration)
   - [Networking](#networking)
     - [Use Existing](#use-existing)
   - [General](#general)
@@ -136,9 +137,10 @@ Existing FIPS-enabled node pools can be migrated to Ubuntu 22.04 FIPS using one 
 
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | :--- |
-| enable_ipv6 | Enable IPv6 on VNet, subnets, and AKS. When true, AKS cluster uses IPv6 dual-stack (pods get IPv6 addresses) | bool | false | Requires `aks_network_plugin="azure"`. See [IPv6 Dual Stack Configuration](./IPv6_DUAL_STACK.md) for details, CIDR planning, and limitations. |
-| vnet_ipv6_address_space | IPv6 address space for created vnet | string | "2001:db8::/48" | Used when `enable_ipv6=true`. Must be a /48 CIDR block. This variable is ignored when vnet_name is set. |
-| aks_service_ipv6_cidr | IPv6 Network Range used by Kubernetes service | string | "2001:db8:1::/108" | Used when `enable_ipv6=true` and `aks_network_plugin='azure'`. Must be a /108 CIDR block. Must fall within vnet_ipv6_address_space. |
+| enable_ipv6 | Enable IPv6 on VNet, subnets, and AKS. When true, AKS cluster uses IPv6 dual-stack (pods get IPv6 addresses) | bool | false | Requires `aks_network_plugin="azure"` and `aks_network_plugin_mode="overlay"`. See [IPv6 Dual Stack Configuration](./user/IPv6UsageGuide.md) for details, CIDR planning, and limitations. |
+| vnet_ipv6_address_space | IPv6 address space for created vnet | string | "fd00:1234:5678::/48" | Used when `enable_ipv6=true`. Must be a /48 CIDR block. This variable is ignored when vnet_name is set. |
+| aks_pod_ipv6_cidr | IPv6 CIDR to use for pod IP addresses | string | "fd00:10:244::/64" | Used when `enable_ipv6=true`. Must be a /64 CIDR block. |
+| aks_service_ipv6_cidr | IPv6 Network Range used by Kubernetes service | string | "fd00:10:0::/108" | Used when `enable_ipv6=true` and `aks_network_plugin='azure'`. Must be a /108 CIDR block. Must fall within vnet_ipv6_address_space. |
 | vnet_address_space | Address space for created vnet | string | "192.168.0.0/16" | This variable is ignored when vnet_name is set (AKA bring your own vnet). |
 | subnets | Subnets to be created and their settings | map(object) | *check below* | This variable is ignored when subnet_names is set (AKA bring your own subnets). All defined subnets must exist within the vnet address space. |
 | cluster_egress_type | The outbound (egress) routing method to be used for this Kubernetes Cluster | string | "loadBalancer" | Possible values: <ul><li>`loadBalancer`<li>`userDefinedRouting`</ul> By default, AKS will create and use a [loadbalancer](https://docs.microsoft.com/en-us/azure/aks/load-balancer-standard) for outgoing connections.<p>Set to `userDefinedRouting` when using your own network [egress](https://docs.microsoft.com/en-us/azure/aks/egress-outboundtype).|
