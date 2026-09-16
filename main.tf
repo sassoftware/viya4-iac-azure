@@ -97,13 +97,6 @@ data "azurerm_subnet" "misc_ipv6" {
   depends_on           = [azurerm_resource_group_template_deployment.vnet_ipv6]
 }
 
-data "azurerm_virtual_network" "ipv6_vnet" {
-  count               = var.enable_ipv6 ? 1 : 0
-  name                = "${var.prefix}-vnet"
-  resource_group_name = local.network_rg.name
-  depends_on          = [azurerm_resource_group_template_deployment.vnet_ipv6]
-}
-
 module "vnet" {
   source = "./modules/azurerm_vnet"
 
