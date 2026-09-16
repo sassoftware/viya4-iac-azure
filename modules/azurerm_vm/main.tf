@@ -25,6 +25,16 @@ resource "azurerm_network_interface" "vm_nic" {
     private_ip_address_allocation = "Dynamic"
     public_ip_address_id          = var.create_public_ip ? azurerm_public_ip.vm_ip[0].id : null
   }
+
+  dynamic "ip_configuration" {
+    for_each = var.enable_ipv6 ? [1] : []
+    content {
+      name                          = "${var.name}-ip_config-v6"
+      subnet_id                     = var.vnet_subnet_id
+      private_ip_address_allocation = "Dynamic"
+      private_ip_address_version    = "IPv6"
+    }
+  }
   tags = var.tags
 }
 
