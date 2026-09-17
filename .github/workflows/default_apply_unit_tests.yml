@@ -1,41 +1,45 @@
 # Copyright © 2025, SAS Institute Inc., Cary, NC, USA. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-name: Default Apply Unit Tests
+# This test will run automatically on a bi-weekly schedule, but can also be triggered manually via the GitHub Actions UI.
+name: Default Manual Apply Unit Tests
+# Purpose: Run Terratest integration tests inside Docker and produce a
+# concise runtime summary. The summary prefers structured JUnit XML
+# (`test/testoutput/report.xml`) and falls back to the verbose test
+# output (`test/testoutput/test_output.log`) if XML is missing.
 
 on:
   workflow_dispatch:
     inputs:
       ref:
-        description: Git branch, tag, or SHA to test
+        name: Branch
+        description: Git branch to test
         required: false
         default: main
         type: string
       test_filter:
-        description: Terratest regex to run
+        name: Terratest Name
+        description: Terratest test name filter to run
         required: false
         default: 'TestApplyDefaultMain'
         type: string
       test_package:
+        name: Terratest Package
         description: Go package pattern to test
         required: false
         default: './defaultapply'
-        type: string
-      tfvars_source_path:
-        description: Optional tfvars file to copy into examples/sample-input-defaults.tfvars before running
-        required: false
-        default: ''
-        type: string
-      docker_image_tag:
-        description: Docker image tag to build and run
-        required: false
-        default: 'viya4-iac-azure:terratest'
         type: string
       verbose:
         description: Run go test in verbose mode
         required: false
         default: false
         type: boolean
+  # Schedule: run approximately every 14 days (bi-weekly). Cron can't express
+  # an exact every-other-week pattern across months, so this uses a 14-day
+  # interval as an approximation. Adjust the cron expression below if you
+  # prefer specific days-of-month instead.
+  schedule:
+    - cron: '0 0 */14 * *'
 
 jobs:
   terratest-apply:
@@ -50,82 +54,175 @@ jobs:
       TF_VAR_tenant_id: ${{ secrets.TF_VAR_TENANT_ID }}
       TF_VAR_client_id: ${{ secrets.TF_VAR_CLIENT_ID }}
       TF_VAR_client_secret: ${{ secrets.TF_VAR_CLIENT_SECRET }}
-      TF_VAR_public_cidrs: ${{ secrets.TF_VAR_PUBLIC_CIDRS }}
+      TF_VAR_public_access_cidrs: ${{ secrets.TF_VAR_PUBLIC_ACCESS_CIDRS }}
       DOCKER_IMAGE_TAG: 'viya4-iac-azure:terratest'
-      TEST_FILTER: 'TestApplyDefaultMain'
-      TEST_PACKAGE: './defaultapply'
-      TFVARS_SOURCE_PATH: ''
-      VERBOSE: false
+      # `TEST_FILTER` and `TEST_PACKAGE` control which Go tests Terratest
+      # executes inside the Docker image (passed as `-run`/-p flags).
+      # Use input values when provided via workflow_dispatch; otherwise fall
+      # back to sensible defaults for scheduled runs.
+      TEST_FILTER: ${{ inputs.test_filter || 'TestApplyDefaultMain' }}
+      TEST_PACKAGE: ${{ inputs.test_package || './defaultapply' }}
+      VERBOSE: ${{ inputs.verbose || 'true' }}
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.ref }}
-
-      - name: Prepare tfvars Input
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          if [[ -n "${TFVARS_SOURCE_PATH}" ]]; then
-            if [[ ! -f "${TFVARS_SOURCE_PATH}" ]]; then
-              echo "tfvars file not found: ${TFVARS_SOURCE_PATH}"
-              exit 1
-            fi
-
-            cp "${TFVARS_SOURCE_PATH}" examples/sample-input-defaults.tfvars
-          fi
+          ref: ${{ inputs.ref || github.ref}}
 
       - name: Build Docker Image
         shell: bash
         run: |
           set -euo pipefail
 
+          # Build the Docker image containing the test runtime and helpers.
           docker build -t "${DOCKER_IMAGE_TAG}" -f Dockerfile.terratest .
+
+      - name: Get Runner Public IP
+        id: runner_ip
+        shell: bash
+        run: |
+          RUNNER_IP=$(curl -sf https://api.ipify.org)/32
+          echo "ip=${RUNNER_IP}" >> "${GITHUB_OUTPUT}"
+          echo "Runner public IP: ${RUNNER_IP}"
+      # Capture the runner's public IP so it can be appended to allowed CIDRs
+      # and passed to Terraform as a TF_VAR when tests require access.
+
+      - name: Debug Public CIDRs
+        shell: bash
+        run: |
+          RUNNER_IP="${{ steps.runner_ip.outputs.ip }}"
+          COMBINED="${TF_VAR_public_access_cidrs},${RUNNER_IP}"
+          echo "Runner IP appended: ${RUNNER_IP}"
+          PUBLIC_CIDRS_JSON=$(printf '%s' "${COMBINED}" \
+            | jq -Rc '[split(",")[] | ltrimstr(" ") | rtrimstr(" ")]')
+          echo "PUBLIC_CIDRS_JSON (formatted for Terraform): ${PUBLIC_CIDRS_JSON}"
 
       - name: Run Apply Terratest
         shell: bash
         run: |
           set -euo pipefail
 
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            TEST_FILTER="${{ inputs.test_filter }}"
-            TEST_PACKAGE="${{ inputs.test_package }}"
-            DOCKER_IMAGE_TAG="${{ inputs.docker_image_tag }}"
-            VERBOSE="${{ inputs.verbose }}"
-          fi
+          # Use env-provided defaults for TEST_FILTER, TEST_PACKAGE and VERBOSE
+          DOCKER_IMAGE_TAG='viya4-iac-azure:terratest'
+          
+
+          RUNNER_IP="${{ steps.runner_ip.outputs.ip }}"
+          COMBINED="${TF_VAR_public_access_cidrs},${RUNNER_IP}"
+          PUBLIC_CIDRS_JSON=$(printf '%s' "${COMBINED}" \
+            | jq -Rc '[split(",")[] | ltrimstr(" ") | rtrimstr(" ")]')
 
           TERRATEST_ARGS=("-p=${TEST_PACKAGE}" "-r=${TEST_FILTER}")
           if [[ "${VERBOSE}" == "true" ]]; then
             TERRATEST_ARGS+=("-v")
           fi
 
+          # Run the Terratest runner inside Docker; mounts the repo so tests
+          # can access modules, helpers and write testoutput artifacts.
           docker run \
             --rm \
             -e TF_VAR_subscription_id="${TF_VAR_subscription_id}" \
             -e TF_VAR_tenant_id="${TF_VAR_tenant_id}" \
             -e TF_VAR_client_id="${TF_VAR_client_id}" \
             -e TF_VAR_client_secret="${TF_VAR_client_secret}" \
+            -e TF_VAR_public_cidrs="${PUBLIC_CIDRS_JSON}" \
             -v $(pwd):/viya4-iac-azure \
             "${DOCKER_IMAGE_TAG}" \
             "${TERRATEST_ARGS[@]}"
 
-      # - name: Upload Terratest Artifacts
-      #   if: always()
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: terratest-apply-results-${{ github.run_number }}
-      #     path: |
-      #       test/testoutput/**
-      #       test/**/*.log
-      #     if-no-files-found: ignore
-
-      - name: Cleanup Workspace and Containers
+      - name: Test Execution Summary
         if: always()
         shell: bash
         run: |
-          set -euo pipefail
+          REPORT_FILE="test/testoutput/report.xml"
+          LOG_FILE="test/testoutput/test_output.log"
 
-          docker ps -aq --filter "ancestor=${DOCKER_IMAGE_TAG}" | xargs -r docker rm -f
-          rm -rf test/testoutput
+          if [[ -f "${REPORT_FILE}" ]]; then
+            read -r TOTAL FAILED SKIPPED <<< "$(awk '
+              function attr(name, line,    r) {
+                r = name "=\"[0-9]+\""
+                if (match(line, r)) {
+                  return substr(line, RSTART + length(name) + 2, RLENGTH - length(name) - 3)
+                }
+                return 0
+              }
+              /<testsuite[[:space:]]/ {
+                total += attr("tests", $0)
+                failed += attr("failures", $0)
+                skipped += attr("skipped", $0)
+              }
+              END {
+                printf "%d %d %d", total, failed, skipped
+              }
+            ' "${REPORT_FILE}")"
+
+            PASSED=$((TOTAL - FAILED - SKIPPED))
+            if [[ "${PASSED}" -lt 0 ]]; then
+              PASSED=0
+            fi
+
+            echo "Summary source: ${REPORT_FILE}"
+            echo "Total Test Executed : ${TOTAL}"
+            echo "Passed: ${PASSED}"
+            echo "Failed: ${FAILED}"
+            echo "Skipped: ${SKIPPED}"
+
+            if [[ "${FAILED}" -gt 0 ]]; then
+              echo "Failing Tests:"
+              awk '
+                /<testcase[[:space:]]/ {
+                  current=""
+                  if (match($0, /(^|[[:space:]])name="[^"]+"/)) {
+                    current = substr($0, RSTART, RLENGTH)
+                    sub(/^[[:space:]]*name="/, "", current)
+                    sub(/"$/, "", current)
+                  }
+                  next
+                }
+                /<failure([[:space:]>]|$)/ {
+                  if (current != "") {
+                    if (index(current, "/") > 0) {
+                      n = split(current, parts, "/")
+                      print parts[n]
+                    } else {
+                      print current
+                    }
+                  }
+                }
+              ' "${REPORT_FILE}" | sort -u | sed 's/^/- /'
+            fi
+            exit 0
+          fi
+
+          if [[ -f "${LOG_FILE}" ]]; then
+            # Fallback: compute simple counts from the verbose test output
+            # and print the failing subtest names (strip the top-level parent
+            # test name so only the subtest name is shown).
+            PASSED=$(grep -Ec '^--- PASS:' "${LOG_FILE}" || true)
+            FAILED=$(grep -Ec '^--- FAIL:' "${LOG_FILE}" || true)
+            SKIPPED=$(grep -Ec '^--- SKIP:' "${LOG_FILE}" || true)
+            TOTAL=$((PASSED + FAILED + SKIPPED))
+
+            echo "Summary source: ${LOG_FILE}"
+            echo "Total Test Executed : ${TOTAL}"
+            echo "Passed: ${PASSED}"
+            echo "Failed: ${FAILED}"
+            echo "Skipped: ${SKIPPED}"
+
+            if [[ "${FAILED}" -gt 0 ]]; then
+              echo "Failing Tests:"
+              grep -E '--- FAIL:' "${LOG_FILE}" \
+                | sed -E 's/^\s*--- FAIL: ([^ ]+).*/\1/' \
+                | sed -E 's|.*/||' \
+                | sort -u \
+                | sed 's/^/- /'
+            fi
+            exit 0
+          fi
+
+          echo "Total Test Executed : 0"
+          echo "Passed: 0"
+          echo "Failed: 0"
+          echo "Skipped: 0"
+          echo "Warning: Neither ${REPORT_FILE} nor ${LOG_FILE} was found"
+
