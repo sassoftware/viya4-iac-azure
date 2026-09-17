@@ -72,7 +72,7 @@ func TestPlanNetApp(t *testing.T) {
 		},
 		"subnetExists": {
 			Expected:          `nil`,
-			ResourceMapName:   "module.vnet.azurerm_subnet.subnet[\"netapp\"]",
+			ResourceMapName:   "module.vnet[0].azurerm_subnet.subnet[\"netapp\"]",
 			AttributeJsonPath: "{$}",
 			AssertFunction:    assert.NotEqual,
 		},
