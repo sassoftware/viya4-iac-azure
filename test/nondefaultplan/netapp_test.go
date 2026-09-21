@@ -4,9 +4,10 @@
 package nondefaultplan
 
 import (
-	"github.com/stretchr/testify/assert"
 	"test/helpers"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 // Test the default variables when using the sample-input-defaults.tfvars file
@@ -74,6 +75,73 @@ func TestPlanNetApp(t *testing.T) {
 			ResourceMapName:   "module.vnet.azurerm_subnet.subnet[\"netapp\"]",
 			AttributeJsonPath: "{$}",
 			AssertFunction:    assert.NotEqual,
+		},
+		"communityNetappZone": {
+			Expected:          `1`,
+			ResourceMapName:   "module.netapp[0].azurerm_netapp_volume.anf",
+			AttributeJsonPath: "{$.zone}",
+			AssertFunction:    assert.Equal,
+		},
+	}
+
+	plan := helpers.GetPlan(t, variables)
+	helpers.RunTests(t, tests, plan)
+}
+
+// Test NetApp cross-zone replication: replica pool, replica volume, private DNS zone,
+// and DNS A record must all be created. network_features=Standard is required by the precondition.
+func TestPlanNetAppCrossZoneReplication(t *testing.T) {
+	t.Parallel()
+
+	variables := helpers.GetDefaultPlanVars(t)
+	variables["prefix"] = "netapp-czr"
+	variables["storage_type"] = "ha"
+	variables["netapp_enable_cross_zone_replication"] = true
+	variables["netapp_network_features"] = "Standard"
+	variables["netapp_availability_zone"] = "1"
+	variables["netapp_replication_zone"] = "2"
+	variables["netapp_size_in_tb"] = 1
+
+	tests := map[string]helpers.TestCase{
+		"primaryVolumeNetworkFeaturesStandard": {
+			Expected:          "Standard",
+			ResourceMapName:   "module.netapp[0].azurerm_netapp_volume.anf",
+			AttributeJsonPath: "{$.network_features}",
+			Message:           "Primary volume network_features must be Standard for CZR",
+		},
+		"replicaPoolExists": {
+			Expected:          "nil",
+			ResourceMapName:   "module.netapp[0].azurerm_netapp_pool.anf_replica[0]",
+			AttributeJsonPath: "{$}",
+			AssertFunction:    assert.NotEqual,
+			Message:           "Replica pool must be created when netapp_enable_cross_zone_replication=true",
+		},
+		"replicaVolumeExists": {
+			Expected:          "nil",
+			ResourceMapName:   "module.netapp[0].azurerm_netapp_volume.anf_replica[0]",
+			AttributeJsonPath: "{$}",
+			AssertFunction:    assert.NotEqual,
+			Message:           "Replica volume must be created when netapp_enable_cross_zone_replication=true",
+		},
+		"privateDnsZoneExists": {
+			Expected:          "nil",
+			ResourceMapName:   "module.netapp[0].azurerm_private_dns_zone.anf_dns[0]",
+			AttributeJsonPath: "{$}",
+			AssertFunction:    assert.NotEqual,
+			Message:           "Private DNS zone must be created for CZR failover hostname resolution",
+		},
+		"dnsARecordExists": {
+			Expected:          "nil",
+			ResourceMapName:   "module.netapp[0].azurerm_private_dns_a_record.anf_primary[0]",
+			AttributeJsonPath: "{$}",
+			AssertFunction:    assert.NotEqual,
+			Message:           "DNS A record must be created for CZR failover hostname resolution",
+		},
+		"replicaVolumeZone": {
+			Expected:          "2",
+			ResourceMapName:   "module.netapp[0].azurerm_netapp_volume.anf_replica[0]",
+			AttributeJsonPath: "{$.zone}",
+			Message:           "Replica volume must be in replication zone 2",
 		},
 	}
 

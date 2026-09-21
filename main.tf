@@ -8,13 +8,15 @@
 #
 provider "azurerm" {
 
-  subscription_id = var.subscription_id
-  client_id       = var.client_id
-  client_secret   = var.client_secret
-  tenant_id       = var.tenant_id
-  partner_id      = var.partner_id
-  use_msi         = var.use_msi
-
+   subscription_id                 = var.subscription_id
+   client_id                       = var.client_id
+   client_secret                   = var.client_secret
+   tenant_id                       = var.tenant_id
+   partner_id                      = var.partner_id
+   use_msi                         = var.use_msi
+   resource_provider_registrations = var.resource_provider_registrations
+   resource_providers_to_register  = var.resource_providers_to_register
+  
   features {}
 }
 
@@ -87,6 +89,9 @@ module "vnet" {
   resource_group_name = local.network_rg.name
   location            = var.location
   subnets             = local.subnets
+  roles               = var.msi_network_roles
+  aks_uai_principal_id = local.aks_uai_principal_id
+  add_uai_permissions = (var.aks_uai_name == null)
   existing_subnets    = var.subnet_names
   address_space       = [var.vnet_address_space]
   tags                = var.tags
@@ -159,6 +164,7 @@ module "aks" {
   aks_log_analytics_workspace_id           = var.create_aks_azure_monitor ? azurerm_log_analytics_workspace.viya4[0].id : null
   aks_network_plugin                       = var.aks_network_plugin
   aks_network_policy                       = var.aks_network_policy
+  aks_network_dataplane                    = var.aks_network_dataplane
   aks_network_plugin_mode                  = var.aks_network_plugin_mode
   aks_dns_service_ip                       = var.aks_dns_service_ip
   cluster_egress_type                      = local.cluster_egress_type
@@ -175,6 +181,8 @@ module "aks" {
   aks_private_cluster                      = var.cluster_api_mode == "private" ? true : false
   depends_on                               = [module.vnet]
   aks_azure_policy_enabled                 = var.aks_azure_policy_enabled ? var.aks_azure_policy_enabled : false
+  community_node_os_upgrade_channel        = var.community_node_os_upgrade_channel
+  enable_workload_identity                 = var.enable_workload_identity
 }
 
 module "kubeconfig" {
@@ -210,7 +218,7 @@ module "node_pools" {
   max_pods                     = each.value.max_pods == null ? 110 : each.value.max_pods
   node_taints                  = each.value.node_taints
   node_labels                  = each.value.node_labels
-  zones                        = (var.node_pools_availability_zone == "" || var.node_pools_proximity_placement == true) ? [] : (var.node_pools_availability_zones != null) ? var.node_pools_availability_zones : [var.node_pools_availability_zone]
+  zones                        = each.value.availability_zones != null ? each.value.availability_zones : (var.node_pools_availability_zone == "" || var.node_pools_proximity_placement == true) ? [] : (var.node_pools_availability_zones != null) ? var.node_pools_availability_zones : [var.node_pools_availability_zone]
   proximity_placement_group_id = element(coalescelist(azurerm_proximity_placement_group.proximity[*].id, [""]), 0)
   orchestrator_version         = var.kubernetes_version
   host_encryption_enabled      = var.aks_cluster_enable_host_encryption
@@ -219,6 +227,8 @@ module "node_pools" {
   community_priority           = each.value.community_priority 
   community_eviction_policy    = each.value.community_eviction_policy
   community_spot_max_price     = each.value.community_spot_max_price
+  community_os_disk_type       = each.value.community_os_disk_type
+  community_kubelet_disk_type  = each.value.community_kubelet_disk_type  
 
 }
 
@@ -246,6 +256,11 @@ module "flex_postgresql" {
   postgresql_configurations = each.value.ssl_enforcement_enabled ? concat(each.value.postgresql_configurations, local.default_postgres_configuration) : concat(
   each.value.postgresql_configurations, [{ name : "require_secure_transport", value : "OFF" }], local.default_postgres_configuration)
   tags = var.tags
+  
+  # Multi-AZ High Availability Configuration (Changes for PSCLOUD-133 comment)
+  availability_zone         = lookup(each.value, "availability_zone", "1")
+  high_availability_mode    = lookup(each.value, "high_availability_mode", null)
+  standby_availability_zone = lookup(each.value, "standby_availability_zone", "2")
 }
 
 module "netapp" {
@@ -256,6 +271,7 @@ module "netapp" {
   resource_group_name = local.aks_rg.name
   location            = var.location
   subnet_id           = module.vnet.subnets["netapp"].id
+  vnet_id             = module.vnet.id
   network_features    = var.netapp_network_features
   service_level       = var.netapp_service_level
   size_in_tb          = var.netapp_size_in_tb
@@ -266,6 +282,16 @@ module "netapp" {
   depends_on          = [module.vnet]
 
   community_netapp_volume_size = var.community_netapp_volume_size
+  
+  # Multi-AZ Cross-Zone Replication Configuration (Changes for PSCLOUD-133 comment)
+  netapp_availability_zone             = var.netapp_availability_zone
+  netapp_enable_cross_zone_replication = var.netapp_enable_cross_zone_replication
+  netapp_replication_zone              = var.netapp_replication_zone
+  netapp_replication_frequency         = var.netapp_replication_frequency
+  
+  # Private DNS Zone for CZR resilience
+  netapp_dns_zone_name   = var.netapp_dns_zone_name
+  netapp_dns_record_name = var.netapp_dns_record_name
 }
 
 data "external" "git_hash" {

@@ -93,3 +93,26 @@ func TestPlanACRPremium(t *testing.T) {
 	plan := helpers.GetPlan(t, variables)
 	helpers.RunTests(t, tests, plan)
 }
+
+// Test ACR with admin access disabled (the recommended production default).
+func TestPlanACRAdminDisabled(t *testing.T) {
+	t.Parallel()
+
+	variables := helpers.GetDefaultPlanVars(t)
+	variables["prefix"] = "acr-admin-disabled"
+	variables["create_container_registry"] = true
+	variables["container_registry_admin_enabled"] = false
+	variables["container_registry_sku"] = "Standard"
+
+	tests := map[string]helpers.TestCase{
+		"adminDisabledTest": {
+			Expected:          "false",
+			ResourceMapName:   "azurerm_container_registry.acr[0]",
+			AttributeJsonPath: "{$.admin_enabled}",
+			Message:           "ACR admin_enabled must be false when container_registry_admin_enabled=false",
+		},
+	}
+
+	plan := helpers.GetPlan(t, variables)
+	helpers.RunTests(t, tests, plan)
+}

@@ -78,6 +78,9 @@ resource "azurerm_linux_virtual_machine" "vm" {
     public_key = var.ssh_public_key
   }
 
+  patch_mode            = var.patch_mode
+  patch_assessment_mode = var.patch_assessment_mode
+
   os_disk {
     caching                = var.os_disk_caching
     storage_account_type   = var.os_disk_storage_account_type
@@ -88,14 +91,14 @@ resource "azurerm_linux_virtual_machine" "vm" {
   source_image_reference {
     publisher = var.os_publisher
     offer     = var.fips_enabled ? "0001-com-ubuntu-pro-jammy-fips" : var.os_offer
-    sku       = var.fips_enabled ? "pro-fips-22_04-gen2" : var.os_sku
+    sku       = var.fips_enabled ? "pro-fips-22_04" : var.os_sku
     version   = var.os_version
   }
 
   dynamic "plan" {
     for_each = var.fips_enabled ? [1] : []
     content {
-      name      = "pro-fips-22_04-gen2"
+      name      = "pro-fips-22_04"
       publisher = "canonical"
       product   = "0001-com-ubuntu-pro-jammy-fips"
     }
@@ -106,6 +109,10 @@ resource "azurerm_linux_virtual_machine" "vm" {
   }
 
   tags = var.tags
+
+  lifecycle {
+    ignore_changes = [ identity ]
+  }
 
   depends_on = [azurerm_network_interface_security_group_association.vm_nic_sg]
 }
