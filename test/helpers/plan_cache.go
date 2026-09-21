@@ -4,15 +4,17 @@
 package helpers
 
 import (
-	"github.com/gruntwork-io/terratest/modules/terraform"
-	test_structure "github.com/gruntwork-io/terratest/modules/test-structure"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 	"os"
 	"path/filepath"
 	"strings"
 	"sync"
 	"testing"
+
+	"github.com/gruntwork-io/terratest/modules/logger"
+	"github.com/gruntwork-io/terratest/modules/terraform"
+	test_structure "github.com/gruntwork-io/terratest/modules/test-structure"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 var lock = &sync.Mutex{}
@@ -86,6 +88,7 @@ func InitPlanWithVariables(t *testing.T, variables map[string]interface{}) (*ter
 		Vars:         variables,
 		PlanFilePath: planFilePath,
 		NoColor:      true,
+		Logger:       logger.Discard,
 	}
 
 	return terraform.InitAndPlanAndShowWithStructE(t, terraformOptions)
