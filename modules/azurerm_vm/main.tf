@@ -78,6 +78,9 @@ resource "azurerm_linux_virtual_machine" "vm" {
     public_key = var.ssh_public_key
   }
 
+  patch_mode            = var.patch_mode
+  patch_assessment_mode = var.patch_assessment_mode
+
   os_disk {
     caching                = var.os_disk_caching
     storage_account_type   = var.os_disk_storage_account_type

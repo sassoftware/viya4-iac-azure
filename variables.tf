@@ -1,5 +1,7 @@
 # Copyright © 2020-2024, SAS Institute Inc., Cary, NC, USA. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
+# 
+# MULTI-AZ ENHANCED VERSION - Compare with variables.tf
 
 ## Global
 variable "client_id" {
@@ -28,6 +30,23 @@ variable "use_msi" {
   description = "Use Managed Identity for Authentication (Azure VMs only)"
   type        = bool
   default     = false
+}
+
+variable "resource_provider_registrations" {
+  description = "Set mode to determine the collection of resource providers to automatically register on the subscription"
+  type        = string
+  default     = "core"
+
+  validation {
+    condition     = contains(["core", "extended", "all", "none", "legacy"], var.resource_provider_registrations)
+    error_message = "ERROR: Valid types are \"core\", \"extended\", \"all\", \"none\" and \"legacy\"!"
+  }  
+}
+
+variable "resource_providers_to_register" {
+  description = "A custom list of RPs to explicitly register for the subscription, in addition to those specified by the resource_provider_registrations property"
+  type        = list(string)
+  default     = null
 }
 
 variable "msi_network_roles" {
@@ -100,6 +119,13 @@ variable "aks_cluster_sku_tier" {
   }
 }
 
+## variable for Workload Identity in AKS
+variable "enable_workload_identity" {
+  description = "Enable Azure AD Workload Identity (also enables OIDC issuer for the cluster)"
+  type        = bool
+  default     = false
+}
+
 variable "cluster_support_tier" {
   description = "Specifies the support plan which should be used for this Kubernetes Cluster. Possible values are 'KubernetesOfficial' and 'AKSLongTermSupport'. Defaults to 'KubernetesOfficial'."
   type        = string
@@ -163,7 +189,7 @@ variable "default_nodepool_vm_type" {
 variable "kubernetes_version" {
   description = "The AKS cluster K8s version"
   type        = string
-  default     = "1.31"
+  default     = "1.35"
 }
 
 variable "default_nodepool_max_nodes" {
@@ -216,9 +242,9 @@ variable "aks_azure_policy_enabled" {
 
 # AKS advanced network config
 variable "aks_network_plugin" {
-  description = "Network plugin to use for networking. Currently supported values are azure and kubenet. Changing this forces a new resource to be created."
+  description = "Network plugin to use for networking. Currently supported values are azure and kubenet (deprecated). Changing this forces a new resource to be created."
   type        = string
-  default     = "kubenet"
+  default     = "azure"
 
   validation {
     condition     = contains(["kubenet", "azure"], var.aks_network_plugin)
@@ -227,15 +253,21 @@ variable "aks_network_plugin" {
 }
 
 variable "aks_network_policy" {
-  description = "Sets up network policy to be used with Azure CNI. Network policy allows control of the traffic flow between pods. Currently supported values are calico and azure. Changing this forces a new resource to be created."
+  description = "Sets up network policy to be used with Azure CNI. Network policy allows control of the traffic flow between pods. Currently supported values are cilium, calico and azure (deprecated). Changing this forces a new resource to be created."
   type        = string
   default     = null
+}
+
+variable "aks_network_dataplane" {
+  description = "Network dataplane used in the Kubernetes cluster. Currently supported values are azure and cilium."
+  type        = string
+  default     = "azure"
 }
 
 variable "aks_network_plugin_mode" {
   description = "Specifies the network plugin mode used for building the Kubernetes network. Possible value is `overlay`. Changing this forces a new resource to be created."
   type        = string
-  default     = null
+  default     = "overlay"
 }
 
 variable "aks_dns_service_ip" {
@@ -244,13 +276,13 @@ variable "aks_dns_service_ip" {
   default     = "10.0.0.10"
 
   validation {
-    condition     = var.aks_dns_service_ip != null ? can(regex("^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$", var.aks_dns_service_ip)) : false
+    condition     = can(regex("^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$", var.aks_dns_service_ip))
     error_message = "ERROR: aks_dns_service_ip - value must not be null and must be a valid IP address."
   }
 }
 
 variable "aks_pod_cidr" {
-  description = "The CIDR to use for pod IP addresses. This field can only be set when network_plugin is set to kubenet. Changing this forces a new resource to be created."
+  description = "The CIDR to use for pod IP addresses. This field can only be set when network_plugin is set to azure and network_plugin_mode is set to overlay or when network_plugin is set to kubenet (deprecated). Changing this forces a new resource to be created."
   type        = string
   default     = "10.244.0.0/16"
 
@@ -304,7 +336,7 @@ variable "tags" {
 
 # Defaults
 variable "postgres_server_defaults" {
-  description = ""
+  description = "Default PostgreSQL server configuration with multi-AZ HA support"
   type        = any
   default = {
     sku_name                     = "GP_Standard_D4s_v3"
@@ -313,10 +345,15 @@ variable "postgres_server_defaults" {
     geo_redundant_backup_enabled = false
     administrator_login          = "pgadmin"
     administrator_password       = "my$up3rS3cretPassw0rd"
-    server_version               = "15"
+    server_version               = "16"
     ssl_enforcement_enabled      = true
     connectivity_method          = "public"
     postgresql_configurations    = [{ name : "azure.extensions", value : "PGCRYPTO" }]
+    
+    # Multi-AZ High Availability Configuration
+    high_availability_mode       = null              # Set to "ZoneRedundant" or "SameZone" to enable HA
+    availability_zone            = "1"               # Primary zone (1, 2, or 3)
+    standby_availability_zone    = "2"               # Standby zone (must differ from primary for ZoneRedundant)
   }
 }
 
@@ -390,7 +427,7 @@ variable "jump_vm_zone" {
 variable "jump_vm_machine_type" {
   description = "SKU which should be used for this Virtual Machine"
   type        = string
-  default     = "Standard_B2s"
+  default     = "Standard_D2ls_v5"
 }
 
 variable "jump_rwx_filestore_path" {
@@ -409,6 +446,28 @@ variable "vm_disk_encryption_set_id" {
   description = "The ID of the Disk Encryption Set which should be used to Encrypt this OS Disk. This setting applies to both Jump and NFS VM."
   type        = string
   default     = null
+}
+
+variable "vm_patch_mode" {
+  description = "Specifies the mode of VM Guest Patching for Jump and NFS VMs. Possible values: ImageDefault (manual patching) or AutomaticByPlatform (automatic patching)."
+  type        = string
+  default     = "ImageDefault"
+  
+  validation {
+    condition     = contains(["AutomaticByPlatform", "ImageDefault"], var.vm_patch_mode)
+    error_message = "ERROR: Supported values for vm_patch_mode are: AutomaticByPlatform, ImageDefault."
+  }
+}
+
+variable "vm_patch_assessment_mode" {
+  description = "Specifies the mode of VM Guest Patch Assessment for Jump and NFS VMs. Possible values: ImageDefault or AutomaticByPlatform (recommended for visibility)."
+  type        = string
+  default     = "AutomaticByPlatform"
+  
+  validation {
+    condition     = contains(["AutomaticByPlatform", "ImageDefault"], var.vm_patch_assessment_mode)
+    error_message = "ERROR: Supported values for vm_patch_assessment_mode are: AutomaticByPlatform, ImageDefault."
+  }
 }
 
 variable "storage_type" {
@@ -464,9 +523,15 @@ variable "nfs_raid_disk_type" {
   default     = "Standard_LRS"
 
   validation {
-    condition     = contains(["Standard_LRS", "Premium_LRS", "StandardSSD_LRS", "UltraSSD_LRS"], var.nfs_raid_disk_type)
+    condition     = contains(["StandardSSD_ZRS", "Premium_ZRS", "Standard_LRS", "Premium_LRS", "StandardSSD_LRS", "UltraSSD_LRS"], var.nfs_raid_disk_type)
     error_message = "ERROR: nfs_raid_disk_type - Valid values include - Standard_LRS, Premium_LRS, StandardSSD_LRS or UltraSSD_LRS."
   }
+}
+
+variable "os_disk_storage_account_type" {
+  description = "The Type of Storage Account which should back this the Internal OS Disk. Possible values are StandardSSD_ZRS, Premium_ZRS, Standard_LRS, StandardSSD_LRS and Premium_LRS. Changing this forces a new resource to be created"
+  type        = string
+  default     = "Standard_LRS"
 }
 
 variable "nfs_raid_disk_zone" {
@@ -513,13 +578,13 @@ variable "netapp_service_level" {
 }
 
 variable "netapp_size_in_tb" {
-  description = "When storage_type=ha, Provisioned size of the pool in TB. Value must be between 4 and 500"
+  description = "When storage_type=ha, Provisioned size of the pool in TB. Value must be between 1 and 2048"
   type        = number
   default     = 4
 
   validation {
-    condition     = var.netapp_size_in_tb != null ? var.netapp_size_in_tb >= 4 && var.netapp_size_in_tb <= 500 : null
-    error_message = "ERROR: netapp_size_in_tb - value must be between 4 and 500."
+    condition     = var.netapp_size_in_tb != null ? (var.netapp_size_in_tb >= 4 || (var.netapp_size_in_tb >= 1 && var.netapp_network_features == "Standard") ) && var.netapp_size_in_tb <= 2048 : null
+    error_message = "ERROR: netapp_size_in_tb - value must be between 1 and 2048. If netapp_size_in_tb is less than 4, netapp_network_features must be Standard"
   }
 }
 
@@ -544,6 +609,66 @@ variable "netapp_network_features" {
     condition     = contains(["Basic", "Standard"], var.netapp_network_features)
     error_message = "Error: Currently the supported values are 'Basic' and 'Standard'."
   }
+}
+
+# Multi-AZ NetApp Variables
+variable "netapp_availability_zone" {
+  description = "Primary availability zone for Azure NetApp Files volume. Set to '1', '2', or '3' for zonal deployment."
+  type        = string
+  nullable    = true
+  default     = "1"
+  
+  validation {
+    condition     = var.netapp_availability_zone == null || contains(["1", "2", "3"], var.netapp_availability_zone)
+    error_message = "NetApp availability zone must be '1', '2', '3', or null."
+  }
+}
+
+variable "netapp_enable_cross_zone_replication" {
+  description = "Enable cross-zone replication for Azure NetApp Files to ensure zone failure resilience. Requires Standard network features."
+  type        = bool
+  default     = false
+}
+
+variable "netapp_replication_zone" {
+  description = "Target availability zone for NetApp cross-zone replication. Must be different from netapp_availability_zone."
+  type        = string
+  nullable    = true
+  default     = "2"
+  
+  validation {
+    condition     = var.netapp_replication_zone == null || contains(["1", "2", "3"], var.netapp_replication_zone)
+    error_message = "NetApp replication zone must be '1', '2', '3', or null."
+  }
+  
+  validation {
+    condition     = !var.netapp_enable_cross_zone_replication || (var.netapp_replication_zone != null && var.netapp_replication_zone != var.netapp_availability_zone)
+    error_message = "When netapp_enable_cross_zone_replication is enabled, netapp_replication_zone must be set and differ from netapp_availability_zone to ensure proper cross-zone replication."
+  }
+}
+
+variable "netapp_replication_frequency" {
+  description = "Replication frequency for cross-zone replication. Valid values: 10minutes, hourly, daily"
+  type        = string
+  default     = "10minutes"
+  
+  validation {
+    condition     = contains(["10minutes", "hourly", "daily"], var.netapp_replication_frequency)
+    error_message = "Valid values are: 10minutes, hourly, daily."
+  }
+}
+
+# Private DNS Zone variables for ANF CZR resilience
+variable "netapp_dns_zone_name" {
+  description = "Private DNS Zone name for ANF CZR hostname resolution. Used to provide stable NFS mount point during failover."
+  type        = string
+  default     = "sas-viya.internal"
+}
+
+variable "netapp_dns_record_name" {
+  description = "DNS A record name within the Private DNS Zone for NFS mount point. The FQDN will be <record_name>.<zone_name>"
+  type        = string
+  default     = "nfs"
 }
 
 variable "node_pools_availability_zone" {
@@ -574,15 +699,17 @@ variable "node_pools" {
     max_pods     = string
     node_taints  = list(string)
     node_labels  = map(string)
+    availability_zones = optional(list(string))
     community_priority     = optional(string, "Regular")
     community_eviction_policy = optional(string)
     community_spot_max_price = optional(string)
+    community_kubelet_disk_type = optional(string)
+    community_os_disk_type      = optional(string)  
     linux_os_config = optional(object({
       sysctl_config = optional(object({
         vm_max_map_count = optional(number)
       }))
     }))
-
   }))
 
   default = {
@@ -741,12 +868,6 @@ variable "subnet_names" {
   description = "Map subnet usage roles to existing subnet names"
   type        = map(string)
   default     = {}
-  # Example:
-  # subnet_names = {
-  #   'aks': 'my_aks_subnet',
-  #   'misc': 'my_misc_subnet',
-  #   'netapp': 'my_netapp_subnet'
-  # }
 }
 
 variable "subnets" {
@@ -848,4 +969,15 @@ variable "community_netapp_volume_size" {
   description = "Community Contributed field. Will manually set the value of the Netapp Volume smaller than the Netapp Pool. This value is in GB."
   type = number
   default = 0
+}
+
+# Node OS upgrade channel control
+variable "community_node_os_upgrade_channel" {
+  type        = string
+  default     = "NodeImage"
+  description = "Community Configuration Option. Controls the upgrade channel for the Node's OS. Available options are NodeImage(default), SecurityPatch, Unmanaged, and None."
+  validation {
+    condition     = contains(["None", "NodeImage", "SecurityPatch", "Unmanaged"], var.community_node_os_upgrade_channel)
+    error_message = "ERROR: Valid types are \"None\", \"NodeImage\", \"SecurityPatch\" and \"Unmanaged\"!"
+  }
 }

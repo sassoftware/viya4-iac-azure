@@ -28,13 +28,21 @@ This project helps you to automate the cluster-provisioning phase of SAS Viya pl
   >- Managed Azure Kubernetes Service (AKS) cluster
   >- System and User AKS Node pools with required Labels and Taints
   >- Infrastructure to deploy SAS Viya platform CAS in SMP or MPP mode
-  >- Storage options for SAS Viya platform -  NFS Server (Standard) or Azure NetApp Files (HA)
+  >- Storage options for SAS Viya platform -  NFS Server (Standard) or Azure NetApp Files (HA)*
   >- Azure DB for PostgreSQL, optional
   >- Azure Container Registry, optional
 
+**Note on Multi-Availability Zone Deployments:*** For multi-AZ deployments (2025.10+), SAS requires zone-redundant storage (ZRS) with automatic failover. The current storage options (NFS VM and Azure NetApp Files) have limitations:
+- Azure NetApp Files cross-zone replication requires manual intervention during zone failures
+- NFS Server VM with ZRS disks provides disk redundancy but remains single-zone
+- Provide standard cross-zone replication mechanisms via explicit commands per Azure policies
+- See [CONFIG-VARS.md](docs/CONFIG-VARS.md#storage) for detailed information
+
+**Note on Network Configuration Upgrades:** If you are migrating an existing cluster from the legacy `kubenet` network plugin to the optimized **Azure CNI Overlay with Cilium**, you must perform manual CLI migration steps *before* running Terraform to prevent a full cluster destruction. See the [Network Plugin Upgrade Guide](docs/user/NetworkPluginUpgrade.md) for detailed instructions.
+
 [<img src="./docs/images/viya4-iac-azure-diag.png" alt="Architecture Diagram" width="750"/>](./docs/images/viya4-iac-azure-diag.png?raw=true)
 
-This project addresses the first of three steps in [Steps for Getting Started](https://documentation.sas.com/?cdcId=itopscdc&cdcVersion=default&docsetId=itopscon&docsetTarget=n12fgslcw9swbsn10rva4bp0mr2w.htm) in _SAS&reg; Viya&reg; Platform Operations_:
+This project addresses the first of three steps in [Steps for Getting Started](https://go.documentation.sas.com/doc/en/itopscdc/v_045/itopscon/n1d7qc4nfr3s5zn103a1qy0kj4l1.htm) in _SAS&reg; Viya&reg; Platform Operations_:
 
 1. Provision resources.
 1. Prepare for the deployment.
@@ -44,7 +52,7 @@ This project addresses the first of three steps in [Steps for Getting Started](h
 
 Once the cloud resources are provisioned, use the [viya4-deployment](https://github.com/sassoftware/viya4-deployment) project to deploy 
 the SAS Viya platform in your cloud environment. To learn about all phases and options of the SAS Viya platform deployment process, see
-[Getting Started with SAS Viya and Azure Kubernetes Service](https://documentation.sas.com/?cdcId=itopscdc&cdcVersion=default&docsetId=itopscon&docsetTarget=n1d7qc4nfr3s5zn103a1qy0kj4l1.htm) in _SAS Viya Platform Operations_.
+[Getting Started with SAS Viya and Azure Kubernetes Service](https://go.documentation.sas.com/doc/en/itopscdc/v_045/itopscon/n1d7qc4nfr3s5zn103a1qy0kj4l1.htm) in _SAS Viya Platform Operations_.
 
 
 This project follows the [SemVer](https://semver.org/#summary) versioning scheme. Given a version number MAJOR.MINOR.PATCH, we increment the:
@@ -77,7 +85,7 @@ Access to an **Azure Subscription** and an [**Identity**](./docs/user/TerraformA
 
 #### Terraform Requirements:
 - [Terraform](https://www.terraform.io/downloads.html) - v1.10.5
-- [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl) - v1.31.6
+- [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl) - v1.35.6
 - [jq](https://stedolan.github.io/jq/) - v1.6
 - [Azure CLI](https://docs.microsoft.com/en-us/cli/azure) - (optional - useful as an alternative to the Azure Portal) - v2.70.0
 

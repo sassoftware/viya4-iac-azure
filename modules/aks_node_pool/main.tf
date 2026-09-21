@@ -28,6 +28,9 @@ resource "azurerm_kubernetes_cluster_node_pool" "autoscale_node_pool" {
   priority                     = var.community_priority
   eviction_policy              = var.community_eviction_policy
   spot_max_price               = var.community_spot_max_price
+  os_disk_type                 = var.community_os_disk_type
+  kubelet_disk_type            = var.community_kubelet_disk_type
+
   temporary_name_for_rotation  = substr("t${var.node_pool_name}", 0, 12)
 
   lifecycle {
@@ -68,6 +71,9 @@ resource "azurerm_kubernetes_cluster_node_pool" "static_node_pool" {
   priority                     = var.community_priority
   eviction_policy              = var.community_eviction_policy
   spot_max_price               = var.community_spot_max_price
+  os_disk_type                 = var.community_os_disk_type
+  kubelet_disk_type            = var.community_kubelet_disk_type
+
   temporary_name_for_rotation  = substr("t${var.node_pool_name}", 0, 12)
 
   dynamic "linux_os_config" {

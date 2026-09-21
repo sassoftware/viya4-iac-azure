@@ -34,7 +34,7 @@ container_registry_sku              = "Standard"
 container_registry_admin_enabled    = false
 
 # AKS config
-kubernetes_version         = "1.31"
+kubernetes_version         = "1.35"
 default_nodepool_min_nodes = 2
 default_nodepool_vm_type   = "Standard_E8s_v5"
 
@@ -102,7 +102,7 @@ node_pools = {
 # Jump Server
 create_jump_public_ip = true
 jump_vm_admin        = "jumpuser"
-jump_vm_machine_type = "Standard_B2s"
+jump_vm_machine_type = "Standard_D2ls_v5"
 
 # Storage for Viya Compute Services
 # Supported storage_type values
@@ -127,6 +127,7 @@ nfs_raid_disk_type   = "Standard_LRS"
 
 # SingleStore configuration
 aks_network_plugin = "azure"
+aks_network_plugin_mode= "overlay
 
 # Subnets for SingleStore using azure network plugin
 subnets = {
@@ -145,16 +146,16 @@ subnets = {
     "service_delegations": {},
   }
   ## If using ha storage then the following is also added
-  netapp = {
-    "prefixes": ["192.168.9.0/24"],
-    "service_endpoints": [],
-    "private_endpoint_network_policies": "Disabled",
-    "private_link_service_network_policies_enabled": false,
-    "service_delegations": {
-      netapp = {
-        "name"    : "Microsoft.Netapp/volumes"
-        "actions" : ["Microsoft.Network/networkinterfaces/*", "Microsoft.Network/virtualNetworks/subnets/join/action"]
-      }
-    }
-  }
+  # netapp = {
+  #   "prefixes": ["192.168.9.0/24"],
+  #   "service_endpoints": [],
+  #   "private_endpoint_network_policies": "Disabled",
+  #   "private_link_service_network_policies_enabled": false,
+  #   "service_delegations": {
+  #     netapp = {
+  #       "name"    : "Microsoft.Netapp/volumes"
+  #       "actions" : ["Microsoft.Network/networkinterfaces/*", "Microsoft.Network/virtualNetworks/subnets/join/action"]
+  #     }
+  #   }
+  # }
 }

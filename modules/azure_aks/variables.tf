@@ -46,6 +46,13 @@ variable "rbac_aad_tenant_id" {
   default     = null
 }
 
+## variable for Workload Identity in AKS
+variable "enable_workload_identity" {
+  description = "Enable Azure AD Workload Identity (also enables OIDC issuer for the cluster)"
+  type        = bool
+  default     = false
+}
+
 
 variable "aks_cluster_sku_tier" {
   description = "The SKU Tier that should be used for this Kubernetes Cluster. Possible values are Free, Standard (which includes the Uptime SLA) and Premium. Defaults to Free"
@@ -159,7 +166,7 @@ variable "aks_azure_policy_enabled" {
 variable "kubernetes_version" {
   description = "The AKS cluster K8s version"
   type        = string
-  default     = "1.31"
+  default     = "1.35"
 }
 
 variable "aks_cluster_endpoint_public_access_cidrs" {
@@ -174,21 +181,27 @@ variable "aks_vnet_subnet_id" {
 }
 
 variable "aks_network_plugin" {
-  description = "Network plugin to use for networking. Currently supported values are azure and kubenet. Changing this forces a new resource to be created."
+  description = "Network plugin to use for networking. Currently supported values are azure and kubenet (deprecated). Changing this forces a new resource to be created."
   type        = string
-  default     = "kubenet"
+  default     = "azure"
 }
 
 variable "aks_network_policy" {
-  description = "Sets up network policy to be used with Azure CNI. Network policy allows us to control the traffic flow between pods. Currently supported values are calico and azure. Changing this forces a new resource to be created."
+  description = "Sets up network policy to be used with Azure CNI. Network policy allows us to control the traffic flow between pods. Currently supported values are cilium, calico and azure (deprecated). Changing this forces a new resource to be created."
   type        = string
   default     = null
+}
+
+variable "aks_network_dataplane" {
+  description = "Network dataplane used in the Kubernetes cluster. Currently supported values are azure and cilium."
+  type        = string
+  default     = "azure"
 }
 
 variable "aks_network_plugin_mode" {
   description = "Specifies the network plugin mode used for building the Kubernetes network. Possible value is `overlay`. Changing this forces a new resource to be created."
   type        = string
-  default     = null
+  default     = "overlay"
 }
 
 variable "aks_dns_service_ip" {
@@ -202,7 +215,7 @@ variable "aks_dns_service_ip" {
 }
 
 variable "aks_pod_cidr" {
-  description = "The CIDR to use for pod IP addresses. This field can only be set when network_plugin is set to kubenet. Changing this forces a new resource to be created."
+  description = "The CIDR to use for pod IP addresses. This field can only be set when network_plugin is set to azure and network_plugin_mode is set to overlay or when network_plugin is set to kubenet (deprecated). Changing this forces a new resource to be created."
   type        = string
   default     = "10.244.0.0/16"
   validation {
@@ -254,6 +267,7 @@ variable "client_secret" {
   description = "The Client Secret for the Service Principal."
   type        = string
   default     = ""
+  sensitive   = true
 }
 
 variable "cluster_egress_type" {
@@ -276,4 +290,15 @@ variable "aks_cluster_run_command_enabled" {
 variable "node_resource_group_name" {
   type    = string
   default = ""
+}
+
+# Community Contribution
+variable "community_node_os_upgrade_channel" {
+  type = string
+  default = "NodeImage"
+  description = "Community Configuration Option. Controls the upgrade channel for the Node's OS. Available options are NodeImage(default), SecurityPatch, Unmanaged, and None."
+  validation {
+    condition     = contains(["None", "NodeImage", "SecurityPatch", "Unmanaged"], var.community_node_os_upgrade_channel)
+    error_message = "ERROR: Valid types are \"None\", \"NodeImage\", \"SecurityPatch\" and \"Unmanaged\"!"
+  }
 }
