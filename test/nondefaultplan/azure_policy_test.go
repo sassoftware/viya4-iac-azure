@@ -31,7 +31,7 @@ func TestPlanAzurePolicy(t *testing.T) {
 			AttributeJsonPath: "{$.network_profile[0].network_plugin}",
 		},
 		"azurePluginAksPodCidrTest": {
-			Expected:        "192.168.0.0/23",
+			Expected:        "10.244.0.0/16",
 			ResourceMapName: "aks_pod_cidr",
 			Retriever:       helpers.RetrieveFromRawPlanOutputChanges,
 		},
@@ -85,7 +85,7 @@ func TestPlanCustomSubnets(t *testing.T) {
 			AttributeJsonPath: "{$.network_profile[0].network_plugin}",
 		},
 		"azurePluginAksPodCidrTest": {
-			Expected:        "123.12.0.0/21",
+			Expected:        "10.244.0.0/16",
 			ResourceMapName: "aks_pod_cidr",
 			Retriever:       helpers.RetrieveFromRawPlanOutputChanges,
 		},
