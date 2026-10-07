@@ -8,7 +8,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "4.48.0"
+      version = "4.64.0"
     }
     azuread = {
       source  = "hashicorp/azuread"
@@ -36,7 +36,7 @@ terraform {
     }
     kubernetes = {
       source  = "hashicorp/kubernetes"
-      version = "~>2.36"
+      version = "~>3.0"
     }
   }
 }
