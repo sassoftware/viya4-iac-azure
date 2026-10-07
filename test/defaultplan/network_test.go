@@ -28,7 +28,7 @@ func TestPlanNetwork(t *testing.T) {
 			AttributeJsonPath: "{$.network_profile[0].outbound_type}",
 		},
 		"networkPluginTest": {
-			Expected:          "kubenet",
+			Expected:          "azure",
 			ResourceMapName:   "module.aks.azurerm_kubernetes_cluster.aks",
 			AttributeJsonPath: "{$.network_profile[0].network_plugin}",
 		},

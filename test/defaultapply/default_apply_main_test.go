@@ -15,7 +15,11 @@ func TestApplyDefaultMain(t *testing.T) {
 	// deferred cleanup routine for the resources created by the terrafrom init and apply after the test have been run
 	defer helpers.DestroyDouble(t, terraformOptions)
 
-	// Drop in new test cases here
 	testApplyResourceGroup(t, plan)
 	testApplyVirtualMachine(t, plan)
+	testApplyAKSCluster(t, plan)
+	testApplyNFSDisks(t, plan)
+	testApplyNetwork(t, plan)
+	testApplyJumpPublicIP(t, plan)
+	testApplyNodePools(t, plan)
 }

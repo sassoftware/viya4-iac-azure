@@ -32,6 +32,23 @@ variable "use_msi" {
   default     = false
 }
 
+variable "resource_provider_registrations" {
+  description = "Set mode to determine the collection of resource providers to automatically register on the subscription"
+  type        = string
+  default     = "core"
+
+  validation {
+    condition     = contains(["core", "extended", "all", "none", "legacy"], var.resource_provider_registrations)
+    error_message = "ERROR: Valid types are \"core\", \"extended\", \"all\", \"none\" and \"legacy\"!"
+  }  
+}
+
+variable "resource_providers_to_register" {
+  description = "A custom list of RPs to explicitly register for the subscription, in addition to those specified by the resource_provider_registrations property"
+  type        = list(string)
+  default     = null
+}
+
 variable "msi_network_roles" {
     description = "Managed Identity permissions for VNet and Route Table"
     type = list(string)
@@ -172,7 +189,7 @@ variable "default_nodepool_vm_type" {
 variable "kubernetes_version" {
   description = "The AKS cluster K8s version"
   type        = string
-  default     = "1.33"
+  default     = "1.35"
 }
 
 variable "default_nodepool_max_nodes" {
@@ -225,9 +242,9 @@ variable "aks_azure_policy_enabled" {
 
 # AKS advanced network config
 variable "aks_network_plugin" {
-  description = "Network plugin to use for networking. Currently supported values are azure and kubenet. Changing this forces a new resource to be created."
+  description = "Network plugin to use for networking. Currently supported values are azure and kubenet (deprecated). Changing this forces a new resource to be created."
   type        = string
-  default     = "kubenet"
+  default     = "azure"
 
   validation {
     condition     = contains(["kubenet", "azure"], var.aks_network_plugin)
@@ -236,7 +253,7 @@ variable "aks_network_plugin" {
 }
 
 variable "aks_network_policy" {
-  description = "Sets up network policy to be used with Azure CNI. Network policy allows control of the traffic flow between pods. Currently supported values are calico, azure and cilium. Changing this forces a new resource to be created."
+  description = "Sets up network policy to be used with Azure CNI. Network policy allows control of the traffic flow between pods. Currently supported values are cilium, calico and azure (deprecated). Changing this forces a new resource to be created."
   type        = string
   default     = null
 }
@@ -244,13 +261,13 @@ variable "aks_network_policy" {
 variable "aks_network_dataplane" {
   description = "Network dataplane used in the Kubernetes cluster. Currently supported values are azure and cilium."
   type        = string
-  default     = null
+  default     = "azure"
 }
 
 variable "aks_network_plugin_mode" {
   description = "Specifies the network plugin mode used for building the Kubernetes network. Possible value is `overlay`. Changing this forces a new resource to be created."
   type        = string
-  default     = null
+  default     = "overlay"
 }
 
 variable "aks_dns_service_ip" {
@@ -265,7 +282,7 @@ variable "aks_dns_service_ip" {
 }
 
 variable "aks_pod_cidr" {
-  description = "The CIDR to use for pod IP addresses. This field can only be set when network_plugin is set to kubenet. Changing this forces a new resource to be created."
+  description = "The CIDR to use for pod IP addresses. This field can only be set when network_plugin is set to azure and network_plugin_mode is set to overlay or when network_plugin is set to kubenet (deprecated). Changing this forces a new resource to be created."
   type        = string
   default     = "10.244.0.0/16"
 
@@ -328,7 +345,7 @@ variable "postgres_server_defaults" {
     geo_redundant_backup_enabled = false
     administrator_login          = "pgadmin"
     administrator_password       = "my$up3rS3cretPassw0rd"
-    server_version               = "15"
+    server_version               = "16"
     ssl_enforcement_enabled      = true
     connectivity_method          = "public"
     postgresql_configurations    = [{ name : "azure.extensions", value : "PGCRYPTO" }]
@@ -410,7 +427,7 @@ variable "jump_vm_zone" {
 variable "jump_vm_machine_type" {
   description = "SKU which should be used for this Virtual Machine"
   type        = string
-  default     = "Standard_B2s"
+  default     = "Standard_D2ls_v5"
 }
 
 variable "jump_rwx_filestore_path" {

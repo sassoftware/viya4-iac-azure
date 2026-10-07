@@ -14,3 +14,5 @@ sas_iac_buildinfo.yaml
 test/bin
 test/pkg
 test/testoutput
+.direnv
+.envrc

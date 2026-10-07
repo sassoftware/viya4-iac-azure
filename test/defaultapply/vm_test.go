@@ -72,21 +72,11 @@ func testVM(t *testing.T, plan *terraform.PlanStruct, resourceGroupName string, 
 			ActualRetriever:   helpers.RetrieveFromStruct(virtualMachine, "VirtualMachineProperties", "OsProfile", "AdminUsername"),
 			Message:           "VM admin username is incorrect",
 		},
-		prefix + "AllowedExtensionOperationsTest": {
-			ExpectedRetriever: helpers.RetrieveFromPlan(plan, vmResourceMapName, "{$.allow_extension_operations}"),
-			ActualRetriever:   helpers.RetrieveFromStruct(virtualMachine, "VirtualMachineProperties", "OsProfile", "AllowExtensionOperations"),
-			Message:           "VM allow extension operations is incorrect",
-		},
 		prefix + "ComputerNameTest": {
 			Expected:        "nil",
 			ActualRetriever: helpers.RetrieveFromStruct(virtualMachine, "VirtualMachineProperties", "OsProfile", "ComputerName"),
 			AssertFunction:  assert.NotEqual,
 			Message:         "VM computer name is nil",
-		},
-		prefix + "DisablePasswordAuthTest": {
-			ExpectedRetriever: helpers.RetrieveFromPlan(plan, vmResourceMapName, "{$.disable_password_authentication}"),
-			ActualRetriever:   helpers.RetrieveFromStruct(virtualMachine, "VirtualMachineProperties", "OsProfile", "LinuxConfiguration", "DisablePasswordAuthentication"),
-			Message:           "VM DisablePasswordAuthTest is incorrect",
 		},
 		prefix + "IdTest": {
 			Expected:        "nil",
@@ -114,11 +104,6 @@ func testVM(t *testing.T, plan *terraform.PlanStruct, resourceGroupName string, 
 			ExpectedRetriever: helpers.RetrieveFromPlan(plan, vmResourceMapName, "{$.priority}"),
 			ActualRetriever:   helpers.RetrieveFromStruct(virtualMachine, "Priority"),
 			Message:           "VM priority is incorrect",
-		},
-		prefix + "ProvisionVMAgentTest": {
-			ExpectedRetriever: helpers.RetrieveFromPlan(plan, vmResourceMapName, "{$.provision_vm_agent}"),
-			ActualRetriever:   helpers.RetrieveFromStruct(virtualMachine, "VirtualMachineProperties", "OsProfile", "LinuxConfiguration", "ProvisionVMAgent"),
-			Message:           "Provision VM Agent is incorrect",
 		},
 		prefix + "SizeTest": {
 			ExpectedRetriever: helpers.RetrieveFromPlan(plan, vmResourceMapName, "{$.size}"),

@@ -26,6 +26,8 @@ resource "azurerm_kubernetes_cluster" "aks" {
   run_command_enabled     = var.aks_cluster_run_command_enabled
 
   # OIDC issuer must always be enabled if workload identity is enabled
+  # Note: Once enabled by Azure (even during partial/failed creation), OIDC cannot be disabled
+  # Lifecycle ignore_changes prevents Terraform from attempting to disable OIDC (PSCLOUD-607)
   oidc_issuer_enabled       = var.enable_workload_identity
   workload_identity_enabled = var.enable_workload_identity
 
@@ -129,7 +131,10 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   lifecycle {
-    ignore_changes = [default_node_pool[0].node_count]
+    ignore_changes = [
+      default_node_pool[0].node_count,
+      oidc_issuer_enabled  # Prevent Terraform from disabling OIDC once Azure enables it (PSCLOUD-607)
+    ]
     precondition {
       condition     = var.aks_network_policy != "azure" || var.aks_network_plugin == "azure"
       error_message = "When aks_network_policy is set to `azure`, the aks_network_plugin field can only be set to `azure`."
