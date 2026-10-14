@@ -83,6 +83,12 @@ variable "location" {
   default     = "eastus"
 }
 
+variable "enable_ipv6" {
+  description = "Enable IPv6 dual-stack support (IPv4 + IPv6). When true, AKS cluster uses dual-stack networking with both IPv4 and IPv6 pod/service CIDRs. Requires aks_network_plugin='azure' and load_balancer_sku='standard'."
+  type        = bool
+  default     = false
+}
+
 ## Azure AD
 variable "rbac_aad_enabled" {
   type        = bool
@@ -292,6 +298,17 @@ variable "aks_pod_cidr" {
   }
 }
 
+variable "aks_pod_ipv6_cidr" {
+  description = "The IPv6 CIDR to use for pod IP addresses when enable_ipv6=true. Must be a /64 CIDR block. Required for dual-stack with Azure CNI. Default uses ULA (Unique Local Address) range suitable for production overlay networks."
+  type        = string
+  default     = "fd00:10:244::/64"  # ULA range - production safe for pod overlay network
+
+  validation {
+    condition     = var.aks_pod_ipv6_cidr != null ? can(regex("^([0-9a-fA-F]{1,4}:)+:/64$", var.aks_pod_ipv6_cidr)) : true
+    error_message = "ERROR: aks_pod_ipv6_cidr - value must be a valid IPv6 CIDR with /64 prefix (e.g., fd00:10:244::/64)."
+  }
+}
+
 variable "aks_service_cidr" {
   description = "The Network Range used by the Kubernetes service. Changing this forces a new resource to be created."
   type        = string
@@ -300,6 +317,28 @@ variable "aks_service_cidr" {
   validation {
     condition     = var.aks_service_cidr != null ? can(cidrnetmask(var.aks_service_cidr)) : false
     error_message = "ERROR: aks_service_cidr - value must not be null and must be a valid CIDR."
+  }
+}
+
+variable "aks_service_ipv6_cidr" {
+  description = "The IPv6 Network Range used by the Kubernetes service. Used when enable_ipv6=true and aks_network_plugin='azure'. Must be a /108 CIDR block. Default uses ULA (Unique Local Address) range suitable for production service networks."
+  type        = string
+  default     = "fd00:10:0::/108"  # ULA range - production safe for service network
+
+  validation {
+    condition     = var.aks_service_ipv6_cidr != null ? can(regex("^([0-9a-fA-F]{1,4}:)+:/108$", var.aks_service_ipv6_cidr)) : true
+    error_message = "ERROR: aks_service_ipv6_cidr - value must be a valid IPv6 CIDR with /108 prefix (e.g., fd00:10:0::/108)."
+  }
+}
+
+variable "load_balancer_sku" {
+  description = "The SKU of the Load Balancer. Possible values are standard and basic. For IPv6 dual-stack support, standard is required."
+  type        = string
+  default     = "standard"
+
+  validation {
+    condition     = contains(["standard", "basic"], var.load_balancer_sku)
+    error_message = "ERROR: load_balancer_sku - Possible values are standard and basic."
   }
 }
 
@@ -850,6 +889,25 @@ variable "vnet_address_space" {
   description = "Address space for created vnet"
   type        = string
   default     = "192.168.0.0/16"
+}
+
+variable "vnet_ipv6_address_space" {
+  description = "IPv6 address space for created vnet. Used when enable_ipv6=true. Must be a /48 CIDR block. Default uses ULA (Unique Local Address) range suitable for production internal-only clusters. For internet-facing clusters, use an Azure-assigned or organization-allocated globally routable prefix."
+  type        = string
+  default     = "fd00:1234:5678::/48"  # ULA range - production safe for internal use. Customize with unique random bits.
+
+  validation {
+    condition     = var.vnet_ipv6_address_space != null ? can(regex("^([0-9a-fA-F]{1,4}:)+:/48$", var.vnet_ipv6_address_space)) : true
+    error_message = "ERROR: vnet_ipv6_address_space - value must be a valid IPv6 CIDR with /48 prefix (e.g., fd00:1234:5678::/48 for ULA or your assigned prefix)."
+  }
+}
+
+# Reserved until azurerm supports ipv6_pod_cidr/service_ipv6_cidr
+# tflint-ignore: terraform_unused_declarations
+variable "misc_subnet_ipv6_cidr" {
+  description = "(Optional) IPv6 CIDR for misc subnet. Auto-calculated from vnet_ipv6_address_space if not provided."
+  type        = string
+  default     = null
 }
 
 variable "nsg_name" {

@@ -33,8 +33,8 @@ locals {
   }) : null
 
   nfs_cloudconfig = var.storage_type == "standard" ? templatefile("${path.module}/files/cloud-init/nfs/cloud-config", {
-    aks_cidr_block  = module.vnet.subnets["aks"].address_prefixes[0]
-    misc_cidr_block = module.vnet.subnets["misc"].address_prefixes[0]
+    aks_cidr_block  = var.enable_ipv6 ? data.azurerm_subnet.aks_ipv6[0].address_prefixes[0] : local.vnet.subnets["aks"].address_prefixes[0]
+    misc_cidr_block = var.enable_ipv6 ? data.azurerm_subnet.misc_ipv6[0].address_prefixes[0] : local.vnet.subnets["misc"].address_prefixes[0]
     vm_admin        = var.nfs_vm_admin
   }) : null
 }
@@ -58,7 +58,8 @@ module "jump" {
   name                         = "${var.prefix}-jump"
   azure_rg_name                = local.aks_rg.name
   azure_rg_location            = var.location
-  vnet_subnet_id               = module.vnet.subnets["misc"].id
+  vnet_subnet_id               = var.enable_ipv6 ? data.azurerm_subnet.misc_ipv6[0].id : local.vnet.subnets["misc"].id
+  enable_ipv6                  = var.enable_ipv6
   machine_type                 = var.jump_vm_machine_type
   azure_nsg_id                 = local.nsg.id
   tags                         = var.tags
@@ -75,7 +76,6 @@ module "jump" {
   patch_mode                   = var.vm_patch_mode
   patch_assessment_mode        = var.vm_patch_assessment_mode
   # Jump VM mounts NFS path hence dependency on 'module.nfs'
-  depends_on = [module.vnet, module.nfs]
 }
 
 data "cloudinit_config" "nfs" {
@@ -98,8 +98,9 @@ module "nfs" {
   azure_rg_name                  = local.aks_rg.name
   azure_rg_location              = var.location
   proximity_placement_group_id   = element(coalescelist(azurerm_proximity_placement_group.proximity[*].id, [""]), 0)
-  vnet_subnet_id                 = module.vnet.subnets["misc"].id
-  machine_type                   = var.nfs_vm_machine_type
+  vnet_subnet_id                 = var.enable_ipv6 ? data.azurerm_subnet.misc_ipv6[0].id : local.vnet.subnets["misc"].id
+  enable_ipv6                     = var.enable_ipv6
+  machine_type                    = var.nfs_vm_machine_type
   azure_nsg_id                   = local.nsg.id
   tags                           = var.tags
   vm_admin                       = var.nfs_vm_admin
@@ -118,7 +119,6 @@ module "nfs" {
   disk_encryption_set_id         = var.vm_disk_encryption_set_id
   patch_mode                     = var.vm_patch_mode
   patch_assessment_mode          = var.vm_patch_assessment_mode
-  depends_on                     = [module.vnet]
 }
 
 resource "azurerm_network_security_rule" "vm-ssh" {

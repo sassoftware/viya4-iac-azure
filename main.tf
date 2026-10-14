@@ -81,8 +81,26 @@ data "azurerm_public_ip" "nat-ip" {
   resource_group_name = local.network_rg.name
 }
 
+data "azurerm_subnet" "aks_ipv6" {
+  count              = var.enable_ipv6 ? 1 : 0
+  name               = "${var.prefix}-aks-subnet"
+  virtual_network_name = "${var.prefix}-vnet"
+  resource_group_name  = local.network_rg.name
+  depends_on           = [azurerm_resource_group_template_deployment.vnet_ipv6]
+}
+
+data "azurerm_subnet" "misc_ipv6" {
+  count              = var.enable_ipv6 ? 1 : 0
+  name               = "${var.prefix}-misc-subnet"
+  virtual_network_name = "${var.prefix}-vnet"
+  resource_group_name  = local.network_rg.name
+  depends_on           = [azurerm_resource_group_template_deployment.vnet_ipv6]
+}
+
 module "vnet" {
   source = "./modules/azurerm_vnet"
+
+  count = var.enable_ipv6 ? 0 : 1
 
   name                = var.vnet_name
   prefix              = var.prefix
@@ -95,6 +113,104 @@ module "vnet" {
   existing_subnets    = var.subnet_names
   address_space       = [var.vnet_address_space]
   tags                = var.tags
+}
+
+# IPv6 path: Use ARM template to create VNet with native dual-stack support
+resource "azurerm_resource_group_template_deployment" "vnet_ipv6" {
+  count               = var.enable_ipv6 ? 1 : 0
+  name                = "${var.prefix}-vnet-ipv6"
+  resource_group_name = local.network_rg.name
+  deployment_mode     = "Incremental"
+
+  template_content = jsonencode({
+    "$schema"      = "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"
+    contentVersion = "1.0.0.0"
+    parameters = {
+      vnetAddressSpace = {
+        type         = "string"
+        defaultValue = var.vnet_address_space
+      }
+      vnetIpv6AddressSpace = {
+        type         = "string"
+        defaultValue = var.vnet_ipv6_address_space
+      }
+      aksSubnetIpv4 = {
+        type         = "string"
+        defaultValue = var.subnets["aks"].prefixes[0]
+      }
+      aksSubnetIpv6 = {
+        type         = "string"
+        defaultValue = local.ipv6_aks_subnet_cidr
+      }
+      miscSubnetIpv4 = {
+        type         = "string"
+        defaultValue = var.subnets["misc"].prefixes[0]
+      }
+      miscSubnetIpv6 = {
+        type         = "string"
+        defaultValue = local.ipv6_misc_subnet_cidr
+      }
+      prefix = {
+        type         = "string"
+        defaultValue = var.prefix
+      }
+      location = {
+        type         = "string"
+        defaultValue = var.location
+      }
+    }
+    resources = [
+      {
+        type       = "Microsoft.Network/virtualNetworks"
+        apiVersion = "2023-04-01"
+        name       = "[concat(parameters('prefix'), '-vnet')]"
+        location   = "[parameters('location')]"
+        properties = {
+          addressSpace = {
+            addressPrefixes = [
+              "[parameters('vnetAddressSpace')]",
+              "[parameters('vnetIpv6AddressSpace')]"
+            ]
+          }
+          subnets = [
+            {
+              name       = "[concat(parameters('prefix'), '-aks-subnet')]"
+              properties = {
+                addressPrefixes = [
+                  "[parameters('aksSubnetIpv4')]",
+                  "[parameters('aksSubnetIpv6')]"
+                ]
+                serviceEndpoints = [
+                  {
+                    service = "Microsoft.Sql"
+                  }
+                ]
+              }
+            },
+            {
+              name       = "[concat(parameters('prefix'), '-misc-subnet')]"
+              properties = {
+                addressPrefixes = [
+                  "[parameters('miscSubnetIpv4')]",
+                  "[parameters('miscSubnetIpv6')]"
+                ]
+                serviceEndpoints = [
+                  {
+                    service = "Microsoft.Sql"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ]
+  })
+
+  depends_on = [
+    azurerm_network_security_group.nsg,
+    azurerm_user_assigned_identity.uai
+  ]
 }
 
 resource "azurerm_container_registry" "acr" {
@@ -132,6 +248,23 @@ resource "azurerm_network_security_rule" "acr" {
   network_security_group_name = local.nsg.name
 }
 
+# IPv6 Egress rule for dual-stack load balancer support
+resource "azurerm_network_security_rule" "ipv6_lb_outbound" {
+  name                        = "SAS-IPv6-LB-Outbound"
+  description                 = "Allow IPv6 outbound traffic for load balancer"
+  count                       = var.enable_ipv6 ? 1 : 0
+  priority                    = 190
+  direction                   = "Outbound"
+  access                      = "Allow"
+  protocol                    = "*"
+  source_port_range           = "*"
+  destination_port_range      = "*"
+  source_address_prefix       = "::/0"
+  destination_address_prefix  = "::/0"
+  resource_group_name         = local.nsg_rg_name
+  network_security_group_name = local.nsg.name
+}
+
 module "aks" {
   source = "./modules/azure_aks"
 
@@ -156,7 +289,7 @@ module "aks" {
   aks_cluster_run_command_enabled          = var.aks_cluster_run_command_enabled
   aks_cluster_ssh_public_key               = try(file(var.ssh_public_key), "")
   aks_cluster_private_dns_zone_id          = var.aks_cluster_private_dns_zone_id
-  aks_vnet_subnet_id                       = module.vnet.subnets["aks"].id
+  aks_vnet_subnet_id                       = var.enable_ipv6 ? data.azurerm_subnet.aks_ipv6[0].id : local.vnet.subnets["aks"].id
   kubernetes_version                       = var.kubernetes_version
   aks_cluster_endpoint_public_access_cidrs = var.cluster_api_mode == "private" ? [] : local.cluster_endpoint_public_access_cidrs # "Private cluster cannot be enabled with AuthorizedIPRanges.""
   aks_availability_zones                   = var.default_nodepool_availability_zones
@@ -169,7 +302,11 @@ module "aks" {
   aks_dns_service_ip                       = var.aks_dns_service_ip
   cluster_egress_type                      = local.cluster_egress_type
   aks_pod_cidr                             = var.aks_pod_cidr
+  aks_pod_ipv6_cidr                        = var.enable_ipv6 ? var.aks_pod_ipv6_cidr : null
   aks_service_cidr                         = var.aks_service_cidr
+  aks_service_ipv6_cidr                    = var.enable_ipv6 ? var.aks_service_ipv6_cidr : null
+  load_balancer_sku                        = var.load_balancer_sku
+  enable_ipv6                              = var.enable_ipv6
   aks_cluster_tags                         = var.tags
   aks_uai_id                               = local.aks_uai_id
   client_id                                = var.client_id
@@ -207,7 +344,7 @@ module "node_pools" {
 
   node_pool_name               = each.key
   aks_cluster_id               = module.aks.cluster_id
-  vnet_subnet_id               = module.vnet.subnets["aks"].id
+  vnet_subnet_id               = var.enable_ipv6 ? data.azurerm_subnet.aks_ipv6[0].id : local.vnet.subnets["aks"].id
   machine_type                 = each.value.machine_type
   fips_enabled                 = var.fips_enabled
   os_disk_size                 = each.value.os_disk_size
@@ -251,8 +388,8 @@ module "flex_postgresql" {
   firewall_rule_prefix         = "${var.prefix}-${each.key}-postgres-firewall-"
   firewall_rules               = local.postgres_firewall_rules
   connectivity_method          = each.value.connectivity_method
-  virtual_network_id           = each.value.connectivity_method == "private" ? module.vnet.id : null
-  delegated_subnet_id          = each.value.connectivity_method == "private" ? module.vnet.subnets["postgresql"].id : null
+  virtual_network_id           = each.value.connectivity_method == "private" ? (var.enable_ipv6 ? null : local.vnet.id) : null
+  delegated_subnet_id          = each.value.connectivity_method == "private" ? (var.enable_ipv6 ? null : local.vnet.subnets["postgresql"].id) : null
   postgresql_configurations = each.value.ssl_enforcement_enabled ? concat(each.value.postgresql_configurations, local.default_postgres_configuration) : concat(
   each.value.postgresql_configurations, [{ name : "require_secure_transport", value : "OFF" }], local.default_postgres_configuration)
   tags = var.tags
@@ -270,15 +407,15 @@ module "netapp" {
   prefix              = var.prefix
   resource_group_name = local.aks_rg.name
   location            = var.location
-  subnet_id           = module.vnet.subnets["netapp"].id
-  vnet_id             = module.vnet.id
+  subnet_id           = var.enable_ipv6 ? null : local.vnet.subnets["netapp"].id
+  vnet_id             = var.enable_ipv6 ? null : local.vnet.id
   network_features    = var.netapp_network_features
   service_level       = var.netapp_service_level
   size_in_tb          = var.netapp_size_in_tb
   protocols           = var.netapp_protocols
   volume_path         = "${var.prefix}-${var.netapp_volume_path}"
   tags                = var.tags
-  allowed_clients     = concat(module.vnet.subnets["aks"].address_prefixes, module.vnet.subnets["misc"].address_prefixes)
+  allowed_clients     = var.enable_ipv6 ? [] : concat(local.vnet.subnets["aks"].address_prefixes, local.vnet.subnets["misc"].address_prefixes)
   depends_on          = [module.vnet]
 
   community_netapp_volume_size = var.community_netapp_volume_size
@@ -320,4 +457,52 @@ EOT
   }
 
   depends_on = [module.aks]
+}
+
+# Enable IPv6 dual-stack on AKS cluster (optional, only when enable_ipv6 = true)
+# VNet and subnets are created with IPv6 natively via the azurerm_vnet module
+# This patch only configures the AKS cluster for dual-stack IP families
+resource "azurerm_resource_group_template_deployment" "aks_ipv6_dual_stack" {
+  count               = var.enable_ipv6 ? 1 : 0
+  name                = "${var.prefix}-aks-ipv6-patch"
+  resource_group_name = local.aks_rg.name
+  deployment_mode     = "Incremental"
+
+  template_content = jsonencode({
+    "$schema"      = "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"
+    contentVersion = "1.0.0.0"
+    resources = [
+      {
+        type       = "Microsoft.ContainerService/managedClusters"
+        apiVersion = "2023-07-01"
+        name       = module.aks.name
+        location   = var.location
+        properties = {
+          networkProfile = {
+            ipFamilies = ["IPv4", "IPv6"]
+            podCidrs = [
+              var.aks_pod_cidr,
+              var.aks_pod_ipv6_cidr
+            ]
+            serviceCidrs = [
+              var.aks_service_cidr,
+              var.aks_service_ipv6_cidr
+            ]
+            ipFamilyPolicy = "RequireDualStack"
+            loadBalancerProfile = {
+              managedOutboundIPs = {
+                count     = 1
+                countIPv6 = 1
+              }
+            }
+          }
+        }
+      }
+    ]
+  })
+
+  depends_on = [
+    module.aks,
+    module.node_pools
+  ]
 }

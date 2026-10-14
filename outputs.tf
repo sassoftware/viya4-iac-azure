@@ -31,7 +31,7 @@ output "aks_pod_cidr" {
   value = (
     var.aks_network_plugin == "kubenet" ||
     (var.aks_network_plugin == "azure" && var.aks_network_plugin_mode == "overlay")
-  ) ? var.aks_pod_cidr : module.vnet.subnets["aks"].address_prefixes[0]
+  ) ? var.aks_pod_cidr : (var.enable_ipv6 ? data.azurerm_subnet.aks_ipv6[0].address_prefixes[0] : local.vnet.subnets["aks"].address_prefixes[0])
 }
 
 # postgres
@@ -157,7 +157,7 @@ output "netapp_dns_zone_id" {
 }
 
 output "rwx_filestore_config" {
-  value = var.storage_type == "ha" ? jsonencode({
+  value = (var.storage_type == "ha" && !var.enable_ipv6) ? jsonencode({
     "version" : 1,
     "storageDriverName" : "azure-netapp-files",
     "subscriptionID" : split("/", data.azurerm_subscription.current.id)[2],
@@ -166,10 +166,10 @@ output "rwx_filestore_config" {
     "clientSecret" : var.client_secret,
     "location" : local.aks_rg.location,
     "serviceLevel" : var.netapp_service_level,
-    "virtualNetwork" : module.vnet.name,
-    "subnet" : module.vnet.subnets["netapp"],
+    "virtualNetwork" : local.vnet.name,
+    "subnet" : local.vnet.subnets["netapp"],
     "defaults" : {
-      "exportRule" : element(tolist(module.vnet.address_space), 0),
+      "exportRule" : element(tolist(local.vnet.address_space), 0),
     }
   }) : null
 }
