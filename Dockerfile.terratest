@@ -1,4 +1,4 @@
-FROM golang:1.26
+FROM golang:1.27
 
 # Install terraform from apt repository, terratest_log_parser, jq, azure-cli
 RUN \
