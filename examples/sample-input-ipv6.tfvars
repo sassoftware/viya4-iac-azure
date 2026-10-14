@@ -26,9 +26,10 @@ aks_network_plugin      = "azure"
 aks_network_plugin_mode = "overlay"
 
 # IPv6 Address Space Configuration:
-# vnet_ipv6_address_space = "fd00:1234:5678::/48" # Default: ULA range (production-safe for internal clusters)
-# aks_pod_ipv6_cidr       = "fd00:10:244::/64"     # Default: ULA range (production-safe overlay)
-# aks_service_ipv6_cidr   = "fd00:10:0::/108"      # Default: ULA range (production-safe overlay)
+vnet_ipv6_address_space = "fd00:1234:5678::/48" # Default: ULA range (production-safe for internal clusters)
+aks_pod_ipv6_cidr       = "fd00:10:244::/64"     # Default: ULA range (production-safe overlay)
+aks_service_ipv6_cidr   = "fd00:10:0::/108"      # Default: ULA range (production-safe overlay)
+
 # NOTE: VNet subnet IPv6 ranges are auto-calculated: first /64 (aks), second /64 (misc)
 #
 # ⚠️  IPv6 PREFIX SELECTION FOR PRODUCTION:
@@ -76,6 +77,40 @@ node_pools = {
     "node_taints"           = ["workload.sas.com/class=cas:NoSchedule"]
     "node_labels" = {
       "workload.sas.com/class" = "cas"
+    }
+  },
+  compute = {
+    "machine_type" = "Standard_D4ds_v5"
+    "os_disk_size" = 200
+    "min_nodes"    = 1
+    "max_nodes"    = 1
+    "max_pods"     = 110
+    "node_taints"  = ["workload.sas.com/class=compute:NoSchedule"]
+    "node_labels" = {
+      "workload.sas.com/class"        = "compute"
+      "launcher.sas.com/prepullImage" = "sas-programming-environment"
+    }
+  },
+  stateless = {
+    "machine_type" = "Standard_D4s_v5"
+    "os_disk_size" = 200
+    "min_nodes"    = 1
+    "max_nodes"    = 4
+    "max_pods"     = 110
+    "node_taints"  = ["workload.sas.com/class=stateless:NoSchedule"]
+    "node_labels" = {
+      "workload.sas.com/class" = "stateless"
+    }
+  },
+  stateful = {
+    "machine_type" = "Standard_D4s_v5"
+    "os_disk_size" = 200
+    "min_nodes"    = 1
+    "max_nodes"    = 2
+    "max_pods"     = 110
+    "node_taints"  = ["workload.sas.com/class=stateful:NoSchedule"]
+    "node_labels" = {
+      "workload.sas.com/class" = "stateful"
     }
   },
   generic = {
