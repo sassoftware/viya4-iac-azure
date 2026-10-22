@@ -605,6 +605,18 @@ variable "container_registry_geo_replica_locs" {
 }
 
 # Azure NetApp Files
+variable "netapp_vnet_address_space" {
+  description = "IPv4 CIDR for the dedicated NetApp VNet and delegated subnet created when enable_ipv6=true and storage_type=ha. Must not overlap the AKS VNet or other connected networks."
+  type        = string
+  default     = "172.31.0.0/24"
+  nullable    = false
+
+  validation {
+    condition     = can(cidrnetmask(var.netapp_vnet_address_space)) && try(tonumber(split("/", var.netapp_vnet_address_space)[1]) <= 29, false)
+    error_message = "netapp_vnet_address_space must be a valid IPv4 CIDR with a /29 or larger address range."
+  }
+}
+
 variable "netapp_service_level" {
   description = "When storage_type=ha, The target performance of the file system. Valid values include Premium, Standard, or Ultra"
   type        = string

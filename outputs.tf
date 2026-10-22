@@ -157,7 +157,7 @@ output "netapp_dns_zone_id" {
 }
 
 output "rwx_filestore_config" {
-  value = (var.storage_type == "ha" && !var.enable_ipv6) ? jsonencode({
+  value = var.storage_type == "ha" ? jsonencode({
     "version" : 1,
     "storageDriverName" : "azure-netapp-files",
     "subscriptionID" : split("/", data.azurerm_subscription.current.id)[2],
@@ -166,10 +166,13 @@ output "rwx_filestore_config" {
     "clientSecret" : var.client_secret,
     "location" : local.aks_rg.location,
     "serviceLevel" : var.netapp_service_level,
-    "virtualNetwork" : local.vnet.name,
-    "subnet" : local.vnet.subnets["netapp"],
+    "virtualNetwork" : var.enable_ipv6 ? azurerm_virtual_network.netapp_ipv4[0].name : local.vnet.name,
+    "subnet" : var.enable_ipv6 ? {
+      "id" : azurerm_subnet.netapp_ipv4[0].id,
+      "address_prefixes" : azurerm_subnet.netapp_ipv4[0].address_prefixes
+    } : local.vnet.subnets["netapp"],
     "defaults" : {
-      "exportRule" : element(tolist(local.vnet.address_space), 0),
+      "exportRule" : var.enable_ipv6 ? var.vnet_address_space : element(tolist(local.vnet.address_space), 0),
     }
   }) : null
 }
