@@ -27,6 +27,8 @@ locals {
   # Conditional: Use module.vnet for IPv4, or extract from ARM template for IPv6
   vnet = var.enable_ipv6 ? null : module.vnet[0]
 
+  create_netapp_ipv4_vnet = var.enable_ipv6 && var.storage_type == "ha"
+
   # Kubernetes
   kubeconfig_filename = "${var.prefix}-aks-kubeconfig.conf"
   kubeconfig_path     = var.iac_tooling == "docker" ? "/workspace/${local.kubeconfig_filename}" : local.kubeconfig_filename
@@ -89,4 +91,3 @@ locals {
     : var.cluster_egress_type
   )
 }
-

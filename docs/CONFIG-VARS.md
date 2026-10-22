@@ -383,6 +383,30 @@ When `storage_type=standard`, a NFS Server VM is created, only when these variab
 
 When `storage_type=ha` (high availability), [Microsoft Azure NetApp Files](https://azure.microsoft.com/en-us/services/netapp/) service is created, only when these variables are applicable. Before using this storage option, read about how to [Register for Azure NetApp Files](https://docs.microsoft.com/en-us/azure/azure-netapp-files/azure-netapp-files-register) to ensure your Azure Subscription has been granted access to the service.
 
+When `enable_ipv6=true`, AKS remains dual-stack, but NFS storage traffic uses IPv4.
+[Azure NetApp Files does not support dual-stack VNets](https://learn.microsoft.com/en-us/azure/azure-netapp-files/azure-netapp-files-network-topologies).
+The IaC therefore creates a separate IPv4-only `<prefix>-netapp-vnet`, delegates its
+`<prefix>-netapp-subnet` to `Microsoft.Netapp/volumes`, and creates VNet peering in both
+directions with the AKS VNet. This requires permission to create both peerings.
+The NetApp export policy allows the IPv4 AKS and misc subnet ranges; IPv6 ranges are excluded.
+For cross-zone replication, the private DNS zone is linked to the AKS VNet so clients
+can resolve the NFS hostname.
+
+Set `netapp_vnet_address_space` to a range that does not overlap the AKS VNet or any
+other connected network. It defaults to `172.31.0.0/24` and is used for both the storage
+VNet and its delegated subnet. In this mode, `subnets["netapp"].prefixes` is not used.
+IPv4-only deployments retain their existing NetApp subnet behavior.
+
+```hcl
+enable_ipv6              = true
+storage_type             = "ha"
+netapp_vnet_address_space = "172.31.0.0/24"
+```
+
+After `terraform init`, run `terraform test -test-directory=test` from the repository
+root for the credential-free [NetApp networking regression tests](../test/netapp_network.tftest.hcl).
+These tests use mocked providers; they do not create Azure resources.
+
 **⚠️ CRITICAL LIMITATION FOR MULTI-AZ DEPLOYMENTS:**
 
 Azure NetApp Files with cross-zone replication **does NOT provide automatic failover** during zone failures:
@@ -398,6 +422,7 @@ Reference: [Reliability in Azure NetApp Files - Zone Failures](https://learn.mic
 
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
+| netapp_vnet_address_space | IPv4 CIDR for the dedicated NetApp VNet and subnet when dual-stack HA storage is enabled | string | "172.31.0.0/24" | Must be /29 or larger and must not overlap any connected network. Ignored unless `enable_ipv6=true` and `storage_type="ha"`. |
 | netapp_service_level | The target performance level of the file system. Valid values include Premium, Standard, or Ultra. | string | "Premium" | |
 | netapp_size_in_tb | Provisioned size of the pool in TB. Value must be between 1 and 2048. If less than 4, netapp_network_features must be set to `Standard` | number | 4 | |
 | netapp_protocols | The target volume protocol expressed as a list. Supported single value include CIFS, NFSv3, or NFSv4.1. If argument is not defined, it defaults to NFSv4.1. Changing this forces a new resource to be created and data will be lost. | list of strings | ["NFSv4.1"] | |

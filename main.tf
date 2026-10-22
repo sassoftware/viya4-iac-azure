@@ -407,16 +407,19 @@ module "netapp" {
   prefix              = var.prefix
   resource_group_name = local.aks_rg.name
   location            = var.location
-  subnet_id           = var.enable_ipv6 ? null : local.vnet.subnets["netapp"].id
-  vnet_id             = var.enable_ipv6 ? null : local.vnet.id
+  subnet_id           = var.enable_ipv6 ? azurerm_subnet.netapp_ipv4[0].id : local.vnet.subnets["netapp"].id
+  vnet_id             = var.enable_ipv6 ? data.azurerm_virtual_network.netapp_clients[0].id : local.vnet.id
   network_features    = var.netapp_network_features
   service_level       = var.netapp_service_level
   size_in_tb          = var.netapp_size_in_tb
   protocols           = var.netapp_protocols
   volume_path         = "${var.prefix}-${var.netapp_volume_path}"
   tags                = var.tags
-  allowed_clients     = var.enable_ipv6 ? [] : concat(local.vnet.subnets["aks"].address_prefixes, local.vnet.subnets["misc"].address_prefixes)
-  depends_on          = [module.vnet]
+  allowed_clients     = var.enable_ipv6 ? [
+    for cidr in concat(data.azurerm_subnet.aks_ipv6[0].address_prefixes, data.azurerm_subnet.misc_ipv6[0].address_prefixes) :
+    cidr if can(cidrnetmask(cidr))
+  ] : concat(local.vnet.subnets["aks"].address_prefixes, local.vnet.subnets["misc"].address_prefixes)
+  depends_on          = [module.vnet, azurerm_virtual_network_peering.aks_to_netapp, azurerm_virtual_network_peering.netapp_to_aks]
 
   community_netapp_volume_size = var.community_netapp_volume_size
   
