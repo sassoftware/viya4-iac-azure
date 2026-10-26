@@ -13,7 +13,7 @@ jobs:
     environment: terraformSecrets
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Build Docker Image
         run: docker build -t viya4-iac-azure:terratest -f Dockerfile.terratest .
       - name: Run Tests
