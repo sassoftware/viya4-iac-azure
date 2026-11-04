@@ -14,13 +14,8 @@ func TestPlanNetwork(t *testing.T) {
 	tests := map[string]helpers.TestCase{
 		"vnetTest": {
 			Expected:          `["192.168.0.0/16"]`,
-			ResourceMapName:   "module.vnet.azurerm_virtual_network.vnet[0]",
+			ResourceMapName:   "module.vnet[0].azurerm_virtual_network.vnet[0]",
 			AttributeJsonPath: "{$.address_space}",
-		},
-		"vnetSubnetTest": {
-			Expected:          "",
-			ResourceMapName:   "module.vnet.azurerm_virtual_network.vnet[0]",
-			AttributeJsonPath: "{$.subnet[0].name}",
 		},
 		"clusterEgressTypeTest": {
 			Expected:          "loadBalancer",

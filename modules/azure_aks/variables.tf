@@ -204,6 +204,14 @@ variable "aks_network_plugin_mode" {
   default     = "overlay"
 }
 
+# Reserved until azurerm supports ip_family=dualstack
+# tflint-ignore: terraform_unused_declarations
+variable "enable_ipv6" {
+  description = "Enable IPv6 dual-stack support on the AKS cluster (IPv4 + IPv6). Requires aks_network_plugin='azure' and load_balancer_sku='standard'."
+  type        = bool
+  default     = false
+}
+
 variable "aks_dns_service_ip" {
   description = "IP address within the Kubernetes service address range that will be used by cluster service discovery (kube-dns). Changing this forces a new resource to be created."
   type        = string
@@ -225,6 +233,19 @@ variable "aks_pod_cidr" {
 
 }
 
+# Reserved until azurerm supports ipv6_pod_cidr
+# tflint-ignore: terraform_unused_declarations
+variable "aks_pod_ipv6_cidr" {
+  description = "The IPv6 CIDR to use for pod IP addresses when enable_ipv6=true. Must be a /64 CIDR block. Required for dual-stack with Azure CNI."
+  type        = string
+  default     = "2001:db8::/64"
+
+  validation {
+    condition     = var.aks_pod_ipv6_cidr != null ? can(regex("^([0-9a-fA-F]{1,4}:)+:/64$", var.aks_pod_ipv6_cidr)) : true
+    error_message = "ERROR: aks_pod_ipv6_cidr - value must be a valid IPv6 CIDR with /64 prefix (e.g., 2001:db8::/64)."
+  }
+}
+
 variable "aks_service_cidr" {
   description = "The Network Range used by the Kubernetes service. Changing this forces a new resource to be created."
   type        = string
@@ -233,7 +254,30 @@ variable "aks_service_cidr" {
     condition     = var.aks_service_cidr != null ? can(cidrnetmask(var.aks_service_cidr)) : false
     error_message = "ERROR: aks_service_cidr - value must not be null and must be a valid CIDR."
   }
+}
 
+# Reserved until azurerm supports service_ipv6_cidr
+# tflint-ignore: terraform_unused_declarations
+variable "aks_service_ipv6_cidr" {
+  description = "The IPv6 Network Range used by the Kubernetes service. Required when enable_ipv6=true and aks_network_plugin='azure'. Must be a /108 CIDR block."
+  type        = string
+  default     = "2001:db8:1::/108"
+
+  validation {
+    condition     = var.aks_service_ipv6_cidr != null ? can(regex("^([0-9a-fA-F]{1,4}:)+:/108$", var.aks_service_ipv6_cidr)) : true
+    error_message = "ERROR: aks_service_ipv6_cidr - value must be a valid IPv6 CIDR with /108 prefix."
+  }
+}
+
+variable "load_balancer_sku" {
+  description = "The SKU of the Load Balancer. Possible values are standard and basic. For IPv6 dual-stack support, standard is required."
+  type        = string
+  default     = "standard"
+
+  validation {
+    condition     = contains(["standard", "basic"], var.load_balancer_sku)
+    error_message = "ERROR: load_balancer_sku - Possible values are standard and basic."
+  }
 }
 
 variable "aks_cluster_tags" {

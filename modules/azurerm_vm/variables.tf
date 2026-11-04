@@ -26,6 +26,12 @@ variable "vnet_subnet_id" {
   type        = string
 }
 
+variable "enable_ipv6" {
+  description = "Add a second, IPv6 ip_configuration to the VM NIC. Requires the subnet referenced by vnet_subnet_id to be dual-stack (have an IPv6 address prefix)."
+  type        = bool
+  default     = false
+}
+
 variable "machine_type" {
   description = "The size which should be used for this Virtual Machine, such as Standard_F2."
   type        = string

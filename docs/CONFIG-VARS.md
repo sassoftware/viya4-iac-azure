@@ -11,6 +11,7 @@ Supported configuration variables are listed in the tables below.  All variables
   - [Role Based Access Control](#role-based-access-control)
   - [Admin Access](#admin-access)
   - [Security](#security)
+    - [Ubuntu 22.04 FIPS Migration](#ubuntu-2204-fips-migration)
   - [Networking](#networking)
     - [Use Existing](#use-existing)
   - [General](#general)
@@ -136,13 +137,17 @@ Existing FIPS-enabled node pools can be migrated to Ubuntu 22.04 FIPS using one 
 
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | :--- |
+| enable_ipv6 | Enable IPv6 on VNet, subnets, and AKS. When true, AKS cluster uses IPv6 dual-stack (pods get IPv6 addresses) | bool | false | Requires `aks_network_plugin="azure"` and `aks_network_plugin_mode="overlay"`. See [IPv6 Dual Stack Configuration](./user/IPv6UsageGuide.md) for details, CIDR planning, and limitations. |
+| vnet_ipv6_address_space | IPv6 address space for created vnet | string | "fd00:1234:5678::/48" | Used when `enable_ipv6=true`. Must be a /48 CIDR block. This variable is ignored when vnet_name is set. |
+| aks_pod_ipv6_cidr | IPv6 CIDR to use for pod IP addresses | string | "fd00:10:244::/64" | Used when `enable_ipv6=true`. Must be a /64 CIDR block. |
+| aks_service_ipv6_cidr | IPv6 Network Range used by Kubernetes service | string | "fd00:10:0::/108" | Used when `enable_ipv6=true` and `aks_network_plugin='azure'`. Must be a /108 CIDR block. Must fall within vnet_ipv6_address_space. |
 | vnet_address_space | Address space for created vnet | string | "192.168.0.0/16" | This variable is ignored when vnet_name is set (AKA bring your own vnet). |
 | subnets | Subnets to be created and their settings | map(object) | *check below* | This variable is ignored when subnet_names is set (AKA bring your own subnets). All defined subnets must exist within the vnet address space. |
 | cluster_egress_type | The outbound (egress) routing method to be used for this Kubernetes Cluster | string | "loadBalancer" | Possible values: <ul><li>`loadBalancer`<li>`userDefinedRouting`</ul> By default, AKS will create and use a [loadbalancer](https://docs.microsoft.com/en-us/azure/aks/load-balancer-standard) for outgoing connections.<p>Set to `userDefinedRouting` when using your own network [egress](https://docs.microsoft.com/en-us/azure/aks/egress-outboundtype).|
-| aks_network_plugin | Network plugin to use for networking. | string | "azure"| Possible values are `azure` and `kubenet` (_deprecated_). For details see Azure's documentation on: [Configure kubenet](https://docs.microsoft.com/en-us/azure/aks/configure-kubenet), [Configure Azure CNI](https://learn.microsoft.com/en-us/azure/aks/configure-azure-cni).<br>**Note**: Azure Kubernetes kubenet is deprecated and will be retired. See [Microsoft's documentation](https://learn.microsoft.com/en-us/azure/aks/configure-kubenet) for details.<br><br>**Note on Upgrading**: If you are transitioning an existing cluster from `kubenet` to the new Azure CNI default, doing so directly via Terraform will permanently destroy your cluster. Please follow our [Network Plugin Upgrade Guide](./user/NetworkPluginUpgrade.md) to manually migrate your cluster via CLI and safely synchronize the Terraform state.<br><br>**Note**: To support Azure CNI (without an overlay network configuration) your Subnet must be large enough to accommodate the nodes, pods, and all Kubernetes and Azure resources that might be provisioned in your cluster.<br>To calculate the minimum subnet size including an additional node for upgrade operations use formula: `(number of nodes + 1) + ((number of nodes + 1) * maximum pods per node that you configure)` <br>Example for a 5 node cluster: `(5) + (5 * 110) = 555 (/22 or larger)`|
+| aks_network_plugin | Network plugin to use for networking. | string | "azure"| Possible values are `azure` and `kubenet` (_deprecated_). For details see Azure's documentation on: [Configure kubenet](https://docs.microsoft.com/en-us/azure/aks/configure-kubenet), [Configure Azure CNI](https://learn.microsoft.com/en-us/azure/aks/configure-azure-cni).<br>**Note**: IPv6 support requires `azure` plugin. Azure Kubernetes kubenet is deprecated and will be retired. See [Microsoft's documentation](https://learn.microsoft.com/en-us/azure/aks/configure-kubenet) for details.<br><br>**Note on Upgrading**: If you are transitioning an existing cluster from `kubenet` to the new Azure CNI default, doing so directly via Terraform will permanently destroy your cluster. Please follow our [Network Plugin Upgrade Guide](./user/NetworkPluginUpgrade.md) to manually migrate your cluster via CLI and safely synchronize the Terraform state.<br><br>**Note**: To support Azure CNI (without an overlay network configuration) your Subnet must be large enough to accommodate the nodes, pods, and all Kubernetes and Azure resources that might be provisioned in your cluster.<br>To calculate the minimum subnet size including an additional node for upgrade operations use formula: `(number of nodes + 1) + ((number of nodes + 1) * maximum pods per node that you configure)` <br>Example for a 5 node cluster: `(5) + (5 * 110) = 555 (/22 or larger)`|
 | aks_network_policy | Sets up network policy to be used with Azure CNI. Network policy allows to control the traffic flow between pods. | string | `null` | Possible values are `cilium`, `calico`, and `azure` (deprecated). Network policy `azure` (Azure Network Policy Manager - _Deprecated_) and `cilium` (Cilium Network Policy) are only supported for `aks_network_plugin = azure`. Network policy `calico` is supported for both `aks_network_plugin` values `azure` and `kubenet`.<br><br>**Note**: Enabling `cilium` dataplane requires using `cilium` network policy.<br><br>**Note**: Azure Network Policy Manager (NPM) is deprecated. See [Microsoft's documentation](https://learn.microsoft.com/en-us/azure/aks/use-network-policies#azure-network-policy-manager) for details. For more details see [network policies in Azure Kubernetes Service](https://learn.microsoft.com/en-us/azure/aks/use-network-policies).|
 | aks_network_dataplane | Network dataplane used in the Kubernetes cluster. | string | "azure" | Possible values are `azure` and `cilium`. For more details see [Azure CNI Networking](https://learn.microsoft.com/en-us/azure/aks/configure-azure-cni)|
-| aks_network_plugin_mode | Specifies the network plugin mode used for building the Kubernetes network. | string | "overlay" | Possible values are `overlay` and `null`. Provide `null` if you wish to use Azure CNI without overlay. When `aks_network_plugin_mode` is set to `overlay` , the `aks_network_plugin` field can only be set to `azure`. For details see Azure's documentation on: [Configure Azure CNI Overlay networking](https://learn.microsoft.com/en-us/azure/aks/azure-cni-overlay).|
+| aks_network_plugin_mode | Specifies the network plugin mode used for building the Kubernetes network. | string | "overlay" | Possible values are `overlay` and `null`. Provide `null` if you wish to use Azure CNI without overlay. When `aks_network_plugin_mode` is set to `overlay` , the `aks_network_plugin` field can only be set to `azure`. For details see Azure's documentation on: [Configure Azure CNI Overlay networking](https://learn.microsoft.com/en-us/azure/aks/azure-cni-overlay). Recommended for IPv6 dual-stack deployments. |
 
 The default values for the `subnets` variable are as follows:
 
@@ -378,6 +383,30 @@ When `storage_type=standard`, a NFS Server VM is created, only when these variab
 
 When `storage_type=ha` (high availability), [Microsoft Azure NetApp Files](https://azure.microsoft.com/en-us/services/netapp/) service is created, only when these variables are applicable. Before using this storage option, read about how to [Register for Azure NetApp Files](https://docs.microsoft.com/en-us/azure/azure-netapp-files/azure-netapp-files-register) to ensure your Azure Subscription has been granted access to the service.
 
+When `enable_ipv6=true`, AKS remains dual-stack, but NFS storage traffic uses IPv4.
+[Azure NetApp Files does not support dual-stack VNets](https://learn.microsoft.com/en-us/azure/azure-netapp-files/azure-netapp-files-network-topologies).
+The IaC therefore creates a separate IPv4-only `<prefix>-netapp-vnet`, delegates its
+`<prefix>-netapp-subnet` to `Microsoft.Netapp/volumes`, and creates VNet peering in both
+directions with the AKS VNet. This requires permission to create both peerings.
+The NetApp export policy allows the IPv4 AKS and misc subnet ranges; IPv6 ranges are excluded.
+For cross-zone replication, the private DNS zone is linked to the AKS VNet so clients
+can resolve the NFS hostname.
+
+Set `netapp_vnet_address_space` to a range that does not overlap the AKS VNet or any
+other connected network. It defaults to `172.31.0.0/24` and is used for both the storage
+VNet and its delegated subnet. In this mode, `subnets["netapp"].prefixes` is not used.
+IPv4-only deployments retain their existing NetApp subnet behavior.
+
+```hcl
+enable_ipv6              = true
+storage_type             = "ha"
+netapp_vnet_address_space = "172.31.0.0/24"
+```
+
+After `terraform init`, run `terraform test -test-directory=test` from the repository
+root for the credential-free [NetApp networking regression tests](../test/netapp_network.tftest.hcl).
+These tests use mocked providers; they do not create Azure resources.
+
 **⚠️ CRITICAL LIMITATION FOR MULTI-AZ DEPLOYMENTS:**
 
 Azure NetApp Files with cross-zone replication **does NOT provide automatic failover** during zone failures:
@@ -393,6 +422,7 @@ Reference: [Reliability in Azure NetApp Files - Zone Failures](https://learn.mic
 
 | Name | Description | Type | Default | Notes |
 | :--- | ---: | ---: | ---: | ---: |
+| netapp_vnet_address_space | IPv4 CIDR for the dedicated NetApp VNet and subnet when dual-stack HA storage is enabled | string | "172.31.0.0/24" | Must be /29 or larger and must not overlap any connected network. Ignored unless `enable_ipv6=true` and `storage_type="ha"`. |
 | netapp_service_level | The target performance level of the file system. Valid values include Premium, Standard, or Ultra. | string | "Premium" | |
 | netapp_size_in_tb | Provisioned size of the pool in TB. Value must be between 1 and 2048. If less than 4, netapp_network_features must be set to `Standard` | number | 4 | |
 | netapp_protocols | The target volume protocol expressed as a list. Supported single value include CIFS, NFSv3, or NFSv4.1. If argument is not defined, it defaults to NFSv4.1. Changing this forces a new resource to be created and data will be lost. | list of strings | ["NFSv4.1"] | |
