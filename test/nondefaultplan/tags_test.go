@@ -34,7 +34,7 @@ func TestPlanTagsPropagation(t *testing.T) {
 		},
 		"vnetTagEnv": {
 			Expected:          "test",
-			ResourceMapName:   "module.vnet.azurerm_virtual_network.vnet[0]",
+			ResourceMapName:   "module.vnet[0].azurerm_virtual_network.vnet[0]",
 			AttributeJsonPath: "{$.tags.env}",
 			Message:           "VNet must carry the env tag",
 		},
