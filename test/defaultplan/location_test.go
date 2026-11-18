@@ -77,7 +77,7 @@ func TestPlanLocation(t *testing.T) {
 		},
 		"virtualNetworkVNETLocationTest": {
 			Expected:          "eastus",
-			ResourceMapName:   "module.vnet.azurerm_virtual_network.vnet[0]",
+			ResourceMapName:   "module.vnet[0].azurerm_virtual_network.vnet[0]",
 			AttributeJsonPath: "{$.location}",
 		},
 	}

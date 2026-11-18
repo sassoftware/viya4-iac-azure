@@ -32,6 +32,6 @@ func TestPlanSubnets(t *testing.T) {
 		},
 	}
 
-	resourceMapNameFmt := "module.vnet.azurerm_subnet.subnet[\"%s\"]"
+	resourceMapNameFmt := "module.vnet[0].azurerm_subnet.subnet[\"%s\"]"
 	helpers.RunTupleTests(t, resourceMapNameFmt, tests, helpers.GetDefaultPlan(t))
 }
