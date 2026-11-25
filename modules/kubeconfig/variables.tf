@@ -46,9 +46,11 @@ variable "client_crt" {
 variable "client_key" {
   description = "Base64 encoded private key used by clients to authenticate to the Kubernetes cluster."
   type        = string
+  sensitive   = true
 }
 
 variable "token" {
   description = "A password or token used to authenticate to the Kubernetes cluster."
   type        = string
+  sensitive   = true
 }

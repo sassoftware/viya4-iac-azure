@@ -95,22 +95,42 @@ You can use `default_public_access_cidrs` to set a default range for all created
 
 **NOTE:** In a SCIM environment, the AzureActiveDirectory service tag must be granted access to port 443/HTTPS for the Ingress IP address.
 
+
 ## Security
 
-The Federal Information Processing Standard (FIPS) 140 is a US government standard that defines minimum security requirements for cryptographic modules in information technology products and systems. Azure Kubernetes Service (AKS) allows the creation of node pools with FIPS 140-2 enabled. Deployments running on FIPS-enabled node pools provide increased security and help meet security controls as part of FedRAMP compliance. For more information on FIPS 140-2, see [Federal Information Processing Standard (FIPS) 140](https://learn.microsoft.com/en-us/azure/compliance/offerings/offering-fips-140-2).
+The [Federal Information Processing Standard (FIPS) 140](https://learn.microsoft.com/en-us/azure/compliance/offerings/offering-fips-140-2) is a U.S. government standard that defines minimum security requirements for cryptographic modules in information technology products and systems.
 
-To enable the FIPS support in your subscription, you first need to accept the legal terms of the `Ubuntu Pro FIPS 22.04 LTS` image that will be used in the deployment. For details see [Ubuntu Pro FIPS 22.04 LTS](https://azuremarketplace.microsoft.com/en-us/marketplace/apps/canonical.0001-com-ubuntu-pro-jammy-fips?tab=Overview).
+Azure Kubernetes Service (AKS) supports FIPS-enabled node pools that help organizations meet security and compliance requirements, including FedRAMP-related controls.
 
-To accept the terms please run following az command before deploying cluster:
+To enable FIPS support in your Azure subscription, you must first accept the legal terms for the Ubuntu Pro FIPS 22.04 LTS image:
 
 ```bash
-az vm image terms accept --urn Canonical:0001-com-ubuntu-pro-jammy-fips:pro-fips-22_04:latest --subscription $subscription_id
+az vm image terms accept \
+  --urn Canonical:0001-com-ubuntu-pro-jammy-fips:pro-fips-22_04:latest \
+  --subscription $subscription_id
 ```
 
+### Ubuntu 22.04 FIPS Migration
+
+Ubuntu 22.04 FIPS support is dependent on AKS release availability, Kubernetes version compatibility, and regional rollout status.
+
+Existing FIPS-enabled node pools can be migrated to Ubuntu 22.04 FIPS using one of the following approaches, where supported by AKS:
+
+1. Upgrade existing FIPS-enabled node pools to Kubernetes 1.35+ using the `Ubuntu` OS SKU. When supported by AKS, node pools will transition from the Ubuntu 20.04 FIPS image to the Ubuntu 22.04 FIPS image during the upgrade process.
+
+2. Update existing FIPS-enabled node pools running supported Kubernetes versions to the `Ubuntu2204` OS SKU. When supported by AKS, node pools will transition from the Ubuntu 20.04 FIPS image to the Ubuntu 22.04 FIPS image.
+
+> **Important**
+>
+> - Availability of Ubuntu 22.04 FIPS images depends on Kubernetes version support, AKS rollout status, and regional availability.
+> - AKS determines the node image used for a node pool based on supported Kubernetes version and OS SKU combinations.
+> - During validation, Ubuntu 22.04 FIPS image support was observed with Kubernetes 1.35.
+> - Always validate the deployed node image after cluster creation or upgrade to confirm the expected operating system version has been provisioned.
+
 | Name | Description | Type | Default | Notes |
-| :--- | ---: | ---: | ---: | ---: |
-| fips_enabled | Enables the Federal Information Processing Standard for all the nodes and VMs in this cluster | bool | false | Make sure to accept terms mentioned above before deploying. |
-| enable_workload_identity | Enable Azure Workload Identity for AKS | bool | false | Automatically enables OIDC issuer; requires Azure AD integration. |
+|------|-------------|------|---------|-------|
+| fips_enabled | Enables FIPS support for all AKS node pools and supporting virtual machines in the deployment. | bool | false | Ensure the Ubuntu Pro FIPS image terms have been accepted before deployment. |
+| enable_workload_identity | Enable Azure Workload Identity for AKS. | bool | false | Automatically enables OIDC issuer; requires Azure AD integration. |
 
 ## Networking
 
@@ -202,12 +222,12 @@ Ubuntu 22.04 LTS is the operating system used on the Jump/NFS servers. Ubuntu cr
 | :--- | ---: | ---: | ---: | ---: |
 | partner_id | A GUID that is registered with Microsoft to facilitate partner resource usage attribution | string | "5d27f3ae-e49c-4dea-9aa3-b44e4750cd8c" | Defaults to SAS partner GUID. When you deploy this Terraform configuration, Microsoft can identify the installation of SAS software with the deployed Azure resources. Microsoft can then correlate the resources that are used to support the software. Microsoft collects this information to provide the best experiences with their products and to operate their business. The data is collected and governed by Microsoft's privacy policies, located at https://www.microsoft.com/trustcenter. |
 | create_static_kubeconfig | Allows the user to create a provider / service account-based kubeconfig file | bool | true | A value of `false` will default to using the cloud provider's mechanism for generating the kubeconfig file. A value of `true` will create a static kubeconfig that uses a `Service Account` and `Cluster Role Binding` to provide credentials. |
-| kubernetes_version | The AKS cluster Kubernetes version | string | "1.34" | Use of specific versions is still supported. If you need exact kubernetes version please use format `x.y.z`, where `x` is the major version, `y` is the minor version, and `z` is the patch version |
+| kubernetes_version | The AKS cluster Kubernetes version | string | "1.35" | Use of specific versions is still supported. If you need exact kubernetes version please use format `x.y.z`, where `x` is the major version, `y` is the minor version, and `z` is the patch version |
 | create_jump_vm | Create bastion host | bool | true | |
 | create_jump_public_ip | Add public IP address to the jump VM | bool | true | |
 | enable_jump_public_static_ip | Enables `Static` allocation method for the public IP address of Jump Server. Setting false will enable `Dynamic` allocation method. | bool | true | Only used with `create_jump_public_ip=true` |
 | jump_vm_admin | Operating system Admin User for the jump VM | string | "jumpuser" | |
-| jump_vm_machine_type | SKU to use for the jump VM | string | "Standard_B2s" | To check for valid types for your subscription, run: `az vm list-skus --resource-type virtualMachines --subscription $subscription --location $location -o table` |
+| jump_vm_machine_type | SKU to use for the jump VM | string | "Standard_D2ls_v5" | To check for valid types for your subscription, run: `az vm list-skus --resource-type virtualMachines --subscription $subscription --location $location -o table` |
 | jump_rwx_filestore_path | File store mount point on jump server | string | "/viya-share" | This location cannot include `/mnt` as its root location. This disk is ephemeral on Ubuntu, which is the operating system being used for the jump/NFS servers. |
 | tags | Map of common tags to be placed on all Azure resources created by this script | map | { project_name = "sasviya4", environment = "dev" } | |
 | aks_identity | Use UserAssignedIdentity or Service Principal as [AKS identity](https://docs.microsoft.com/en-us/azure/aks/concepts-identity) | string | "uai" | A value of `uai` wil create a Managed Identity based on the permissions of the authenticated user or use [`AKS_UAI_NAME`](#use-existing), if set. A value of `sp` will use values from [`CLIENT_ID`/`CLIENT_SECRET`](#azure-authentication), if set. |
@@ -435,7 +455,7 @@ Each server element, like `foo = {}`, can contain none, some, or all of the para
 | geo_redundant_backup_enabled | Enable Geo-redundant or not for server backup | bool | false | Not supported for the basic tier. |
 | administrator_login | The Administrator Login for the PostgreSQL Flexible Server. Changing this forces a new resource to be created. | string | "pgadmin" | The admin login name cannot be azure_superuser, azure_pg_admin, admin, administrator, root, guest, or public. It cannot start with pg_. See: [Microsoft Quickstart Server Database](https://docs.microsoft.com/en-us/azure/postgresql/flexible-server/quickstart-create-server-portal) |
 | administrator_password | The Password associated with the administrator_login for the PostgreSQL Flexible Server | string | "my$up3rS3cretPassw0rd" | The password must contain between 8 and 128 characters and must contain characters from three of the following categories: English uppercase letters, English lowercase letters, numbers (0 through 9), and non-alphanumeric characters (!, $, #, %, etc.). |
-| server_version | The version of the PostgreSQL Flexible server instance | string | "15" | Refer to the [SAS Viya Platform Administration Guide](https://documentation.sas.com/?cdcId=sasadmincdc&cdcVersion=default&docsetId=itopssr&docsetTarget=p05lfgkwib3zxbn1t6nyihexp12n.htm#p1wq8ouke3c6ixn1la636df9oa1u) for the supported versions of PostgreSQL for the SAS Viya platform. |
+| server_version | The version of the PostgreSQL Flexible server instance | string | "16" | Refer to the [SAS Viya Platform Administration Guide](https://documentation.sas.com/?cdcId=sasadmincdc&cdcVersion=default&docsetId=itopssr&docsetTarget=p05lfgkwib3zxbn1t6nyihexp12n.htm#p1wq8ouke3c6ixn1la636df9oa1u) for the supported versions of PostgreSQL for the SAS Viya platform. |
 | ssl_enforcement_enabled | Enforce SSL on connection to the Azure Database for PostgreSQL Flexible server instance | bool | true | |
 | connectivity_method | Network connectivity option to connect to your flexible server. There are two connectivity options available: Public access (allowed IP addresses) and Private access (VNet Integration). Defaults to public access with firewall rules enabled.| string | "public" | Valid options are `public` and `private`. See sample input file [here](../examples/sample-input-postgres.tfvars) and Private access documentation [here](./user/PostgreSQLPrivateAccess.md). For more details see [Networking overview](https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/concepts-networking) |
 | postgresql_configurations | Sets a PostgreSQL Configuration value on a Azure PostgreSQL Flexible Server | list(object) | [{ name : "azure.extensions", value : "PGCRYPTO" }] | More details can be found [here](https://docs.microsoft.com/en-us/azure/postgresql/flexible-server/howto-configure-server-parameters-using-cli) |
