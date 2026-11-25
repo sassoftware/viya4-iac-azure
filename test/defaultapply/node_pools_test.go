@@ -54,8 +54,11 @@ func testAdditionalNodePool(t *testing.T, plan *terraform.PlanStruct, cluster *c
 		return
 	}
 
-	// autoscale_node_pool is always used for the default pools (min != max for all 4)
+	// autoscale_node_pool is used when min != max (all 4 default pools); otherwise static_node_pool
 	poolResourceMapName := fmt.Sprintf("module.node_pools[\"%s\"].azurerm_kubernetes_cluster_node_pool.autoscale_node_pool[0]", poolName)
+	if _, exists := plan.ResourcePlannedValuesMap[poolResourceMapName]; !exists {
+		poolResourceMapName = fmt.Sprintf("module.node_pools[\"%s\"].azurerm_kubernetes_cluster_node_pool.static_node_pool[0]", poolName)
+	}
 
 	tests := map[string]helpers.ApplyTestCase{
 		poolName + "PoolProvisioningStateTest": {
