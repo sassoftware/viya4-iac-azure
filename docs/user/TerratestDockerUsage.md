@@ -78,6 +78,21 @@ docker run --rm \
   -r=".*Apply.*"
 ```
 
+### Running the Apply Tests Against an Existing Deployment
+
+To validate infrastructure that was already created (for example with the viya4-iac-azure Docker image) instead of having Terratest create and destroy it, set `TERRATEST_EXISTING_TFSTATE` to the path of that deployment's `terraform.tfstate` inside the container. In this mode no `terraform apply`/`destroy` is run and `TF_VAR_public_cidrs` is not required; expected values are read from the state file and compared against the live Azure resources.
+
+```bash
+# Run from the ./viya4-iac-azure directory
+docker run --rm \
+  --env-file=$HOME/.azure_docker_creds.env \
+  --env TERRATEST_EXISTING_TFSTATE=/workspace/terraform.tfstate \
+  --volume "$(pwd)":/viya4-iac-azure \
+  --volume /path/to/iac/workspace:/workspace:ro \
+  viya4-iac-azure-terratest \
+  -r="TestApplyDefaultMain" -v
+```
+
 ### Running a Specific Go Test
 
 To run a specific test, run the following Docker command with the `-r` option:

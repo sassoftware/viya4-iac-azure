@@ -4,6 +4,8 @@
 package helpers
 
 import (
+	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -12,10 +14,21 @@ import (
 	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	test_structure "github.com/gruntwork-io/terratest/modules/test-structure"
+	tfjson "github.com/hashicorp/terraform-json"
 	"github.com/stretchr/testify/require"
 )
 
+// ExistingStateEnvVar, when set to the path of a terraform.tfstate file, makes the apply
+// tests validate that already-deployed infrastructure instead of creating and destroying it.
+const ExistingStateEnvVar = "TERRATEST_EXISTING_TFSTATE"
+
 func InitPlanAndApply(t *testing.T, overrides map[string]interface{}) (*terraform.Options, *terraform.PlanStruct) {
+	if statePath := os.Getenv(ExistingStateEnvVar); statePath != "" {
+		validateEnvVars(t, "TF_VAR_client_id", "TF_VAR_client_secret", "TF_VAR_tenant_id", "TF_VAR_subscription_id")
+		t.Logf("%s is set; testing existing deployment from %s (no apply/destroy)", ExistingStateEnvVar, statePath)
+		return nil, LoadPlanFromState(t, statePath)
+	}
+
 	validateEnvVars(t, "TF_VAR_client_id", "TF_VAR_client_secret", "TF_VAR_tenant_id",
 		"TF_VAR_subscription_id", "TF_VAR_public_cidrs")
 
@@ -49,6 +62,57 @@ func InitPlanAndApply(t *testing.T, overrides map[string]interface{}) (*terrafor
 	return options, plan
 }
 
+// LoadPlanFromState builds a PlanStruct whose ResourcePlannedValuesMap is populated from an
+// existing terraform.tfstate, so the apply tests can compare live Azure resources against it.
+func LoadPlanFromState(t *testing.T, statePath string) *terraform.PlanStruct {
+	data, err := os.ReadFile(statePath)
+	require.NoError(t, err, "Unable to read terraform state file %s", statePath)
+
+	var state struct {
+		Resources []struct {
+			Module    string `json:"module"`
+			Mode      string `json:"mode"`
+			Type      string `json:"type"`
+			Name      string `json:"name"`
+			Instances []struct {
+				IndexKey   interface{}            `json:"index_key"`
+				Attributes map[string]interface{} `json:"attributes"`
+			} `json:"instances"`
+		} `json:"resources"`
+	}
+	require.NoError(t, json.Unmarshal(data, &state), "Unable to parse terraform state file %s", statePath)
+
+	resources := make(map[string]*tfjson.StateResource)
+	for _, r := range state.Resources {
+		address := r.Type + "." + r.Name
+		if r.Mode == "data" {
+			address = "data." + address
+		}
+		if r.Module != "" {
+			address = r.Module + "." + address
+		}
+		for _, instance := range r.Instances {
+			instanceAddress := address
+			switch key := instance.IndexKey.(type) {
+			case float64:
+				instanceAddress += fmt.Sprintf("[%d]", int(key))
+			case string:
+				instanceAddress += fmt.Sprintf("[%q]", key)
+			}
+			resources[instanceAddress] = &tfjson.StateResource{
+				Address:         instanceAddress,
+				Type:            r.Type,
+				Name:            r.Name,
+				Index:           instance.IndexKey,
+				AttributeValues: instance.Attributes,
+			}
+		}
+	}
+	require.NotEmpty(t, resources, "No resources found in terraform state file %s", statePath)
+
+	return &terraform.PlanStruct{ResourcePlannedValuesMap: resources}
+}
+
 func validateEnvVars(t *testing.T, vars ...string) {
 	for _, v := range vars {
 		if os.Getenv(v) == "" {
@@ -58,6 +122,12 @@ func validateEnvVars(t *testing.T, vars ...string) {
 }
 
 func DestroyDouble(t *testing.T, terraformOptions *terraform.Options) {
+	// Existing deployment mode: infrastructure is not owned by the test, never destroy it
+	if terraformOptions == nil {
+		t.Log("Existing deployment mode; skipping destroy")
+		return
+	}
+
 	// Destroy the resources we created
 	_, err := terraform.DestroyE(t, terraformOptions)
 	if err != nil {
