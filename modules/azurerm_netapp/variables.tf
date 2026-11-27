@@ -81,7 +81,7 @@ variable "netapp_availability_zone" {
   default     = "1"
   
   validation {
-    condition     = var.netapp_availability_zone == null || contains(["1", "2", "3"], var.netapp_availability_zone)
+    condition     = var.netapp_availability_zone == null ? true : contains(["1", "2", "3"], var.netapp_availability_zone)
     error_message = "NetApp availability zone must be '1', '2', '3', or null."
   }
 }
@@ -99,7 +99,7 @@ variable "netapp_replication_zone" {
   default     = "2"
   
   validation {
-    condition     = var.netapp_replication_zone == null || contains(["1", "2", "3"], var.netapp_replication_zone)
+    condition     = var.netapp_replication_zone == null ? true : contains(["1", "2", "3"], var.netapp_replication_zone)
     error_message = "NetApp replication zone must be '1', '2', '3', or null."
   }
   
