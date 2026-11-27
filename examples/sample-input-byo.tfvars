@@ -41,6 +41,7 @@ postgres_servers = {
 
 # Azure Container Registry config
 create_container_registry           = false
+container_registry_name             = ""
 container_registry_sku              = "Standard"
 container_registry_admin_enabled    = false
 

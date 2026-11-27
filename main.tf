@@ -99,7 +99,7 @@ module "vnet" {
 
 resource "azurerm_container_registry" "acr" {
   count               = var.create_container_registry ? 1 : 0
-  name                = join("", regexall("[a-zA-Z0-9]+", "${var.prefix}acr")) # alpha numeric characters only are allowed
+  name                = join("", regexall("[a-zA-Z0-9]+", "${var.prefix}${var.container_registry_name}acr")) # alpha numeric characters only are allowed
   resource_group_name = local.aks_rg.name
   location            = var.location
   sku                 = local.container_registry_sku
@@ -114,6 +114,14 @@ resource "azurerm_container_registry" "acr" {
     }
   }
   tags = var.tags
+}
+
+resource "azurerm_role_assignment" "acr_pull" {
+  count                            = var.create_container_registry ? 1 : 0
+  principal_id                     = module.aks.kubelet_identity_object_id
+  role_definition_name             = "AcrPull"
+  scope                            = azurerm_container_registry.acr[0].id
+  skip_service_principal_aad_check = true
 }
 
 resource "azurerm_network_security_rule" "acr" {
